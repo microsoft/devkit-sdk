@@ -1,0 +1,114 @@
+{
+  "packages": [
+    {
+      "name": "azureboard",
+      "maintainer": "Jane Developer",
+      "websiteURL": "https://github.com/Microsoft/customized_board_Arduino",
+      "email": "renhel@microsoft.com",
+      "help": {
+        "online": "https://github.com/Microsoft/customized_board_Arduino"
+      },
+      "platforms": [
+        {
+          "name": "Azure Customized Boards",
+          "architecture": "stm32f4",
+          "version": "1.0.0",
+          "category": "Contributed",
+          "help": {
+            "online": "https://github.com/Microsoft/customized_board_Arduino"
+          },
+          "url": "https://github.com/Microsoft/customized_board_Arduino/azurebit/azurecustomizedboards-1.0.0.zip",
+          "archiveFileName": "azurecustomizedboards-1.0.0.zip",
+          "checksum": "SHA-256:ec3ff8a1dc96d3ba6f432b9b837a35fd4174a34b3d2927de1d51010e8b94f9f1",
+          "size": "15005",
+          "boards": [
+            {"name": "AzureBit"},
+
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "azureboard",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "azureboard",
+              "name": "STM32Tools",
+              "version": "2016.9.16"
+            }
+          ]
+        }
+      ],
+      "tools":[
+	          {
+          "name": "arm-none-eabi-gcc",
+          "version": "4.8.3-2014q1",
+          "systems": [
+            {
+              "host": "i686-mingw32",
+              "archiveFileName": "gcc-arm-none-eabi-4.8.3-2014q1-windows.tar.gz",
+              "url": "http://downloads.arduino.cc/gcc-arm-none-eabi-4.8.3-2014q1-windows.tar.gz",
+              "checksum": "SHA-256:fd8c111c861144f932728e00abd3f7d1107e186eb9cd6083a54c7236ea78b7c2",
+              "size": "84537449"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "url": "http://downloads.arduino.cc/gcc-arm-none-eabi-4.8.3-2014q1-mac.tar.gz",
+              "archiveFileName": "gcc-arm-none-eabi-4.8.3-2014q1-mac.tar.gz",
+              "checksum": "SHA-256:3598acf21600f17a8e4a4e8e193dc422b894dc09384759b270b2ece5facb59c2",
+              "size": "52518522"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "url": "http://downloads.arduino.cc/gcc-arm-none-eabi-4.8.3-2014q1-linux64.tar.gz",
+              "archiveFileName": "gcc-arm-none-eabi-4.8.3-2014q1-linux64.tar.gz",
+              "checksum": "SHA-256:d23f6626148396d6ec42a5b4d928955a703e0757829195fa71a939e5b86eecf6",
+              "size": "51395093"
+            },
+            {
+              "host": "i686-pc-linux-gnu",
+              "url": "http://downloads.arduino.cc/gcc-arm-none-eabi-4.8.3-2014q1-linux32.tar.gz",
+              "archiveFileName": "gcc-arm-none-eabi-4.8.3-2014q1-linux32.tar.gz",
+              "checksum": "SHA-256:ba1994235f69c526c564f65343f22ddbc9822b2ea8c5ee07dd79d89f6ace2498",
+              "size": "51029223"
+            }
+          ]
+        },
+        {
+          "name": "STM32Tools",
+          "version": "2016.9.16",
+          "systems": [
+            {
+              "host": "i686-linux-gnu",
+              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
+              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
+              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
+              "size": "6084"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
+              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
+              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
+              "size": "6084"
+            },
+            {
+              "host": "i686-mingw32",
+              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
+              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
+              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
+              "size": "6084"
+            },
+            {
+              "host": "i386-apple-darwin11",
+              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
+              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
+              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
+              "size": "6084"
+            }
+          ]
+        }
+	  ]
+    }
+  ]
+}
