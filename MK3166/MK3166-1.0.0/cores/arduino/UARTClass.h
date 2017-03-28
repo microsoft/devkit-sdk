@@ -20,22 +20,33 @@
 #define _UART_CLASS_
 
 #include "mbed.h"
+#include "HardwareSerial.h"
 
-class UARTClass
+class UARTClass : public Stream
 {
   public:
-   UARTClass()
-   {
-	   serial = new MbedSerial(STDIO_UART_TX, STDIO_UART_RX, 9600);
-   }  
+    UARTClass()
+    {
+      serial = new MbedSerial(STDIO_UART_TX, STDIO_UART_RX);
+    }  
 
-   ~ UARTClass()
-   {
+    ~ UARTClass()
+    {
       //delete serial;
-   }
+    }
 
-   void print(char *s);
-   
+    void begin(const uint32_t dwBaudRate);
+    void end(void);
+    int read(void);
+
+    int available(void);
+    int peek(void);
+    void flush(void);
+
+    size_t write(const uint8_t c);
+
+    using Print::write; // pull in write(str) and write(buf, size) from Print
+
   protected:
     MbedSerial *serial;
 };

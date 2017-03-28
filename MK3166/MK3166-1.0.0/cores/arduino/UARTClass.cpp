@@ -18,10 +18,40 @@
 
 #include "UARTClass.h"
 
-void UARTClass::print(char *s)
+void UARTClass::begin(const uint32_t dwBaudRate)
 {
-  serial->printf((char const *)s);
+  serial->baud(dwBaudRate);
 }
-// Public Methods //////////////////////////////////////////////////////////////
+
+void UARTClass::end(void)
+{
+  // TODO
+}
+
+int  UARTClass::read(void)
+{
+  return 0;
+}
+
+size_t  UARTClass::write(const uint8_t c)
+{
+  serial->putc(c);
+  return 1;
+}
 
 
+int UARTClass::available( void )
+{
+  //return the amount of data available
+  return 0;
+}
+
+int UARTClass::peek( void )
+{
+  //return the last element of the rx buffer without removing it from the buffer
+  return 0;
+}
+
+void UARTClass::flush( void )
+{
+}

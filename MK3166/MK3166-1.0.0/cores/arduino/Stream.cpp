@@ -34,7 +34,7 @@ int Stream::timedRead() {
         c = read();
         if(c >= 0)
             return c;
-        yield();
+        //yield();
     } while(timer.read_ms() < _timeout);
     return -1;     // -1 indicates timeout
 }
