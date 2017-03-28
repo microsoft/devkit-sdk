@@ -32,11 +32,11 @@ extern char* mbed_gets(char *s, int size, FILE *_file);
  *
  * @Note Synchronization level: Set by subclass
  */
-class Stream : public FileLike {
+class MbedStream : public FileLike {
 
 public:
-    Stream(const char *name=NULL);
-    virtual ~Stream();
+    MbedStream(const char *name=NULL);
+    virtual ~MbedStream();
 
     int putc(int c);
     int puts(const char *s);
@@ -65,8 +65,8 @@ protected:
 
     /* disallow copy constructor and assignment operators */
 private:
-    Stream(const Stream&);
-    Stream & operator = (const Stream&);
+    MbedStream(const MbedStream&);
+    MbedStream & operator = (const MbedStream&);
 };
 
 } // namespace mbed

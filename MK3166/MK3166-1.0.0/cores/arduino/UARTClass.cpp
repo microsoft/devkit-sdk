@@ -20,7 +20,7 @@
 
 void UARTClass::print(char *s)
 {
-  serial->printf(s);
+  serial->printf((char const *)s);
 }
 // Public Methods //////////////////////////////////////////////////////////////
 

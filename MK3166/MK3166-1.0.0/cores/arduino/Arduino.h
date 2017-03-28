@@ -72,5 +72,7 @@ extern void loop( void ) ;
 #include "variant.h"
 
 #include "mbed.h"
-
+#include "WString.h"
+#include "WCharacter.h"
+#include "Stream.h"
 #endif

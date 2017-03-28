@@ -49,7 +49,7 @@ namespace mbed {
  * }
  * @endcode
  */
-class MbedSerial : public SerialBase, public Stream {
+class MbedSerial : public SerialBase, public MbedStream {
 
 public:
 #if DEVICE_SERIAL_ASYNCH
