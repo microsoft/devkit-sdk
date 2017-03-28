@@ -1,0 +1,1014 @@
+
+stm32l4xx_hal.o:
+00000000 T HAL_DBGMCU_DisableDBGSleepMode
+00000000 T HAL_DBGMCU_DisableDBGStandbyMode
+00000000 T HAL_DBGMCU_DisableDBGStopMode
+00000000 T HAL_DBGMCU_EnableDBGSleepMode
+00000000 T HAL_DBGMCU_EnableDBGStandbyMode
+00000000 T HAL_DBGMCU_EnableDBGStopMode
+00000000 T HAL_DeInit
+00000000 W HAL_Delay
+00000000 T HAL_GetDEVID
+00000000 T HAL_GetHalVersion
+00000000 T HAL_GetREVID
+00000000 W HAL_GetTick
+00000000 W HAL_IncTick
+00000000 T HAL_Init
+00000000 W HAL_InitTick
+00000000 W HAL_MspDeInit
+00000000 W HAL_MspInit
+         U HAL_NVIC_SetPriority
+         U HAL_NVIC_SetPriorityGrouping
+00000000 W HAL_ResumeTick
+00000000 T HAL_SYSCFG_DisableIOAnalogSwitchBooster
+00000000 T HAL_SYSCFG_DisableMemorySwappingBank
+00000000 T HAL_SYSCFG_DisableVREFBUF
+00000000 T HAL_SYSCFG_EnableIOAnalogSwitchBooster
+00000000 T HAL_SYSCFG_EnableMemorySwappingBank
+00000000 T HAL_SYSCFG_EnableVREFBUF
+00000000 T HAL_SYSCFG_SRAM2Erase
+00000000 T HAL_SYSCFG_VREFBUF_HighImpedanceConfig
+00000000 T HAL_SYSCFG_VREFBUF_TrimmingConfig
+00000000 T HAL_SYSCFG_VREFBUF_VoltageScalingConfig
+         U HAL_SYSTICK_Config
+00000000 W HAL_SuspendTick
+         U SystemCoreClock
+00000004 C uwTick
+
+stm32l4xx_hal_adc.o:
+00000000 T ADC_ConversionStop
+00000000 T ADC_DMAConvCplt
+00000000 T ADC_DMAError
+00000000 T ADC_DMAHalfConvCplt
+00000000 T ADC_Disable
+00000000 T ADC_Enable
+         U HAL_ADCEx_EndOfSamplingCallback
+         U HAL_ADCEx_InjectedConvCpltCallback
+         U HAL_ADCEx_InjectedQueueOverflowCallback
+         U HAL_ADCEx_LevelOutOfWindow2Callback
+         U HAL_ADCEx_LevelOutOfWindow3Callback
+00000000 T HAL_ADC_AnalogWDGConfig
+00000000 T HAL_ADC_ConfigChannel
+00000000 W HAL_ADC_ConvCpltCallback
+00000000 W HAL_ADC_ConvHalfCpltCallback
+00000000 T HAL_ADC_DeInit
+00000000 W HAL_ADC_ErrorCallback
+00000000 T HAL_ADC_GetError
+00000000 T HAL_ADC_GetState
+00000000 T HAL_ADC_GetValue
+00000000 T HAL_ADC_IRQHandler
+00000000 T HAL_ADC_Init
+00000000 W HAL_ADC_LevelOutOfWindowCallback
+00000000 W HAL_ADC_MspDeInit
+00000000 W HAL_ADC_MspInit
+00000000 T HAL_ADC_PollForConversion
+00000000 T HAL_ADC_PollForEvent
+00000000 T HAL_ADC_Start
+00000000 T HAL_ADC_Start_DMA
+00000000 T HAL_ADC_Start_IT
+00000000 T HAL_ADC_Stop
+00000000 T HAL_ADC_Stop_DMA
+00000000 T HAL_ADC_Stop_IT
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_GetTick
+         U SystemCoreClock
+
+stm32l4xx_hal_adc_ex.o:
+         U ADC_ConversionStop
+         U ADC_DMAConvCplt
+         U ADC_DMAError
+         U ADC_DMAHalfConvCplt
+         U ADC_Disable
+         U ADC_Enable
+00000000 T HAL_ADCEx_Calibration_GetValue
+00000000 T HAL_ADCEx_Calibration_SetValue
+00000000 T HAL_ADCEx_Calibration_Start
+00000000 T HAL_ADCEx_DisableInjectedQueue
+00000000 T HAL_ADCEx_DisableVoltageRegulator
+00000000 T HAL_ADCEx_EnableInjectedQueue
+00000000 W HAL_ADCEx_EndOfSamplingCallback
+00000000 T HAL_ADCEx_EnterADCDeepPowerDownMode
+00000000 T HAL_ADCEx_InjectedConfigChannel
+00000000 W HAL_ADCEx_InjectedConvCpltCallback
+00000000 T HAL_ADCEx_InjectedGetValue
+00000000 T HAL_ADCEx_InjectedPollForConversion
+00000000 W HAL_ADCEx_InjectedQueueOverflowCallback
+00000000 T HAL_ADCEx_InjectedStart
+00000000 T HAL_ADCEx_InjectedStart_IT
+00000000 T HAL_ADCEx_InjectedStop
+00000000 T HAL_ADCEx_InjectedStop_IT
+00000000 W HAL_ADCEx_LevelOutOfWindow2Callback
+00000000 W HAL_ADCEx_LevelOutOfWindow3Callback
+00000000 T HAL_ADCEx_MultiModeConfigChannel
+00000000 T HAL_ADCEx_MultiModeGetValue
+00000000 T HAL_ADCEx_MultiModeStart_DMA
+00000000 T HAL_ADCEx_MultiModeStop_DMA
+00000000 T HAL_ADCEx_RegularMultiModeStop_DMA
+00000000 T HAL_ADCEx_RegularStop
+00000000 T HAL_ADCEx_RegularStop_DMA
+00000000 T HAL_ADCEx_RegularStop_IT
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_GetTick
+
+stm32l4xx_hal_can.o:
+
+stm32l4xx_hal_comp.o:
+
+stm32l4xx_hal_cortex.o:
+00000000 T HAL_MPU_ConfigRegion
+00000000 T HAL_NVIC_ClearPendingIRQ
+00000000 T HAL_NVIC_DisableIRQ
+00000000 T HAL_NVIC_EnableIRQ
+00000000 T HAL_NVIC_GetActive
+00000000 T HAL_NVIC_GetPendingIRQ
+00000000 T HAL_NVIC_GetPriority
+00000000 T HAL_NVIC_GetPriorityGrouping
+00000000 T HAL_NVIC_SetPendingIRQ
+00000000 T HAL_NVIC_SetPriority
+00000000 T HAL_NVIC_SetPriorityGrouping
+00000000 T HAL_NVIC_SystemReset
+00000000 T HAL_SYSTICK_CLKSourceConfig
+00000000 W HAL_SYSTICK_Callback
+00000000 T HAL_SYSTICK_Config
+00000000 T HAL_SYSTICK_IRQHandler
+
+stm32l4xx_hal_crc.o:
+00000000 t CRC_Handle_16
+00000000 t CRC_Handle_8
+         U HAL_CRCEx_Polynomial_Set
+00000000 T HAL_CRC_Accumulate
+00000000 T HAL_CRC_Calculate
+00000000 T HAL_CRC_DeInit
+00000000 T HAL_CRC_GetState
+00000000 T HAL_CRC_Init
+00000000 W HAL_CRC_MspDeInit
+00000000 W HAL_CRC_MspInit
+
+stm32l4xx_hal_crc_ex.o:
+00000000 T HAL_CRCEx_Input_Data_Reverse
+00000000 T HAL_CRCEx_Output_Data_Reverse
+00000000 T HAL_CRCEx_Polynomial_Set
+
+stm32l4xx_hal_cryp.o:
+
+stm32l4xx_hal_cryp_ex.o:
+
+stm32l4xx_hal_dac.o:
+00000000 t DAC_DMAConvCpltCh1
+         U DAC_DMAConvCpltCh2
+00000000 t DAC_DMAErrorCh1
+         U DAC_DMAErrorCh2
+00000000 t DAC_DMAHalfConvCpltCh1
+         U DAC_DMAHalfConvCpltCh2
+         U HAL_DACEx_DMAUnderrunCallbackCh2
+00000000 T HAL_DAC_ConfigChannel
+00000000 W HAL_DAC_ConvCpltCallbackCh1
+00000000 W HAL_DAC_ConvHalfCpltCallbackCh1
+00000000 W HAL_DAC_DMAUnderrunCallbackCh1
+00000000 T HAL_DAC_DeInit
+00000000 W HAL_DAC_ErrorCallbackCh1
+00000000 T HAL_DAC_GetError
+00000000 T HAL_DAC_GetState
+00000000 T HAL_DAC_GetValue
+00000000 T HAL_DAC_IRQHandler
+00000000 T HAL_DAC_Init
+00000000 W HAL_DAC_MspDeInit
+00000000 W HAL_DAC_MspInit
+00000000 T HAL_DAC_SetValue
+00000000 T HAL_DAC_Start
+00000000 T HAL_DAC_Start_DMA
+00000000 T HAL_DAC_Stop
+00000000 T HAL_DAC_Stop_DMA
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_Delay
+         U HAL_GetTick
+
+stm32l4xx_hal_dac_ex.o:
+00000000 T DAC_DMAConvCpltCh2
+00000000 T DAC_DMAErrorCh2
+00000000 T DAC_DMAHalfConvCpltCh2
+00000000 W HAL_DACEx_ConvCpltCallbackCh2
+00000000 W HAL_DACEx_ConvHalfCpltCallbackCh2
+00000000 W HAL_DACEx_DMAUnderrunCallbackCh2
+00000000 T HAL_DACEx_DualGetValue
+00000000 T HAL_DACEx_DualSetValue
+00000000 W HAL_DACEx_ErrorCallbackCh2
+00000000 T HAL_DACEx_GetTrimOffset
+00000000 T HAL_DACEx_NoiseWaveGenerate
+00000000 T HAL_DACEx_SelfCalibrate
+00000000 T HAL_DACEx_SetUserTrimming
+00000000 T HAL_DACEx_TriangleWaveGenerate
+         U HAL_Delay
+
+stm32l4xx_hal_dfsdm.o:
+
+stm32l4xx_hal_dma.o:
+00000000 T HAL_DMA_Abort
+00000000 T HAL_DMA_DeInit
+00000000 T HAL_DMA_GetError
+00000000 T HAL_DMA_GetState
+00000000 T HAL_DMA_IRQHandler
+00000000 T HAL_DMA_Init
+00000000 T HAL_DMA_PollForTransfer
+00000000 T HAL_DMA_Start
+00000000 T HAL_DMA_Start_IT
+         U HAL_GetTick
+
+stm32l4xx_hal_firewall.o:
+
+stm32l4xx_hal_flash.o:
+         U FLASH_FlushCaches
+         U FLASH_PageErase
+00000000 t FLASH_Program_Fast
+00000000 t FLASH_SetErrorCode
+00000000 T FLASH_WaitForLastOperation
+00000000 W HAL_FLASH_EndOfOperationCallback
+00000000 T HAL_FLASH_GetError
+00000000 T HAL_FLASH_IRQHandler
+00000000 T HAL_FLASH_Lock
+00000000 T HAL_FLASH_OB_Launch
+00000000 T HAL_FLASH_OB_Lock
+00000000 T HAL_FLASH_OB_Unlock
+00000000 W HAL_FLASH_OperationErrorCallback
+00000000 T HAL_FLASH_Program
+00000000 T HAL_FLASH_Program_IT
+00000000 T HAL_FLASH_Unlock
+         U HAL_GetTick
+0000001c C pFlash
+
+stm32l4xx_hal_flash_ex.o:
+00000000 T FLASH_FlushCaches
+00000000 t FLASH_MassErase
+00000000 T FLASH_PageErase
+         U FLASH_WaitForLastOperation
+00000000 T HAL_FLASHEx_Erase
+00000000 T HAL_FLASHEx_Erase_IT
+00000000 T HAL_FLASHEx_OBGetConfig
+00000000 T HAL_FLASHEx_OBProgram
+         U pFlash
+
+stm32l4xx_hal_flash_ramfunc.o:
+00000024 T HAL_FLASHEx_DisableRunPowerDown
+00000000 T HAL_FLASHEx_EnableRunPowerDown
+
+stm32l4xx_hal_gpio.o:
+00000000 T HAL_GPIO_DeInit
+00000000 W HAL_GPIO_EXTI_Callback
+00000000 T HAL_GPIO_EXTI_IRQHandler
+00000000 T HAL_GPIO_Init
+00000000 T HAL_GPIO_LockPin
+00000000 T HAL_GPIO_ReadPin
+00000000 T HAL_GPIO_TogglePin
+00000000 T HAL_GPIO_WritePin
+
+stm32l4xx_hal_hcd.o:
+
+stm32l4xx_hal_i2c.o:
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_GetTick
+00000000 W HAL_I2C_AddrCallback
+00000000 T HAL_I2C_DeInit
+00000000 T HAL_I2C_DisableListen_IT
+00000000 T HAL_I2C_ER_IRQHandler
+00000000 T HAL_I2C_EV_IRQHandler
+00000000 T HAL_I2C_EnableListen_IT
+00000000 W HAL_I2C_ErrorCallback
+00000000 T HAL_I2C_GetError
+00000000 T HAL_I2C_GetMode
+00000000 T HAL_I2C_GetState
+00000000 T HAL_I2C_Init
+00000000 T HAL_I2C_IsDeviceReady
+00000000 W HAL_I2C_ListenCpltCallback
+00000000 W HAL_I2C_MasterRxCpltCallback
+00000000 W HAL_I2C_MasterTxCpltCallback
+00000000 T HAL_I2C_Master_Abort_IT
+00000000 T HAL_I2C_Master_Receive
+00000000 T HAL_I2C_Master_Receive_DMA
+00000000 T HAL_I2C_Master_Receive_IT
+00000000 T HAL_I2C_Master_Sequential_Receive_IT
+00000000 T HAL_I2C_Master_Sequential_Transmit_IT
+00000000 T HAL_I2C_Master_Transmit
+00000000 T HAL_I2C_Master_Transmit_DMA
+00000000 T HAL_I2C_Master_Transmit_IT
+00000000 W HAL_I2C_MemRxCpltCallback
+00000000 W HAL_I2C_MemTxCpltCallback
+00000000 T HAL_I2C_Mem_Read
+00000000 T HAL_I2C_Mem_Read_DMA
+00000000 T HAL_I2C_Mem_Read_IT
+00000000 T HAL_I2C_Mem_Write
+00000000 T HAL_I2C_Mem_Write_DMA
+00000000 T HAL_I2C_Mem_Write_IT
+00000000 W HAL_I2C_MspDeInit
+00000000 W HAL_I2C_MspInit
+00000000 W HAL_I2C_SlaveRxCpltCallback
+00000000 W HAL_I2C_SlaveTxCpltCallback
+00000000 T HAL_I2C_Slave_Receive
+00000000 T HAL_I2C_Slave_Receive_DMA
+00000000 T HAL_I2C_Slave_Receive_IT
+00000000 T HAL_I2C_Slave_Sequential_Receive_IT
+00000000 T HAL_I2C_Slave_Sequential_Transmit_IT
+00000000 T HAL_I2C_Slave_Transmit
+00000000 T HAL_I2C_Slave_Transmit_DMA
+00000000 T HAL_I2C_Slave_Transmit_IT
+00000000 t I2C_DMAError
+00000000 t I2C_DMAMasterReceiveCplt
+00000000 t I2C_DMAMasterTransmitCplt
+00000000 t I2C_DMAMemReceiveCplt
+00000000 t I2C_DMAMemTransmitCplt
+00000000 t I2C_DMASlaveReceiveCplt
+00000000 t I2C_DMASlaveTransmitCplt
+00000000 t I2C_Disable_IRQ
+00000000 t I2C_IsAcknowledgeFailed
+00000000 t I2C_Master_ISR.part.7
+00000000 t I2C_RequestMemoryRead
+00000000 t I2C_RequestMemoryWrite
+00000000 t I2C_Slave_ISR
+00000000 t I2C_TransferConfig
+00000000 t I2C_WaitOnFlagUntilTimeout
+00000000 t I2C_WaitOnFlagUntilTimeout.part.2
+00000000 t I2C_WaitOnRXNEFlagUntilTimeout
+00000000 t I2C_WaitOnSTOPFlagUntilTimeout
+00000000 t I2C_WaitOnTXISFlagUntilTimeout
+
+stm32l4xx_hal_i2c_ex.o:
+00000000 T HAL_I2CEx_ConfigAnalogFilter
+00000000 T HAL_I2CEx_ConfigDigitalFilter
+00000000 T HAL_I2CEx_DisableFastModePlus
+00000000 T HAL_I2CEx_DisableWakeUp
+00000000 T HAL_I2CEx_EnableFastModePlus
+00000000 T HAL_I2CEx_EnableWakeUp
+
+stm32l4xx_hal_irda.o:
+
+stm32l4xx_hal_iwdg.o:
+
+stm32l4xx_hal_lcd.o:
+
+stm32l4xx_hal_lptim.o:
+
+stm32l4xx_hal_msp_template.o:
+00000000 T HAL_MspDeInit
+00000000 T HAL_MspInit
+00000000 T HAL_PPP_MspDeInit
+00000000 T HAL_PPP_MspInit
+
+stm32l4xx_hal_nand.o:
+
+stm32l4xx_hal_nor.o:
+
+stm32l4xx_hal_opamp.o:
+
+stm32l4xx_hal_opamp_ex.o:
+
+stm32l4xx_hal_pcd.o:
+
+stm32l4xx_hal_pcd_ex.o:
+
+stm32l4xx_hal_pwr.o:
+         U HAL_PWREx_DisableLowPowerRunMode
+         U HAL_PWREx_EnableLowPowerRunMode
+         U HAL_PWREx_EnterSTOP0Mode
+         U HAL_PWREx_EnterSTOP1Mode
+00000000 T HAL_PWR_ConfigPVD
+00000000 T HAL_PWR_DeInit
+00000000 T HAL_PWR_DisableBkUpAccess
+00000000 T HAL_PWR_DisablePVD
+00000000 T HAL_PWR_DisableSEVOnPend
+00000000 T HAL_PWR_DisableSleepOnExit
+00000000 T HAL_PWR_DisableWakeUpPin
+00000000 T HAL_PWR_EnableBkUpAccess
+00000000 T HAL_PWR_EnablePVD
+00000000 T HAL_PWR_EnableSEVOnPend
+00000000 T HAL_PWR_EnableSleepOnExit
+00000000 T HAL_PWR_EnableWakeUpPin
+00000000 T HAL_PWR_EnterSLEEPMode
+00000000 T HAL_PWR_EnterSTANDBYMode
+00000000 T HAL_PWR_EnterSTOPMode
+00000000 W HAL_PWR_PVDCallback
+
+stm32l4xx_hal_pwr_ex.o:
+00000000 T HAL_PWREx_ConfigPVM
+00000000 T HAL_PWREx_ControlVoltageScaling
+00000000 T HAL_PWREx_DisableBatteryCharging
+00000000 T HAL_PWREx_DisableGPIOPullDown
+00000000 T HAL_PWREx_DisableGPIOPullUp
+00000000 T HAL_PWREx_DisableInternalWakeUpLine
+00000000 T HAL_PWREx_DisableLowPowerRunMode
+00000000 T HAL_PWREx_DisablePVM1
+00000000 T HAL_PWREx_DisablePVM2
+00000000 T HAL_PWREx_DisablePVM3
+00000000 T HAL_PWREx_DisablePVM4
+00000000 T HAL_PWREx_DisablePullUpPullDownConfig
+00000000 T HAL_PWREx_DisableSRAM2ContentRetention
+00000000 T HAL_PWREx_DisableVddIO2
+00000000 T HAL_PWREx_DisableVddUSB
+00000000 T HAL_PWREx_EnableBatteryCharging
+00000000 T HAL_PWREx_EnableGPIOPullDown
+00000000 T HAL_PWREx_EnableGPIOPullUp
+00000000 T HAL_PWREx_EnableInternalWakeUpLine
+00000000 T HAL_PWREx_EnableLowPowerRunMode
+00000000 T HAL_PWREx_EnablePVM1
+00000000 T HAL_PWREx_EnablePVM2
+00000000 T HAL_PWREx_EnablePVM3
+00000000 T HAL_PWREx_EnablePVM4
+00000000 T HAL_PWREx_EnablePullUpPullDownConfig
+00000000 T HAL_PWREx_EnableSRAM2ContentRetention
+00000000 T HAL_PWREx_EnableVddIO2
+00000000 T HAL_PWREx_EnableVddUSB
+00000000 T HAL_PWREx_EnterSHUTDOWNMode
+00000000 T HAL_PWREx_EnterSTOP0Mode
+00000000 T HAL_PWREx_EnterSTOP1Mode
+00000000 T HAL_PWREx_EnterSTOP2Mode
+00000000 T HAL_PWREx_GetVoltageRange
+00000000 T HAL_PWREx_PVD_PVM_IRQHandler
+00000000 W HAL_PWREx_PVM1Callback
+00000000 W HAL_PWREx_PVM2Callback
+00000000 W HAL_PWREx_PVM3Callback
+00000000 W HAL_PWREx_PVM4Callback
+         U HAL_PWR_PVDCallback
+         U SystemCoreClock
+
+stm32l4xx_hal_qspi.o:
+
+stm32l4xx_hal_rcc.o:
+         U AHBPrescTable
+         U APBPrescTable
+         U HAL_GPIO_Init
+         U HAL_GetTick
+         U HAL_InitTick
+         U HAL_PWREx_GetVoltageRange
+00000000 W HAL_RCC_CSSCallback
+00000000 T HAL_RCC_ClockConfig
+00000000 T HAL_RCC_DeInit
+00000000 T HAL_RCC_EnableCSS
+00000000 T HAL_RCC_GetClockConfig
+00000000 T HAL_RCC_GetHCLKFreq
+00000000 T HAL_RCC_GetOscConfig
+00000000 T HAL_RCC_GetPCLK1Freq
+00000000 T HAL_RCC_GetPCLK2Freq
+00000000 T HAL_RCC_GetSysClockFreq
+00000000 T HAL_RCC_MCOConfig
+00000000 T HAL_RCC_NMI_IRQHandler
+00000000 T HAL_RCC_OscConfig
+         U MSIRangeTable
+00000000 t RCC_SetFlashLatencyFromMSIRange
+         U SystemCoreClock
+
+stm32l4xx_hal_rcc_ex.o:
+         U HAL_GPIO_Init
+         U HAL_GetTick
+         U HAL_PWR_DisableBkUpAccess
+         U HAL_PWR_EnableBkUpAccess
+00000000 T HAL_RCCEx_DisableLSCO
+00000000 T HAL_RCCEx_DisableLSECSS
+00000000 T HAL_RCCEx_DisableMSIPLLMode
+00000000 T HAL_RCCEx_DisablePLLSAI1
+00000000 T HAL_RCCEx_DisablePLLSAI2
+00000000 T HAL_RCCEx_EnableLSCO
+00000000 T HAL_RCCEx_EnableLSECSS
+00000000 T HAL_RCCEx_EnableLSECSS_IT
+00000000 T HAL_RCCEx_EnableMSIPLLMode
+00000000 T HAL_RCCEx_EnablePLLSAI1
+00000000 T HAL_RCCEx_EnablePLLSAI2
+00000000 T HAL_RCCEx_GetPeriphCLKConfig
+00000000 T HAL_RCCEx_GetPeriphCLKFreq
+00000000 W HAL_RCCEx_LSECSS_Callback
+00000000 T HAL_RCCEx_LSECSS_IRQHandler
+00000000 T HAL_RCCEx_PeriphCLKConfig
+00000000 T HAL_RCCEx_StandbyMSIRangeConfig
+00000000 T HAL_RCCEx_WakeUpStopCLKConfig
+         U HAL_RCC_GetPCLK1Freq
+         U HAL_RCC_GetPCLK2Freq
+         U HAL_RCC_GetSysClockFreq
+00000000 t RCCEx_PLLSAI1_ConfigNP
+00000000 t RCCEx_PLLSAI1_ConfigNQ
+00000000 t RCCEx_PLLSAI2_ConfigNP
+
+stm32l4xx_hal_rng.o:
+
+stm32l4xx_hal_rtc.o:
+
+stm32l4xx_hal_rtc_ex.o:
+
+stm32l4xx_hal_sai.o:
+
+stm32l4xx_hal_sd.o:
+
+stm32l4xx_hal_smartcard.o:
+
+stm32l4xx_hal_smartcard_ex.o:
+
+stm32l4xx_hal_smbus.o:
+
+stm32l4xx_hal_spi.o:
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_GetTick
+00000000 T HAL_SPI_DMAPause
+00000000 T HAL_SPI_DMAResume
+00000000 T HAL_SPI_DMAStop
+00000000 T HAL_SPI_DeInit
+00000000 W HAL_SPI_ErrorCallback
+00000000 T HAL_SPI_GetError
+00000000 T HAL_SPI_GetState
+00000000 T HAL_SPI_IRQHandler
+00000000 T HAL_SPI_Init
+00000000 W HAL_SPI_MspDeInit
+00000000 W HAL_SPI_MspInit
+00000000 T HAL_SPI_Receive
+00000000 T HAL_SPI_Receive_DMA
+00000000 T HAL_SPI_Receive_IT
+00000000 W HAL_SPI_RxCpltCallback
+00000000 W HAL_SPI_RxHalfCpltCallback
+00000000 T HAL_SPI_Transmit
+00000000 T HAL_SPI_TransmitReceive
+00000000 T HAL_SPI_TransmitReceive_DMA
+00000000 T HAL_SPI_TransmitReceive_IT
+00000000 T HAL_SPI_Transmit_DMA
+00000000 T HAL_SPI_Transmit_IT
+00000000 W HAL_SPI_TxCpltCallback
+00000000 W HAL_SPI_TxHalfCpltCallback
+00000000 W HAL_SPI_TxRxCpltCallback
+00000000 W HAL_SPI_TxRxHalfCpltCallback
+00000000 t SPI_2linesRxISR_16BIT
+00000000 t SPI_2linesRxISR_16BITCRC
+00000000 t SPI_2linesRxISR_8BIT
+00000000 t SPI_2linesRxISR_8BITCRC
+00000000 t SPI_2linesTxISR_16BIT
+00000000 t SPI_2linesTxISR_8BIT
+00000000 t SPI_CloseRxTx_ISR
+00000000 t SPI_CloseRx_ISR
+00000000 t SPI_CloseTx_ISR
+00000000 t SPI_DMAError
+00000000 t SPI_DMAHalfReceiveCplt
+00000000 t SPI_DMAHalfTransmitCplt
+00000000 t SPI_DMAHalfTransmitReceiveCplt
+00000000 t SPI_DMAReceiveCplt
+00000000 t SPI_DMATransmitCplt
+00000000 t SPI_DMATransmitReceiveCplt
+00000000 t SPI_EndRxTransaction
+00000000 t SPI_EndRxTxTransaction
+00000000 t SPI_RxISR_16BIT
+00000000 t SPI_RxISR_16BITCRC
+00000000 t SPI_RxISR_8BIT
+00000000 t SPI_RxISR_8BITCRC
+00000000 t SPI_TxISR_16BIT
+00000000 t SPI_TxISR_8BIT
+00000000 t SPI_WaitFifoStateUntilTimeout
+00000000 t SPI_WaitFlagStateUntilTimeout
+
+stm32l4xx_hal_spi_ex.o:
+00000000 T HAL_SPIEx_FlushRxFifo
+
+stm32l4xx_hal_sram.o:
+
+stm32l4xx_hal_swpmi.o:
+
+stm32l4xx_hal_tim.o:
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_TIMEx_BreakCallback
+         U HAL_TIMEx_CommutationCallback
+00000000 T HAL_TIM_Base_DeInit
+00000000 T HAL_TIM_Base_GetState
+00000000 T HAL_TIM_Base_Init
+00000000 W HAL_TIM_Base_MspDeInit
+00000000 W HAL_TIM_Base_MspInit
+00000000 T HAL_TIM_Base_Start
+00000000 T HAL_TIM_Base_Start_DMA
+00000000 T HAL_TIM_Base_Start_IT
+00000000 T HAL_TIM_Base_Stop
+00000000 T HAL_TIM_Base_Stop_DMA
+00000000 T HAL_TIM_Base_Stop_IT
+00000000 T HAL_TIM_ConfigClockSource
+00000000 T HAL_TIM_ConfigOCrefClear
+00000000 T HAL_TIM_ConfigTI1Input
+00000000 T HAL_TIM_DMABurst_ReadStart
+00000000 T HAL_TIM_DMABurst_ReadStop
+00000000 T HAL_TIM_DMABurst_WriteStart
+00000000 T HAL_TIM_DMABurst_WriteStop
+00000000 T HAL_TIM_Encoder_DeInit
+00000000 T HAL_TIM_Encoder_GetState
+00000000 T HAL_TIM_Encoder_Init
+00000000 W HAL_TIM_Encoder_MspDeInit
+00000000 W HAL_TIM_Encoder_MspInit
+00000000 T HAL_TIM_Encoder_Start
+00000000 T HAL_TIM_Encoder_Start_DMA
+00000000 T HAL_TIM_Encoder_Start_IT
+00000000 T HAL_TIM_Encoder_Stop
+00000000 T HAL_TIM_Encoder_Stop_DMA
+00000000 T HAL_TIM_Encoder_Stop_IT
+00000000 W HAL_TIM_ErrorCallback
+00000000 T HAL_TIM_GenerateEvent
+00000000 W HAL_TIM_IC_CaptureCallback
+00000000 T HAL_TIM_IC_ConfigChannel
+00000000 T HAL_TIM_IC_DeInit
+00000000 T HAL_TIM_IC_GetState
+00000000 T HAL_TIM_IC_Init
+00000000 W HAL_TIM_IC_MspDeInit
+00000000 W HAL_TIM_IC_MspInit
+00000000 T HAL_TIM_IC_Start
+00000000 T HAL_TIM_IC_Start_DMA
+00000000 T HAL_TIM_IC_Start_IT
+00000000 T HAL_TIM_IC_Stop
+00000000 T HAL_TIM_IC_Stop_DMA
+00000000 T HAL_TIM_IC_Stop_IT
+00000000 T HAL_TIM_IRQHandler
+00000000 T HAL_TIM_OC_ConfigChannel
+00000000 T HAL_TIM_OC_DeInit
+00000000 W HAL_TIM_OC_DelayElapsedCallback
+00000000 T HAL_TIM_OC_GetState
+00000000 T HAL_TIM_OC_Init
+00000000 W HAL_TIM_OC_MspDeInit
+00000000 W HAL_TIM_OC_MspInit
+00000000 T HAL_TIM_OC_Start
+00000000 T HAL_TIM_OC_Start_DMA
+00000000 T HAL_TIM_OC_Start_IT
+00000000 T HAL_TIM_OC_Stop
+00000000 T HAL_TIM_OC_Stop_DMA
+00000000 T HAL_TIM_OC_Stop_IT
+00000000 T HAL_TIM_OnePulse_ConfigChannel
+00000000 T HAL_TIM_OnePulse_DeInit
+00000000 T HAL_TIM_OnePulse_GetState
+00000000 T HAL_TIM_OnePulse_Init
+00000000 W HAL_TIM_OnePulse_MspDeInit
+00000000 W HAL_TIM_OnePulse_MspInit
+00000000 T HAL_TIM_OnePulse_Start
+00000000 T HAL_TIM_OnePulse_Start_IT
+00000000 T HAL_TIM_OnePulse_Stop
+00000000 T HAL_TIM_OnePulse_Stop_IT
+00000000 T HAL_TIM_PWM_ConfigChannel
+00000000 T HAL_TIM_PWM_DeInit
+00000000 T HAL_TIM_PWM_GetState
+00000000 T HAL_TIM_PWM_Init
+00000000 W HAL_TIM_PWM_MspDeInit
+00000000 W HAL_TIM_PWM_MspInit
+00000000 W HAL_TIM_PWM_PulseFinishedCallback
+00000000 T HAL_TIM_PWM_Start
+00000000 T HAL_TIM_PWM_Start_DMA
+00000000 T HAL_TIM_PWM_Start_IT
+00000000 T HAL_TIM_PWM_Stop
+00000000 T HAL_TIM_PWM_Stop_DMA
+00000000 T HAL_TIM_PWM_Stop_IT
+00000000 W HAL_TIM_PeriodElapsedCallback
+00000000 T HAL_TIM_ReadCapturedValue
+00000000 T HAL_TIM_SlaveConfigSynchronization
+00000000 T HAL_TIM_SlaveConfigSynchronization_IT
+00000000 W HAL_TIM_TriggerCallback
+         U TIMEx_DMACommutationCplt
+00000000 T TIM_Base_SetConfig
+00000000 T TIM_CCxChannelCmd
+00000000 T TIM_DMACaptureCplt
+00000000 T TIM_DMADelayPulseCplt
+00000000 T TIM_DMAError
+00000000 t TIM_DMAPeriodElapsedCplt
+00000000 t TIM_DMATriggerCplt
+00000000 T TIM_ETR_SetConfig
+00000000 t TIM_OC1_SetConfig
+00000000 T TIM_OC2_SetConfig
+00000000 t TIM_OC3_SetConfig
+00000000 t TIM_OC4_SetConfig
+00000000 t TIM_OC5_SetConfig
+00000000 t TIM_OC6_SetConfig
+00000000 t TIM_SlaveTimer_SetConfig
+00000000 T TIM_TI1_SetConfig
+
+stm32l4xx_hal_tim_ex.o:
+00000000 r CSWTCH.39
+00000000 r CSWTCH.40
+00000000 r CSWTCH.41
+00000000 r CSWTCH.42
+         U HAL_DMA_Start_IT
+00000000 W HAL_TIMEx_BreakCallback
+00000000 W HAL_TIMEx_CommutationCallback
+00000000 T HAL_TIMEx_ConfigBreakDeadTime
+00000000 T HAL_TIMEx_ConfigBreakInput
+00000000 T HAL_TIMEx_ConfigCommutationEvent
+00000000 T HAL_TIMEx_ConfigCommutationEvent_DMA
+00000000 T HAL_TIMEx_ConfigCommutationEvent_IT
+00000000 T HAL_TIMEx_GroupChannel5
+00000000 T HAL_TIMEx_HallSensor_DeInit
+00000000 T HAL_TIMEx_HallSensor_GetState
+00000000 T HAL_TIMEx_HallSensor_Init
+00000000 W HAL_TIMEx_HallSensor_MspDeInit
+00000000 W HAL_TIMEx_HallSensor_MspInit
+00000000 T HAL_TIMEx_HallSensor_Start
+00000000 T HAL_TIMEx_HallSensor_Start_DMA
+00000000 T HAL_TIMEx_HallSensor_Start_IT
+00000000 T HAL_TIMEx_HallSensor_Stop
+00000000 T HAL_TIMEx_HallSensor_Stop_DMA
+00000000 T HAL_TIMEx_HallSensor_Stop_IT
+00000000 T HAL_TIMEx_MasterConfigSynchronization
+00000000 T HAL_TIMEx_OCN_Start
+00000000 T HAL_TIMEx_OCN_Start_DMA
+00000000 T HAL_TIMEx_OCN_Start_IT
+00000000 T HAL_TIMEx_OCN_Stop
+00000000 T HAL_TIMEx_OCN_Stop_DMA
+00000000 T HAL_TIMEx_OCN_Stop_IT
+00000000 T HAL_TIMEx_OnePulseN_Start
+00000000 T HAL_TIMEx_OnePulseN_Start_IT
+00000000 T HAL_TIMEx_OnePulseN_Stop
+00000000 T HAL_TIMEx_OnePulseN_Stop_IT
+00000000 T HAL_TIMEx_PWMN_Start
+00000000 T HAL_TIMEx_PWMN_Start_DMA
+00000000 T HAL_TIMEx_PWMN_Start_IT
+00000000 T HAL_TIMEx_PWMN_Stop
+00000000 T HAL_TIMEx_PWMN_Stop_DMA
+00000000 T HAL_TIMEx_PWMN_Stop_IT
+00000000 T HAL_TIMEx_RemapConfig
+00000000 T TIMEx_DMACommutationCplt
+         U TIM_Base_SetConfig
+         U TIM_CCxChannelCmd
+00000000 t TIM_CCxNChannelCmd
+         U TIM_DMACaptureCplt
+         U TIM_DMADelayPulseCplt
+         U TIM_DMAError
+         U TIM_OC2_SetConfig
+         U TIM_TI1_SetConfig
+
+stm32l4xx_hal_tsc.o:
+
+stm32l4xx_hal_uart.o:
+00000000 r CSWTCH.35
+00000000 r CSWTCH.36
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_GetTick
+00000000 T HAL_HalfDuplex_EnableReceiver
+00000000 T HAL_HalfDuplex_EnableTransmitter
+00000000 T HAL_HalfDuplex_Init
+00000000 T HAL_LIN_Init
+00000000 T HAL_LIN_SendBreak
+00000000 T HAL_MultiProcessor_DisableMuteMode
+00000000 T HAL_MultiProcessor_EnableMuteMode
+00000000 T HAL_MultiProcessor_EnterMuteMode
+00000000 T HAL_MultiProcessor_Init
+         U HAL_RCC_GetPCLK1Freq
+         U HAL_RCC_GetPCLK2Freq
+         U HAL_RCC_GetSysClockFreq
+         U HAL_UARTEx_WakeupCallback
+00000000 T HAL_UART_DMAPause
+00000000 T HAL_UART_DMAResume
+00000000 T HAL_UART_DMAStop
+00000000 T HAL_UART_DeInit
+00000000 W HAL_UART_ErrorCallback
+00000000 T HAL_UART_GetError
+00000000 T HAL_UART_GetState
+00000000 T HAL_UART_IRQHandler
+00000000 T HAL_UART_Init
+00000000 W HAL_UART_MspDeInit
+00000000 W HAL_UART_MspInit
+00000000 T HAL_UART_Receive
+00000000 T HAL_UART_Receive_DMA
+00000000 T HAL_UART_Receive_IT
+00000000 W HAL_UART_RxCpltCallback
+00000000 W HAL_UART_RxHalfCpltCallback
+00000000 T HAL_UART_Transmit
+00000000 T HAL_UART_Transmit_DMA
+00000000 T HAL_UART_Transmit_IT
+00000000 W HAL_UART_TxCpltCallback
+00000000 W HAL_UART_TxHalfCpltCallback
+00000000 T UART_AdvFeatureConfig
+00000000 T UART_CheckIdleState
+00000000 t UART_DMAError
+00000000 t UART_DMAReceiveCplt
+00000000 t UART_DMARxHalfCplt
+00000000 t UART_DMATransmitCplt
+00000000 t UART_DMATxHalfCplt
+00000000 T UART_SetConfig
+00000000 T UART_WaitOnFlagUntilTimeout
+         U __aeabi_uldivmod
+
+stm32l4xx_hal_uart_ex.o:
+00000000 T HAL_MultiProcessorEx_AddressLength_Set
+00000000 T HAL_RS485Ex_Init
+00000000 T HAL_UARTEx_DisableStopMode
+00000000 T HAL_UARTEx_EnableStopMode
+00000000 T HAL_UARTEx_StopModeWakeUpSourceConfig
+00000000 W HAL_UARTEx_WakeupCallback
+         U HAL_UART_MspInit
+         U UART_AdvFeatureConfig
+         U UART_CheckIdleState
+         U UART_SetConfig
+         U UART_WaitOnFlagUntilTimeout
+
+stm32l4xx_hal_usart.o:
+00000000 r CSWTCH.10
+00000000 r CSWTCH.11
+         U HAL_DMA_Abort
+         U HAL_DMA_Start_IT
+         U HAL_GetTick
+         U HAL_RCC_GetPCLK1Freq
+         U HAL_RCC_GetPCLK2Freq
+         U HAL_RCC_GetSysClockFreq
+00000000 T HAL_USART_DMAPause
+00000000 T HAL_USART_DMAResume
+00000000 T HAL_USART_DMAStop
+00000000 T HAL_USART_DeInit
+00000000 W HAL_USART_ErrorCallback
+00000000 T HAL_USART_GetError
+00000000 T HAL_USART_GetState
+00000000 T HAL_USART_IRQHandler
+00000000 T HAL_USART_Init
+00000000 W HAL_USART_MspDeInit
+00000000 W HAL_USART_MspInit
+00000000 T HAL_USART_Receive
+00000000 T HAL_USART_Receive_DMA
+00000000 T HAL_USART_Receive_IT
+00000000 W HAL_USART_RxCpltCallback
+00000000 W HAL_USART_RxHalfCpltCallback
+00000000 T HAL_USART_Transmit
+00000000 T HAL_USART_TransmitReceive
+00000000 T HAL_USART_TransmitReceive_DMA
+00000000 T HAL_USART_TransmitReceive_IT
+00000000 T HAL_USART_Transmit_DMA
+00000000 T HAL_USART_Transmit_IT
+00000000 W HAL_USART_TxCpltCallback
+00000000 W HAL_USART_TxHalfCpltCallback
+00000000 W HAL_USART_TxRxCpltCallback
+00000000 t USART_DMAError
+00000000 t USART_DMAReceiveCplt
+00000000 t USART_DMARxHalfCplt
+00000000 t USART_DMATransmitCplt
+00000000 t USART_DMATxHalfCplt
+00000000 t USART_TransmitReceive_IT
+00000000 t USART_WaitOnFlagUntilTimeout.constprop.0
+
+stm32l4xx_hal_wwdg.o:
+
+stm32l4xx_ll_adc.o:
+
+stm32l4xx_ll_comp.o:
+
+stm32l4xx_ll_crc.o:
+
+stm32l4xx_ll_crs.o:
+
+stm32l4xx_ll_dac.o:
+
+stm32l4xx_ll_dma.o:
+
+stm32l4xx_ll_exti.o:
+
+stm32l4xx_ll_fmc.o:
+
+stm32l4xx_ll_gpio.o:
+
+stm32l4xx_ll_i2c.o:
+
+stm32l4xx_ll_lptim.o:
+
+stm32l4xx_ll_lpuart.o:
+
+stm32l4xx_ll_opamp.o:
+
+stm32l4xx_ll_pwr.o:
+
+stm32l4xx_ll_rcc.o:
+
+stm32l4xx_ll_rng.o:
+
+stm32l4xx_ll_rtc.o:
+
+stm32l4xx_ll_sdmmc.o:
+
+stm32l4xx_ll_spi.o:
+
+stm32l4xx_ll_swpmi.o:
+
+stm32l4xx_ll_tim.o:
+
+stm32l4xx_ll_usart.o:
+
+stm32l4xx_ll_usb.o:
+
+stm32l4xx_ll_utils.o:
+         U AHBPrescTable
+00000000 T LL_Init1msTick
+00000000 T LL_PLL_ConfigSystemClock_HSE
+00000000 T LL_PLL_ConfigSystemClock_HSI
+00000000 T LL_PLL_ConfigSystemClock_MSI
+00000000 t LL_RCC_PLL_ConfigDomain_SYS
+00000000 T LL_SetSystemCoreClock
+00000000 T LL_mDelay
+         U MSIRangeTable
+         U SystemCoreClock
+00000000 t UTILS_EnablePLLAndSwitchSystem
+00000000 t UTILS_GetPLLOutputFrequency
+00000000 t UTILS_PLL_IsBusy
+00000000 t UTILS_SetFlashLatency.part.0
+
+startup_stm32l476xx.o:
+00000000 W ADC1_2_IRQHandler
+00000000 W ADC3_IRQHandler
+f1e0f85f a BootRAM
+00000000 W BusFault_Handler
+00000000 W CAN1_RX0_IRQHandler
+00000000 W CAN1_RX1_IRQHandler
+00000000 W CAN1_SCE_IRQHandler
+00000000 W CAN1_TX_IRQHandler
+00000000 W COMP_IRQHandler
+00000008 t CopyDataInit
+00000000 W DFSDM0_IRQHandler
+00000000 W DFSDM1_IRQHandler
+00000000 W DFSDM2_IRQHandler
+00000000 W DFSDM3_IRQHandler
+00000000 W DMA1_Channel1_IRQHandler
+00000000 W DMA1_Channel2_IRQHandler
+00000000 W DMA1_Channel3_IRQHandler
+00000000 W DMA1_Channel4_IRQHandler
+00000000 W DMA1_Channel5_IRQHandler
+00000000 W DMA1_Channel6_IRQHandler
+00000000 W DMA1_Channel7_IRQHandler
+00000000 W DMA2_Channel1_IRQHandler
+00000000 W DMA2_Channel2_IRQHandler
+00000000 W DMA2_Channel3_IRQHandler
+00000000 W DMA2_Channel4_IRQHandler
+00000000 W DMA2_Channel5_IRQHandler
+00000000 W DMA2_Channel6_IRQHandler
+00000000 W DMA2_Channel7_IRQHandler
+00000000 W DebugMon_Handler
+00000000 T Default_Handler
+00000000 W EXTI0_IRQHandler
+00000000 W EXTI15_10_IRQHandler
+00000000 W EXTI1_IRQHandler
+00000000 W EXTI2_IRQHandler
+00000000 W EXTI3_IRQHandler
+00000000 W EXTI4_IRQHandler
+00000000 W EXTI9_5_IRQHandler
+00000000 W FLASH_IRQHandler
+00000000 W FMC_IRQHandler
+00000000 W FPU_IRQHandler
+0000001e t FillZerobss
+00000000 W HardFault_Handler
+00000000 W I2C1_ER_IRQHandler
+00000000 W I2C1_EV_IRQHandler
+00000000 W I2C2_ER_IRQHandler
+00000000 W I2C2_EV_IRQHandler
+00000000 W I2C3_ER_IRQHandler
+00000000 W I2C3_EV_IRQHandler
+00000000 t Infinite_Loop
+00000000 W LCD_IRQHandler
+00000000 W LPTIM1_IRQHandler
+00000000 W LPTIM2_IRQHandler
+00000000 W LPUART1_IRQHandler
+00000010 t LoopCopyDataInit
+00000024 t LoopFillZerobss
+00000036 t LoopForever
+00000000 W MemManage_Handler
+00000000 W NMI_Handler
+00000000 W OTG_FS_IRQHandler
+00000000 W PVD_PVM_IRQHandler
+00000000 W PendSV_Handler
+00000000 W QUADSPI_IRQHandler
+00000000 W RCC_IRQHandler
+00000000 W RNG_IRQHandler
+00000000 W RTC_Alarm_IRQHandler
+00000000 W RTC_WKUP_IRQHandler
+00000000 W Reset_Handler
+00000000 W SAI1_IRQHandler
+00000000 W SAI2_IRQHandler
+00000000 W SDMMC1_IRQHandler
+00000000 W SPI1_IRQHandler
+00000000 W SPI2_IRQHandler
+00000000 W SPI3_IRQHandler
+00000000 W SVC_Handler
+00000000 W SWPMI1_IRQHandler
+00000000 W SysTick_Handler
+         U SystemInit
+00000000 W TAMP_STAMP_IRQHandler
+00000000 W TIM1_BRK_TIM15_IRQHandler
+00000000 W TIM1_CC_IRQHandler
+00000000 W TIM1_TRG_COM_TIM17_IRQHandler
+00000000 W TIM1_UP_TIM16_IRQHandler
+00000000 W TIM2_IRQHandler
+00000000 W TIM3_IRQHandler
+00000000 W TIM4_IRQHandler
+00000000 W TIM5_IRQHandler
+00000000 W TIM6_DAC_IRQHandler
+00000000 W TIM7_IRQHandler
+00000000 W TIM8_BRK_IRQHandler
+00000000 W TIM8_CC_IRQHandler
+00000000 W TIM8_TRG_COM_IRQHandler
+00000000 W TIM8_UP_IRQHandler
+00000000 W TSC_IRQHandler
+00000000 W UART4_IRQHandler
+00000000 W UART5_IRQHandler
+00000000 W USART1_IRQHandler
+00000000 W USART2_IRQHandler
+00000000 W USART3_IRQHandler
+00000000 W UsageFault_Handler
+00000000 W WWDG_IRQHandler
+         U __libc_init_array
+         U _ebss
+         U _edata
+         U _estack
+         U _sbss
+         U _sdata
+         U _sidata
+00000000 R g_pfnVectors
+         U main

@@ -17,10 +17,10 @@
           "help": {
             "online": "https://github.com/Microsoft/customized_board_Arduino"
           },
-          "url": "https://github.com/Microsoft/customized_board_Arduino/azurebit/azurecustomizedboards-1.0.0.zip",
-          "archiveFileName": "azurecustomizedboards-1.0.0.zip",
-          "checksum": "SHA-256:ec3ff8a1dc96d3ba6f432b9b837a35fd4174a34b3d2927de1d51010e8b94f9f1",
-          "size": "15005",
+          "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/MK3166-1.0.0.zip",
+          "archiveFileName": "MK3166-1.0.0.zip",
+          "checksum": "MD5:531d4012804c85a8625e9f0746ca53c6",
+          "size": "9572241",
           "boards": [
             {"name": "AzureBit"}
           ],
@@ -28,12 +28,12 @@
             {
               "packager": "azureboard",
               "name": "arm-none-eabi-gcc",
-              "version": "4.8.3-2014q1"
+              "version": "5_4-2016q3"
             },
             {
               "packager": "azureboard",
-              "name": "STM32Tools",
-              "version": "2016.9.16"
+              "name": "AzureBoardTools",
+              "version": "2017.3.22"
             }
           ]
         }
@@ -41,14 +41,14 @@
       "tools":[
 	          {
           "name": "arm-none-eabi-gcc",
-          "version": "4.8.3-2014q1",
+          "version": "5_4-2016q3",
           "systems": [
             {
               "host": "i686-mingw32",
-              "archiveFileName": "gcc-arm-none-eabi-4.8.3-2014q1-windows.tar.gz",
-              "url": "http://downloads.arduino.cc/gcc-arm-none-eabi-4.8.3-2014q1-windows.tar.gz",
-              "checksum": "SHA-256:fd8c111c861144f932728e00abd3f7d1107e186eb9cd6083a54c7236ea78b7c2",
-              "size": "84537449"
+              "archiveFileName": "gcc-arm-none-eabi-5_4-2016q3-20160926-win32.zip",
+              "url": "https://azureboard.blob.core.windows.net/toolchain/gcc-arm-none-eabi-5_4-2016q3-20160926-win32.zip",
+              "checksum": "MD5:fa96e8b97c32544f78fb158c9bf12a39",
+              "size": "103855187"
             },
             {
               "host": "x86_64-apple-darwin",
@@ -74,40 +74,40 @@
           ]
         },
         {
-          "name": "STM32Tools",
-          "version": "2016.9.16",
+          "name": "AzureBoardTools",
+          "version": "2017.3.22",
           "systems": [
             {
               "host": "i686-linux-gnu",
-              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
-              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
-              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
-              "size": "6084"
+              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
+              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
+              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
+              "size": "6623543"
             },
             {
               "host": "x86_64-pc-linux-gnu",
-              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
-              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
-              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
-              "size": "6084"
+              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
+              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
+              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
+              "size": "6623543"
             },
             {
               "host": "i686-mingw32",
-              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
-              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
-              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
-              "size": "6084"
+              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
+              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
+              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
+              "size": "6623543"
             },
             {
               "host": "i386-apple-darwin11",
-              "url": "https://github.com/stm32duino/BoardManagerFiles/raw/master/STM32/tools/nucleoFlasher-1.0.tar.bz2",
-              "archiveFileName": "nucleoFlasher-1.0.tar.bz2",
-              "checksum": "SHA-256:859a336bbe61c5302a40424ea41867dd758fa0f4cd4d3d99629d22534bc8032e",
-              "size": "6084"
+              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
+              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
+              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
+              "size": "6623543"
             }
           ]
         }
-	  ]
+      ]
     }
   ]
 }
