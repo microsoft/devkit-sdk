@@ -44,7 +44,6 @@ int main( void )
 	//watchdogSetup();
 
 	//init();
-
 	initVariant();
 
 	delay(1);

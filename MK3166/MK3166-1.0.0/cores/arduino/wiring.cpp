@@ -22,6 +22,17 @@
 extern "C" {
 #endif
 
+uint32_t millis(void) {
+    return us_ticker_read() / 1000;
+}
+
+// Interrupt-compatible version of micros
+uint32_t micros( void )
+{
+    return us_ticker_read();
+}
+
+
 void delay( uint32_t ms )
 {
   if (ms == 0)
@@ -29,6 +40,13 @@ void delay( uint32_t ms )
   wait_ms(ms);
 }
 
+
+void delayMicroseconds( uint32_t us )
+{
+  if (us == 0)
+      return;
+  wait_us(us);
+}
 
 #ifdef __cplusplus
 }
