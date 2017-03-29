@@ -169,10 +169,8 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
   //Set time accordingly
   set_time( time(NULL) + offset );
 
-#ifdef __DEBUG__
-  ctTime = time(NULL);
-  DBG("Time is now (UTC): %s", ctime(&ctTime));
-#endif
+  time_t ctTime = time(NULL);
+  printf("Time is now (UTC): %s", ctime(&ctTime));
 
   m_sock.close();
 

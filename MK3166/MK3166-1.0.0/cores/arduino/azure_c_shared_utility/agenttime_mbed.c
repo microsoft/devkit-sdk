@@ -8,7 +8,7 @@
 
 time_t get_time(time_t* currentTime)
 {
-    return 1490624268 + time(currentTime);
+    return time(currentTime);
 }
 
 double get_difftime(time_t stopTime, time_t startTime)
