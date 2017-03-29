@@ -62,13 +62,16 @@ enum BitOrder {
 #undef abs
 #endif // abs
 
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif // min
 
-#ifndef max
+#ifndef _GLIBCXX_VECTOR
+// arduino is not compatible with std::vector
+#define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
-#endif // max
+#endif
+
+#define _min(a,b) ((a)<(b)?(a):(b)) 
+#define _max(a,b) ((a)>(b)?(a):(b))
+
 
 #define abs(x) ((x)>0?(x):-(x))
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))

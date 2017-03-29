@@ -73,32 +73,32 @@ extern "C"{
 
 //defines here the ardduino IOs type
 //digital pins
-#define ARDUINO_PIN_D0                0x00000000
-#define ARDUINO_PIN_D1                0x00000001
-#define ARDUINO_PIN_D2                0x00000002
-#define ARDUINO_PIN_D3                0x00000003
-#define ARDUINO_PIN_D4                0x00000004
-#define ARDUINO_PIN_D5                0x00000005
-#define ARDUINO_PIN_D6                0x00000006
-#define ARDUINO_PIN_D7                0x00000007
-#define ARDUINO_PIN_D8                0x00000008
-#define ARDUINO_PIN_D9                0x00000009
-#define ARDUINO_PIN_D10               0x0000000A
-#define ARDUINO_PIN_D11               0x0000000B
-#define ARDUINO_PIN_D12               0x0000000C
-#define ARDUINO_PIN_D13               0x0000000D
-#define ARDUINO_PIN_D14               0x0000000E
-#define ARDUINO_PIN_D15               0x0000000F
+#define ARDUINO_PIN_D0                D0
+#define ARDUINO_PIN_D1                D1
+#define ARDUINO_PIN_D2                D2
+#define ARDUINO_PIN_D3                D3
+#define ARDUINO_PIN_D4                D4
+#define ARDUINO_PIN_D5                D5
+#define ARDUINO_PIN_D6                D6
+#define ARDUINO_PIN_D7                D7
+#define ARDUINO_PIN_D8                D8
+#define ARDUINO_PIN_D9                D9
+#define ARDUINO_PIN_D10               D10
+#define ARDUINO_PIN_D11               D11
+#define ARDUINO_PIN_D12               D12
+#define ARDUINO_PIN_D13               D13
+#define ARDUINO_PIN_D14               D14
+#define ARDUINO_PIN_D15               D15
 
 #define MAX_DIGITAL_IOS               22 //All pins can be use as digital pins  
 
 //analog pins
-#define ARDUINO_PIN_A0                0x00000010
-#define ARDUINO_PIN_A1                0x00000011
-#define ARDUINO_PIN_A2                0x00000012
-#define ARDUINO_PIN_A3                0x00000013
-#define ARDUINO_PIN_A4                0x00000014
-#define ARDUINO_PIN_A5                0x00000015
+#define ARDUINO_PIN_A0                A0
+#define ARDUINO_PIN_A1                A1
+#define ARDUINO_PIN_A2                A2
+#define ARDUINO_PIN_A3                A3
+#define ARDUINO_PIN_A4                A4
+#define ARDUINO_PIN_A5                A5
 //D13 can be used as a DAC
 #define MAX_ANALOG_IOS                7
 
@@ -107,7 +107,7 @@ extern "C"{
 #define ARDUINO_PIN_EXT               0x10000000
 
 //On-board LED pin number
-#define LED_BUILTIN                   10
+#define LED_BUILTIN                   PA_10
 
 //ADC resolution is 12bits
 #define ADC_RESOLUTION                12
@@ -138,16 +138,6 @@ static const uint8_t SS3  = 8;
 static const uint8_t MOSI = 11;
 static const uint8_t MISO = 12;
 static const uint8_t SCK  = 13;
-
-/* Types used for the tables below */
-typedef struct _PinDescription
-{
-  uint32_t arduino_id;
-  uint32_t ulPin ;
-  GPIO_TypeDef  * ulPort;
-  uint32_t mode;
-  bool configured;
-} PinDescription ;
 
 
 //Enable Firmata
