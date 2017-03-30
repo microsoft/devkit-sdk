@@ -32,7 +32,7 @@ static int _readResolution = 10;
 static int _writeResolution = 8;
 
 
-static inline int32_t get_pin_description(uint32_t apin, uint32_t ulPin)
+static inline int32_t get_pin_description(uint32_t ulPin)
 {
   int32_t i;
 
@@ -80,8 +80,8 @@ uint32_t analogRead(uint32_t ulPin)
 
   PinName pinName = PinName(ulPin);
   AnalogIn ain(pinName);
-  ulValue = ain.read() * 1024;
-
+  float fValue = ain.read();
+  ulValue =  fValue * 1024;
   ulValue = mapResolution(ulValue, ADC_RESOLUTION, _readResolution);
   return ulValue;
 }
@@ -96,27 +96,25 @@ void analogOutputInit(void) {
 // to digital output.
 void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 
-    //put mask only to have the lower digits
-    uint32_t apin = ulPin&0x0000000F;
     uint32_t attr = 0;
     int i;
   
     //find the pin.
-    i = get_pin_description(apin, ulPin); 
-    if((i<0) && (apin < MAX_DIGITAL_IOS)) 
+    i = get_pin_description(ulPin); 
+    if(i < 0)
+    { 
         return;
+    }
   
-    g_anOutputPinConfigured[apin] = g_APinDescription[i];
-  
-
-    attr = g_anOutputPinConfigured[apin].mode;
+    attr = g_APinDescription[i].mode;
 
     if((attr & GPIO_PIN_PWM) == GPIO_PIN_PWM) 
     {
       ulValue = mapResolution(ulValue, _writeResolution, PWM_RESOLUTION);
       PinName pinName = PinName(ulPin);
       PwmOut pout(pinName);
-      pout.write(ulValue / 256);
+      float fValue = (float)ulValue / PWM_MAX_DUTY_CYCLE;
+      pout.write(fValue);
     } 
     else 
     { //DIGITAL PIN ONLY
