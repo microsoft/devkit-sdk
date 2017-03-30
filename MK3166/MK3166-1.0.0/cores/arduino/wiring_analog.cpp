@@ -77,37 +77,12 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 uint32_t analogRead(uint32_t ulPin)
 {
   uint32_t ulValue = 0;
-  uint8_t do_init = 0;
-
-  //put mask only to have the lower digits
-  uint32_t apin = ulPin&0x0000000F;
-  int i;
-  
-  if(ulPin>MAX_DIGITAL_IOS) {
-    return 0;
-  }
-  
-  ulPin = pinConvert(ulPin);
-  
-  //find the pin.
-  i = get_pin_description(apin, ulPin);
-  if((i<0) && (apin < MAX_ANALOG_IOS))
-    return 0;
-  
-  g_anInputPinConfigured[apin] = g_APinDescription[i];
-  
-  if(g_anInputPinConfigured[apin].configured == false) {
-    do_init = 1;
-    g_anInputPinConfigured[apin].configured = true;
-  }
 
   PinName pinName = PinName(ulPin);
   AnalogIn ain(pinName);
-  ulValue = ain.read() * 1024 / 5;
-  //ulValue = adc_read_value(g_anInputPinConfigured[apin].ulPort, g_anInputPinConfigured[apin].ulPin, do_init);
+  ulValue = ain.read() * 1024;
 
   ulValue = mapResolution(ulValue, ADC_RESOLUTION, _readResolution);
-
   return ulValue;
 }
 
@@ -121,51 +96,34 @@ void analogOutputInit(void) {
 // to digital output.
 void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 
-  //put mask only to have the lower digits
-  uint32_t apin = ulPin&0x0000000F;
-  uint32_t attr = 0;
-  int i;
-  uint8_t do_init = 0;
+    //put mask only to have the lower digits
+    uint32_t apin = ulPin&0x0000000F;
+    uint32_t attr = 0;
+    int i;
   
-  if(ulPin>MAX_DIGITAL_IOS) {
-    return;
-  }
-
-  //find the pin.
-  i = get_pin_description(apin, ulPin); 
-  if((i<0) && (apin < MAX_DIGITAL_IOS)) 
-    return;
+    //find the pin.
+    i = get_pin_description(apin, ulPin); 
+    if((i<0) && (apin < MAX_DIGITAL_IOS)) 
+        return;
   
-  g_anOutputPinConfigured[apin] = g_APinDescription[i];
+    g_anOutputPinConfigured[apin] = g_APinDescription[i];
   
-  if(g_anOutputPinConfigured[apin].configured == false) {
-    do_init = 1;
-    g_anOutputPinConfigured[apin].configured = true;
-  }
 
-  attr = g_anOutputPinConfigured[apin].mode;
+    attr = g_anOutputPinConfigured[apin].mode;
 
-  if((attr & GPIO_PIN_DAC) == GPIO_PIN_DAC) {
-
-    ulValue = mapResolution(ulValue, _writeResolution, DACC_RESOLUTION);
-    //dac_write_value(g_anOutputPinConfigured[apin].ulPort,
-     //               g_anOutputPinConfigured[apin].ulPin,
-     //               ulValue, do_init);
-
-  } else if((attr & GPIO_PIN_PWM) == GPIO_PIN_PWM) {
-
-    ulValue = mapResolution(ulValue, _writeResolution, PWM_RESOLUTION);
-    //pwm_start(g_anOutputPinConfigured[apin].ulPort,
-     //               g_anOutputPinConfigured[apin].ulPin,
-     //               PWM_FREQUENCY*PWM_MAX_DUTY_CYCLE,
-    //                PWM_MAX_DUTY_CYCLE,
-     //               ulValue, do_init);
-                    
-  } else { //DIGITAL PIN ONLY
-    // Defaults to digital write
-    pinMode(ulPin, OUTPUT);
+    if((attr & GPIO_PIN_PWM) == GPIO_PIN_PWM) 
+    {
+      ulValue = mapResolution(ulValue, _writeResolution, PWM_RESOLUTION);
+      PinName pinName = PinName(ulPin);
+      PwmOut pout(pinName);
+      pout.write(ulValue / 256);
+    } 
+    else 
+    { //DIGITAL PIN ONLY
+      // Defaults to digital write
+      pinMode(ulPin, OUTPUT);
       ulValue = mapResolution(ulValue, _writeResolution, 8);
-    if (ulValue < 128) {
+      if (ulValue < 128) {
       digitalWrite(ulPin, LOW);
     }
     else {
