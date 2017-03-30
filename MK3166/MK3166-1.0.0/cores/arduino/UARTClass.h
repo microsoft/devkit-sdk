@@ -21,34 +21,31 @@
 
 #include "mbed.h"
 #include "HardwareSerial.h"
+#include "BufferedSerial.h"
+
+#define UART_RCV_SIZE 128
 
 class UARTClass : public Stream
 {
   public:
-    UARTClass()
-    {
-      serial = new MbedSerial(STDIO_UART_TX, STDIO_UART_RX);
-    }  
-
-    ~ UARTClass()
-    {
-      //delete serial;
-    }
+    UARTClass();
+    ~UARTClass();
 
     void begin(const uint32_t dwBaudRate);
     void end(void);
-    int read(void);
 
     int available(void);
+    int read(void);
     int peek(void);
     void flush(void);
 
     size_t write(const uint8_t c);
-
     using Print::write; // pull in write(str) and write(buf, size) from Print
 
+    operator bool() { return true; }; // UART always active
+
   protected:
-    MbedSerial *serial;
+    BufferedSerial *serial;
 };
 
 #endif // _UART_CLASS_

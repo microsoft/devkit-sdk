@@ -16,7 +16,19 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "mbed.h"
 #include "UARTClass.h"
+#include "BufferedSerial.h"
+
+UARTClass::UARTClass()
+{
+  serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX);
+}
+
+UARTClass::~UARTClass()
+{
+  //delete serial;
+}
 
 void UARTClass::begin(const uint32_t dwBaudRate)
 {
@@ -28,30 +40,29 @@ void UARTClass::end(void)
   // TODO
 }
 
-int  UARTClass::read(void)
-{
-  return 0;
-}
-
-size_t  UARTClass::write(const uint8_t c)
+size_t UARTClass::write(const uint8_t c)
 {
   serial->putc(c);
   return 1;
 }
 
-
 int UARTClass::available( void )
 {
   //return the amount of data available
-  return 0;
+  return serial->readable();
+}
+
+int  UARTClass::read(void)
+{
+  return serial->getc();
 }
 
 int UARTClass::peek( void )
 {
-  //return the last element of the rx buffer without removing it from the buffer
-  return 0;
+  return serial->peek();
 }
 
 void UARTClass::flush( void )
 {
+  return serial->flush();
 }
