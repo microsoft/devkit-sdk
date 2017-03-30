@@ -110,8 +110,8 @@ extern "C"{
 #define LED_BUILTIN                   PA_10
 
 //ADC resolution is 12bits
-#define ADC_RESOLUTION                12
-#define DACC_RESOLUTION               12
+#define ADC_RESOLUTION                10
+#define DACC_RESOLUTION               8
 
 //PWR resolution
 #define PWM_RESOLUTION                8
