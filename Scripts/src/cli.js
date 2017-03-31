@@ -65,7 +65,7 @@ let _executeTaskAsync = async(_task, cb) => {
         result = await Promise.resolve(_task.run(_context));
         success = true;
     } catch (error) {
-        console.log('got error', result);
+        //console.log('got error', result);
         result = error.message;
     }
     if (success) {
@@ -102,7 +102,7 @@ let registerTask = (name) => {
             _.each(value, name => {
                 _tasks.push(key + ":" + name);
                 gulp.task(key + ":" + name, (cb) => {
-                    let _task = require('./task-' + key)[name];
+                    let _task = require('./tasks/task-' + key)[name];
                     _executeTaskAsync(_task, cb).catch(error => {
                         cb(error);
                     });
@@ -119,7 +119,7 @@ let registerTasks = (...tasks) => {
     }
 };
 
-registerTasks('nodejs', 'azurecli'/*,  {'arduino': ["checkArduinoIde", "checkBoard", "checkPort", "build"]}*/);
+registerTasks('nodejs', 'azurecli', {'arduinoide': ["checkArduinoIde", "checkBoard",/* "checkPort", "build"*/]});
 setImmediate(() => {
     runSequence(..._tasks);
 });

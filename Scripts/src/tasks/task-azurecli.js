@@ -5,7 +5,7 @@ let run = async () => {
         return ver[1];
     } catch (error) {
 
-        throw new Error("Missing python executable, please install Python, if already installed make sure it can be reached from current environment.");
+        throw new Error('Cannot find azure cli, have you installed Azure Cli 2.0 by `pip install azure-cli`, if installed, please add `%APPDATA%\\Python\\Scripts` to path');
     }
 };
 
