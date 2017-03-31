@@ -46,7 +46,7 @@ export default class Openocd {
             throw new Error(`Cannot find script directory please specify scripts in options.` + this.scriptsFolder || '');
         }
 
-        this.outFunc = this.opt.output || (() => { });
+        this.outFunc = this.opt.outFunc || (() => { });
     }
 
     async version() {
