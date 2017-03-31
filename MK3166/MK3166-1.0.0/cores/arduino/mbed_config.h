@@ -25,5 +25,5 @@
 #define UNITY_INCLUDE_CONFIG_H                                                 // defined by library:utest
 #define MBEDTLS_USER_CONFIG_FILE                    "mbedtls_entropy_config.h" // defined by application
 #define MBED_HEAP_STATS_ENABLED                                                // defined by application
-
+#define HTTP_RECEIVE_BUFFER_SIZE                    8192 
 #endif
