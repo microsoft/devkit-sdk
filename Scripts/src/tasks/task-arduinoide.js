@@ -4,6 +4,7 @@ import * as util from '../util'
 import Arduino from '../arduino'
 import os from "os"
 import plist from 'plist'
+import Openocd from '../openocd'
 let arduino = new Arduino();
 
 let parsePackageInfo = (file) => {
@@ -87,11 +88,35 @@ exports.build = {
         try {
             let settings = context.arduino_project.settings;
             let rootFolder = context.arduino_project.rootFolder;
-            let sketchFile = path.resolve(rootFolder, settings.sketch || 'app/app.info');
+            let sketchFile = path.resolve(rootFolder, settings.sketch || 'app/app.ino');
             if (!fs.isFileSync(sketchFile)) {
                 throw new Error(`${sketchFile} cannot be found.`);
             }
             await arduino.compile(settings.board, sketchFile, path.join(rootFolder, '.build'));
+        } catch (error) {
+            throw new Error(error.message);
+        }
+        return 'success';
+    }
+};
+
+
+exports.upload = {
+    name: "Sketch Upload",
+    run: async(context) => {
+
+        try {
+            let settings = context.arduino_project.settings;
+            let rootFolder = context.arduino_project.rootFolder;
+            let sketchFile = path.resolve(rootFolder, settings.sketch || 'app/app.ino');
+            let binFile = path.join(rootFolder, '.build', path.basename(sketchFile) + '.bin');
+            if (!fs.isFileSync(binFile)) {
+                throw new Error(`could not find bin file : ${binFile}`);
+            }
+            let openocdPath = path.dirname(arduino.getArduinoToolPath('openocd', 'openocd'));
+            let openocd = new Openocd({openocdPath});
+            await openocd.execute(settings.debug_interface, settings.transport, settings.target, settings.openocd_scripts.replace(':PROGRAM', binFile));
+            return 'ok';
         } catch (error) {
             throw new Error(error.message);
         }

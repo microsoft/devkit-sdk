@@ -210,4 +210,16 @@ export default class Arduino {
             }
         });
     }
+
+    getArduinoToolPath(tool, executive) {
+        if (fs.isDirectorySync(path.join(this._packagePath, 'packages', 'arduino', 'tools', tool))) {
+            const platform = os.platform();
+            let parent = path.join(this._packagePath, 'packages', 'arduino', 'tools', tool).replace(/\\/g,  '/');
+            let files = glob.sync(parent + '/**/bin/' +
+                (platform === 'win32' ? path.basename(executive, '.exe') + '.exe': executive));
+            if (files.length) return files[0];
+            else return undefined;
+        }
+        return undefined;
+    }
 }
