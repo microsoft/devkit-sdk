@@ -1,0 +1,4 @@
+{
+    "sketch": "Blink.ino",
+    "board": "arduino:samd:arduino_zero_native"
+}
