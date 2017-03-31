@@ -1,4 +1,4 @@
-import * as util from './util'
+import * as util from '../util'
 import _ from 'lodash'
 let run = async (context) => {
     try {
