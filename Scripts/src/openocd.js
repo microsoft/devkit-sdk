@@ -106,7 +106,8 @@ export default class Openocd {
             scriptParam.push('-d');
             scriptParam.push('3');
         }
-        await new BufferedProcess({
+        
+        let bp = new BufferedProcess({
             command: this.command,
             args: ['-s', this.scriptsFolder, ...scriptParam],
             stdout: (data) => {
@@ -122,7 +123,11 @@ export default class Openocd {
                 }
                 else this.outFunc(`openocd exited with error code ${code}.`, 'stderr');
             }
-        }).spawn();
+        });
+        await bp.spawn();
+        let exitCode = await bp.exitPromise;
+        console.log('xxxx', exitCode);
+
     }
 }
 

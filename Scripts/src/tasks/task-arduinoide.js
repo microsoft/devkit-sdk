@@ -114,8 +114,11 @@ exports.upload = {
                 throw new Error(`could not find bin file : ${binFile}`);
             }
             let openocdPath = path.dirname(arduino.getArduinoToolPath('openocd', 'openocd'));
-            let openocd = new Openocd({openocdPath});
+            let openocd = new Openocd({openocdPath, outFunc : (data) => {
+                console.log('[openocd]', data);
+            }});
             await openocd.execute(settings.debug_interface, settings.transport, settings.target, settings.openocd_scripts.replace(':PROGRAM', binFile));
+
             return 'ok';
         } catch (error) {
             throw new Error(error.message);

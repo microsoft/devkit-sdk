@@ -35,7 +35,8 @@ export default class BufferedProcess {
             this.process.once('error', error);
             this.exitPromise = new Promise(exitResolve => {
                 this.process.on('exit', (code) => {
-                    exitResolve();
+                    console.log('exiting openocd here.')
+                    exitResolve(code);
                     this.exit(code);
                 });
             });
