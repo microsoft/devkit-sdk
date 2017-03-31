@@ -126,7 +126,10 @@ export default class Openocd {
         });
         await bp.spawn();
         let exitCode = await bp.exitPromise;
-        console.log('xxxx', exitCode);
+        if (exitCode !== 0) {
+            console.log(`openocd terminated abnormally: ${exitCode}`);
+        }
+
 
     }
 }
