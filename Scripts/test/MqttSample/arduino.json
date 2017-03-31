@@ -1,0 +1,4 @@
+{
+    "sketch": "MqttSample.ino",
+    "board": "azureboard:stm32f4:MXCHIP_MK3166"
+}
