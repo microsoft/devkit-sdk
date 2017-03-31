@@ -119,7 +119,7 @@ let registerTasks = (...tasks) => {
     }
 };
 
-registerTasks('nodejs', 'java', 'python'/*, {'arduino': ["checkArduinoIde", "checkBoard", "checkPort", "build"]}*/);
+registerTasks('nodejs', 'azurecli'/*,  {'arduino': ["checkArduinoIde", "checkBoard", "checkPort", "build"]}*/);
 setImmediate(() => {
     runSequence(..._tasks);
 });
