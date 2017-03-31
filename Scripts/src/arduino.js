@@ -3,7 +3,8 @@ import path from "path";
 import glob from 'glob'
 import fs from 'fs-plus'
 import mkdirp from 'mkdirp'
-
+import * as util from './util'
+import BufferedProcess from './bufferred-process'
 
 let readConfigFileToJson = (file) => {
     if (!fs.isFileSync(file)) return {};
@@ -161,5 +162,52 @@ export default class Arduino {
         // for (let k of Object.keys(this._boards)) {
         //     console.log(k, ' ==> ', this._boards[k].name, this._boards[k].platformName);
         // }
+    }
+
+    compile(boardPlatformArch, sketch, outputDir, outputFunc) {
+        if (!this._boards) {
+            throw new Error('Please initialize first before compile.');
+        }
+        if (!fs.isDirectorySync(outputDir)) {
+            mkdirp.sync(outputDir);
+        }
+        let args = ["--verify", "--board", boardPlatformArch, "--preferences-file",
+            `${outputDir}/pref.txt`, "--pref",
+            "build.path=" +
+            `${outputDir}`, sketch];
+        let files = glob.sync([outputDir.replace(/\\/g, '/'), "*.elf"].join('/'));
+        if (files && files.length) {
+            files.forEach(function(file) {
+                console.log('Deleting' ,file);
+                fs.unlinkSync(file);
+            });
+        }
+        return new Promise(async(resolve, reject) => {
+            try {
+                
+                await new BufferedProcess({
+                    command: this.command,
+                    args: args,
+                    stderr: (data) => {
+                        console.error(data);
+                    },
+                    stdout: (data) => {
+                        console.log(data);
+                    },
+                    exit: (exitCode) => {
+                        if (exitCode === 0) {
+                            console.log(`Arduino Build Success!`, 'stdout');
+                            resolve();
+                        } else {
+                            console.log(`Arduino compile exit with code ${exitCode}.`, 'stderr');
+                            reject(`Arduino compile exit with code ${exitCode}.`);
+                        }
+                    }
+                }).spawn();
+
+            } catch(err) {
+                reject(err);
+            }
+        });
     }
 }

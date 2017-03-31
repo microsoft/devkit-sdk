@@ -3,8 +3,8 @@ import gulp from 'gulp'
 import chalk from 'chalk'
 import prettyTime from 'pretty-hrtime'
 import gutil from 'gulp-util'
-import {Emitter} from 'event-kit'
-import {color, symbols} from './color-output'
+import { Emitter } from 'event-kit'
+import { color, symbols } from './color-output'
 import runSequenceLib from 'run-sequence'
 const runSequence = runSequenceLib.use(gulp);
 
@@ -56,7 +56,7 @@ let _tasks = [];
 let _context = {
 
 };
-let _executeTaskAsync = async(_task, cb) => {
+let _executeTaskAsync = async (_task, cb) => {
     let success = false;
     let result;
     try {
@@ -91,7 +91,7 @@ let registerTask = (name) => {
                 _executeTaskAsync(_task, cb).catch(error => {
                     cb(error);
                 });
-            } catch(error) {
+            } catch (error) {
                 console.error(error);
             }
 
@@ -119,7 +119,14 @@ let registerTasks = (...tasks) => {
     }
 };
 
-registerTasks('nodejs', 'azurecli', {'arduinoide': ["checkArduinoIde", "checkBoard",/* "checkPort", "build"*/]});
+registerTasks('nodejs', 'azurecli', { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort", "build"] });
 setImmediate(() => {
+    let testCase = process.argv.slice(2)[0];
+    let caseInstance = require('./arduino-test')[testCase];
+    if (!caseInstance) {
+        throw new Error(`invalid case ${testCase}.`);
+    }  
+    _context.arduino_project = caseInstance();
     runSequence(..._tasks);
 });
+

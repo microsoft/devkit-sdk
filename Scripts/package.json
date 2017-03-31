@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "gulp babel && node ./out/cli.js"
+    "test": "gulp babel && node ./out/cli.js blink"
   },
   "author": "",
   "license": "ISC",
