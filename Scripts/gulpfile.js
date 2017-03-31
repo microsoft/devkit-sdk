@@ -14,6 +14,7 @@ const watch = require('gulp-watch');
 const readThrough = function() {
     return through.obj(function(file, enc, cb) {
         gutil.log('compiling', gutil.colors.blue(path.basename(file.path)));
+        file.base = path.join(file.base.substring(0, file.base.indexOf('src')), 'src');
         file.contents = stripBom(fs.readFileSync(file.path));
         this.push(file);
         cb();
@@ -34,7 +35,7 @@ gulp.task('babel', () => {
 
 gulp.task('watch', ['babel'], () => {
     return watch('src/**/*.js', (change) => {
-        return gulp.src(change.path, {cwd:'.', read:false})
+        return gulp.src(change.path, {cwd: __dirname, read:false})
             .pipe(plumber())
             .pipe(readThrough())
             .pipe(sourcemaps.init())
