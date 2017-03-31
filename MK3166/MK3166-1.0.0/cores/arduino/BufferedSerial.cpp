@@ -45,22 +45,22 @@ BufferedSerial::~BufferedSerial(void)
 
 int BufferedSerial::readable(void)
 {
-    return _rxbuf.use();  // note: look if things are in the buffer
+    return _rxbuf.use();
+}
+
+int BufferedSerial::writable(void)
+{
+    return _txbuf.available();
 }
 
 void BufferedSerial::flush(void)
 {
-    _rxbuf.clear();
+    _txbuf.clear();
 }
 
 int BufferedSerial::peek(void)
 {
     return _rxbuf.peek();  // note: look if things are in the buffer
-}
-
-int BufferedSerial::writeable(void)
-{
-    return 1;   // buffer allows overwriting by design, always true
 }
 
 int BufferedSerial::getc(void)

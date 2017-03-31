@@ -22,7 +22,7 @@
 
 UARTClass::UARTClass()
 {
-  serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX);
+  serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
 }
 
 UARTClass::~UARTClass()
@@ -50,6 +50,11 @@ int UARTClass::available( void )
 {
   //return the amount of data available
   return serial->readable();
+}
+
+int UARTClass::availableForWrite(void)
+{
+    return serial->writable();
 }
 
 int  UARTClass::read(void)

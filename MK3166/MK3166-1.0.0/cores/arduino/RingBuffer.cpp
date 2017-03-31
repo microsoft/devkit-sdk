@@ -51,7 +51,7 @@ int RingBuffer::puts(uint8_t *data, int len)
     return i;
 }
 
-uint8_t RingBuffer::peek()
+int RingBuffer::peek()
 {
     if (addr_r == addr_w) {
         return -1;
@@ -60,7 +60,7 @@ uint8_t RingBuffer::peek()
     return buf[addr_r];
 }
 
-uint8_t RingBuffer::getc()
+int RingBuffer::getc()
 {
     if (addr_r == addr_w) {
         return -1;
