@@ -51,6 +51,7 @@
     "os": "^0.1.1",
     "package-json": "^2.1.0",
     "parse-help": "^0.1.1",
+    "plist": "^2.0.1",
     "read-pkg-up": "^2.0.0",
     "root-check": "^1.0.0",
     "run-sequence": "^1.2.2",
