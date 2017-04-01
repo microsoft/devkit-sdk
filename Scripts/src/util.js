@@ -1,7 +1,5 @@
 import BufferedProcess from './bufferred-process'
-import _ from 'lodash'
 import path from 'path'
-import fs from 'fs-plus'
 import childProcess from "child_process";
 export const cstr = (s) => {
     let c, esc, i, len;
