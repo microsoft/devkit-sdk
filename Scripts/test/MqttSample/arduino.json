@@ -1,7 +1,7 @@
 {
     "sketch": "MqttSample.ino",
     "board": "azureboard:stm32f4:MXCHIP_MK3166",
-    "upload_program": "../../tools/win/stlink-1.3.0-win64/bin/st-flash.exe",
+    "upload_program": "../../tools/win/st-flash.exe",
     "upload_param" : "--reset write :PROGRAM 0x8008000"
 
 }
