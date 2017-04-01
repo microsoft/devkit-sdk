@@ -1,3 +1,7 @@
+import BufferedProcess from './bufferred-process'
+import _ from 'lodash'
+import path from 'path'
+import fs from 'fs-plus'
 import childProcess from "child_process";
 export const cstr = (s) => {
     let c, esc, i, len;
@@ -47,10 +51,54 @@ export function exec(command) {
         throw new Error(`failed to execute ${command}`);
     }
 }
+
+export function execShort(command, timeout) {
+    return new Promise((resolve, reject) => {
+        childProcess.exec(command, {
+            encoding: 'utf8',
+            timeout: timeout || 1000 * 10
+        }, (error, stdout, stderr) => {
+            if (error) reject(error);
+            else resolve({stderr, stdout});
+        })
+    });
+}
+
+
 export function execStdout(command) {
-    return exec(command).then(result => result.stdout);
+    return execShort(command).then(result => {
+        if (result.stderr) {
+            console.error(`Unexpected error when executing ${command} : ${result.stderr}`);
+        }
+        return result.stdout;
+    });
 }
 
 export function execStderr(command) {
-    return exec(command).then(result => result.stderr);
+    return execShort(command).then(result => {
+        if (result.stdout) {
+            console.stdout(`Unexpected output when executing ${command} : ${result.stdout}`);
+        }
+        return result.stderr;
+    });
+}
+
+export function executeWithProgress(command, args, outFunc) {
+    let bp = new BufferedProcess({
+        command: command,
+        args: args || [],
+        stdout: (data) => {
+            outFunc(data, 'stdout');
+        },
+        stderr: (data) => {
+            outFunc(data, 'stderr');
+        },
+        exit: (code) => {
+            if (code === 0) {
+                outFunc(`${path.basename(command)} exited.`, 'stdout');
+            }
+            else outFunc(`${path.basename(command)} exited with error code ${code}.`, 'stderr');
+        }
+    });
+    return Promise.all(bp.spawn(), bp.exitPromise);
 }

@@ -15,3 +15,6 @@ let example = (rootFolder) => {
 export function blink() {
     return example('../test/Blink');
 }
+export function mqtt() {
+    return example('../test/MqttSample');
+}

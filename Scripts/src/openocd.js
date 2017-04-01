@@ -46,7 +46,7 @@ export default class Openocd {
             throw new Error(`Cannot find script directory please specify scripts in options.` + this.scriptsFolder || '');
         }
 
-        this.outFunc = this.opt.outFunc || (() => { });
+        this.outFunc = this.opt.outFunc || ((data) => { console.log(data) });
     }
 
     async version() {
@@ -59,7 +59,7 @@ export default class Openocd {
             throw new Error(`invalid version ${ver}`);
         }
     }
-    async execute(debug_interface, transport, target, script) {
+    execute(debug_interface, transport, target, script) {
         if (!debug_interface) {
             throw new Error('Missing debug interface');
         }
@@ -106,31 +106,7 @@ export default class Openocd {
             scriptParam.push('-d');
             scriptParam.push('3');
         }
-        
-        let bp = new BufferedProcess({
-            command: this.command,
-            args: ['-s', this.scriptsFolder, ...scriptParam],
-            stdout: (data) => {
-                this.outFunc(data, 'stdout');
-            },
-            stderr: (data) => {
-                // change channel to stdout because openocd always use stderr
-                this.outFunc(data, 'stdout');
-            },
-            exit: (code) => {
-                if (code === 0) {
-                    this.outFunc('openocd exited.', 'stdout');
-                }
-                else this.outFunc(`openocd exited with error code ${code}.`, 'stderr');
-            }
-        });
-        await bp.spawn();
-        let exitCode = await bp.exitPromise;
-        if (exitCode !== 0) {
-            console.log(`openocd terminated abnormally: ${exitCode}`);
-        }
-
-
+        return util.executeWithProgress(this.command,  ['-s', this.scriptsFolder, ...scriptParam], this.outFunc);
     }
 }
 
