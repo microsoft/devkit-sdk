@@ -98,5 +98,5 @@ export function executeWithProgress(command, args, outFunc) {
             else outFunc(`${path.basename(command)} exited with error code ${code}.`, 'stderr');
         }
     });
-    return Promise.all(bp.spawn(), bp.exitPromise);
+    return Promise.all([bp.spawn(), bp.exitPromise]);
 }
