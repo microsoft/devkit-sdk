@@ -3,7 +3,7 @@ import { Emitter } from 'event-kit'
 import fs from 'fs-plus'
 import path from 'path'
 import glob from 'glob'
-import * as util from 'util'
+import * as util from './util'
 import childProcess from 'child_process'
 import BufferedProcess from './bufferred-process'
 const OPENOCD_MAGIC_HEADER = 'Open On-Chip Debugger ';
