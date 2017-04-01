@@ -1,3 +1,5 @@
+import _ from 'lodash'
+import childProcess from "child_process";
 import fs from 'fs-plus'
 import path from 'path'
 import * as util from '../util'
@@ -92,7 +94,9 @@ exports.build = {
             if (!fs.isFileSync(sketchFile)) {
                 throw new Error(`${sketchFile} cannot be found.`);
             }
-            await arduino.compile(settings.board, sketchFile, path.join(rootFolder, '.build'));
+            await arduino.compile(settings.board, sketchFile, path.join(rootFolder, '.build'), output=> {
+                console.log(output);
+            });
         } catch (error) {
             throw new Error(error.message);
         }
@@ -113,10 +117,20 @@ exports.upload = {
             if (!fs.isFileSync(binFile)) {
                 throw new Error(`could not find bin file : ${binFile}`);
             }
+
+            if (settings.upload_program) {
+                //console.log(settings.upload);
+                console.log(path.resolve(path.join(rootFolder, settings.upload_program)) + ' ' + settings.upload_param.replace(':PROGRAM', util.cstr(binFile)));
+                let result =  await util.execShort(path.resolve(path.join(rootFolder, settings.upload_program)) + ' ' + settings.upload_param.replace(':PROGRAM', util.cstr(binFile)), 1000*100);
+                console.log(result.stderr);
+                console.log(result.stdout);
+                return 'ok';
+            }
             let openocdPath = path.dirname(arduino.getArduinoToolPath('openocd', 'openocd'));
-            let openocd = new Openocd({openocdPath, outFunc : (data) => {
-                console.log('[openocd]', data);
-            }});
+            let openocd = new Openocd({
+                openocdPath, outFunc: (data) => {
+                    console.log('[openocd]', data);
+                }});
             await openocd.execute(settings.debug_interface, settings.transport, settings.target, settings.openocd_scripts.replace(':PROGRAM', binFile));
 
             return 'ok';
@@ -125,4 +139,4 @@ exports.upload = {
         }
         return 'success';
     }
-};
+}

@@ -164,7 +164,7 @@ export default class Arduino {
         // }
     }
 
-    compile(boardPlatformArch, sketch, outputDir, outputFunc) {
+    async compile(boardPlatformArch, sketch, outputDir, outputFunc) {
         if (!this._boards) {
             throw new Error('Please initialize first before compile.');
         }
@@ -182,33 +182,12 @@ export default class Arduino {
                 fs.unlinkSync(file);
             });
         }
-        return new Promise(async(resolve, reject) => {
-            try {
-                
-                await new BufferedProcess({
-                    command: this.command,
-                    args: args,
-                    stderr: (data) => {
-                        console.error(data);
-                    },
-                    stdout: (data) => {
-                        console.log(data);
-                    },
-                    exit: (exitCode) => {
-                        if (exitCode === 0) {
-                            console.log(`Arduino Build Success!`, 'stdout');
-                            resolve();
-                        } else {
-                            console.log(`Arduino compile exit with code ${exitCode}.`, 'stderr');
-                            reject(`Arduino compile exit with code ${exitCode}.`);
-                        }
-                    }
-                }).spawn();
 
-            } catch(err) {
-                reject(err);
-            }
-        });
+        let exitcode =  await util.executeWithProgress(this.command,  args, outputFunc);
+        if (exitcode !== 0) {
+            throw new Error(`Upload failure with error code ${exitcode}`);
+        }
+        return 'ok';
     }
 
     getArduinoToolPath(tool, executive) {

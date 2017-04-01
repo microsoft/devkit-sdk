@@ -59,7 +59,7 @@ export default class Openocd {
             throw new Error(`invalid version ${ver}`);
         }
     }
-    execute(debug_interface, transport, target, script) {
+    async execute(debug_interface, transport, target, script) {
         if (!debug_interface) {
             throw new Error('Missing debug interface');
         }
@@ -106,7 +106,11 @@ export default class Openocd {
             scriptParam.push('-d');
             scriptParam.push('3');
         }
-        return util.executeWithProgress(this.command,  ['-s', this.scriptsFolder, ...scriptParam], this.outFunc);
+        let exitcode =  await util.executeWithProgress(this.command,  ['-s', this.scriptsFolder, ...scriptParam], this.outFunc);
+        if (exitcode !== 0) {
+            throw new Error(`Upload failure with error code ${exitcode}`);
+        }
+        return 'ok';
     }
 }
 

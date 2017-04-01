@@ -81,7 +81,7 @@ export function execStderr(command) {
     });
 }
 
-export function executeWithProgress(command, args, outFunc) {
+export async function executeWithProgress(command, args, outFunc) {
     let bp = new BufferedProcess({
         command: command,
         args: args || [],
@@ -98,5 +98,6 @@ export function executeWithProgress(command, args, outFunc) {
             else outFunc(`${path.basename(command)} exited with error code ${code}.`, 'stderr');
         }
     });
-    return Promise.all([bp.spawn(), bp.exitPromise]);
+    await bp.spawn();
+    return bp.exitPromise;
 }

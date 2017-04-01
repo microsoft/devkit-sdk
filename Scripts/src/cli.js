@@ -3,8 +3,8 @@ import gulp from 'gulp'
 import chalk from 'chalk'
 import prettyTime from 'pretty-hrtime'
 import gutil from 'gulp-util'
-import { Emitter } from 'event-kit'
-import { color, symbols } from './color-output'
+import {Emitter} from 'event-kit'
+import {color, symbols} from './color-output'
 import runSequenceLib from 'run-sequence'
 const runSequence = runSequenceLib.use(gulp);
 
@@ -53,10 +53,8 @@ logEvents(gulp);
 
 let _tasks = [];
 
-let _context = {
-
-};
-let _executeTaskAsync = async (_task, cb) => {
+let _context = {};
+let _executeTaskAsync = async(_task, cb) => {
     let success = false;
     let result;
     try {
@@ -93,6 +91,7 @@ let registerTask = (name) => {
                 });
             } catch (error) {
                 console.error(error);
+                cb(error);
             }
 
         });
@@ -125,7 +124,7 @@ setImmediate(() => {
     let caseInstance = require('./arduino-test')[testCase];
     if (!caseInstance) {
         throw new Error(`invalid case ${testCase}.`);
-    }  
+    }
     _context.arduino_project = caseInstance();
     runSequence(..._tasks);
 });
