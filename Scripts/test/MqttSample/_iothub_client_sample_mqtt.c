@@ -27,6 +27,7 @@ typedef struct EVENT_INSTANCE_TAG
     int messageTrackingId; // For tracking the messages within the user callback.
 } EVENT_INSTANCE;
 EVENT_INSTANCE defaultMessage;
+
 static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
 {
     int *counter = (int *)userContextCallback;
@@ -56,9 +57,12 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     {
         (void)printf("Received Message [%d]\r\n Message ID: %s\r\n Correlation ID: %s\r\n Data: <<<%.*s>>> & Size=%d\r\n", *counter, messageId, correlationId, (int)size, buffer, (int)size);
         // If we receive the work 'quit' then we stop running
-        if (size == (strlen("quit") * sizeof(char)) && memcmp(buffer, "quit", size) == 0)
+       
+        if (memcmp(buffer, "light on", size) == 0)
         {
-            printf("------------------------quit-----------------------");
+            turnLightOnOrOff(true);
+        } else if (memcmp(buffer, "light off", size) == 0) {
+            turnLightOnOrOff(false);
         }
     }
 

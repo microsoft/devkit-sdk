@@ -103,8 +103,13 @@ char *ftoa(float n, char *s)
 
 #define pulsePin D1
 #define pulseLedPin LED_BUILTIN
+#define lightPin PB_12
 bool buttonStateChanged = false;
 volatile byte state = HIGH;
+void turnLightOnOrOff(bool status) {
+   Serial.println("-----------------------------------------------");
+  digitalWrite(lightPin, status ? HIGH : LOW);
+}
 void pulseStateHook()
 {
   auto prev = state;
@@ -114,10 +119,13 @@ void pulseStateHook()
 void setup()
 {
   pinMode(pulseLedPin, OUTPUT);
+  pinMode(lightPin, OUTPUT);
   pinMode(pulsePin, INPUT);
   // pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   Serial.println("start");
+  digitalWrite(lightPin, HIGH);
+
   iothub_client_sample_mqtt_init();
 }
 void reportPulse()
