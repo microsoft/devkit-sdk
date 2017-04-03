@@ -1,0 +1,9 @@
+{
+    "sketch": "Blink.ino",
+    "board": "esp8266:esp8266:huzzah",
+    "port": "COM24",
+    "debug_interface": " ",
+    "upload_program": "../../tools/win/esptool.exe",
+    "upload_param" : "-vv -cd nodemcu -cb 115200 -cp :PORT -ca 0x00000 -cf :PROGRAM",
+    "target": "at91samdXX.cfg"
+}
