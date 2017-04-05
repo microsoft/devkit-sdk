@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "gulp babel && node ./out/cli.js mqtt",
-    "mqtt": "gulp babel && node ./out/cli.js mqtt"
+    "blink": "gulp babel && ./build blink",
+    "mqtt": "gulp babel && ./build mqtt"
   },
   "author": "",
   "license": "ISC",
