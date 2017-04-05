@@ -15,7 +15,7 @@
 /*String containing Hostname, Device Id & Device Key in the format:                         */
 /*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
 /*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-static const char* connectionString = "HostName=renhe-iot-test.azure-devices.net;DeviceId=renhemico1;SharedAccessKey=cNeiQ2AM4wKkZGg8dK2G1cAcuednWdO3a6p2Qif4UM8=";
+static const char* connectionString = "HostName=andyiot3.azure-devices.net;DeviceId=test1;SharedAccessKey=CZsTvOw3+Zjy8g+29oi6KliUqGrwCWYfLCGRh+LWocc=";
 
 
 static int callbackCounter;
@@ -154,7 +154,7 @@ void iothub_client_sample_mqtt_run(void)
                 {
                     if (iterator < MESSAGE_COUNT)
                     {
-                        sprintf_s(msgText, sizeof(msgText), "{\"deviceId\":\"myFirstDevice\",\"windSpeed\":%.2f}", avgWindSpeed + (rand() % 4 + 2));
+                        sprintf_s(msgText, sizeof(msgText), "{\"deviceId\":\"test1\",\"windSpeed\":%.2f}", avgWindSpeed + (rand() % 4 + 2));
                         if ((messages[iterator].messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)msgText, strlen(msgText))) == NULL)
                         {
                             (void)printf("ERROR: iotHubMessageHandle is NULL!\r\n");

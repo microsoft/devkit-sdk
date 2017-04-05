@@ -118,7 +118,7 @@ let registerTasks = (...tasks) => {
     }
 };
 
-registerTasks('nodejs', 'azurecli', { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort","build", "upload"] });
+registerTasks('nodejs', { 'azurecli': 'version' }, { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort","build", "upload"] });
 setImmediate(() => {
     let testCase = process.argv.slice(2)[0];
     let caseInstance = require('./arduino-test')[testCase];
