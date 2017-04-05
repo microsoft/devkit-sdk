@@ -21,7 +21,6 @@
 #define MBED_STACK_STATS_ENABLED                    1                          // defined by application
 #define MBEDTLS_MD5_C                                                          // defined by application
 #define MBEDTLS_SHA1_C                                                         // defined by application
-#define MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES                                     // defined by application
 #define UNITY_INCLUDE_CONFIG_H                                                 // defined by library:utest
 #define MBEDTLS_USER_CONFIG_FILE                    "mbedtls_entropy_config.h" // defined by application
 #define MBED_HEAP_STATS_ENABLED                                                // defined by application

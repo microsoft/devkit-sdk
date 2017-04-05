@@ -25,8 +25,6 @@
 #undef MBEDTLS_TEST_NULL_ENTROPY
 #endif
  
-#if DEMO == DEMO_HTTPS
- 
 #if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && \
     !defined(MBEDTLS_ENTROPY_NV_SEED) && !defined(MBEDTLS_TEST_NULL_ENTROPY)
 #error "This hardware does not have an entropy source."
@@ -46,6 +44,4 @@
 #define MBEDTLS_MPI_MAX_SIZE        512
  
 #define MBEDTLS_MPI_WINDOW_SIZE     1
- 
-#endif
  
