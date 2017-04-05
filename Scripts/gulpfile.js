@@ -22,7 +22,7 @@ const readThrough = function() {
 };
 
 gulp.task('babel', () => {
-    return gulp.src(['src/**/*.js'], {cwd:'.', read:false})
+    return gulp.src(['src/**/*.js', '!**/*jb_tmp*'], {cwd:'.', read:false})
         .pipe(plumber())
         .pipe(changed('out'))
         .pipe(readThrough())
@@ -34,7 +34,7 @@ gulp.task('babel', () => {
 
 
 gulp.task('watch', ['babel'], () => {
-    return watch('src/**/*.js', (change) => {
+    return watch(['src/**/*.js', '!**/*jb_tmp*'], (change) => {
         return gulp.src(change.path, {cwd: __dirname, read:false})
             .pipe(plumber())
             .pipe(readThrough())

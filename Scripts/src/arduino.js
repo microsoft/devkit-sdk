@@ -52,25 +52,14 @@ export default class Arduino {
     async _internalResolveArduinoPath() {
         const plat = os.platform();
         try {
-            if (plat === "win32") {
-                let arduinoLocation = path.resolve(await util.execStdout("where arduino_debug")).trim();
-                if (fs.existsSync(arduinoLocation)) {
-                    return path.dirname(path.resolve(arduinoLocation));
-                }
-            } else if (plat === "linux") {
-                let arduinoLocation = path.resolve(await util.execStdout("readlink -f $(which arduino)")).trim();
-                if (fs.existsSync(arduinoLocation)) {
-                    return path.dirname(path.resolve(arduinoLocation));
-                }
-            } else if (plat === 'darwin') {
-                let arduinoLocation = path.resolve(await util.execStdout("readlink -n $(which arduino)")).trim();
-                if (fs.existsSync(arduinoLocation)) {
-                    return path.dirname(path.resolve(arduinoLocation));
-                }
+            let location = await util.findExecutive(plat === "win32"? "arduino_debug" : "arduino");
+            if (fs.isFileSync(location)) {
+                return path.dirname(location);
             }
         } catch (ex) {
             // Ignore the errors.
         }
+
         if (plat === "win32") {
             const defaultCommonPaths = [process.env.ProgramFiles, process.env["ProgramFiles(x86)"]];
             for (let scanPath of defaultCommonPaths) {

@@ -1,5 +1,8 @@
 import BufferedProcess from './bufferred-process'
+import fs from 'fs-plus'
 import path from 'path'
+import _ from 'lodash'
+import os from 'os'
 import childProcess from "child_process";
 export const cstr = (s) => {
     let c, esc, i, len;
@@ -63,8 +66,8 @@ export function execShort(command, timeout) {
 }
 
 
-export function execStdout(command) {
-    return execShort(command).then(result => {
+export function execStdout(command, timeout) {
+    return execShort(command, timeout).then(result => {
         if (result.stderr) {
             console.error(`Unexpected error when executing ${command} : ${result.stderr}`);
         }
@@ -72,8 +75,8 @@ export function execStdout(command) {
     });
 }
 
-export function execStderr(command) {
-    return execShort(command).then(result => {
+export function execStderr(command, timeout) {
+    return execShort(command, timeout).then(result => {
         if (result.stdout) {
             console.stdout(`Unexpected output when executing ${command} : ${result.stdout}`);
         }
@@ -101,3 +104,40 @@ export async function executeWithProgress(command, args, outFunc) {
     await bp.spawn();
     return bp.exitPromise;
 }
+async function isShebang(file) {
+    return new Promise((resolve, reject) => {
+        fs.open(file, 'r',  (err, fd) => {
+            if (err) return reject(err);
+            fs.read(fd, new Buffer(2), 0, 2, 0, (err, bytesRead, buf) => {
+                if (err) return reject(err);
+                resolve(bytesRead >= 2 && buf.readUInt8(0) === 0x23 /*'#'*/
+                    && buf.readUInt8(1) === 0x21 /*'!'*/);
+            });
+        });
+    });
+
+}
+export async function findExecutive(command) {
+    const platform = os.platform();
+    let executiveList = [];
+    let isWin32 = false;
+    if (platform === "win32") {
+        let list = (await execStdout("where " + command)).trim().split('\n');
+        executiveList = _.map(list, l => l.trim());
+        isWin32 = true;
+    }  else {
+        let location = path.resolve(await execStdout(`which ${command}`)).trim();
+        if (fs.isSymbolicLinkSync(location)) {
+            executiveList.push(fs.realpathSync(location));
+        } else if (fs.isFileSync(location)) {
+            executiveList.push(location);
+        }
+    }
+    for (let executiveFile of executiveList ) {
+        let shebang = await isShebang(executiveFile);
+        if (shebang && !isWin32) return executiveFile;
+        if (!shebang && isWin32) return executiveFile;
+    }
+    return executiveList[0];
+}
+// findExecutive('apt').catch(console.log).then(data => console.log(data));
