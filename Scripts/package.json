@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "blink": "gulp babel && ./build blink",
-    "mqtt": "gulp babel && ./build mqtt"
+    "blink": "gulp babel && build blink",
+    "mqtt": "gulp babel && build mqtt",
+    "provision": "gulp babel && provision"
   },
   "author": "",
   "license": "ISC",
@@ -63,6 +64,7 @@
     "titleize": "^1.0.0",
     "tty": "^1.0.1",
     "update-notifier": "^1.0.3",
-    "user-home": "^2.0.0"
+    "user-home": "^2.0.0",
+    "username": "^2.3.0"
   }
 }

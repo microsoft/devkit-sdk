@@ -97,7 +97,11 @@ let registerTask = (name) => {
         });
     } else {
         let obj = name;
+
         _.each(obj, (value, key) => {
+            if (!Array.isArray(value)) {
+                value = [value];
+            }
             _.each(value, name => {
                 _tasks.push(key + ":" + name);
                 gulp.task(key + ":" + name, (cb) => {
@@ -113,19 +117,23 @@ let registerTask = (name) => {
 };
 
 let registerTasks = (...tasks) => {
-    for (let name of tasks) {
-        registerTask(name);
+    for (let task of tasks) {
+        registerTask(task);
     }
 };
 
-registerTasks('nodejs', { 'azurecli': 'version' }, { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort","build", "upload"] });
-setImmediate(() => {
-    let testCase = process.argv.slice(2)[0];
+let testCase = process.argv.slice(2)[0];
+if (testCase === 'provision') {
+    registerTasks('nodejs', { 'azurecli': ['version', 'login', 'provision'] });
+} else {
     let caseInstance = require('./arduino-test')[testCase];
     if (!caseInstance) {
         throw new Error(`invalid case ${testCase}.`);
     }
     _context.arduino_project = caseInstance();
+    registerTasks('nodejs', { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort","build", "upload"] });
+}
+setImmediate(() => {
     runSequence(..._tasks);
 });
 
