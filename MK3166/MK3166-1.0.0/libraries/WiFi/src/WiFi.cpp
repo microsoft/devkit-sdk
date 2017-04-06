@@ -135,7 +135,7 @@ uint8_t* WiFiClass::BSSID(uint8_t* bssid)
 
 int32_t WiFiClass::RSSI()
 {
-    return wiFiDrv.getCurrentRSSI();
+    return wiFiDrv.get_rssi();
 }
 
 uint8_t WiFiClass::encryptionType()

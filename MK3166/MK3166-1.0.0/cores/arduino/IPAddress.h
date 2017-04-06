@@ -22,15 +22,16 @@
 
 #include <stdint.h>
 #include "Printable.h"
-#include "WString.h"
+
 
 // A class to make it easier to handle and pass around IP addresses
 
 class IPAddress : public Printable {
 private:
+    char _ipAddress[17];
     union {
-	uint8_t bytes[4];  // IPv4 address
-	uint32_t dword;
+    uint8_t bytes[4];  // IPv4 address
+    uint32_t dword;
     } _address;
 
     // Access the raw byte array containing the address.  Because this returns a pointer
@@ -47,7 +48,6 @@ public:
     IPAddress(const uint8_t *address);
 
     bool fromString(const char *address);
-    bool fromString(const String &address) { return fromString(address.c_str()); }
 
     // Overloaded cast operator to allow IPAddress objects to be used where a pointer
     // to a four-byte uint8_t array is expected
@@ -64,10 +64,13 @@ public:
     IPAddress& operator=(uint32_t address);
 
     virtual size_t printTo(Print& p) const;
+    
+    char * get_address(void);
+
+    friend class Client;
 
     /*friend class EthernetClass;
     friend class UDP;
-    friend class Client;
     friend class Server;
     friend class DhcpClass;
     friend class DNSClient;*/
