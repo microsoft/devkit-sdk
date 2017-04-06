@@ -27,6 +27,7 @@
 #include "rtos.h"
 #include "wl_types.h"
 #include "wifi_drv.h"
+#include "emw10xx_lwip_stack.h"
 
 static bool _WiFiDrv_inited = false;
 static Semaphore _conn_sem;
@@ -148,7 +149,7 @@ void WiFiDrv::wifiDriverInit()
     wifi_status = WL_NO_SSID_AVAIL;
 }
 
-int8_t WiFiDrv::disconnect()
+int WiFiDrv::disconnect()
 {
     WiFiDrv_INITED;
     micoWlanSuspendStation();
@@ -322,7 +323,7 @@ uint8_t* WiFiDrv::getCurrentBSSID()
     return _bssid;
 }
 
-int32_t WiFiDrv::getCurrentRSSI()
+int8_t WiFiDrv::get_rssi()
 {
 	LinkStatusTypeDef link_status;
     if( _is_sta_connected == false ) return 0;
@@ -398,6 +399,59 @@ int WiFiDrv::getHostByName(const char* aHostname, IPAddress& aResult)
 	int result = 0;
 	return result;
 }
+
+NetworkStack* WiFiDrv::get_stack()
+{
+    WiFiDrv_INITED;
+    return nsapi_create_stack(&lwip_stack);
+}
+
+
+int WiFiDrv::set_channel(uint8_t channel)
+{
+    return NSAPI_ERROR_OK;
+}
+
+int WiFiDrv::connect()
+{
+    int8_t status = wifiSetPassphrase(ap_ssid, strlen(ap_ssid), ap_pass, strlen(ap_pass));
+    if(status == WL_SUCCESS)
+        return NSAPI_ERROR_OK;
+    else
+        return NSAPI_ERROR_NO_CONNECTION;
+}
+
+int WiFiDrv::connect(const char *ssid, const char *pass, nsapi_security_t security,
+                                     uint8_t channel)
+{
+    if (channel != 0) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    set_credentials(ssid, pass, security);
+    return connect();
+}
+
+
+
+int WiFiDrv::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
+{
+    memset(ap_ssid, 0, sizeof(ap_ssid));
+    strncpy(ap_ssid, ssid, sizeof(ap_ssid));
+
+    memset(ap_pass, 0, sizeof(ap_pass));
+    strncpy(ap_pass, pass, sizeof(ap_pass));
+
+    return 0;
+}
+
+int WiFiDrv::scan(WiFiAccessPoint *res, unsigned count)
+{
+    int result = startScanNetworks();
+    res = scannedNetworks;
+    return result;
+}
+
 
 
 WiFiDrv wiFiDrv;

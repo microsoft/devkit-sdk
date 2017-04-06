@@ -19,6 +19,7 @@
 
 #include <Arduino.h>
 #include <IPAddress.h>
+#include "WString.h"
 
 IPAddress::IPAddress()
 {
@@ -101,6 +102,21 @@ bool IPAddress::operator==(const uint8_t* addr) const
 {
     return memcmp(addr, _address.bytes, sizeof(_address.bytes)) == 0;
 }
+
+char* IPAddress::get_address(void)
+{
+    String ipAddrStr(_address.bytes[0]);
+    ipAddrStr.concat('.');
+    ipAddrStr.concat(_address.bytes[1]);
+    ipAddrStr.concat('.');
+    ipAddrStr.concat(_address.bytes[2]);
+    ipAddrStr.concat('.');
+    ipAddrStr.concat(_address.bytes[3]);
+    ipAddrStr.toCharArray(_ipAddress, sizeof(_ipAddress));
+    
+    return _ipAddress;
+}
+
 
 size_t IPAddress::printTo(Print& p) const
 {

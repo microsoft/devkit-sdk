@@ -26,8 +26,11 @@
 
 #include "IPAddress.h"
 #include "mico.h"
+#include "WifiInterface.h"
 
-class WiFiDrv
+class NetworkStack;
+
+class WiFiDrv : public WiFiInterface
 {
 private: 
 
@@ -35,13 +38,30 @@ private:
     bool _is_ap_connected;
     uint8_t wifi_status;
     uint8_t ap_ch;
+
+    char ap_ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
+    char ap_pass[64]; /* The longest allowed passphrase */
+
     static void _wlan_status_cb_by_mico( WiFiEvent event, void *inContext );
     void _wlan_status_cb( WiFiEvent event );
 
     static void _scan_complete_cb_by_mico( ScanResult_adv *pApList, void *inContext );
     void _scan_complete_cb( ScanResult_adv *pApList );
 
-	
+public: 
+
+    virtual int set_channel(uint8_t channel);
+    
+    virtual int connect();
+    
+    virtual int connect(const char *ssid, const char *pass,
+            nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0);
+    
+    virtual int set_credentials(const char *ssid, const char *pass,
+            nsapi_security_t security = NSAPI_SECURITY_NONE) ;
+    
+    virtual int scan(WiFiAccessPoint *res, nsapi_size_t count);
+
 public:
 
     /*
@@ -92,9 +112,9 @@ public:
 	*
 	* return: WL_SUCCESS or WL_FAILURE
 	*/
-   int8_t disconnect();
+    virtual int disconnect();
 
-      /*
+    /*
 	* Disconnect AP from the network
 	*
 	* return: WL_SUCCESS or WL_FAILURE
@@ -145,7 +165,7 @@ public:
 	*
 	* return: signed value
 	*/
-   int32_t getCurrentRSSI();
+   virtual int8_t get_rssi();
 
    /*
 	* Return the Encryption Type associated with the network
@@ -167,6 +187,13 @@ public:
 
    
    int getHostByName(const char* aHostname, IPAddress& aResult);
+
+
+     /** Provide access to the underlying stack
+     *
+     *  @return The underlying network stack
+     */
+    NetworkStack *get_stack();
 
 };
 

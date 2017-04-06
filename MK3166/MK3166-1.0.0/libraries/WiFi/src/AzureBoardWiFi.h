@@ -27,7 +27,7 @@ extern "C" {
 }
 
 #include "IPAddress.h"
-//#include "WiFiClient.h"
+#include "WiFiClient.h"
 //#include "WiFiServer.h"
 
 
@@ -197,7 +197,7 @@ public:
 	 */
 	int hostByName(const char* aHostname, IPAddress& aResult);
 
-    //friend class WiFiClient;
+    friend class WiFiClient;
     //friend class WiFiServer;
 };
 
