@@ -24,6 +24,7 @@ public:
     /**Get the number of bytes available int the buffer.
      */
     int available();
+    int use();
 
     /** put to ring buffer
      * @param dat data
@@ -55,7 +56,6 @@ public:
     int get(uint8_t *data, int len);
 
     void clear();
-    int use();
 
 private:
     uint8_t *buf;
