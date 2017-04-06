@@ -20,7 +20,6 @@
 #define HardwareSerial_h
 
 #include <inttypes.h>
-
 #include "Stream.h"
 
 class HardwareSerial : public Stream

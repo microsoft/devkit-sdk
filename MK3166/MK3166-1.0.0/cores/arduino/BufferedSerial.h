@@ -70,7 +70,6 @@ public:
     virtual int readable(void);
     
     /** Check to see if the tx buffer has room
-     *  @return 1 always has room and can overwrite previous content if too small / slow
      */
     virtual int writable(void);
     
@@ -92,7 +91,7 @@ public:
      *  @param s The string to write to the Serial Port
      *  @return The number of bytes written to the Serial Port Buffer
      */
-    virtual int puts(const char *s);
+    virtual int puts(const uint8_t *s);
     
     /** Write a formatted string to the BufferedSerial Port.
      *  @param format The string + format specifiers to write to the Serial Port

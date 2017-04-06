@@ -27,8 +27,8 @@
 BufferedSerial::BufferedSerial(PinName tx, PinName rx, uint32_t buf_size, uint32_t tx_multiple, const char* name)
     : RawSerial(tx, rx) , _rxbuf(buf_size), _txbuf((uint32_t)(tx_multiple*buf_size))
 {
-    RawSerial::attach(this, &BufferedSerial::rxIrq, MbedSerial::RxIrq);
-    
+    RawSerial::attach(this, &BufferedSerial::rxIrq, RawSerial::RxIrq);
+
     this->_buf_size = buf_size;
     this->_tx_multiple = tx_multiple;
 
@@ -56,6 +56,7 @@ int BufferedSerial::writable(void)
 void BufferedSerial::flush(void)
 {
     _txbuf.clear();
+    _rxbuf.clear();
 }
 
 int BufferedSerial::peek(void)
@@ -76,20 +77,21 @@ int BufferedSerial::putc(int c)
     return c;
 }
 
-int BufferedSerial::puts(const char *s)
+int BufferedSerial::puts(const uint8_t *s)
 {
     if (s != NULL) {
-        const char* ptr = s;
+        const uint8_t* ptr = s;
     
         while(*(ptr) != 0) {
             _txbuf.putc(*(ptr++)); 
         }
 
-        //_txbuf = '\n';  // done per puts definition
+        //_txbuf.putc('\n');      // done per puts definition
         BufferedSerial::prime();
     
         return (ptr - s) + 1;
     }
+
     return 0;
 }
 
@@ -147,7 +149,7 @@ void BufferedSerial::txIrq(void)
     // see if there is room in the hardware fifo and if something is in the software fifo
     while(serial_writable(&_serial)) {
         if(_txbuf.use() > 0) {
-            uint8_t data = _txbuf.getc();
+            int data = _txbuf.getc();
             serial_putc(&_serial, data);
         } else {
             // disable the TX interrupt when there is nothing left to send
