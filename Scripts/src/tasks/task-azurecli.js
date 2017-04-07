@@ -68,7 +68,7 @@ exports.login = {
         }
         let subsList = _.map(subscriptions, sub => {
             return {
-                name: sub.name,
+                name: `${sub.name} (${sub.id})`,
                 value: sub
             };
         });
@@ -98,27 +98,36 @@ exports.iothub = {
         if (!currentSubs) {
             throw new Error('Please select subscription first.');
         }
-        // let guid = uuidV4().slice(0, 4);
-        // let resourceGroupName = (await username()) + '-group-' + guid;
-        // console.log(`Creating resource group ${resourceGroupName}`);
-        // console.log(`az group create --name ${resourceGroupName} --location westus`);
-        // let output = await util.execStdout(util.cstr(azureCliLocation) + ` group create --name ${resourceGroupName} --location westus`, 5 * 60000);
-        // if (output && JSON.parse(output)) {
-        //     let createResourceResponse = JSON.parse(output);
-        //     console.log(`Create resource group ${resourceGroupName} ${createResourceResponse.properties.provisioningState}`);
-        // }
-        // let iotHubName = (await username()) + '-iothub-' + guid;
-        // console.log(`Creating iothub ${iotHubName}`);
-        // console.log(`az iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus`);
-        // let _result = await util.execShort(util.cstr(azureCliLocation) + ` iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus`, 15 * 60000);
-        //
-        // if (_result.stdout && JSON.parse(_result.stdout)) {
-        //     let createIotHubResponse = JSON.parse(_result.stdout);
-        //     console.log(`Create iot-hub ${createIotHubResponse.name} Success.`);
-        // } else {
-        //     throw new Error(`Cannot create iot hub due to error: ${_result.stderr}.`);
-        // }
-        let iotHubName = '';
+        let iotHubName, output;
+        let guid = uuidV4().slice(0, 4);
+
+         console.log('az provider register -n "Microsoft.Devices"' + `${Date.now()/1000}`);
+        output = await util.execStdout(util.cstr(azureCliLocation) + ` provider register -n "Microsoft.Devices"`, 1 * 60000);
+        console.log('az provider register -n "Microsoft.Devices" [done]  + `${Date.now()/1000}`');
+
+        let resourceGroupName = (await username()) + '-group-' + guid;
+        console.log(`Creating resource group ${resourceGroupName}`);
+        console.log(`az group create --name ${resourceGroupName} --location westus` + `${Date.now()/1000}`);
+        output = await util.execStdout(util.cstr(azureCliLocation) + ` group create --name ${resourceGroupName} --location westus`, 5 * 60000);
+        if (output && JSON.parse(output)) {
+            let createResourceResponse = JSON.parse(output);
+            console.log(`Create resource group ${resourceGroupName} ${createResourceResponse.properties.provisioningState}` + `${Date.now()/1000}`);
+        }
+
+
+        iotHubName = (await username()) + '-iothub-' + guid;
+        console.log(`Creating iothub ${iotHubName}`);
+        console.log(`az iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus --sku F1` + `${Date.now()/1000}`);
+        let _result = await util.execShort(util.cstr(azureCliLocation) + ` iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus --sku F1`, 15 * 60000);
+        
+        if (_result.stdout && JSON.parse(_result.stdout)) {
+            let createIotHubResponse = JSON.parse(_result.stdout);
+            console.log(`Create iot-hub ${createIotHubResponse.name} Success.` + `${Date.now()/1000}`);
+        } else {
+            throw new Error(`Cannot create iot hub due to error: ${_result.stderr}.`);
+        }
+
+        // let iotHubName = '';
         let hubPreference = pref.getValue('iot_event_hub');
         let hubList = JSON.parse(await util.execStdout(util.cstr(azureCliLocation) + ` iot hub list`, 60000));
         if (hubList && hubList.length) {
@@ -149,15 +158,17 @@ exports.iothub = {
             return "new";
         }
         //show connection string
-        console.log(`az iot hub show-connection-string -n ${iotHubName}`);
-        let output = await azurecli.execResultJson(`iot hub show-connection-string -n ${iotHubName}`);
+        console.log(`az iot hub show-connection-string -n ${iotHubName}` + `${Date.now()/1000}`);
+        output = await azurecli.execResultJson(`iot hub show-connection-string -n ${iotHubName}`);
         let connectionString = output.connectionString;
         if (connectionString) {
-            console.log('x', connectionString);
+            console.log('x' + `${Date.now()/1000}`, connectionString);
         } else {
             throw new Error(`Cannot get iot hub connection string.`);
         }
+        console.log("list devices"  + `${Date.now()/1000}`);
         let deviceList = await azurecli.execResultJson(`iot device list --hub-name ${iotHubName}`);
+        console.log("list devices [done]"  + `${Date.now()/1000}`);
         let device1 = _.find(deviceList, {"deviceId" : 'myDevice1'});
         if (device1 && device1.status !== 'enabled') {
             console.log(`enable ${device1.deviceId}`);
@@ -166,6 +177,7 @@ exports.iothub = {
             let createDeviceRes = await azurecli.execResultJson(`iot device create --hub-name ${iotHubName} --device-id myDevice1`);
             console.log(createDeviceRes);
         }
+        console.log("enable/create devices [done]"  + `${Date.now()/1000}`);
 
         // list devices
         //az iot device list --hub-name vsciot-hub-test
