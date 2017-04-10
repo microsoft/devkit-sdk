@@ -68,7 +68,7 @@ exports.login = {
         }
         let subsList = _.map(subscriptions, sub => {
             return {
-                name: sub.name,
+                name: `${sub.name} (${sub.id})`,
                 value: sub
             };
         });
@@ -82,11 +82,11 @@ exports.login = {
                 subsList,
                 new inquirer.Separator()
             ]),
-            default: subsPreference ? _.findIndex(subsList, {name: subsPreference}) : 0
+            default: subsPreference ? _.findIndex(subsList, {id: subsPreference}) : 0
         }]);
         await azurecli.execNoOutput(`account set --subscription ${result.choose.id}`);
         currentSubs = result.choose;
-        pref.setValue('subscription', result.choose.name);
+        pref.setValue('subscription', result.choose.id);
         pref.savePreference();
         return result.choose.name;
     }
@@ -98,31 +98,16 @@ exports.iothub = {
         if (!currentSubs) {
             throw new Error('Please select subscription first.');
         }
-        // let guid = uuidV4().slice(0, 4);
-        // let resourceGroupName = (await username()) + '-group-' + guid;
-        // console.log(`Creating resource group ${resourceGroupName}`);
-        // console.log(`az group create --name ${resourceGroupName} --location westus`);
-        // let output = await util.execStdout(util.cstr(azureCliLocation) + ` group create --name ${resourceGroupName} --location westus`, 5 * 60000);
-        // if (output && JSON.parse(output)) {
-        //     let createResourceResponse = JSON.parse(output);
-        //     console.log(`Create resource group ${resourceGroupName} ${createResourceResponse.properties.provisioningState}`);
-        // }
-        // let iotHubName = (await username()) + '-iothub-' + guid;
-        // console.log(`Creating iothub ${iotHubName}`);
-        // console.log(`az iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus`);
-        // let _result = await util.execShort(util.cstr(azureCliLocation) + ` iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus`, 15 * 60000);
-        //
-        // if (_result.stdout && JSON.parse(_result.stdout)) {
-        //     let createIotHubResponse = JSON.parse(_result.stdout);
-        //     console.log(`Create iot-hub ${createIotHubResponse.name} Success.`);
-        // } else {
-        //     throw new Error(`Cannot create iot hub due to error: ${_result.stderr}.`);
-        // }
+        
+        // register provider for subscription 
+        await azurecli.execNoOutput(`provider register -n "Microsoft.Devices"`);
+        
+        let guid = uuidV4().slice(0, 4);
+        let defaultPreffix = await username();
         let iotHubName = '';
         let hubPreference = pref.getValue('iot_event_hub');
         let hubList = JSON.parse(await util.execStdout(util.cstr(azureCliLocation) + ` iot hub list`, 60000));
         if (hubList && hubList.length) {
-            console.log(hubPreference,  _.findIndex(hubList, hubPreference));
             let result = await inquirer.prompt([{
                 name: 'choose',
                 type: 'list',
@@ -139,21 +124,78 @@ exports.iothub = {
                 default: hubPreference
             }]);
             if (result.choose != '$$') {
-                pref.setValue('iot_event_hub', result.choose);
-                pref.savePreference();
                 iotHubName = result.choose;
             }
         }
         if (!iotHubName) {
-            // create new
-            return "new";
+            // create iothub
+            let groupList = await azurecli.execResultJson('group list');
+            let resourceGroupName = '';
+            if (groupList && groupList.length) {
+                let result = await inquirer.prompt([{
+                    name: 'choose',
+                    type: 'list',
+                    message: `Which Resource Group would you like to choose?`,
+                    choices: _.flatten([
+                        new inquirer.Separator('Select Resouce Group'),
+                        groupList,
+                        new inquirer.Separator(),
+                        {name:"Create new...", value: "$$"},
+                        new inquirer.Separator()
+                    ]),
+                    pageSize: 10
+                }]);
+                if (result.choose != '$$') {
+                    resourceGroupName = result.choose;
+                }
+            }
+            if(!resourceGroupName) {
+                //create resource group
+                let result = await inquirer.prompt([{
+                    name: 'resourceGroupName',
+                    type: 'input',
+                    message: `Resource Group Name: `,
+                    default: defaultPreffix
+                }]);
+                resourceGroupName =`${result.resourceGroupName}-group-${guid}`;
+
+                console.log(`Creating resource group [${resourceGroupName}] ...`);
+                console.log(`az group create --name ${resourceGroupName} --location westus`);
+                let output = await util.execStdout(util.cstr(azureCliLocation) + ` group create --name ${resourceGroupName} --location westus`, 5 * 60000);
+                if (output && JSON.parse(output)) {
+                    let createResourceResponse = JSON.parse(output);
+                    console.log(`Create resource group [${resourceGroupName}] ${createResourceResponse.properties.provisioningState}.`);
+                }
+            }
+
+            let result = await inquirer.prompt([{
+                name: 'iotHubName',
+                type: 'input',
+                message: `IoT Hub Name: `,
+                default: defaultPreffix
+            }]);
+            iotHubName = `${result.iotHubName}-iothub-${guid}`;
+
+            console.log(`Creating iothub [${iotHubName}] ...`);
+            console.log(`az iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus --sku F1`);
+            let _result = await util.execShort(util.cstr(azureCliLocation) + ` iot hub create -g ${resourceGroupName} -n ${iotHubName} --location westus --sku F1`, 15 * 60000);
+            
+            if (_result.stdout && JSON.parse(_result.stdout)) {
+                let createIotHubResponse = JSON.parse(_result.stdout);
+                console.log(`Create iot-hub [${createIotHubResponse.name}] ${createResourceResponse.properties.provisioningState}.`);
+            } else {
+                throw new Error(`Cannot create iot hub due to error: ${_result.stderr}.`);
+            }
         }
+        
+        pref.setValue('iot_event_hub', iotHubName);
+        pref.savePreference();
         //show connection string
         console.log(`az iot hub show-connection-string -n ${iotHubName}`);
         let output = await azurecli.execResultJson(`iot hub show-connection-string -n ${iotHubName}`);
         let connectionString = output.connectionString;
         if (connectionString) {
-            console.log('x', connectionString);
+            console.log(`[${iotHubName}]: ${connectionString}`);
         } else {
             throw new Error(`Cannot get iot hub connection string.`);
         }
@@ -166,9 +208,8 @@ exports.iothub = {
             let createDeviceRes = await azurecli.execResultJson(`iot device create --hub-name ${iotHubName} --device-id myDevice1`);
             console.log(createDeviceRes);
         }
+        console.log("enable/create devices success");
 
-        // list devices
-        //az iot device list --hub-name vsciot-hub-test
         return JSON.stringify(await azurecli.execResultJson(`iot device show-connection-string --hub-name ${iotHubName} --device-id myDevice1 --key secondary`));
     }
 };
