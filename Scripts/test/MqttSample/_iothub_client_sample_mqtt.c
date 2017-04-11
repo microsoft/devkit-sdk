@@ -14,7 +14,9 @@
 /*String containing Hostname, Device Id & Device Key in the format:                         */
 /*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
 /*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-static const char *connectionString = "HostName=vsciotdemo.azure-devices.net;DeviceId=myDevice1;SharedAccessKey=blz6Hgr0O8dQJay88eKl5sDKEkW6D6vO6lJiMIXWhAs=";
+// static const char *connectionString = "HostName=vsciotdemo.azure-devices.net;DeviceId=myDevice1;SharedAccessKey=blz6Hgr0O8dQJay88eKl5sDKEkW6D6vO6lJiMIXWhAs=";
+static const char *connectionString = "HostName=sechs-iothub-3a3c.azure-devices.net;DeviceId=myDevice1;SharedAccessKey=+KRr+lFkBCd3/wZjx2bluZXNZvhwSQnk8qTsJ+9Rqsw=";
+
 
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
@@ -56,14 +58,8 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     else
     {
         (void)printf("Received Message [%d]\r\n Message ID: %s\r\n Correlation ID: %s\r\n Data: <<<%.*s>>> & Size=%d\r\n", *counter, messageId, correlationId, (int)size, buffer, (int)size);
-        // If we receive the work 'quit' then we stop running
-       
-        if (memcmp(buffer, "light on", size) == 0)
-        {
-            turnLightOnOrOff(true);
-        } else if (memcmp(buffer, "light off", size) == 0) {
-            turnLightOnOrOff(false);
-        }
+        // turn led on to indicate receiving msg
+        turnLightOn();
     }
 
     // Retrieve properties from the message
