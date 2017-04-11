@@ -107,7 +107,7 @@ extern "C"{
 #define ARDUINO_PIN_EXT               0x10000000
 
 //On-board LED pin number
-#define LED_BUILTIN                   PA_10
+#define LED_BUILTIN                   PC_13
 
 //ADC resolution is 12bits
 #define ADC_RESOLUTION                10
