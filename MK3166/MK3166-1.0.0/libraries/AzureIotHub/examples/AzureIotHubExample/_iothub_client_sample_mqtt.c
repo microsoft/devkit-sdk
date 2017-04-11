@@ -104,7 +104,7 @@ void iothub_client_sample_mqtt_init()
         return;
     }
 
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(azure_iot_hub_connection_string, MQTT_Protocol)) == NULL)
+    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(AZURE_IOT_DEVICE_CONNECTION_STRING, MQTT_Protocol)) == NULL)
     {
         (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
         return;

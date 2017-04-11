@@ -6,13 +6,17 @@ let run = async(context) => {
         if (context.arduino_project && context.arduino_project.settings) {
             let settings = context.arduino_project.settings;
             if (settings.config && settings.config_data) {
-                let outputFile = path.join(context.arduino_project.rootFolder, settings.config);
+                let outputFile = path.join(context.arduino_project.rootFolder, settings.config._file);
                 let lines = [];
                 _.each(settings.config_data, (value, key) => {
+                    if (!settings.config[key]) {
+                        return;
+                    }
+                    key = settings.config[key];
                     if (_.isString(value)) {
-                        lines.push(`#define ${key} "${value}"`);
+                        lines.push(`#define ${key} ("${value}")`);
                     } else if (_.isNumber(value)) {
-                        lines.push(`#define ${key} ${value}`);
+                        lines.push(`#define ${key} (${value})`);
                     }
                 });
                 let dataContent = `#ifndef CONFIG_H
@@ -21,7 +25,7 @@ ${lines.join('\n')}
 #endif
 `;
                 fs.writeFileSync(outputFile, dataContent);
-                return 'ok';
+                return outputFile;
             }
         } else {
             return 'ignore';

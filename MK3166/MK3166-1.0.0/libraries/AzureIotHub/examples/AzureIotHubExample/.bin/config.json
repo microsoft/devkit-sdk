@@ -1,6 +1,9 @@
 {
   "sketch": "../AzureIotHubExample.ino",
-  "config": "config.h",
+  "config": {
+    "_file" : "config.h",
+    "deviceConnectionString": "AZURE_IOT_DEVICE_CONNECTION_STRING"
+  },
   "provision_iot_hub": true,
   "provision_azure_function": false
 }
