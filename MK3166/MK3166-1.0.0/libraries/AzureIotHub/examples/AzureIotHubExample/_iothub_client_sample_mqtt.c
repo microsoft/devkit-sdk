@@ -8,7 +8,7 @@
 /*String containing Hostname, Device Id & Device Key in the format:                         */
 /*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
 /*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-static const char *connectionString = "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>";
+#include "config.h"
 
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
@@ -104,7 +104,7 @@ void iothub_client_sample_mqtt_init()
         return;
     }
 
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(connectionString, MQTT_Protocol)) == NULL)
+    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(azure_iot_hub_connection_string, MQTT_Protocol)) == NULL)
     {
         (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
         return;
