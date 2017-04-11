@@ -33,9 +33,9 @@ typedef enum {
     UART_6 = (int)USART6_BASE
 } UARTName;
 
-#define STDIO_UART_TX  MBED_GPIO_8
-#define STDIO_UART_RX  MBED_GPIO_12
-#define STDIO_UART     USART6
+#define STDIO_UART_TX  PA_11
+#define STDIO_UART_RX  PA_12
+#define STDIO_UART     UART_6
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
