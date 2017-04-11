@@ -124,7 +124,9 @@ let registerTasks = (...tasks) => {
 
 let testCase = process.argv.slice(2)[0];
 if (testCase === 'provision') {
-    registerTasks('nodejs', { 'azurecli': ['version', 'login', 'iothub'] });
+    registerTasks('nodejs', { 'azurecli': ['version', 'login', 'iothub'] }, {'python': ['azureFunc']});
+    // registerTasks({'python': ['azureFunc']});
+    
 } else {
     let caseInstance = require('./arduino-test')[testCase];
     if (!caseInstance) {
