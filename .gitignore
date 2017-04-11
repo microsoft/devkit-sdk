@@ -250,3 +250,8 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+Scripts/out/
+**/.build/*
+config.h
+runtime.json

@@ -1,4 +1,6 @@
 {
   "sketch": "../AzureIotHubExample.ino",
-  "config": "config.h"
+  "config": "config.h",
+  "provision_iot_hub": true,
+  "provision_azure_function": false
 }

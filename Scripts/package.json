@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "blink": "gulp babel && build blink",
-    "mqtt": "gulp babel && build mqtt",
-    "provision": "gulp babel && provision"
+    "babel": "gulp babel"
   },
   "author": "",
   "license": "ISC",
