@@ -18,7 +18,7 @@
 #define MBED_MBED_RTX_H
 
 
-#if defined(TARGET_MK3239) ||  defined(TARGET_MK3166)
+#if defined(TARGET_MK3239) ||  defined(TARGET_MK3166) || defined(TARGET_AZ3166)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)

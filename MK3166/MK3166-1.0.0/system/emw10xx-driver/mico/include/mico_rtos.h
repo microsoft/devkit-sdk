@@ -45,6 +45,12 @@ extern "C" {
 #define MICO_NETWORKING_WORKER_THREAD      ( (mico_worker_thread_t*)&mico_worker_thread )
 #define MICO_WORKER_THREAD                 ( (mico_worker_thread_t*)&mico_worker_thread )
 
+#define RTOS_HIGHER_PRIORTIY_THAN(x)     (x > RTOS_LOWEST_PRIORITY ? x-1 : RTOS_LOWEST_PRIORITY)
+#define RTOS_LOWER_PRIORTIY_THAN(x)      (x < RTOS_HIGHEST_PRIORITY ? x+1 : RTOS_HIGHEST_PRIORITY)
+#define RTOS_LOWEST_PRIORITY             (10 - 1)
+#define RTOS_HIGHEST_PRIORITY            (0)
+#define RTOS_DEFAULT_THREAD_PRIORITY     (RTOS_LOWEST_PRIORITY - 1)
+
 #define MICO_NETWORK_WORKER_PRIORITY      (3)
 #define MICO_DEFAULT_WORKER_PRIORITY      (5)
 #define MICO_DEFAULT_LIBRARY_PRIORITY     (5)

@@ -47,14 +47,6 @@ public:
      */
     virtual int connect();
 
-    /** Into Soft_AP mode.
-     *
-     * Attempts to go into  to Soft_AP mode.
-     * @return           0 on success, or error code on failure
-     */
-    int ap_mode(void);
-
-
     /** Start the interface
      *
      *  Attempts to connect to a WiFi network.
@@ -66,20 +58,6 @@ public:
      *  @return          0 on success, or error code on failure
      */
     virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
-                                  uint8_t channel = 0 );
-
-    /** Start the interface
-     *
-     *  Attempts to connect to a WiFi network.
-     *
-     *  @param ssid      Name of the network to connect to
-     *  @param pass      Security passphrase to connect to the network
-     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
-     *  @param channel   This parameter is not supported, setting it to anything else than 0 will result in NSAPI_ERROR_UNSUPPORTED
-     *  @param type      Wlan interface: Station or SoftAP
-     *  @return          0 on success, or error code on failure
-     */
-    int establish_softap(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
                                   uint8_t channel = 0 );
 
     /** Set the WiFi network credentials
