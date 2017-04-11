@@ -72,7 +72,7 @@ namespace mbed {
  * }
  * @endcode
  */
-class SPI {
+class MbedSPI {
 
 public:
 
@@ -85,7 +85,7 @@ public:
      *  @param sclk SPI Clock pin
      *  @param ssel SPI chip select pin
      */
-    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel=NC);
+    MbedSPI(PinName mosi, PinName miso, PinName sclk, PinName ssel=NC);
 
     /** Configure the data transmission format
      *
@@ -230,26 +230,26 @@ protected:
      *
     */
     void dequeue_transaction();
-    static CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> _transaction_buffer;
+    static CircularBuffer<Transaction<MbedSPI>, TRANSACTION_QUEUE_SIZE_SPI> _transaction_buffer;
 #endif
 
 #endif
 
 public:
-    virtual ~SPI() {
+    virtual ~MbedSPI() {
     }
 
 protected:
     spi_t _spi;
 
 #if DEVICE_SPI_ASYNCH
-    CThunk<SPI> _irq;
+    CThunk<MbedSPI> _irq;
     event_callback_t _callback;
     DMAUsage _usage;
 #endif
 
     void aquire(void);
-    static SPI *_owner;
+    static MbedSPI *_owner;
     static SingletonPtr<PlatformMutex> _mutex;
     int _bits;
     int _mode;
