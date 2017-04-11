@@ -14,6 +14,7 @@
 
 #include "variant.h"
 #include <stdio.h>
+#include "spi_api.h"
 
 // SPI_HAS_TRANSACTION means SPI has
 //   - beginTransaction()
@@ -43,11 +44,34 @@
 #define SPI_CLOCK_DIV32	 32
 #define SPI_CLOCK_DIV64	 64
 #define SPI_CLOCK_DIV128 128
+#define SPI_CLOCK_DIV256 256
 
 #define SPI_MODE0 0x00
 #define SPI_MODE1 0x01
 #define SPI_MODE2 0x02
 #define SPI_MODE3 0x03
+
+#define SPI_SPEED_CLOCK_DIV2_MHZ    ((uint32_t)(HAL_RCC_GetPCLK2Freq()/2))
+#define SPI_SPEED_CLOCK_DIV4_MHZ    ((uint32_t)(HAL_RCC_GetPCLK2Freq()/4))
+#define SPI_SPEED_CLOCK_DIV8_MHZ    ((uint32_t)(HAL_RCC_GetPCLK2Freq()/8))
+#define SPI_SPEED_CLOCK_DIV16_MHZ   ((uint32_t)(HAL_RCC_GetPCLK2Freq()/16))
+#define SPI_SPEED_CLOCK_DIV32_MHZ   ((uint32_t)(HAL_RCC_GetPCLK2Freq()/32))
+#define SPI_SPEED_CLOCK_DIV64_MHZ   ((uint32_t)(HAL_RCC_GetPCLK2Freq()/64))
+#define SPI_SPEED_CLOCK_DIV128_MHZ  ((uint32_t)(HAL_RCC_GetPCLK2Freq()/128))
+#define SPI_SPEED_CLOCK_DIV256_MHZ  ((uint32_t)(HAL_RCC_GetPCLK2Freq()/256))
+
+#if DEVICE_SPI_ASYNCH
+    #define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
+#else
+    #define SPI_S(obj)    (( struct spi_s *)(obj))
+#endif
+
+typedef enum {
+  SPI_MODE_0 = 0x00,
+  SPI_MODE_1 = 0x01,
+  SPI_MODE_2 = 0x02,
+  SPI_MODE_3 = 0x03
+}spi_mode_e;
 
 enum SPITransferMode {
   SPI_CONTINUE,
@@ -172,10 +196,13 @@ class SPIClass {
     void setDataMode(uint8_t _mode) { setDataMode(BOARD_SPI_OWN_SS, _mode); };
     void setClockDivider(uint8_t _div) { setClockDivider(BOARD_SPI_OWN_SS, _div); };
 
+    
   private:
-    //uint32_t id;
+    void set_CPOL_CPHA(uint8_t);
+    int spi_send(spi_t *obj, uint8_t *Data, uint16_t len, uint32_t Timeout);    
     SPISettings spiSettings[SPI_CHANNELS_NUM+1];
     int8_t g_active_id;
+    spi_t obj;
 };
 
 #if SPI_INTERFACES_COUNT > 0

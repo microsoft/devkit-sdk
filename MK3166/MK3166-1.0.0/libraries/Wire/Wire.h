@@ -24,7 +24,7 @@
 
 #include <inttypes.h>
 #include "Stream.h"
-#include "twi.h"
+#include "i2c_api.h"
 
 #define BUFFER_LENGTH 32
 
@@ -32,6 +32,9 @@
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
+
+#define I2C_OK 0
+#define I2C_TIMEOUT 1
 
 class TwoWire : public Stream
 {
@@ -49,15 +52,16 @@ class TwoWire : public Stream
     
     uint8_t ownAddress;
     bool master;
-    i2c_instance_e p_i2c_instance; 
+    I2CName p_i2c_instance; 
     
     void (*user_onRequest)(void);
     void (*user_onReceive)(int);
-    static void onRequestService(i2c_instance_e);
-    static void onReceiveService(i2c_instance_e, uint8_t*, int);
+    i2c_t obj;
+    //static void onRequestService(I2CName);
+    //static void onReceiveService(I2CName, uint8_t*, int);
 
   public:
-    TwoWire(i2c_instance_e i2c_instance);
+    TwoWire(I2CName i2c_instance);
     void begin();
     void begin(uint8_t);
     void begin(int);
