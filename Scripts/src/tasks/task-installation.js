@@ -121,7 +121,7 @@ exports.installVsCode = {
             return ver;
         } catch (error) {
             await util.execStdout(constants.vsCodeInstall, timeout);
-            context.code = constants.vsCodeExePath;
+            context.code = `"${constants.vsCodeExePath}"`;
         }
     }
 };
@@ -130,10 +130,11 @@ exports.installCppExtension = {
     name: 'install cpp extension',
     run: async(context) => {
         try {
-            await util.execStdout(`"${context.code}" --install-extension ms-vscode.cpptools`, timeout);
+            await util.execStdout(`${context.code} --install-extension ms-vscode.cpptools`, timeout);
         } catch (error) {
             throw error;
         }
+        console.log(context.code);
     }
 };
 
@@ -150,7 +151,7 @@ exports.installArduinoExtension = {
                     }
                 }
             }
-            await util.execStdout(`"${context.code}" --install-extension ${constants.arduinoExtensionPath}`, timeout);
+            await util.execStdout(`${context.code} --install-extension ${constants.arduinoExtensionPath}`, timeout);
         } catch (error) {
             throw error;
         }
