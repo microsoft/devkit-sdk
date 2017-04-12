@@ -26,7 +26,7 @@ module.exports = function (context, myEventHubMessage) {
                     if (!error && response.statusCode == 200) {
                         let info = JSON.parse(body);
                         context.log(info);
-                        tweet = info.statuses[0].text;
+                        tweet = (info.statuses && info.statuses.length)? info.statuses[0].text : "No new tweet for the moment";
                         context.log(tweet);
                         const message = new Message(tweet);
                         cloudClient.send(myEventHubMessage.DeviceID, message, function (err, res) {
