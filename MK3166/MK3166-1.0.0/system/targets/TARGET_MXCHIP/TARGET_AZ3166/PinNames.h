@@ -193,14 +193,6 @@ typedef enum {
     MBED_GPIO_37 = PB_0,
     MBED_GPIO_38 = PA_4,
 
-    // MiCOKit on-board pins
-    MBED_BOOT_SEL        = MBED_GPIO_36,
-    MBED_MFG_SEL         = MBED_GPIO_37,
-    MBED_EasyLink_BTN    = MBED_GPIO_9,
-    MBED_SYS_LED         = MBED_GPIO_33,
-    MBED_RF_LED          = MBED_GPIO_31,
-
-
     // Arduino connector namings
     A0          = (int)0xFFFFFFFF,
     A1          = (int)0xFFFFFFFF,
