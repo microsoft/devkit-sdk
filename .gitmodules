@@ -1,3 +1,6 @@
 [submodule "MK3166/MK3166-1.0.0/cores/arduino/iot-cognitive"]
 	path = MK3166/MK3166-1.0.0/cores/arduino/iot-cognitive
 	url = https://github.com/VSChina/IoT-Cognitive
+[submodule "MK3166/MK3166-1.0.0/libraries/Sensors/Sensors"]
+	path = MK3166/MK3166-1.0.0/libraries/Sensors/Sensors
+	url = https://github.com/VSChina/Sensors
