@@ -134,7 +134,6 @@ exports.installCppExtension = {
         } catch (error) {
             throw error;
         }
-        console.log(context.code);
     }
 };
 
