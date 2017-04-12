@@ -15,7 +15,7 @@ const constants = {
     checkPython: 'python --version',
     pythonInstall: `msiexec /i "${pythonMsiPath}" TARGETDIR="${pythonInstallPath}" /passive /norestart ADDLOCAL=ALL`,
     nodeInstall: `msiexec /i "${nodeMsiPath}" TARGETDIR="${nodeInstallPath}" /passive /norestart ADDLOCAL=ALL`,
-    vsCodeInstall: `vsCodeInstallPath /SILENT /mergetasks=!runcode`,
+    vsCodeInstall: `${vsCodeInstallPath} /SILENT /mergetasks=!runcode`,
     vsCodeExePath: path.join(process.env['ProgramFiles(x86)'], 'Microsoft VS Code/bin/code'),
     vsCodeExtensionInstallPath: path.join(process.env['USERPROFILE'], '.vscode/extensions'),
     arduinoInstall: `${arduinoInstallerPath} /S`,
@@ -141,11 +141,13 @@ exports.installArduinoExtension = {
     name: 'install arduino extension',
     run: async(context) => {
         try {
-            const dirs = fs.readdirSync(constants.vsCodeExtensionInstallPath);
-            for (let i = 0; i < dirs.length; i++) {
-                if (dirs[i].startsWith(constants.arduinoExtensionNamePrefix)) {
-                    fs.removeSync(path.join(constants.vsCodeExtensionInstallPath, dirs[i]));
-                    break;
+            if (fs.existsSync(constants.vsCodeExtensionInstallPath)) {
+                const dirs = fs.readdirSync(constants.vsCodeExtensionInstallPath);
+                for (let i = 0; i < dirs.length; i++) {
+                    if (dirs[i].startsWith(constants.arduinoExtensionNamePrefix)) {
+                        fs.removeSync(path.join(constants.vsCodeExtensionInstallPath, dirs[i]));
+                        break;
+                    }
                 }
             }
             await util.execStdout(`${context.code} --install-extension ${constants.arduinoExtensionPath}`, timeout);
