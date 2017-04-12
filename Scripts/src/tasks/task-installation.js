@@ -183,6 +183,9 @@ exports.copyBoardPackage = {
     name: 'copy board package',
     run: async() => {
         try {
+            if (!fs.existsSync(constants.arduinoPackagePath)){
+                fs.mkdirSync(constants.arduinoPackagePath);
+            }
             const filePath = path.join(constants.arduinoPackagePath, 'azureboard.zip');
             fs.writeFileSync(filePath, fs.readFileSync(constants.customBoardZip));
             let zip = new admzip(filePath);
