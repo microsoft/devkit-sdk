@@ -43,7 +43,7 @@ void reportPulse()
     // turn off LED_AZURE first
     digitalWrite(lightPin, HIGH);
     Serial.println("*****************************SendEvent********************************");
-    sprintf(msgText, "{\"topic\":\"%s\"}", "#iot");
+    sprintf(msgText, "{\"topic\":\"%s\", \"DeviceID\":\"%s\"}", "iot", "myDevice1");
     iothub_client_sample_send_event((const unsigned char *)msgText);
   }
 }
