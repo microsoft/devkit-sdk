@@ -165,15 +165,16 @@ if (action === 'build') {
         [
             'checkPython',
             'checkPip',
-            'checkCli',
+            'installCli',
             'installPythonRequestsModule',
             'installVsCode',
             'installCppExtension',
             'installArduinoExtension',
             'installArduino',
             'setBoardUrl',
-            'copyBoardPackage',
-            // 'copyNpmPackage'
+            'installBoardPackage',
+            'installSTLink',
+            'copyNpmPackage'
         ]
     });
 }
