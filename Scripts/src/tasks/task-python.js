@@ -45,7 +45,7 @@ exports.azureFunc = {
 
         // update function.json with eventhub.path
         fs.writeFileSync(`${functionAppPath}/function.json`, JSON.stringify(functionConf), 'utf8');
-        let scriptPath = `${process.env['userprofile']}.azureboard/deploy/main.py`
+        let scriptPath = `${process.env['userprofile']}/.azure-board-cli/deploy/main.py`
 
         // TODO: hard code my personal twitter dev token, 450 quotas/15min
         let params = {
