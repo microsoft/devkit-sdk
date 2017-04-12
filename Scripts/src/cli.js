@@ -154,6 +154,7 @@ if (action === 'build') {
     }
 } else if (action === 'provision') {
     let settings = JSON.parse(fs.readFileSync(path.join(targetFolder, 'config.json')));
+    settings.sketch = path.resolve(path.join(targetFolder, settings.sketch));
     _context.arduino_project = {
         rootFolder: path.dirname(settings.sketch),
         settings: settings
