@@ -20,7 +20,7 @@
 
 #if DEVICE_SERIAL
 
-#include "Stream.h"
+#include "MbedStream.h"
 #include "SerialBase.h"
 #include "PlatformMutex.h"
 #include "serial_api.h"

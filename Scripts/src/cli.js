@@ -1,4 +1,7 @@
+import fs from 'fs-plus'
+import path from 'path'
 import _ from 'lodash'
+import os from "os"
 import gulp from 'gulp'
 import chalk from 'chalk'
 import prettyTime from 'pretty-hrtime'
@@ -122,20 +125,57 @@ let registerTasks = (...tasks) => {
     }
 };
 
-let testCase = process.argv.slice(2)[0];
-if (testCase === 'provision') {
-    registerTasks('nodejs', { 'azurecli': ['version', 'login', 'iothub'] }, {'python': ['azureFunc']});
-    // registerTasks({'python': ['azureFunc']});
-    
-} else {
-    let caseInstance = require('./arduino-test')[testCase];
-    if (!caseInstance) {
-        throw new Error(`invalid case ${testCase}.`);
+let action = process.argv.slice(2)[0];
+let targetFolder = process.argv.slice(3)[0];
+if (action === 'build') {
+    let defaultUploadTool = path.resolve(path.join(__dirname, '../tools/:PLATFORM/st-flash:EXE_EXT')).replace(':PLATFORM', os.platform())
+        .replace(":EXE_EXT", os.platform() === 'win32' ? ".exe" : "");
+
+    let defaultJson = {
+        "sketch": "app.ino",
+        "board": "azureboard:stm32f4:MXCHIP_MK3166",
+        "upload_program": defaultUploadTool,
+        "upload_param": "--reset write :PROGRAM 0x8008000"
+    };
+    let settings = {... defaultJson, ... JSON.parse(fs.readFileSync(path.join(targetFolder, 'config.json')))};
+    settings.sketch = path.resolve(path.join(targetFolder, settings.sketch));
+    if (!fs.isFileSync(settings.upload_program)) {
+        throw new Error(`Cannot find executive ${settings.upload_program}.`);
     }
-    _context.arduino_project = caseInstance();
-    registerTasks('nodejs', { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort","build", "upload"] });
+    _context.arduino_project = {
+        rootFolder: path.dirname(settings.sketch),
+        settings: settings
+    };
+    if (settings.config && fs.isFileSync(path.join(_context.arduino_project.rootFolder, '.build', 'runtime.json'))) {
+        _context.arduino_project.settings.config_data = JSON.parse(fs.readFileSync(path.join(_context.arduino_project.rootFolder, '.build', 'runtime.json'), 'utf-8'));
+        registerTasks('nodejs', 'config', {'arduinoide': ["checkArduinoIde", "checkBoard", "build", "upload"]});
+    } else {
+        throw new Error("Please run provision command first.");
+    }
+} else if (action === 'provision') {
+    let settings = JSON.parse(fs.readFileSync(path.join(targetFolder, 'config.json')));
+    _context.arduino_project = {
+        rootFolder: path.dirname(settings.sketch),
+        settings: settings
+    };
+    registerTasks('nodejs',{ 'azurecli': ['version', 'login', 'iothub']}, 'output');
 }
+
 setImmediate(() => {
     runSequence(..._tasks);
 });
-
+//
+// if (testCase === 'provision') {
+//     registerTasks('nodejs', { 'azurecli': ['version', 'login', 'iothub'] });
+// } else {
+//     let caseInstance = require('./arduino-test')[testCase];
+//     if (!caseInstance) {
+//         throw new Error(`invalid case ${testCase}.`);
+//     }
+//     _context.arduino_project = caseInstance();
+//     registerTasks('nodejs', { 'arduinoide': ["checkArduinoIde", "checkBoard", "checkPort","build", "upload"] });
+// }
+// setImmediate(() => {
+//     runSequence(..._tasks);
+// });
+//

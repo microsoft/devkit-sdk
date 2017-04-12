@@ -78,7 +78,7 @@ export function execStdout(command, timeout) {
 export function execStderr(command, timeout) {
     return execShort(command, timeout).then(result => {
         if (result.stdout) {
-            console.stdout(`Unexpected output when executing ${command} : ${result.stdout}`);
+            console.log(`Unexpected output when executing ${command} : ${result.stdout}`);
         }
         return result.stderr;
     });

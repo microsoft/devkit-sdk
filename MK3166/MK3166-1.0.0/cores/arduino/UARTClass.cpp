@@ -22,7 +22,7 @@
 
 UARTClass::UARTClass()
 {
-  serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX);
+  serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
 }
 
 UARTClass::~UARTClass()
@@ -46,10 +46,20 @@ size_t UARTClass::write(const uint8_t c)
   return 1;
 }
 
+size_t UARTClass::write(const uint8_t *buffer, size_t size)
+{
+  return serial->puts(buffer);
+}
+
 int UARTClass::available( void )
 {
   //return the amount of data available
   return serial->readable();
+}
+
+int UARTClass::availableForWrite(void)
+{
+    return serial->writable();
 }
 
 int  UARTClass::read(void)

@@ -251,6 +251,7 @@ paket-files/
 .idea/
 *.sln.iml
 
-# temp build out
 Scripts/out/
 **/.build/*
+config.h
+runtime.json

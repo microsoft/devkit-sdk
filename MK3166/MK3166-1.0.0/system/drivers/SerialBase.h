@@ -20,10 +20,10 @@
 
 #if DEVICE_SERIAL
 
-#include "Stream.h"
+#include "MbedStream.h"
 #include "Callback.h"
 #include "serial_api.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 #if DEVICE_SERIAL_ASYNCH
 #include "CThunk.h"

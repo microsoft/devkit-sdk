@@ -25,7 +25,7 @@
 
 #define UART_RCV_SIZE 128
 
-class UARTClass : public Stream
+class UARTClass : public HardwareSerial
 {
   public:
     UARTClass();
@@ -35,11 +35,14 @@ class UARTClass : public Stream
     void end(void);
 
     int available(void);
+    int availableForWrite(void);
     int read(void);
     int peek(void);
     void flush(void);
 
     size_t write(const uint8_t c);
+    size_t write(const uint8_t *buffer, size_t size);
+    
     using Print::write; // pull in write(str) and write(buf, size) from Print
 
     operator bool() { return true; }; // UART always active

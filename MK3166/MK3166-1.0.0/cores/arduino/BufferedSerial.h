@@ -58,7 +58,7 @@ public:
      *  @param name optional name
      *  @note Either tx or rx may be specified as NC if unused
      */
-    BufferedSerial(PinName tx, PinName rx, uint32_t buf_size = 64, uint32_t tx_multiple = 1, const char* name=NULL);
+    BufferedSerial(PinName tx, PinName rx, uint32_t buf_size = 128, uint32_t tx_multiple = 4, const char* name=NULL);
     
     /** Destroy a BufferedSerial port
      */
@@ -70,9 +70,8 @@ public:
     virtual int readable(void);
     
     /** Check to see if the tx buffer has room
-     *  @return 1 always has room and can overwrite previous content if too small / slow
      */
-    virtual int writeable(void);
+    virtual int writable(void);
     
     virtual int peek(void);
 
@@ -92,7 +91,7 @@ public:
      *  @param s The string to write to the Serial Port
      *  @return The number of bytes written to the Serial Port Buffer
      */
-    virtual int puts(const char *s);
+    virtual int puts(const uint8_t *s);
     
     /** Write a formatted string to the BufferedSerial Port.
      *  @param format The string + format specifiers to write to the Serial Port

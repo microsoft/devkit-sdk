@@ -120,8 +120,9 @@ exports.upload = {
 
             if (settings.upload_program) {
                 //console.log(settings.upload);
-                console.log(path.resolve(path.join(rootFolder, settings.upload_program)) + ' ' + settings.upload_param.replace(':PROGRAM', util.cstr(binFile)));
-                let result =  await util.execShort(path.resolve(path.join(rootFolder, settings.upload_program)) + ' ' + settings.upload_param.replace(':PROGRAM', util.cstr(binFile)), 1000*100);
+                let upload_program = settings.upload_program;
+                console.log(path.resolve(upload_program) + ' ' + settings.upload_param.replace(':PROGRAM', util.cstr(binFile)));
+                let result =  await util.execShort(util.cstr(path.resolve(upload_program)) + ' ' + settings.upload_param.replace(':PROGRAM', util.cstr(binFile)), 1000*100);
                 console.log(result.stderr);
                 console.log(result.stdout);
                 return 'ok';

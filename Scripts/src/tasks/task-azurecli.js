@@ -99,6 +99,7 @@ exports.iothub = {
         if (!currentSubs) {
             throw new Error('Please select subscription first.');
         }
+
         // register provider for subscription 
         await azurecli.execNoOutput(`provider register -n "Microsoft.Devices"`);
         
@@ -198,7 +199,7 @@ exports.iothub = {
         let connectionString = output.connectionString;
         if (connectionString) {
             console.log(`[${iotHubName}]: ${connectionString}`);
-            context.connectionString = connectionString; 
+            context.connectionString = connectionString;
         } else {
             throw new Error(`Cannot get iot hub connection string.`);
         }
@@ -212,6 +213,13 @@ exports.iothub = {
             console.log(createDeviceRes);
         }
         console.log("enable/create devices success");
-        return JSON.stringify(await azurecli.execResultJson(`iot device show-connection-string --hub-name ${iotHubName} --device-id myDevice1 --key secondary`));
+        let result  = await azurecli.execResultJson(`iot device show-connection-string --hub-name ${iotHubName} --device-id myDevice1 --key secondary`);
+        if (context.output) {
+            context.output = {};
+        }
+
+        let iothubResult = {iotHubName, connectionString, deviceConnectionString: result.connectionString, deviceId : "myDevice1"};
+        context.output  = {...context.output, ...iothubResult } ;
+        return JSON.stringify(iothubResult);
     }
 };
