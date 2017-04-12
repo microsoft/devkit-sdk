@@ -26,7 +26,8 @@ public:
   virtual operator bool();
   virtual int peek();
   using Print::write;
-
+  friend class WiFiServer;
+  
 private:
 	TCPSocket* _pTcpSocket;
   
