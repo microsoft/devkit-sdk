@@ -172,7 +172,7 @@ exports.setBoardUrl = {
     name: 'set custom board manager url',
     run: async() => {
         try {
-            await util.execStdout(`"${constants.arduinoPath}" --pref boardsmanager.additional.urls=${constants.boardManagerUrl} --save-prefs`);
+            await util.execStderr(`"${constants.arduinoPath}" --pref boardsmanager.additional.urls=${constants.boardManagerUrl} --save-prefs`);
         } catch (error) {
             throw error;
         }
