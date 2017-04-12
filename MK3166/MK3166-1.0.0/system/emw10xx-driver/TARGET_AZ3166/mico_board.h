@@ -314,11 +314,11 @@ typedef enum
 #define USE_QUAD_SPI_FLASH
 //#define USE_QUAD_SPI_DMA
 
-#define BOOT_SEL            (MICO_GPIO_36)
-#define MFG_SEL             (MICO_GPIO_37)
-#define EasyLink_BUTTON     (MICO_GPIO_9)
-#define MICO_SYS_LED        (MICO_GPIO_33)
-#define MICO_RF_LED         (MICO_GPIO_31)
+#define BOOT_SEL            (MICO_GPIO_NONE)
+#define MFG_SEL             (MICO_GPIO_NONE)
+#define EasyLink_BUTTON     (MICO_GPIO_NONE)
+#define MICO_SYS_LED        (MICO_GPIO_NONE)
+#define MICO_RF_LED         (MICO_GPIO_NONE)
 
 /* Arduino extention connector */
 #define Arduino_RXD         (MICO_GPIO_29)
