@@ -159,6 +159,22 @@ if (action === 'build') {
         settings: settings
     };
     registerTasks('nodejs',{ 'azurecli': ['version', 'login', 'iothub']}, 'output');
+} else if (action === 'installation') {
+    registerTask({'installation':
+        [
+            // 'checkPython',
+            // 'checkPip',
+            // 'checkCli',
+            // 'installPythonRequestsModule',
+            // 'installVsCode',
+            // 'installCppExtension',
+            'installArduinoExtension',
+            // 'installArduino',
+            // 'setBoardUrl',
+            // 'copyBoardPackage',
+            // 'copyPythonPackage'
+        ]
+    });
 }
 
 setImmediate(() => {

@@ -84,6 +84,17 @@ exports.checkCli = {
     }
 };
 
+exports.installPythonRequestsModule = {
+    name: 'python requests module',
+    run: async (context) => {
+        try {
+            await util.execStdout(`${context.pip} install requests`, timeout);
+        }catch (error) {
+            throw error;
+        }
+    }
+};
+
 exports.installNode = {
     name: 'node version',
     run: async () => {
