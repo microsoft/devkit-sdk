@@ -18,6 +18,7 @@
 #define MBED_NAU88C10_H
 
 #include "mbed.h"
+#include "PinNames.h"
 //#include "I2S.h"
 
 class NAU88C10
@@ -42,6 +43,8 @@ class NAU88C10
         void stop(void);
 
         // attach callback function to process audio in/out
+        template<typename T>
+        void attach(T *obj, void (T::*method)());
         void attach(void(*fptr)(void));
         void attach(Callback<void()> func);
 
@@ -51,7 +54,7 @@ class NAU88C10
         // Write PCM data into codec
         void write(int *buffer, int from, int length);
 
-        int  *rxBuffer;
+        int  rxBuffer[4];
                 
     private:
         int  m_addr;
