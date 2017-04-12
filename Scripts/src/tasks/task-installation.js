@@ -74,7 +74,7 @@ exports.checkPip = {
 };
 
 exports.checkCli = {
-    name: 'azure cli version',
+    name: 'install azure cli 2.0',
     run: async (context) => {
         try {
             await util.execStdout(`${context.pip} install --user azure-cli`, timeout);
@@ -85,7 +85,7 @@ exports.checkCli = {
 };
 
 exports.installPythonRequestsModule = {
-    name: 'python requests module',
+    name: 'install python requests module',
     run: async (context) => {
         try {
             await util.execStdout(`${context.pip} install requests`, timeout);
@@ -180,7 +180,7 @@ exports.setBoardUrl = {
 };
 
 exports.copyBoardPackage = {
-    name: 'copy board package',
+    name: 'install board package',
     run: async() => {
         try {
             if (!fs.existsSync(constants.arduinoPackagePath)){
