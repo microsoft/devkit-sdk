@@ -54,7 +54,7 @@ let _login = async() => {
 };
 exports.login = {
     name: "azure cli login",
-    run: async() => {
+    run: async(context) => {
         try {
              subscriptions = await azurecli.execResultJson("account list");
         } catch (err) {
@@ -82,11 +82,12 @@ exports.login = {
                 subsList,
                 new inquirer.Separator()
             ]),
-            default: subsPreference ? _.findIndex(subsList, {id: subsPreference}) : 0
+            default: subsPreference ? _.findIndex(subsList, {name: subsPreference}) : 0
         }]);
         await azurecli.execNoOutput(`account set --subscription ${result.choose.id}`);
         currentSubs = result.choose;
-        pref.setValue('subscription', result.choose.id);
+        context.subscription = currentSubs;
+        pref.setValue('subscription', `${result.choose.name} (${result.choose.id})`);
         pref.savePreference();
         return result.choose.name;
     }
@@ -98,13 +99,14 @@ exports.iothub = {
         if (!currentSubs) {
             throw new Error('Please select subscription first.');
         }
-        
+
         // register provider for subscription 
         await azurecli.execNoOutput(`provider register -n "Microsoft.Devices"`);
         
         let guid = uuidV4().slice(0, 4);
         let defaultPreffix = await username();
         let iotHubName = '';
+        let resourceGroupName ='';
         let hubPreference = pref.getValue('iot_event_hub');
         let hubList = JSON.parse(await util.execStdout(util.cstr(azureCliLocation) + ` iot hub list`, 60000));
         if (hubList && hubList.length) {
@@ -130,7 +132,7 @@ exports.iothub = {
         if (!iotHubName) {
             // create iothub
             let groupList = await azurecli.execResultJson('group list');
-            let resourceGroupName = '';
+            resourceGroupName = '';
             if (groupList && groupList.length) {
                 let result = await inquirer.prompt([{
                     name: 'choose',
@@ -188,6 +190,7 @@ exports.iothub = {
             }
         }
         
+        context.iothub= await azurecli.execResultJson(`iot hub show -n ${iotHubName}`);
         pref.setValue('iot_event_hub', iotHubName);
         pref.savePreference();
         //show connection string
@@ -196,6 +199,7 @@ exports.iothub = {
         let connectionString = output.connectionString;
         if (connectionString) {
             console.log(`[${iotHubName}]: ${connectionString}`);
+            context.connectionString = connectionString;
         } else {
             throw new Error(`Cannot get iot hub connection string.`);
         }
