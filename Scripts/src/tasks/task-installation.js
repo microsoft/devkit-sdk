@@ -3,33 +3,43 @@ import semver from 'semver';
 import path from 'path';
 import fs from 'fs-extra';
 import admzip from 'adm-zip';
+import os from 'os';
 
 const pythonMsiPath = path.join(__dirname, '../../tools/win32/python-2.7.13.msi');
 const pythonInstallPath = 'C:\\Python27';
 const nodeMsiPath = path.join(__dirname, '../../tools/win32/node-v6.10.2-x86.msi');
 const nodeInstallPath = path.join(process.env['ProgramFiles(x86)'], 'nodejs');
 const vsCodeInstallPath = path.join(__dirname, '../../tools/win32/VSCodeSetup-1.11.1.exe');
-const arduinoInstallerPath = path.join(__dirname, '../../tools/win32/arduino-1.8.1-windows.exe');
+const arduinoInstallPath = path.join(__dirname, '../../tools/win32/arduino-1.8.1-windows.exe');
+let stlinkInstallPath = path.join(__dirname, '../../tools/win32/st-link');
+if (os.arch() === 'x86') {
+    stlinkInstallPath = path.join(stlinkInstallPath, 'dpinst_x86.exe');
+} else if (os.arch() === 'x64') {
+    stlinkInstallPath = path.join(stlinkInstallPath, 'dpinst_amd64.exe');
+}
 
 const constants = {
     checkPython: 'python --version',
-    pythonInstall: `msiexec /i "${pythonMsiPath}" TARGETDIR="${pythonInstallPath}" /passive /norestart ADDLOCAL=ALL`,
-    nodeInstall: `msiexec /i "${nodeMsiPath}" TARGETDIR="${nodeInstallPath}" /passive /norestart ADDLOCAL=ALL`,
-    vsCodeInstall: `${vsCodeInstallPath} /SILENT /mergetasks=!runcode`,
-    vsCodeExePath: path.join(process.env['ProgramFiles(x86)'], 'Microsoft VS Code/bin/code'),
-    vsCodeExtensionInstallPath: path.join(process.env['USERPROFILE'], '.vscode/extensions'),
-    arduinoInstall: `${arduinoInstallerPath} /S`,
-    arduinoPath: path.join(process.env['ProgramFiles(x86)'], 'Arduino/arduino_debug.exe'),
-    arduinoExtensionNamePrefix: 'Microsoft.vscode-arduino',
-    arduinoExtensionPath: path.join(__dirname, '../../tools/vscode-arduino-0.0.9-beta.vsix'),
     checkPip: 'pip --version',
     checkCli: 'az --version',
     checkNode: 'node --version',
     checkVsCode: 'code --version',
+    pythonInstall: `msiexec /i "${pythonMsiPath}" TARGETDIR="${pythonInstallPath}" /passive /norestart ADDLOCAL=ALL`,
+    nodeInstall: `msiexec /i "${nodeMsiPath}" TARGETDIR="${nodeInstallPath}" /passive /norestart ADDLOCAL=ALL`,
+    vsCodeInstall: `"${vsCodeInstallPath}" /SILENT /mergetasks=!runcode`,
+    vsCodeExePath: path.join(process.env['ProgramFiles(x86)'], 'Microsoft VS Code/bin/code'),
+    vsCodeExtensionInstallPath: path.join(process.env['USERPROFILE'], '.vscode/extensions'),
+    arduinoInstall: `"${arduinoInstallPath}" /S`,
+    arduinoPath: path.join(process.env['ProgramFiles(x86)'], 'Arduino/arduino_debug.exe'),
+    arduinoExtensionNamePrefix: 'Microsoft.vscode-arduino',
+    arduinoExtensionPath: path.join(__dirname, '../../tools/vscode-arduino-0.0.9-beta.vsix'),
     boardManagerUrl: 'https://raw.githubusercontent.com/lirenhe/arduinoazureboard/master/package_azureboard_index.json',
     customBoardZip: path.join(__dirname, '../../tools/azureboard.zip'),
     arduinoPackagePath: path.join(process.env['USERPROFILE'], 'AppData/Local/Arduino15/packages'),
-
+    stlinkInstall: `"${stlinkInstallPath}" /S`,
+    fileNotNeed: ['.idea', 'node_modules', 'src'],
+    packageCopyDest: path.join(process.env['USERPROFILE'], '.azure-board-cli'),
+    npmInstall: 'npm install',
 };
 
 const timeout = 600 * 1000;
@@ -73,7 +83,7 @@ exports.checkPip = {
     }
 };
 
-exports.checkCli = {
+exports.installCli = {
     name: 'install azure cli 2.0',
     run: async (context) => {
         try {
@@ -179,7 +189,7 @@ exports.setBoardUrl = {
     }
 };
 
-exports.copyBoardPackage = {
+exports.installBoardPackage = {
     name: 'install board package',
     run: async() => {
         try {
@@ -196,15 +206,33 @@ exports.copyBoardPackage = {
     }
 };
 
+exports.installSTLink = {
+    name: 'install ST Link',
+    run: async() => {
+        try {
+            await util.execStdout(constants.stlinkInstall, timeout);
+        } catch (error) {
+            console.log('warning: error in install stlink');
+        }
+    }
+};
+
 
 exports.copyNpmPackage = {
     name: 'copy npm package',
     run: async() => {
-        // copy file
-        // try {
-        //     fs.copySync('D:\\work\\azure-python-cli\\files', 'D:\\aaa');
-        // } catch (error) {
-        //     throw error;
-        // }
+        try {
+            const rootPath = path.join(__dirname, '../../');
+            let files = fs.readdirSync(rootPath);
+            for (let i = 0; i < files.length; i++) {
+                if (constants.fileNotNeed.indexOf(files[i]) === -1) {
+                    fs.copySync(path.join(rootPath, files[i]), path.join(constants.packageCopyDest, files[i]));
+                }
+            }
+            process.chdir(constants.packageCopyDest);
+            await util.execStdout(constants.npmInstall, timeout);
+        } catch (error) {
+            throw error;
+        }
     }
 };
