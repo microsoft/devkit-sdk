@@ -194,8 +194,8 @@ exports.copyBoardPackage = {
 };
 
 
-exports.copyPythonPackage = {
-    name: 'copy python package',
+exports.copyNpmPackage = {
+    name: 'copy npm package',
     run: async() => {
         // copy file
         // try {

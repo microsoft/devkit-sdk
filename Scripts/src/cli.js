@@ -162,17 +162,17 @@ if (action === 'build') {
 } else if (action === 'installation') {
     registerTask({'installation':
         [
-            // 'checkPython',
-            // 'checkPip',
-            // 'checkCli',
-            // 'installPythonRequestsModule',
-            // 'installVsCode',
-            // 'installCppExtension',
+            'checkPython',
+            'checkPip',
+            'checkCli',
+            'installPythonRequestsModule',
+            'installVsCode',
+            'installCppExtension',
             'installArduinoExtension',
-            // 'installArduino',
-            // 'setBoardUrl',
-            // 'copyBoardPackage',
-            // 'copyPythonPackage'
+            'installArduino',
+            'setBoardUrl',
+            'copyBoardPackage',
+            // 'copyNpmPackage'
         ]
     });
 }
