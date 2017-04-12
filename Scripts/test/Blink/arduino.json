@@ -1,7 +1,0 @@
-{
-    "sketch": "Blink.ino",
-    "board": "arduino:samd:mzero_pro_bl_dbg",
-    "openocd_scripts": "telnet_port disabled;  program {{:PROGRAM}} verify reset 0x4000; shutdown",
-    "debug_interface": "cmsis-dap.cfg",
-    "target": "at91samdXX.cfg"
-}
