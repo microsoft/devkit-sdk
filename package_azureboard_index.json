@@ -17,10 +17,10 @@
           "help": {
             "online": "https://github.com/Microsoft/azure-iot-developer-kit"
           },
-          "url": "https://azureboard.blob.core.windows.net/arduinopackage/AZ3166-1.0.0.zip",
+          "url": "https://azureboard.blob.core.windows.net/toolchain/AZ3166-1.0.0.zip",
           "archiveFileName": "AZ3166-1.0.0.zip",
-          "checksum": "MD5:531d4012804c85a8625e9f0746ca53c6",
-          "size": "9572241",
+          "checksum": "MD5:4e943d6b8d4594109f19ae4bd1df67c6",
+          "size": "6468060",
           "boards": [
             {
               "name": "AZ3166"

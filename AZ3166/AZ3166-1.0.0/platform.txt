@@ -94,10 +94,10 @@ recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
 # stlink upload
 tools.stlink_upload.cmd=stlink_upload
 tools.stlink_upload.cmd.windows=stlink_upload.bat
-tools.stlink_upload.path.windows={runtime.tools.AzureBoardTools.path}/tools/win
-tools.stlink_upload.path.macosx={runtime.tools.AzureBoardTools.path}/tools/macosx
-tools.stlink_upload.path.linux={runtime.tools.AzureBoardTools.path}/tools/linux
-tools.stlink_upload.path.linux64={runtime.tools.AzureBoardTools.path}/tools/linux64
+tools.stlink_upload.path.windows={runtime.tools.st-flash.path}/tools/win
+tools.stlink_upload.path.macosx={runtime.tools.st-flash.path}/tools/macosx
+tools.stlink_upload.path.linux={runtime.tools.st-flash.path}/tools/linux
+tools.stlink_upload.path.linux64={runtime.tools.st-flash.path}/tools/linux64
 tools.stlink_upload.upload.params.verbose=-d
 tools.stlink_upload.upload.params.quiet=
 tools.stlink_upload.upload.pattern="{path}/{cmd}" {serial.port.file} {upload.altID} {upload.usbID} "{build.path}/{build.project_name}.bin"
