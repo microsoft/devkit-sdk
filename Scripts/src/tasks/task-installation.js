@@ -99,7 +99,7 @@ exports.installPythonRequestsModule = {
     run: async (context) => {
         try {
             await util.execStdout(`${context.pip} install requests`, timeout);
-        }catch (error) {
+        } catch (error) {
             throw error;
         }
     }
@@ -124,7 +124,7 @@ exports.installNode = {
 
 exports.installVsCode = {
     name: 'vs code version',
-    run: async(context) => {
+    run: async (context) => {
         try {
             const ver = await util.execStdout(constants.checkVsCode);
             context.code = 'code';
@@ -138,7 +138,7 @@ exports.installVsCode = {
 
 exports.installCppExtension = {
     name: 'install cpp extension',
-    run: async(context) => {
+    run: async (context) => {
         try {
             await util.execStdout(`${context.code} --install-extension ms-vscode.cpptools`, timeout);
         } catch (error) {
@@ -149,7 +149,7 @@ exports.installCppExtension = {
 
 exports.installArduinoExtension = {
     name: 'install arduino extension',
-    run: async(context) => {
+    run: async (context) => {
         try {
             if (fs.existsSync(constants.vsCodeExtensionInstallPath)) {
                 const dirs = fs.readdirSync(constants.vsCodeExtensionInstallPath);
@@ -169,7 +169,7 @@ exports.installArduinoExtension = {
 
 exports.installArduino = {
     name: 'arduino install',
-    run: async() => {
+    run: async () => {
         try {
             await util.execStdout(constants.arduinoInstall, timeout);
         } catch (error) {
@@ -180,7 +180,7 @@ exports.installArduino = {
 
 exports.setBoardUrl = {
     name: 'set custom board manager url',
-    run: async() => {
+    run: async () => {
         try {
             await util.execStderr(`"${constants.arduinoPath}" --pref boardsmanager.additional.urls=${constants.boardManagerUrl} --save-prefs`);
         } catch (error) {
@@ -191,11 +191,9 @@ exports.setBoardUrl = {
 
 exports.installBoardPackage = {
     name: 'install board package',
-    run: async() => {
+    run: async () => {
         try {
-            if (!fs.existsSync(constants.arduinoPackagePath)){
-                fs.mkdirSync(constants.arduinoPackagePath);
-            }
+            createFolderIfNotExist(constants.arduinoPackagePath);
             const filePath = path.join(constants.arduinoPackagePath, 'azureboard.zip');
             fs.writeFileSync(filePath, fs.readFileSync(constants.customBoardZip));
             let zip = new admzip(filePath);
@@ -208,7 +206,7 @@ exports.installBoardPackage = {
 
 exports.installSTLink = {
     name: 'install ST Link',
-    run: async() => {
+    run: async () => {
         try {
             await util.execStdout(constants.stlinkInstall, timeout);
         } catch (error) {
@@ -220,8 +218,9 @@ exports.installSTLink = {
 
 exports.copyNpmPackage = {
     name: 'copy npm package',
-    run: async() => {
+    run: async () => {
         try {
+            createFolderIfNotExist(constants.packageCopyDest);
             const rootPath = path.join(__dirname, '../../');
             let files = fs.readdirSync(rootPath);
             for (let i = 0; i < files.length; i++) {
@@ -234,5 +233,11 @@ exports.copyNpmPackage = {
         } catch (error) {
             throw error;
         }
+    }
+};
+
+const createFolderIfNotExist = path => {
+    if (!fs.existsSync(path)) {
+        fs.mkdirSync(path);
     }
 };
