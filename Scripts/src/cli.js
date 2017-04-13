@@ -167,6 +167,7 @@ if (action === 'build') {
             'checkPip',
             'installCli',
             'installPythonRequestsModule',
+            'installNode',
             'installVsCode',
             'installCppExtension',
             'installArduinoExtension',

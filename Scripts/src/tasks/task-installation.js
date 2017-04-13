@@ -241,6 +241,7 @@ exports.copyNpmPackage = {
                     fs.copySync(path.join(rootPath, files[i]), path.join(constants.packageCopyDest, files[i]));
                 }
             }
+            fs.copySync(path.join(rootPath, 'src/python'), path.join(constants.packageCopyDest, 'deploy'));
             process.chdir(constants.packageCopyDest);
             await util.execStdout(constants.npmInstall, timeout);
             return 'setted';
