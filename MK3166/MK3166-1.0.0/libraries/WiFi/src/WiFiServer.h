@@ -30,11 +30,12 @@ class WiFiServer : public Server
 private:
   uint16_t _port;
   TCPServer *_pTcpServer;
-protected:
+  bool _debug;
   WiFiClient *_currentClient;
 
 public:
-  WiFiServer(uint16_t);
+  WiFiServer(uint16_t, bool debug = false);
+  ~WiFiServer();
   WiFiClient available(uint8_t *status = NULL);
   void begin();
   int accept(WiFiClient *client);

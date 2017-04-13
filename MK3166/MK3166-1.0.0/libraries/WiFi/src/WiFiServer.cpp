@@ -28,10 +28,19 @@ extern "C" {
 #include "utility\wifi_drv.h"
 #include "IPAddress.h"
 
-WiFiServer::WiFiServer(uint16_t port) : _port(port), _currentClient(nullptr)
+
+WiFiServer::WiFiServer(uint16_t port, bool debug)
 {
     close();
+    _port = port;
+    _currentClient = NULL;
+    _debug = debug;
     _pTcpServer = new TCPServer();
+}
+WiFiServer::~WiFiServer()
+{
+    delete _currentClient;
+    delete _pTcpServer;
 }
 
 void WiFiServer::begin()
@@ -39,57 +48,61 @@ void WiFiServer::begin()
     int ret;
     if (!_pTcpServer)
     {
-        Serial.println("Server unavailable");
+        if(_debug)
+        {
+            printf("Server unavailable");
+        }
         return;
     }
 
     ret = _pTcpServer->open(wiFiDrv.get_stack());
     if (ret != 0)
     {
-        Serial.print("WiFiServer : socket open failed, ret=");
-        Serial.println(ret);
+        if(_debug)
+        {
+            printf("WiFiServer : socket open failed, ret = %d\r\n", ret);
+        }
         return;
     }
 
     ret = _pTcpServer->bind(_port);
     if (ret != 0)
     {
-        Serial.print("WiFiServer : bind failed, ret=");
-        Serial.println(ret);
+        if(_debug)
+        {
+            printf("WiFiServer : tcp bind failed, ret = %d\r\n", ret);
+        }
         return;
     }
 
     ret = _pTcpServer->listen();
     if (ret != 0)
     {
-        Serial.print("WiFiServer : start listening failed, ret=");
-        Serial.println(ret);
+        if(_debug)
+        {
+            printf("WiFiServer : tcp server listen failed, ret = %d\r\n", ret);
+        }
         return;
     }
-
-    Serial.print("start listening ");
-    Serial.print(WiFi.localIP());
-    Serial.print(": ");
-    Serial.println(_port);
+    if(_debug)
+    {
+        printf("start listening %s on port %d\r\n", WiFi.localIP(), _port);
+    }
 }
 
 WiFiClient WiFiServer::available(byte *status)
 {
-    if (!_pTcpServer)
+    if (_currentClient && _currentClient->read() != -1)
     {
-        Serial.println("wifi server unavailable");
-    }
-    if (_currentClient)
-    {
-        Serial.println("there was a client");
         return *_currentClient;
     }
-    return WiFiClient();
+    WiFiClient _newClient;
+    return _newClient;
 }
 
 int WiFiServer::accept(WiFiClient *client)
 {
-    if (!_pTcpServer)
+    if (!_pTcpServer || !client || !client->_pTcpSocket)
     {
         return -1;
     }
@@ -107,7 +120,6 @@ size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 {
     if (!_pTcpServer || !_currentClient || _currentClient->connected())
     {
-        Serial.print("current client not available");
         return 0;
     }
     _currentClient->write(buffer, size);
@@ -119,6 +131,5 @@ void WiFiServer::close()
     {
         return;
     }
-    _currentClient = nullptr;
     _pTcpServer->close();
 }
