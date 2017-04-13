@@ -52,11 +52,13 @@ exports.checkPython = {
             ver.replace('Python', '').trim();
             if (ver[0] === '2' && semver.lt(ver, '2.7.9') || ver[0] === '3' && semver.lt(ver, '3.4')) {
                 await util.execStdout(constants.pythonInstall, timeout);
+                return 'installed';
             } else {
                 return ver;
             }
         } catch (error) {
             await util.execStdout(constants.pythonInstall, timeout);
+            return 'installed';
         }
     }
 };
@@ -88,6 +90,7 @@ exports.installCli = {
     run: async (context) => {
         try {
             await util.execStdout(`${context.pip} install --user azure-cli`, timeout);
+            return 'installed';
         } catch (error) {
             throw error;
         }
@@ -99,6 +102,7 @@ exports.installPythonRequestsModule = {
     run: async (context) => {
         try {
             await util.execStdout(`${context.pip} install requests`, timeout);
+            return 'installed';
         } catch (error) {
             throw error;
         }
@@ -113,11 +117,13 @@ exports.installNode = {
             ver.replace('v', '').trim();
             if (semver.lt(ver, '4.9.0')) {
                 await util.execStdout(constants.nodeInstall, timeout);
+                return 'installed';
             } else {
                 return ver;
             }
         } catch (error) {
             await util.execStdout(constants.nodeInstall, timeout);
+            return 'installed';
         }
     }
 };
@@ -132,6 +138,7 @@ exports.installVsCode = {
         } catch (error) {
             await util.execStdout(constants.vsCodeInstall, timeout);
             context.code = `"${constants.vsCodeExePath}"`;
+            return 'installed';
         }
     }
 };
@@ -141,6 +148,7 @@ exports.installCppExtension = {
     run: async (context) => {
         try {
             await util.execStdout(`${context.code} --install-extension ms-vscode.cpptools`, timeout);
+            return 'installed';
         } catch (error) {
             throw error;
         }
@@ -161,6 +169,7 @@ exports.installArduinoExtension = {
                 }
             }
             await util.execStdout(`${context.code} --install-extension ${constants.arduinoExtensionPath}`, timeout);
+            return 'installed';
         } catch (error) {
             throw error;
         }
@@ -172,6 +181,7 @@ exports.installArduino = {
     run: async () => {
         try {
             await util.execStdout(constants.arduinoInstall, timeout);
+            return 'installed';
         } catch (error) {
             throw error;
         }
@@ -183,6 +193,7 @@ exports.setBoardUrl = {
     run: async () => {
         try {
             await util.execStderr(`"${constants.arduinoPath}" --pref boardsmanager.additional.urls=${constants.boardManagerUrl} --save-prefs`);
+            return 'setted';
         } catch (error) {
             throw error;
         }
@@ -198,6 +209,7 @@ exports.installBoardPackage = {
             fs.writeFileSync(filePath, fs.readFileSync(constants.customBoardZip));
             let zip = new admzip(filePath);
             zip.extractAllTo(constants.arduinoPackagePath, true);
+            return 'installed';
         } catch (error) {
             throw error;
         }
@@ -209,6 +221,7 @@ exports.installSTLink = {
     run: async () => {
         try {
             await util.execStdout(constants.stlinkInstall, timeout);
+            return 'installed';
         } catch (error) {
             console.log('warning: error in install stlink');
         }
@@ -230,6 +243,7 @@ exports.copyNpmPackage = {
             }
             process.chdir(constants.packageCopyDest);
             await util.execStdout(constants.npmInstall, timeout);
+            return 'setted';
         } catch (error) {
             throw error;
         }
