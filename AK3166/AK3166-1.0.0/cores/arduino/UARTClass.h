@@ -48,6 +48,7 @@ class UARTClass : public HardwareSerial
     operator bool() { return true; }; // UART always active
 
   protected:
+    void init(void);
     BufferedSerial *serial;
 };
 

@@ -19,7 +19,7 @@
 
 #define ARDUINO_MAIN
 #include "Arduino.h"
-
+#include "mico_system.h"
 /*
  * Cortex-M3 Systick IT handler
  */
@@ -34,7 +34,7 @@ extern void SysTick_Handler( void )
 // Weak empty variant initialization function.
 // May be redefined by variant files.
 void initVariant() __attribute__((weak));
-void initVariant() { }
+void initVariant(){ }
 /*
  * \brief Main entry point of Arduino application
  */
@@ -46,11 +46,30 @@ int main( void )
 	//init();
 	initVariant();
 
-	delay(1);
 
 #if defined(USBCON)
 	USBDevice.attach();
 #endif
+
+  int buttonState = 0; 
+  pinMode(USER_BUTTON_A, INPUT);
+
+  for(int i = 0; i <= 10; i++)
+  {
+      buttonState = digitalRead(USER_BUTTON_A);
+      if(buttonState == LOW)
+      {
+         cli_init();
+         for (;;)
+         {
+            delay(10000);
+         }
+      }
+      delay(10);
+  }
+	delay(1);
+
+  Serial.println("Hold Button A and reset to enter configuration mode.");
 
 	setup();
 
