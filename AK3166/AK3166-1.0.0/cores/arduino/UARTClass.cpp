@@ -22,7 +22,7 @@
 
 UARTClass::UARTClass()
 {
-  serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
+  serial = NULL;
 }
 
 UARTClass::~UARTClass()
@@ -32,6 +32,7 @@ UARTClass::~UARTClass()
 
 void UARTClass::begin(const uint32_t dwBaudRate)
 {
+  init();
   serial->baud(dwBaudRate);
 }
 
@@ -42,37 +43,52 @@ void UARTClass::end(void)
 
 size_t UARTClass::write(const uint8_t c)
 {
+  init();
   serial->putc(c);
   return 1;
 }
 
 size_t UARTClass::write(const uint8_t *buffer, size_t size)
 {
+  init();
   return serial->puts(buffer);
 }
 
 int UARTClass::available( void )
 {
+  init();
   //return the amount of data available
   return serial->readable();
 }
 
 int UARTClass::availableForWrite(void)
 {
-    return serial->writable();
+  init();
+  return serial->writable();
 }
 
 int  UARTClass::read(void)
 {
+  init();
   return serial->getc();
 }
 
 int UARTClass::peek( void )
 {
+  init();
   return serial->peek();
 }
 
 void UARTClass::flush( void )
 {
+  init();
   return serial->flush();
+}
+
+void UARTClass::init(void)
+{
+  if(serial == NULL)
+  {
+    serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
+  }
 }
