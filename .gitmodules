@@ -1,6 +1,0 @@
-[submodule "AK3166/AK3166-1.0.0/cores/arduino/IoT-Cognitive"]
-	path = AK3166/AK3166-1.0.0/cores/arduino/IoT-Cognitive
-	url = https://github.com/VSChina/IoT-Cognitive
-[submodule "AK3166/AK3166-1.0.0/libraries/Sensors"]
-	path = AK3166/AK3166-1.0.0/libraries/Sensors
-	url = https://github.com/VSChina/Sensors
