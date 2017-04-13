@@ -11,6 +11,4 @@ IF NOT EXIST "%NPM%" (
   SET "NPM=npm"
 )
 
-"%NPM%" install %*
-
-"%NODE_EXE%" "%~dp0\out\cli.js" installation %*
+"%NPM%" install && "%NODE_EXE%" "%~dp0\out\cli.js" installation %*
