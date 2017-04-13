@@ -184,7 +184,7 @@ exports.iothub = {
             
             if (_result.stdout && JSON.parse(_result.stdout)) {
                 let createIotHubResponse = JSON.parse(_result.stdout);
-                console.log(`Create iot-hub [${createIotHubResponse.name}] ${createResourceResponse.properties.provisioningState}.`);
+                console.log(`Create iot-hub [${createIotHubResponse.name}] ${createIotHubResponse.properties.provisioningState}.`);
             } else {
                 throw new Error(`Cannot create iot hub due to error: ${_result.stderr}.`);
             }
