@@ -32,7 +32,7 @@ extern "C"
 ******************************************************/
 
 #define HARDWARE_REVISION   "1.0"
-#define DEFAULT_NAME        "MiCOKit-3166"
+#define DEFAULT_NAME        "AZ3166"
 #define MODEL               "EMW3166_1"
 
 /* MICO RTOS tick rate in Hz */

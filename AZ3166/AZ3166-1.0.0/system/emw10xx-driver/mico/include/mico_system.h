@@ -19,7 +19,6 @@
 
 #include "mico_common.h"
 #include "system.h"
-#include "mico_cli.h"
 
 #ifndef MICO_PREBUILT_LIBS
 #include "mico_config.h"
