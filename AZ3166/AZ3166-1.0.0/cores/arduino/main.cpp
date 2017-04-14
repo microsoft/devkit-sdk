@@ -20,16 +20,23 @@
 #define ARDUINO_MAIN
 #include "Arduino.h"
 #include "mico_system.h"
-/*
- * Cortex-M3 Systick IT handler
- */
-/*
-extern void SysTick_Handler( void )
+#include "cli\console_cli.h"
+
+static void TryConfigurationiMode()
 {
-  // Increment tick count each ms
-  TimeTick_Increment() ;
+    pinMode(USER_BUTTON_A, INPUT);
+
+    int buttonState = digitalRead(USER_BUTTON_A);
+    if(buttonState == LOW)
+    {
+        // Enter configuration mode
+         cli_main();
+    }
+    else
+    {
+        Serial.println("Hold Button A and reset to enter configuration mode.");
+    }
 }
-*/
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -40,44 +47,26 @@ void initVariant(){ }
  */
 int main( void )
 {
-	// Initialize watchdog
-	//watchdogSetup();
-
-	//init();
-	initVariant();
-
-
+    // Initialize watchdog
+    //watchdogSetup();
+    
+    //init();
+    initVariant();
+    
 #if defined(USBCON)
-	USBDevice.attach();
+    USBDevice.attach();
 #endif
+    
+    TryConfigurationiMode();
+    
+    // Arduino setup function
+    setup();
 
-  int buttonState = 0; 
-  pinMode(USER_BUTTON_A, INPUT);
-
-  for(int i = 0; i <= 10; i++)
-  {
-      buttonState = digitalRead(USER_BUTTON_A);
-      if(buttonState == LOW)
-      {
-         cli_init();
-         for (;;)
-         {
-            delay(10000);
-         }
-      }
-      delay(10);
-  }
-	delay(1);
-
-  Serial.println("Hold Button A and reset to enter configuration mode.");
-
-	setup();
-
-	for (;;)
-	{
-		loop();
-		//if (serialEventRun) serialEventRun();
-	}
-
-	return 0;
+    for (;;)
+    {
+        // Arduino loop function
+        loop();
+    }
+    
+    return 0;
 }
