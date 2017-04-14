@@ -11,12 +11,7 @@
 #include "azure_c_shared_utility/platform.h"
 #include "iothubtransportmqtt.h"
 #include "azureiotcerts.h"
-
-/*String containing Hostname, Device Id & Device Key in the format:                         */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-static const char* connectionString = "HostName=renhe-iot-test.azure-devices.net;DeviceId=renhemico1;SharedAccessKey=cNeiQ2AM4wKkZGg8dK2G1cAcuednWdO3a6p2Qif4UM8=";
-
+#include "EEPROMInterface.h"
 
 static int callbackCounter;
 static char msgText[1024];
@@ -116,6 +111,14 @@ void iothub_client_sample_mqtt_run(void)
     
     callbackCounter = 0;
     int receiveContext = 0;
+    EEPROMInterface eeprom;
+    uint8_t *pIotConnString = (uint8_t*)malloc(256);
+    int responseCode = eeprom.read(pIotConnString, 256 , 0x05);
+    if(!responseCode)
+    { 
+         printf("unable to get the azure iot connection string from EEPROM... Please set the value in configuration mode.\r\n");
+         return;
+    }
 
     if (platform_init() != 0)
     {
@@ -123,7 +126,7 @@ void iothub_client_sample_mqtt_run(void)
     }
     else
     {
-        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(connectionString, MQTT_Protocol)) == NULL)
+        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)pIotConnString, MQTT_Protocol)) == NULL)
         {
             (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
         }
