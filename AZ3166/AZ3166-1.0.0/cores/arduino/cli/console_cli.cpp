@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include <stdio.h>
 #include "EEPROMInterface.h"
+#include "EMW10xxInterface.h"
 #include "UARTClass.h"
 #include "console_cli.h"
 #include "mico.h"
@@ -110,7 +111,7 @@ static void write_eeprom(char* string, int idxZone)
     ResponseCode responseCode = eeprom.write((uint8_t*)string, len, idxZone);
     if (responseCode != OK)
     {
-        Serial.printf("Failed to write EEPROM: 0x%02x.\r\n", responseCode);
+        Serial.printf("ERROR: Failed to write EEPROM: 0x%02x.\r\n", responseCode);
         return;
     }
     
@@ -119,7 +120,7 @@ static void write_eeprom(char* string, int idxZone)
     int result = eeprom.read(pBuff, len, idxZone);
     if (result != len || strncmp(string, (char*)pBuff, len) != 0)
     {
-        Serial.printf("Verify failed.\r\n");
+        Serial.printf("ERROR: Verify failed.\r\n");
     }
     free(pBuff);
 }
@@ -138,6 +139,7 @@ static void wifi_ssid_command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x03);
+    Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
 }
 
 static void wifi_pwd_Command(int argc, char **argv)
@@ -154,6 +156,7 @@ static void wifi_pwd_Command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x0A);
+    Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
 }
 
 static void az_iothub_command(int argc, char **argv)
@@ -170,6 +173,7 @@ static void az_iothub_command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x05);
+    Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +342,7 @@ static int handle_input(char* inbuf)
         }
     }
     
-    Serial.printf("Invalid command: %s\r\n", argv[0]);
+    Serial.printf("Error:Invalid command: %s\r\n", argv[0]);
     return 0;
 }
 
@@ -350,6 +354,39 @@ void cli_main(void)
     print_help();
     Serial.print(PROMPT);
     
+    EEPROMInterface eeprom;
+    
+    uint8_t *pSSID = (uint8_t*)malloc(WIFI_SSID_MAX_LEN);
+    int responseCode = eeprom.read(pSSID, WIFI_SSID_MAX_LEN, 0x03);
+
+    if(responseCode)
+    {
+        EMW10xxInterface wlan;
+        int ret;
+
+        Serial.printf("Trying to connect to Wifi. Current Wifi SSID is %s\n",pSSID);
+        uint8_t *pPassword = (uint8_t*)malloc(WIFI_PWD_MAX_LEN);
+        responseCode = eeprom.read(pPassword, WIFI_PWD_MAX_LEN, 0x0A);
+        if(responseCode)
+        {
+            ret = wlan.connect( (char*)pSSID, (char*)pPassword, NSAPI_SECURITY_WPA_WPA2, 0 );
+        }
+        else
+        {
+            //empty password
+            ret = wlan.connect( (char*)pSSID, "" , NSAPI_SECURITY_WPA_WPA2, 0 );          
+        }
+        
+        if ( ret != NSAPI_ERROR_OK ) 
+        {
+            Serial.printf("Wifi connection failed, please reset SSID and password\r\n");
+        }
+        else
+        {
+            Serial.printf("Wifi connected successfully.\r\n");
+        }        
+    }
+
     while (true) 
     {
         if (!get_input(inbuf, &bp))
@@ -360,7 +397,7 @@ void cli_main(void)
         int ret = handle_input(inbuf);
         if (ret == 1)
         {
-            Serial.print("Syntax error\r\n");
+            Serial.print("Error:Syntax error\r\n");
         }
         Serial.print(PROMPT);
     }
