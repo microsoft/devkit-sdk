@@ -226,7 +226,6 @@ size_t TwoWire::write(uint8_t data)
     // don't bother if buffer is full
     if (txBufferLength >= BUFFER_LENGTH)
     {
-      setWriteError();
       return 0;
     }
     // put byte in tx buffer
