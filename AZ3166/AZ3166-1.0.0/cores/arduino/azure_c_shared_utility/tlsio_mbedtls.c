@@ -108,7 +108,6 @@ static void indicate_open_complete(TLS_IO_INSTANCE* tls_io_instance, IO_OPEN_RES
 
 static int decode_ssl_received_bytes(TLS_IO_INSTANCE* tls_io_instance)
 {
-	printf("decode_ssl_received_bytes\n");
     int result = 0;
     unsigned char buffer[64];
     int rcv_bytes = 1;
@@ -570,7 +569,6 @@ int tlsio_mbedtls_send(CONCRETE_IO_HANDLE tls_io, const void* buffer, size_t siz
 
 void tlsio_mbedtls_dowork(CONCRETE_IO_HANDLE tls_io)
 {
-	(void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call tlsio_mbedtls_dowork.\r\n", __FUNCTION__, __FILE__, __LINE__);
     if (tls_io != NULL)
     {
         TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)tls_io;
@@ -579,7 +577,6 @@ void tlsio_mbedtls_dowork(CONCRETE_IO_HANDLE tls_io)
             (tls_io_instance->tlsio_state != TLSIO_STATE_ERROR))
         {
             decode_ssl_received_bytes(tls_io_instance);
-            (void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call xio_dowork.\r\n", __FUNCTION__, __FILE__, __LINE__);
             xio_dowork(tls_io_instance->socket_io);
         }
     }
