@@ -139,6 +139,12 @@ extern const PinDescription g_APinDescription[]=
  * UART objects
  */
 UARTClass Serial;
+
+/*
+ * Screen objects
+ */
+OLEDDisplay Screen;
+
 /*
 UARTClass Serial(USART2_E);    //available on PA2/PA3
 UARTClass Serial1(USART1_E);   //available on PA9/PA10
