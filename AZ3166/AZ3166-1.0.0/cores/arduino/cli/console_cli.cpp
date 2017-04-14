@@ -139,7 +139,7 @@ static void wifi_ssid_command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x03);
-    Serial.printf("INFO: Set Wifi SSID successfully.\r\n");
+    Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
 }
 
 static void wifi_pwd_Command(int argc, char **argv)
@@ -156,7 +156,7 @@ static void wifi_pwd_Command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x0A);
-    Serial.printf("INFO: Set Wifi password successfully.\r\n");
+    Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
 }
 
 static void az_iothub_command(int argc, char **argv)
@@ -173,7 +173,7 @@ static void az_iothub_command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x05);
-    Serial.printf("INFO: Set Azure Iot connection string successfully.\r\n");
+    Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
