@@ -111,7 +111,7 @@ static void write_eeprom(char* string, int idxZone)
     ResponseCode responseCode = eeprom.write((uint8_t*)string, len, idxZone);
     if (responseCode != OK)
     {
-        Serial.printf("Failed to write EEPROM: 0x%02x.\r\n", responseCode);
+        Serial.printf("ERROR: Failed to write EEPROM: 0x%02x.\r\n", responseCode);
         return;
     }
     
@@ -120,7 +120,7 @@ static void write_eeprom(char* string, int idxZone)
     int result = eeprom.read(pBuff, len, idxZone);
     if (result != len || strncmp(string, (char*)pBuff, len) != 0)
     {
-        Serial.printf("Verify failed.\r\n");
+        Serial.printf("ERROR: Verify failed.\r\n");
     }
     free(pBuff);
 }
@@ -139,6 +139,7 @@ static void wifi_ssid_command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x03);
+    Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
 }
 
 static void wifi_pwd_Command(int argc, char **argv)
@@ -155,6 +156,7 @@ static void wifi_pwd_Command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x0A);
+    Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
 }
 
 static void az_iothub_command(int argc, char **argv)
@@ -171,6 +173,7 @@ static void az_iothub_command(int argc, char **argv)
     }
     
     write_eeprom(argv[1], 0x05);
+    Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -339,7 +342,7 @@ static int handle_input(char* inbuf)
         }
     }
     
-    Serial.printf("Invalid command: %s\r\n", argv[0]);
+    Serial.printf("Error:Invalid command: %s\r\n", argv[0]);
     return 0;
 }
 
@@ -394,7 +397,7 @@ void cli_main(void)
         int ret = handle_input(inbuf);
         if (ret == 1)
         {
-            Serial.print("Syntax error\r\n");
+            Serial.print("Error:Syntax error\r\n");
         }
         Serial.print(PROMPT);
     }
