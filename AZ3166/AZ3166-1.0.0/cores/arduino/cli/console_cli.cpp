@@ -46,9 +46,9 @@ static const struct console_command cmds[] = {
   {"help",          "Help document",                                            help_command},
   {"version",       "System version",                                           get_version_command},
   {"exit",          "Exit and reboot",                                          reboot_and_exit_command},
-  {"wifissid",      "Set Wi-Fi SSID",                                           wifi_ssid_command},
-  {"wifipwd",       "Set Wi-Fi password",                                       wifi_pwd_Command},
-  {"az_iothub",     "Set the connection string of Microsoft Azure IOT hub",     az_iothub_command},
+  {"set_wifissid",  "Set Wi-Fi SSID",                                           wifi_ssid_command},
+  {"set_wifipwd",   "Set Wi-Fi password",                                       wifi_pwd_Command},
+  {"set_az_iothub", "Set the connection string of Microsoft Azure IOT hub",     az_iothub_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -128,7 +128,7 @@ static void wifi_ssid_command(int argc, char **argv)
 {
     if (argc == 1 || argv[1] == NULL) 
     {
-        Serial.printf("Usage: wifissid <SSID>. Please provide the SSID of the Wi-Fi.\r\n");
+        Serial.printf("Usage: set_wifissid <SSID>. Please provide the SSID of the Wi-Fi.\r\n");
         return;
     }
     int len = strlen(argv[1]);
@@ -144,7 +144,7 @@ static void wifi_pwd_Command(int argc, char **argv)
 {
     if (argc == 1 || argv[1] == NULL) 
     {
-        Serial.printf("Usage: wifipwd <password>. Please provide the password of the Wi-Fi.\r\n");
+        Serial.printf("Usage: set_wifipwd <password>. Please provide the password of the Wi-Fi.\r\n");
         return;
     }
     int len = strlen(argv[1]);
@@ -160,7 +160,7 @@ static void az_iothub_command(int argc, char **argv)
 {
     if (argc == 1 || argv[1] == NULL) 
     {
-        Serial.printf("Usage: az_iothub <connection string>. Please provide the connection string of the Azure IoT hub.\r\n");
+        Serial.printf("Usage: set_az_iothub <connection string>. Please provide the connection string of the Azure IoT hub.\r\n");
         return;
     }
     int len = strlen(argv[1]);

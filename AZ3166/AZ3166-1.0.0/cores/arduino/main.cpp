@@ -34,7 +34,7 @@ static void TryConfigurationiMode()
     }
     else
     {
-        Serial.println("Hold Button A and reset to enter configuration mode.");
+        Serial.println("\r\nPlease press Button A and reset to enter configuration mode.");
     }
 }
 
