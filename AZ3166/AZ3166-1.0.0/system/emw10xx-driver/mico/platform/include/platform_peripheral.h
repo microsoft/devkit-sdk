@@ -29,6 +29,8 @@
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
 
+#include "i2c_api.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -239,7 +241,7 @@ typedef struct
 
 typedef struct
 {
-    gpio_t             gpio;
+    gpio_t         gpio;
 } platform_gpio_driver_t;
 
 typedef struct
@@ -248,6 +250,18 @@ typedef struct
     platform_gpio_irq_callback_t    fun;
     void*                           arg;
 } platform_gpio_irq_driver_t;
+
+typedef struct
+{
+    PinName        mbed_sda_pin;
+    PinName        mbed_scl_pin;
+} platform_i2c_t;
+
+typedef struct
+{
+    i2c_t         i2c;
+    mico_mutex_t  i2c_mutex;
+} platform_i2c_driver_t;
 
 /* peripherals only for mico */
 typedef struct
@@ -702,89 +716,90 @@ OSStatus platform_mcu_powersave_disable( void );
 // OSStatus platform_adc_take_sample_stream( const platform_adc_t* adc, void* buffer, uint16_t buffer_length );
 
 
-// /**
-//  * Initialise I2C interface
-//  *
-//  * @param[in] i2c_interface : I2C interface
-//  * @param[in] config        : I2C configuration
-//  *
-//  * @return @ref OSStatus
-//  */
-// OSStatus platform_i2c_init( const platform_i2c_t* i2c, const platform_i2c_config_t* config );
+/**
+  * Initialise I2C interface
+  *
+  * @param[in] i2c_interface : I2C interface
+  * @param[in] config        : I2C configuration
+  *
+  * @return @ref OSStatus
+  */
+OSStatus platform_i2c_init( platform_i2c_driver_t* driver, const platform_i2c_t* i2c, const platform_i2c_config_t* config );
 
+/**
+ * Deinitialise I2C interface
+ *
+ * @param[in] driver        : I2C driver
+ * @param[in] config        : I2C configuration
+ *
+ * @return @ref OSStatus
+ */
+OSStatus platform_i2c_deinit( platform_i2c_driver_t* driver, const platform_i2c_config_t* config );
 
-// /**
-//  * Deinitialise I2C interface
-//  *
-//  * @param[in] i2c_interface : I2C interface
-//  *
-//  * @return @ref OSStatus
-//  */
-// OSStatus platform_i2c_deinit( const platform_i2c_t* i2c, const platform_i2c_config_t* config );
+/**
+ * Probe I2C slave device
+ *
+ * @param[in] driver    : I2C driver
+ * @param[in] retries   : number of retries
+ *
+ * @return @ref OSStatus
+ */
+bool platform_i2c_probe_device( platform_i2c_driver_t* driver, const platform_i2c_config_t* config, int retries );
 
+/**
+ * Initialise I2C transmit message
+ *
+ * @param[in,out] message          : I2C message
+ * @param[in]     tx_buffer        : transmit buffer
+ * @param[in]     tx_buffer_length : transmit buffer length is bytes
+ * @param[in]     retries          : number of transmission retries
+ *
+ * @return @ref OSStatus
+ */
+OSStatus platform_i2c_init_tx_message( platform_i2c_message_t* message, const void* tx_buffer,
+                                       uint16_t tx_buffer_length, uint16_t retries );
 
-// /**
-//  * Probe I2C slave device
-//  *
-//  * @param[in] i2c_interface : I2C interface
-//  * @param[in] retries       : number of retries
-//  *
-//  * @return @ref OSStatus
-//  */
-// bool platform_i2c_probe_device( const platform_i2c_t* i2c, const platform_i2c_config_t* config, int retries );
+/**
+ * Initialise I2C receive message
+ *
+ * @param[in,out] message          : I2C message
+ * @param[in]     rx_buffer        : receive buffer
+ * @param[in]     rx_buffer_length : receive buffer length is bytes
+ * @param[in]     retries          : number of transmission retries
+ *
+ * @return @ref OSStatus
+ */
+OSStatus platform_i2c_init_rx_message( platform_i2c_message_t* message, void* rx_buffer, uint16_t rx_buffer_length,
+                                       uint16_t retries );
 
+/**
+ * Initialise I2C combined message
+ *
+ * @param[in,out] message          : I2C message
+ * @param[in]     tx_buffer        : transmit buffer
+ * @param[in]     rx_buffer        : receive buffer
+ * @param[in]     tx_buffer_length : transmit buffer length is bytes
+ * @param[in]     rx_buffer_length : receive buffer length is bytes
+ * @param[in]     retries          : number of transmission retries
+ *
+ * @return @ref OSStatus
+ */
+OSStatus platform_i2c_init_combined_message( platform_i2c_message_t* message, const void* tx_buffer,
+                                             void* rx_buffer, uint16_t tx_buffer_length, uint16_t rx_buffer_length,
+                                             uint16_t retries );
 
-// /**
-//  * Initialise I2C transmit message
-//  *
-//  * @param[in,out] message          : I2C message
-//  * @param[in]     tx_buffer        : transmit buffer
-//  * @param[in]     tx_buffer_length : transmit buffer length is bytes
-//  * @param[in]     retries          : number of transmission retries
-//  *
-//  * @return @ref OSStatus
-//  */
-// OSStatus platform_i2c_init_tx_message( platform_i2c_message_t* message, const void* tx_buffer, uint16_t tx_buffer_length, uint16_t retries );
-
-
-// /**
-//  * Initialise I2C receive message
-//  *
-//  * @param[in,out] message          : I2C message
-//  * @param[in]     rx_buffer        : receive buffer
-//  * @param[in]     rx_buffer_length : receive buffer length is bytes
-//  * @param[in]     retries          : number of transmission retries
-//  *
-//  * @return @ref OSStatus
-//  */
-// OSStatus platform_i2c_init_rx_message( platform_i2c_message_t* message, void* rx_buffer, uint16_t rx_buffer_length, uint16_t retries );
-
-
-// /**
-//  * Initialise I2C combined message
-//  *
-//  * @param[in,out] message          : I2C message
-//  * @param[in]     tx_buffer        : transmit buffer
-//  * @param[in]     rx_buffer        : receive buffer
-//  * @param[in]     tx_buffer_length : transmit buffer length is bytes
-//  * @param[in]     rx_buffer_length : receive buffer length is bytes
-//  * @param[in]     retries          : number of transmission retries
-//  *
-//  * @return @ref OSStatus
-//  */
-// OSStatus platform_i2c_init_combined_message( platform_i2c_message_t* message, const void* tx_buffer, void* rx_buffer, uint16_t tx_buffer_length, uint16_t rx_buffer_length, uint16_t retries );
-
-
-// /**
-//  * Transfer data via the I2C interface
-//  *
-//  * @param[in] i2c_interface      : I2C interface
-//  * @param[in] messages           : pointer to an array of messages to transceive
-//  * @param[in] number_of_messages : number of messages in the array
-//  *
-//  * @return @ref OSStatus
-//  */
-// OSStatus platform_i2c_transfer( const platform_i2c_t* i2c, const platform_i2c_config_t* config, platform_i2c_message_t* messages, uint16_t number_of_messages );
+/**
+ * Transfer data via the I2C interface
+ *
+ * @param[in] driver             : I2C driver
+ * @param[in] config             : I2C configuration
+ * @param[in] messages           : pointer to an array of messages to transceive
+ * @param[in] number_of_messages : number of messages in the array
+ *
+ * @return @ref OSStatus
+ */
+OSStatus platform_i2c_transfer( platform_i2c_driver_t* driver, const platform_i2c_config_t* config,
+                                platform_i2c_message_t* messages, uint16_t number_of_messages );
 
 
 // /**

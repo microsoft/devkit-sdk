@@ -77,13 +77,29 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 uint32_t analogRead(uint32_t ulPin)
 {
   uint32_t ulValue = 0;
-
-  PinName pinName = PinName(ulPin);
-  AnalogIn ain(pinName);
-  float fValue = ain.read();
-  ulValue =  fValue * 1024;
-  ulValue = mapResolution(ulValue, ADC_RESOLUTION, _readResolution);
-  return ulValue;
+  uint32_t attr = 0;
+  int i;
+  
+  //find the pin.
+  i = get_pin_description(ulPin); 
+  if(i < 0)
+  { 
+      return 0;
+  }
+  attr = g_APinDescription[i].mode;
+  if((attr & GPIO_PIN_ADC) == GPIO_PIN_ADC)
+  {
+    PinName pinName = PinName(ulPin);
+    AnalogIn ain(pinName);
+    float fValue = ain.read();
+    ulValue =  fValue * 1024;
+    ulValue = mapResolution(ulValue, ADC_RESOLUTION, _readResolution);
+    return ulValue;
+  }
+  else
+  {
+    return 0;    
+  }
 }
 
 
