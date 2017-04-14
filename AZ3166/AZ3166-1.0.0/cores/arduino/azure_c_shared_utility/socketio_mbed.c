@@ -141,7 +141,7 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
 {
     SOCKETIO_CONFIG* socket_io_config = io_create_parameters;
     SOCKET_IO_INSTANCE* result;
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call socketio_create.\r\n", __FUNCTION__, __FILE__, __LINE__);
+    
     if (socket_io_config == NULL)
     {
         result = NULL;
@@ -216,7 +216,6 @@ void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
 int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
 {
     int result;
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call socketio_open.\r\n", __FUNCTION__, __FILE__, __LINE__);
     SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
     if (socket_io == NULL)
     {
@@ -231,7 +230,6 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
         }
         else
         {
-            (void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call tcpsocketconnection_connect.\r\n", __FUNCTION__, __FILE__, __LINE__);
             if (tcpsocketconnection_connect(socket_io_instance->tcp_socket_connection, socket_io_instance->hostname, socket_io_instance->port) != 0)
             {
                 tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
@@ -300,7 +298,6 @@ int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_clos
 
 int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size, ON_SEND_COMPLETE on_send_complete, void* callback_context)
 {
-	(void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call socketio_send.\r\n", __FUNCTION__, __FILE__, __LINE__);
     int result;
 
     if ((socket_io == NULL) ||
@@ -324,7 +321,6 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
             LIST_ITEM_HANDLE first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
             if (first_pending_io != NULL)
             {
-            	(void)printf("#DEBUG: func: %s, file: %s, line: %d, tcpsocketconnection_send.first_pending_io is not null\r\n", __FUNCTION__, __FILE__, __LINE__);
                 if (add_pending_io(socket_io_instance, buffer, size, on_send_complete, callback_context) != 0)
                 {
                     result = __LINE__;
@@ -336,7 +332,6 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
             }
             else
             {
-            	(void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call tcpsocketconnection_send.\r\n", __FUNCTION__, __FILE__, __LINE__);
                 int send_result = tcpsocketconnection_send(socket_io_instance->tcp_socket_connection, buffer, size);
                 if (send_result != size)
                 {
@@ -361,14 +356,8 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
                 {
                     if (on_send_complete != NULL)
                     {
-                    	(void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call on send complete.\r\n", __FUNCTION__, __FILE__, __LINE__);
                         on_send_complete(callback_context, IO_SEND_OK);
                     }
-                    else
-                    {
-                    	(void)printf("#DEBUG: func: %s, file: %s, line: %d, on_send_complete is null in socketio_send.\r\n", __FUNCTION__, __FILE__, __LINE__);
-                    }
-
                     result = 0;
                 }
             }
@@ -380,14 +369,12 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
 
 void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 {
-	(void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to call socketio_dowork.\r\n", __FUNCTION__, __FILE__, __LINE__);
     if (socket_io != NULL)
     {
         SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
         if (socket_io_instance->io_state == IO_STATE_OPEN)
         {
             int received = 1;
-            (void)printf("#DEBUG: func: %s, file: %s, line: %d, trying to send in socketio_dowork.\r\n", __FUNCTION__, __FILE__, __LINE__);
             LIST_ITEM_HANDLE first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
             while (first_pending_io != NULL)
             {
@@ -399,7 +386,6 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
                     break;
                 }
 
-                LogInfo("Socketio_sending data: %s.", (char*)pending_socket_io->bytes);
                 int send_result = tcpsocketconnection_send(socket_io_instance->tcp_socket_connection, (const char*)pending_socket_io->bytes, pending_socket_io->size);
                 if (send_result != pending_socket_io->size)
                 {
