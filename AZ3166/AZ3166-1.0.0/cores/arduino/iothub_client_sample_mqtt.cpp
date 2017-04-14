@@ -13,12 +13,6 @@
 #include "azureiotcerts.h"
 #include "EEPROMInterface.h"
 
-/*String containing Hostname, Device Id & Device Key in the format:                         */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-//static const char* connectionString = "HostName=renhe-iot-test.azure-devices.net;DeviceId=renhemico1;SharedAccessKey=cNeiQ2AM4wKkZGg8dK2G1cAcuednWdO3a6p2Qif4UM8=";
-
-
 static int callbackCounter;
 static char msgText[1024];
 static char propText[1024];
