@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include <stdio.h>
 #include "EEPROMInterface.h"
+#include "EMW10xxInterface.h"
 #include "UARTClass.h"
 #include "console_cli.h"
 #include "mico.h"
@@ -350,6 +351,39 @@ void cli_main(void)
     print_help();
     Serial.print(PROMPT);
     
+    EEPROMInterface eeprom;
+    
+    uint8_t *pSSID = (uint8_t*)malloc(WIFI_SSID_MAX_LEN);
+    int responseCode = eeprom.read(pSSID, WIFI_SSID_MAX_LEN, 0x03);
+
+    if(responseCode)
+    {
+        EMW10xxInterface wlan;
+        int ret;
+
+        Serial.printf("Trying to connect to Wifi. Current Wifi SSID is %s\n",pSSID);
+        uint8_t *pPassword = (uint8_t*)malloc(WIFI_PWD_MAX_LEN);
+        responseCode = eeprom.read(pPassword, WIFI_PWD_MAX_LEN, 0x0A);
+        if(responseCode)
+        {
+            ret = wlan.connect( (char*)pSSID, (char*)pPassword, NSAPI_SECURITY_WPA_WPA2, 0 );
+        }
+        else
+        {
+            //empty password
+            ret = wlan.connect( (char*)pSSID, "" , NSAPI_SECURITY_WPA_WPA2, 0 );          
+        }
+        
+        if ( ret != NSAPI_ERROR_OK ) 
+        {
+            Serial.printf("Wifi connection failed, please reset SSID and password\r\n");
+        }
+        else
+        {
+            Serial.printf("Wifi connected successfully.\r\n");
+        }        
+    }
+
     while (true) 
     {
         if (!get_input(inbuf, &bp))
