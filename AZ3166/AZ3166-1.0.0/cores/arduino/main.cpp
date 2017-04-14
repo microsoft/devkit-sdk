@@ -29,11 +29,15 @@ static void TryConfigurationiMode()
     int buttonState = digitalRead(USER_BUTTON_A);
     if(buttonState == LOW)
     {
+        Screen.clean();
+        Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
+    
         // Enter configuration mode
          cli_main();
     }
     else
     {
+        Screen.print("Azure IoT DevKit\r\n \r\nRunning...\r\n");
         Serial.println("\r\nPlease press Button A and reset to enter configuration mode.");
     }
 }
@@ -56,7 +60,8 @@ int main( void )
 #if defined(USBCON)
     USBDevice.attach();
 #endif
-    
+    Screen.init();
+            
     TryConfigurationiMode();
     
     // Arduino setup function
