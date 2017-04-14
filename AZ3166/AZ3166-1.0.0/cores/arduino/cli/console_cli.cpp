@@ -371,6 +371,7 @@ void cli_main(void)
     EEPROMInterface eeprom;
     
     uint8_t *pSSID = (uint8_t*)malloc(WIFI_SSID_MAX_LEN);
+    memset(pSSID, 0, WIFI_SSID_MAX_LEN);
     int responseCode = eeprom.read(pSSID, WIFI_SSID_MAX_LEN, 0x03);
 
     if(responseCode)
@@ -378,8 +379,9 @@ void cli_main(void)
         EMW10xxInterface wlan;
         int ret;
 
-        Serial.printf("Trying to connect to Wifi. Current Wifi SSID is %s\n",pSSID);
+        Serial.printf("Trying to connect to Wifi. Current Wifi SSID is %s\r\n",pSSID);
         uint8_t *pPassword = (uint8_t*)malloc(WIFI_PWD_MAX_LEN);
+        memset(pPassword, 0, WIFI_PWD_MAX_LEN);
         responseCode = eeprom.read(pPassword, WIFI_PWD_MAX_LEN, 0x0A);
         if(responseCode)
         {

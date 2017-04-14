@@ -20,7 +20,7 @@
 #define ARDUINO_MAIN
 #include "Arduino.h"
 #include "mico_system.h"
-#include "cli\console_cli.h"
+#include "console_cli.h"
 
 static void TryConfigurationiMode()
 {
