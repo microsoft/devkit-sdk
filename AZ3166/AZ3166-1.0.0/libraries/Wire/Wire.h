@@ -23,7 +23,6 @@
 #define TwoWire_h
 
 #include <inttypes.h>
-#include "Stream.h"
 #include "i2c_api.h"
 
 #define BUFFER_LENGTH 32
@@ -36,7 +35,7 @@
 #define I2C_OK 0
 #define I2C_TIMEOUT 1
 
-class TwoWire : public Stream
+class TwoWire
 {
   private:
     uint8_t rxBuffer[BUFFER_LENGTH];
@@ -89,7 +88,6 @@ class TwoWire : public Stream
     inline size_t write(long n) { return write((uint8_t)n); }
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
     inline size_t write(int n) { return write((uint8_t)n); }
-    using Print::write;
 };
 
 extern TwoWire Wire;
