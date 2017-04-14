@@ -61,6 +61,9 @@ typedef struct _PinDescription
 } PinDescription ;
 
 #define NB_PIN_DESCRIPTIONS (16*3)
+#define WIFI_SSID_ADDRESS 50331648
+#define WIFI_PWD_ADDRESS 167772160
+#define AZ_IOTCONN_ADDRESS 83886080
 
 /* Pins table to be instanciated into variant.cpp */
 extern const PinDescription g_APinDescription[] ;
