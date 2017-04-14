@@ -21,6 +21,7 @@
 #include "Arduino.h"
 #include "mico_system.h"
 #include "cli\console_cli.h"
+#include "telemetry.h"
 
 static void TryConfigurationiMode()
 {
@@ -61,6 +62,7 @@ int main( void )
     
     // Arduino setup function
     setup();
+    telemetry_init()
 
     for (;;)
     {
