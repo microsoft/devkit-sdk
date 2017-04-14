@@ -20,18 +20,12 @@
 #define EEPROM_h
 
 #include "Arduino.h"
-#include "cli\EEPROMInterface.h"
 
-class EEPROMClass
+struct EEPROMClass
 {
-public:
-	EEPROMClass();
-	~EEPROMClass();
     uint8_t read(int idx);
-
-private:
-  EEPROMInterface eepromInterface;
 };
 
 static EEPROMClass EEPROM;
+
 #endif

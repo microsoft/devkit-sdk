@@ -4,16 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "AzureIotHub.h"
-
-/*String containing Hostname, Device Id & Device Key in the format:                         */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-static const char *connectionString = "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>";
+#include "EEPROMInterface.h"
 
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 int receiveContext = 0;
-
 
 typedef struct EVENT_INSTANCE_TAG
 {
@@ -50,8 +45,6 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     else
     {
         (void)printf("Received Message [%d]\r\n Message ID: %s\r\n Correlation ID: %s\r\n Data: <<<%.*s>>> & Size=%d\r\n", *counter, messageId, correlationId, (int)size, buffer, (int)size);
-        // turn led on to indicate receiving msg
-        turnLightOn();
     }
 
     // Retrieve properties from the message
@@ -98,13 +91,27 @@ void iothub_client_sample_mqtt_init()
     srand((unsigned int)time(NULL));
     defaultMessage.messageTrackingId = 0;
 
+    // Load connection from EEPROM
+    EEPROMInterface eeprom;
+    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN , AZ_IOT_HUB_ZONE_IDX);
+    if (ret < 0)
+    { 
+        (void)printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
+        return;
+    }
+    else if (ret == 0)
+    {
+        (void)printf("INFO: The connection string is empty.\r\nPlease set the value in configuration mode.\r\n");
+    }
+    
     if (platform_init() != 0)
     {
         (void)printf("Failed to initialize the platform.\r\n");
         return;
     }
 
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(connectionString, MQTT_Protocol)) == NULL)
+    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
         (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
         return;
@@ -124,8 +131,10 @@ void iothub_client_sample_mqtt_init()
         return;
     }
 }
-void iothub_client_sample_send_event(const unsigned char *text) {
-    defaultMessage.messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen(text));
+
+void iothub_client_sample_send_event(const unsigned char *text)
+{
+    defaultMessage.messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
     defaultMessage.messageTrackingId ++;
     if (defaultMessage.messageHandle == NULL) {
         (void)printf("ERROR: iotHubMessageHandle is NULL!\r\n");

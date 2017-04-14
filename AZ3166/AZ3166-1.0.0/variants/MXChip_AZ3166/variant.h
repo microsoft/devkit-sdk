@@ -34,6 +34,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "Arduino.h"
+
 #ifdef __cplusplus
 #include "UARTClass.h"
 #include "OledDisplay.h"
