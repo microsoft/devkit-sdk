@@ -24,8 +24,10 @@
 class NAU88C10
 {        
     public:
-        NAU88C10(PinName i2c_sda, PinName i2c_scl, int i2c_addr, PinName i2s_tx, PinName i2s_rx, PinName i2s_bclk, PinName i2s_mclk, PinName i2s_lrclk);
-        NAU88C10(PinName i2c_sda, PinName i2c_scl, int i2c_addr, PinName i2s_tx, PinName i2s_rx, PinName i2s_bclk, PinName i2s_mclk, PinName i2s_lrclk, char i2s_master_enable, char codec_master_enable);
+        //NAU88C10(PinName i2c_sda, PinName i2c_scl, int i2c_addr, PinName i2s_tx, PinName i2s_rx, PinName i2s_bclk, PinName i2s_mclk, PinName i2s_lrclk);
+        //NAU88C10(PinName i2c_sda, PinName i2c_scl, int i2c_addr, PinName i2s_tx, PinName i2s_rx, PinName i2s_bclk, PinName i2s_mclk, PinName i2s_lrclk, char i2s_master_enable, char codec_master_enable);
+
+        NAU88C10();
 
         // Config NAU88C10 codec through I2C
         void power(void);
@@ -44,7 +46,9 @@ class NAU88C10
 
         // attach callback function to process audio in/out
         template<typename T>
-        void attach(T *obj, void (T::*method)());
+        void attach(T *obj, void (T::*method)()) {
+            attach(callback(obj, method));
+        }
         void attach(void(*fptr)(void));
         void attach(Callback<void()> func);
 
