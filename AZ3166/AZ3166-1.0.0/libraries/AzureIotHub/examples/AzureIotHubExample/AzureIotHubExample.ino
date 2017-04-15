@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "AzureIotHub.h"
-extern NetworkInterface *network;
+
 static char msgText[1024];
 static char temp[100];
 

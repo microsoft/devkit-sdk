@@ -357,7 +357,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                 else
                 {
                     /* Codes_SRS_IOTHUBCLIENT_LL_12_011: [IoTHubClient_LL_CreateFromConnectionString shall call into the IoTHubClient_LL_Create API with the current structure and returns with the return value of it] */
-                    telemetry_enqueue(config->iotHubName, "setup", "create client from connectionstring");
+                    telemetry_enqueue(config->iotHubName, "create iothub client", "create iothub client from connection string");
                     result = IoTHubClient_LL_Create(config);
                     if (result == NULL)
                     {
@@ -393,7 +393,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
 
             free(config);
         }
-    }    
+    }
     return result;
 }
 

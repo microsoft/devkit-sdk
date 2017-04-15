@@ -62,7 +62,7 @@ int main( void )
     
     // Arduino setup function
     setup();
-    telemetry_init()
+    telemetry_init();
 
     for (;;)
     {
