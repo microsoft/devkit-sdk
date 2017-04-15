@@ -21,75 +21,14 @@
 #include "Arduino.h"
 #include "mico_system.h"
 #include "console_cli.h"
-#include "EMW10xxInterface.h"
-#include "EEPROMInterface.h"
-
-NetworkInterface *network;
-
-static void InitWiFi(void)
-{
-    network = new EMW10xxInterface();
-    
-    EEPROMInterface eeprom;
-    
-    uint8_t ssid[WIFI_SSID_MAX_LEN + 1] = { '\0' };
-    uint8_t pwd[WIFI_PWD_MAX_LEN + 1] = { '\0' };
-    
-    int ret = eeprom.read(ssid, WIFI_SSID_MAX_LEN, WIFI_SSID_ZONE_IDX);
-    if (ret < 0)
-    {
-        Serial.print("ERROR: Failed to get the Wi-Fi SSID from EEPROM.\r\n");
-        return;
-    }
-    else if(ret == 0)
-    {
-        Serial.print("INFO: the Wi-Fi SSID is empty, please set the value in configuration mode.\r\n");
-        return;
-    }
-    ret = eeprom.read(pwd, WIFI_PWD_MAX_LEN, WIFI_PWD_ZONE_IDX);
-    if (ret < 0)
-    {
-        Serial.print("ERROR: Failed to get the Wi-Fi password from EEPROM.\r\n");
-        return;
-    }
-    
-    ret = ((EMW10xxInterface*)network)->connect( (char*)ssid, (char*)pwd, NSAPI_SECURITY_WPA_WPA2, 0 );
-    if(ret != 0)
-    {
-      	Serial.printf("ERROR: Failed to connect Wi-Fi %s.\r\n", ssid);
-    }
-    
-    Serial.printf("Wi-Fi %s connected.\r\n", ssid);
-}
-
-static void TryConfigurationiMode()
-{
-    pinMode(USER_BUTTON_A, INPUT);
-
-    int buttonState = digitalRead(USER_BUTTON_A);
-    if(buttonState == LOW)
-    {
-        Screen.clean();
-        Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
-    
-        // Enter configuration mode
-        cli_main();
-    }
-    else
-    {
-        Screen.print("Azure IoT DevKit\r\n \r\nRunning...\r\n");
-        Serial.print("You can press Button A and reset to enter configuration mode.\r\n");
-    }
-}
+#include "SystemWiFi.h"
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
 void initVariant() __attribute__((weak));
 void initVariant(){ }
-/*
- * \brief Main entry point of Arduino application
- */
-int main( void )
+
+static bool Initialization(void)
 {
     // Initialize watchdog
     //watchdogSetup();
@@ -107,20 +46,87 @@ int main( void )
     // Initialize the OLED screen
     Screen.init();
 
-    // Enable Wi-Fi
-    InitWiFi();
+    return true;
+}
 
-    // Check running mode
-    TryConfigurationiMode();
+static bool IsConfigurationMode()
+{
+    pinMode(USER_BUTTON_A, INPUT);
+    int buttonState = digitalRead(USER_BUTTON_A);
+    if(buttonState == LOW)
+    {
+        return true;
+    }
+    return false;
+}
+
+static void EnterConfigurationiMode()
+{
+    pinMode(USER_BUTTON_A, INPUT);
+
+    Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
+
+    InitSystemWiFi(false);
+
+    const char* mac = WiFiInterface()->get_mac_address();
     
+    char m[20] = { '\0'};
+    for(int i =0, j = 0; i < strlen(mac); i++)
+    {
+        if (mac[i] != ':')
+        {
+            m[j++] = mac[i];
+        }
+    }
+    Screen.print(3, m);
+
+    // Enter configuration mode
+    cli_main();
+}
+
+static void EnterUserMode()
+{
+    Serial.print("You can press Button A and reset to enter configuration mode.\r\n\r\n");
+    
+    Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
+
+    bool hasWiFi = InitSystemWiFi(true);
+    
+    Screen.print(2, "Running...      \r\n");
+
+    if (hasWiFi)
+    {
+        Screen.print(1, WiFiInterface()->get_ip_address());
+    }
+    else
+    {
+        Screen.print(1, "No Wi-Fi");
+    }
+
     // Arduino setup function
-    Serial.print("\r\n\r\n");
     setup();
 
     for (;;)
     {
         // Arduino loop function
         loop();
+    }
+}
+
+/*
+ * \brief Main entry point of Arduino application
+ */
+int main( void )
+{
+    Initialization();
+
+    if (IsConfigurationMode())
+    {
+        EnterConfigurationiMode();
+    }
+    else
+    {
+        EnterUserMode();
     }
     
     return 0;

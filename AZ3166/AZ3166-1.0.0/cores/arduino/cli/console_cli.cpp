@@ -19,6 +19,7 @@
 #include "UARTClass.h"
 #include "console_cli.h"
 #include "mico.h"
+#include "SystemWiFi.h"
 
 struct console_command 
 {
@@ -49,6 +50,7 @@ extern UARTClass Serial;
 static void help_command(int argc, char **argv);
 static void get_version_command(int argc, char **argv);
 static void reboot_and_exit_command(int argc, char **argv);
+static void wifi_scan(int argc, char **argv);
 static void wifi_ssid_command(int argc, char **argv);
 static void wifi_pwd_Command(int argc, char **argv);
 static void az_iothub_command(int argc, char **argv);
@@ -57,6 +59,7 @@ static const struct console_command cmds[] = {
   {"help",          "Help document",                                            help_command},
   {"version",       "System version",                                           get_version_command},
   {"exit",          "Exit and reboot",                                          reboot_and_exit_command},
+  {"scan",          "Scan Wi-Fi AP",                                            wifi_scan},
   {"set_wifissid",  "Set Wi-Fi SSID",                                           wifi_ssid_command},
   {"set_wifipwd",   "Set Wi-Fi password",                                       wifi_pwd_Command},
   {"set_az_iothub", "Set the connection string of Microsoft Azure IOT hub",     az_iothub_command},
@@ -68,9 +71,7 @@ static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
 // Command handlers
 static void print_help()
 {
-    Serial.print("\r\n=========================================================");
-    Serial.print("\r\n= Configuration console                                 =");
-    Serial.print("\r\n=========================================================\r\n");
+    Serial.print("\r\nConfiguration console:\r\n");
     
     for (int i = 0; i < cmd_count; i++)
     {
@@ -103,6 +104,25 @@ static void get_version_command(int argc, char **argv)
     else
     {
         Serial.printf("WIFI version: unknown\r\n");
+    }
+}
+
+static void wifi_scan(int argc, char **argv)
+{
+    WiFiAccessPoint aps[10];
+    memset(aps, 0, sizeof(aps));
+    int count = WiFiScan(aps, 10);
+    if (count > 0)
+    {
+        Serial.printf("Available networks:\r\n");
+        for (int i =0; i < count; i++)
+        {
+            Serial.printf("  %s\r\n", aps[i].get_ssid());
+        }
+    }
+    else
+    {
+        Serial.printf("No available network.\r\n");
     }
 }
 
