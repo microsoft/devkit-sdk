@@ -115,7 +115,7 @@ void iothub_client_sample_mqtt_run(void)
     // Load connection from EEPROM
     EEPROMInterface eeprom;
     uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
-    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN , AZ_IOT_HUB_ZONE_IDX);
+    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
     if (ret < 0)
     { 
         (void)printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");

@@ -43,13 +43,16 @@ uint8_t EEPROMClass::read(int idx)
             break;
     }
 
-    EEPROMInterface eepromInterface;
-    uint8_t outData[maxBuffLength];
-    int responseCode = eepromInterface.read(outData, sizeof(outData), zoneIndex);
-
-    if (responseCode > 0 && responseCode > dataOffset)
+    if (dataOffset < maxBuffLength)
     {
-        return outData[dataOffset];
+        EEPROMInterface eepromInterface;
+        uint8_t outData;
+        int responseCode = eepromInterface.read(&outData, 1, dataOffset, zoneIndex);
+
+        if (responseCode > 0)
+        {
+            return outData;
+        }
     }
     
     return 0;

@@ -76,7 +76,7 @@ int EEPROMInterface::write(uint8_t* dataBuff, int buffSize, uint8_t dataZoneInde
     return 0;
 }
 
-int EEPROMInterface::read(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex)
+int EEPROMInterface::read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
     if (dataBuff == NULL)
     {
@@ -98,7 +98,7 @@ int EEPROMInterface::read(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex
 
     // Read
 	ReadBuffer* sts_read = NULL;
-	ResponseCode result = Peripheral.Read(0x00, 0x00, ALWAYS, dataZoneIndex, 0x00, buffSize, &sts_read, NO_MAC);
+	ResponseCode result = Peripheral.Read(0x00, 0x00, ALWAYS, dataZoneIndex, offset, buffSize, &sts_read, NO_MAC);
 	if (result == 0)
 	{
         memcpy(dataBuff, sts_read->Data, sts_read->Length);
