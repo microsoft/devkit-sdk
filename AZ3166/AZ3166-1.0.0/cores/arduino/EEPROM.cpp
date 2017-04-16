@@ -46,12 +46,12 @@ uint8_t EEPROMClass::read(int idx)
     if (dataOffset < maxBuffLength)
     {
         EEPROMInterface eepromInterface;
-        uint8_t * const outData = &zoneIndex; //const pointer must be initialized
-        int responseCode = eepromInterface.read((uint8_t*)outData, 1, dataOffset, zoneIndex);
+        uint8_t outData;
+        int responseCode = eepromInterface.read(&outData, 1, dataOffset, zoneIndex);
 
         if (responseCode > 0)
         {
-            return *outData;
+            return outData;
         }
     }
     
