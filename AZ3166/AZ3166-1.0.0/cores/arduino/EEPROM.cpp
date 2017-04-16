@@ -46,8 +46,8 @@ uint8_t EEPROMClass::read(int idx)
     if (dataOffset < maxBuffLength)
     {
         EEPROMInterface eepromInterface;
-        uint8_t *outData = (uint8_t*)malloc(1);
-        int responseCode = eepromInterface.read(outData, sizeof(outData), dataOffset, zoneIndex);
+        uint8_t * const outData = &zoneIndex; //const pointer must be initialized
+        int responseCode = eepromInterface.read((uint8_t*)outData, 1, dataOffset, zoneIndex);
 
         if (responseCode > 0)
         {
