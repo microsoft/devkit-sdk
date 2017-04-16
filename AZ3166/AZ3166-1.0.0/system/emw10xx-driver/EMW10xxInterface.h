@@ -125,7 +125,7 @@ public:
      *
      * This function will block.
      *
-     * @param  ap       Pointer to allocated array to store discovered AP
+     * @param  res      Pointer to allocated array to store discovered AP
      * @param  count    Size of allocated @a res array, or 0 to only count available AP
      * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error

@@ -18,46 +18,32 @@
 
 #include "mbed.h"
 #include "EEPROM.h"
-#include "cli\EEPROMInterface.h"
-
-#define WIFI_MAX_LENGTH 100
-#define AZ_CONN_MAX_LENGTH 200
-#define DEFAULT_MAX_LENGH 50
-#define WIFI_SSID_ZONE_INDEX 0x03
-#define WIFI_PWD_ZONE_INDEX 0x0A
-#define IOTCONN_ZONE_INDEX 0x05
-
-EEPROMClass::EEPROMClass()
-{
-}
-
-EEPROMClass::~EEPROMClass()
-{
-}
+#include "EEPROMInterface.h"
 
 uint8_t EEPROMClass::read(int idx)
 {
-    uint8_t zoneIndex = (idx & 0xF000000) >> 24;
+    uint8_t zoneIndex = (idx & 0x7F000000) >> 24;
     uint16_t dataOffset = idx & 0x3FF;
 
     int maxBuffLength = 0;
 
     switch(zoneIndex)
     {
-        case WIFI_SSID_ZONE_INDEX:
-            maxBuffLength = WIFI_MAX_LENGTH;
+        case WIFI_SSID_ZONE_IDX:
+            maxBuffLength = WIFI_SSID_MAX_LEN;
             break;
-        case WIFI_PWD_ZONE_INDEX:
-            maxBuffLength = WIFI_MAX_LENGTH;
+        case WIFI_PWD_ZONE_IDX:
+            maxBuffLength = WIFI_PWD_MAX_LEN;
             break;
-        case IOTCONN_ZONE_INDEX:
-            maxBuffLength = AZ_CONN_MAX_LENGTH;
+        case AZ_IOT_HUB_ZONE_IDX:
+            maxBuffLength = AZ_IOT_HUB_MAX_LEN;
             break;
         default:
-            maxBuffLength = DEFAULT_MAX_LENGH;
+            maxBuffLength = EEPROM_DEFAULT_LEN;
             break;
     }
 
+    EEPROMInterface eepromInterface;
     uint8_t outData[maxBuffLength];
     int responseCode = eepromInterface.read(outData, sizeof(outData), zoneIndex);
 

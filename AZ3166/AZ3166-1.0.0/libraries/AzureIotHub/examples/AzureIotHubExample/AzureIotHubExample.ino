@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "AzureIotHub.h"
-NetworkInterface *network;
+
 static char msgText[1024];
 static char temp[100];
 
@@ -14,10 +14,13 @@ static char temp[100];
 #define lightPin LED_USER
 bool buttonStateChanged = false;
 volatile byte state = HIGH;
-void turnLightOn() {
+
+void turnLightOn() 
+{
   Serial.println("*****************************TurnLightOn********************************");
   digitalWrite(lightPin, LOW);
 }
+
 void pulseStateHook()
 {
   auto prev = state;
