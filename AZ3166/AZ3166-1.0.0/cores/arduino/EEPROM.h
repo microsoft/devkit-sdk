@@ -20,10 +20,11 @@
 #define EEPROM_h
 
 #include "Arduino.h"
+#include "EEPROMInterface.h"
 
-#define WIFI_SSID_ADDRESS 50331648
-#define WIFI_PWD_ADDRESS 167772160
-#define AZ_IOTCONN_ADDRESS 83886080
+#define WIFI_SSID_ADDRESS （WIFI_SSID_ZONE_IDX << 24)
+#define WIFI_PWD_ADDRESS (WIFI_PWD_ZONE_IDX << 24)
+#define AZ_IOTCONN_ADDRESS (AZ_IOT_HUB_ZONE_IDX << 24)
 
 struct EEPROMClass
 {
