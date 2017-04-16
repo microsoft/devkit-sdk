@@ -71,11 +71,11 @@ static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
 // Command handlers
 static void print_help()
 {
-    Serial.print("\r\nConfiguration console:\r\n");
+    Serial.print("Configuration console:\r\n");
     
     for (int i = 0; i < cmd_count; i++)
     {
-        Serial.printf(" %s: %s.\r\n", cmds[i].name, cmds[i].help);
+        Serial.printf(" - %s: %s.\r\n", cmds[i].name, cmds[i].help);
     }
 }
 

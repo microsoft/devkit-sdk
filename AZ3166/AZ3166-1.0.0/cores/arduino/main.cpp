@@ -71,14 +71,17 @@ static void EnterConfigurationiMode()
     const char* mac = WiFiInterface()->get_mac_address();
     
     char m[20] = { '\0'};
-    for(int i =0, j = 0; i < strlen(mac); i++)
+    m[0] = 'i';
+    m[1] = 'd';
+    m[2] = ':';
+    for(int i =0, j = 3; i < strlen(mac); i++)
     {
         if (mac[i] != ':')
         {
             m[j++] = mac[i];
         }
     }
-    Screen.print(3, m);
+    Screen.print(1, m);
 
     // Enter configuration mode
     cli_main();
