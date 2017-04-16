@@ -32,7 +32,7 @@ bool InitSystemWiFi(bool connect)
     uint8_t ssid[WIFI_SSID_MAX_LEN + 1] = { '\0' };
     uint8_t pwd[WIFI_PWD_MAX_LEN + 1] = { '\0' };
     
-    int ret = eeprom.read(ssid, WIFI_SSID_MAX_LEN, WIFI_SSID_ZONE_IDX);
+    int ret = eeprom.read(ssid, WIFI_SSID_MAX_LEN, 0x00, WIFI_SSID_ZONE_IDX);
     if (ret < 0)
     {
         Serial.print("ERROR: Failed to get the Wi-Fi SSID from EEPROM.\r\n");
@@ -43,7 +43,7 @@ bool InitSystemWiFi(bool connect)
         Serial.print("INFO: the Wi-Fi SSID is empty, please set the value in configuration mode.\r\n");
         return false;
     }
-    ret = eeprom.read(pwd, WIFI_PWD_MAX_LEN, WIFI_PWD_ZONE_IDX);
+    ret = eeprom.read(pwd, WIFI_PWD_MAX_LEN, 0x00, WIFI_PWD_ZONE_IDX);
     if (ret < 0)
     {
         Serial.print("ERROR: Failed to get the Wi-Fi password from EEPROM.\r\n");

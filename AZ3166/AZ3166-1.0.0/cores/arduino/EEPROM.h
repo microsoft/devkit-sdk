@@ -21,6 +21,10 @@
 
 #include "Arduino.h"
 
+#define WIFI_SSID_ADDRESS 50331648
+#define WIFI_PWD_ADDRESS 167772160
+#define AZ_IOTCONN_ADDRESS 83886080
+
 struct EEPROMClass
 {
     uint8_t read(int idx);

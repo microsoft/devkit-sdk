@@ -132,7 +132,7 @@ static void reboot_and_exit_command(int argc, char **argv)
     mico_system_reboot();
 }
 
-static void write_eeprom(char* string, int idxZone)
+static int write_eeprom(char* string, int idxZone)
 {    
     EEPROMInterface eeprom;
     int len = strlen(string) + 1;
@@ -142,17 +142,19 @@ static void write_eeprom(char* string, int idxZone)
     if (result != 0)
     {
         Serial.printf("ERROR: Failed to write EEPROM: 0x%02x.\r\n", idxZone);
-        return;
+        return -1;
     }
     
     // Verify
     uint8_t *pBuff = (uint8_t*)malloc(len);
-    result = eeprom.read(pBuff, len, idxZone);
+    result = eeprom.read(pBuff, len, 0x00, idxZone);
     if (result != len || strncmp(string, (char*)pBuff, len) != 0)
     {
         Serial.printf("ERROR: Verify failed.\r\n");
+        return -1;
     }
     free(pBuff);
+    return 0;
 }
 
 static void wifi_ssid_command(int argc, char **argv)
@@ -168,8 +170,11 @@ static void wifi_ssid_command(int argc, char **argv)
         Serial.printf("Invalid Wi-Fi SSID.\r\n");
     }
     
-    write_eeprom(argv[1], WIFI_SSID_ZONE_IDX);
-    Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
+    int result = write_eeprom(argv[1], WIFI_SSID_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
+    }
 }
 
 static void wifi_pwd_Command(int argc, char **argv)
@@ -185,8 +190,11 @@ static void wifi_pwd_Command(int argc, char **argv)
         Serial.printf("Invalid Wi-Fi password.\r\n");
     }
     
-    write_eeprom(argv[1], WIFI_PWD_ZONE_IDX);
-    Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
+    int result = write_eeprom(argv[1], WIFI_PWD_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
+    }
 }
 
 static void az_iothub_command(int argc, char **argv)
@@ -202,8 +210,11 @@ static void az_iothub_command(int argc, char **argv)
         Serial.printf("Invalid Azure IoT hub connection string.\r\n");
     }
     
-    write_eeprom(argv[1], AZ_IOT_HUB_ZONE_IDX);
-    Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
+    int result = write_eeprom(argv[1], AZ_IOT_HUB_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
