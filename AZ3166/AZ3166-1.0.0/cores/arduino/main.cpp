@@ -38,7 +38,7 @@ static bool Initialization(void)
 
     mbed_stats_heap_t heap_stats;
     mbed_stats_heap_get(&heap_stats);
-    
+
 #if defined(USBCON)
     USBDevice.attach();
 #endif

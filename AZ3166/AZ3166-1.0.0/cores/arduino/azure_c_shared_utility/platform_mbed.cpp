@@ -34,8 +34,14 @@ int platform_init(void)
     if(SetupRealTime() != 0)
     {
         result = __LINE__;
-    } 
-    
+    }
+    else
+    {
+        // turn on Azure led 
+        DigitalOut LedAzure(LED_AZURE);
+        LedAzure = 0;
+    }
+   
     return result;
 }
 
@@ -46,4 +52,7 @@ const IO_INTERFACE_DESCRIPTION* platform_get_default_tlsio(void)
 
 void platform_deinit(void)
 {
+    // turn off Azure led 
+    DigitalOut LedAzure(LED_AZURE);
+    LedAzure = 1;
 }

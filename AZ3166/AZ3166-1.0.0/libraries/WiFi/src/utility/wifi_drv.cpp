@@ -116,20 +116,25 @@ void WiFiDrv::_scan_complete_cb( ScanResult_adv *pApList )
 
 void WiFiDrv::_wlan_status_cb( WiFiEvent event )
 {
+    DigitalOut ledWiFi(LED_WIFI);
     switch ( event ) {
         case NOTIFY_STATION_UP:
             _conn_sem.release( );
             _is_sta_connected = true;
+            ledWiFi = 0;
             break;
         case NOTIFY_STATION_DOWN:
             _is_sta_connected = false;
+            ledWiFi = 1;
             break;
         case NOTIFY_AP_UP:
             _conn_sem.release( );
             _is_ap_connected = true;
+            ledWiFi = 0;
             break;
         case NOTIFY_AP_DOWN:
             _is_ap_connected = false;
+            ledWiFi = 1;
             break;
         default:
             break;
