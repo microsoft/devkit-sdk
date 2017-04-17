@@ -32,43 +32,100 @@ class NetworkStack;
 
 class WiFiDrv : public WiFiInterface
 {
-private: 
-
-    bool _is_sta_connected;
-    bool _is_ap_connected;
-    uint8_t wifi_status;
-    uint8_t ap_ch;
-
-    char ap_ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
-    char ap_pass[64]; /* The longest allowed passphrase */
-
-    static void _wlan_status_cb_by_mico( WiFiEvent event, void *inContext );
-    void _wlan_status_cb( WiFiEvent event );
-
-    static void _scan_complete_cb_by_mico( ScanResult_adv *pApList, void *inContext );
-    void _scan_complete_cb( ScanResult_adv *pApList );
-
-public: 
-
-    virtual int set_channel(uint8_t channel);
-    
-    virtual int connect();
-    
-    virtual int connect(const char *ssid, const char *pass,
-            nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0);
-    
-    virtual int set_credentials(const char *ssid, const char *pass,
-            nsapi_security_t security = NSAPI_SECURITY_NONE) ;
-    
-    virtual int scan(WiFiAccessPoint *res, nsapi_size_t count);
-
 public:
-
     /*
      * Driver initialization
      */
     void wifiDriverInit();
 
+    /** Start the interface
+     *
+     *  Attempts to connect to a WiFi network. Requires ssid and passphrase to be set.
+     *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int connect();
+
+    /** Start the interface
+     *
+     *  Attempts to connect to a WiFi network.
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
+     *  @param channel   This parameter is not supported, setting it to anything else than 0 will result in NSAPI_ERROR_UNSUPPORTED
+     *  @return          0 on success, or error code on failure
+     */
+    virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
+                                  uint8_t channel = 0 );
+    
+    /** Set the WiFi network credentials
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection
+     *                   (defaults to NSAPI_SECURITY_NONE)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual int set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
+
+
+    /** Set the WiFi network channel - NOT SUPPORTED
+     *
+     * This function is not supported and will return NSAPI_ERROR_UNSUPPORTED
+     *
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @return          Not supported, returns NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual int set_channel(uint8_t channel);
+
+    /** Stop the interface
+     *  @return             0 on success, negative on failure
+     */
+    virtual int disconnect();
+
+    /** Get the internally stored IP address
+     *  @return             IP address of the interface or null if not yet connected
+     */
+    virtual const char *get_ip_address();
+
+    /** Get the internally stored MAC address
+     *  @return             MAC address of the interface
+     */
+    virtual const char *get_mac_address();
+
+     /** Get the local gateway
+     *
+     *  @return         Null-terminated representation of the local gateway
+     *                  or null if no network mask has been recieved
+     */
+    virtual const char *get_gateway();
+
+    /** Get the local network mask
+     *
+     *  @return         Null-terminated representation of the local network mask
+     *                  or null if no network mask has been recieved
+     */
+    virtual const char *get_netmask();
+
+    /** Gets the current radio signal strength for active connection
+     *
+     * @return          Connection strength in dBm (negative value)
+     */
+    virtual int8_t get_rssi();
+
+    /** Scan for available networks
+     *
+     * This function will block.
+     *
+     * @param  ap       Pointer to allocated array to store discovered AP
+     * @param  count    Size of allocated @a res array, or 0 to only count available AP
+     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
+     * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     *                  see @a nsapi_error
+     */
+    virtual int scan(WiFiAccessPoint *res, unsigned count);
 
     /*
      * Start scan WiFi networks available
@@ -106,13 +163,6 @@ public:
      * return: WL_SUCCESS or WL_FAILURE
      */
    int8_t wifiSetAccessPoint(char* ssid, uint8_t ssid_len, const char *passphrase, const uint8_t passphrase_len);
-
-   /*
-	* Disconnect from the network
-	*
-	* return: WL_SUCCESS or WL_FAILURE
-	*/
-    virtual int disconnect();
 
     /*
 	* Disconnect AP from the network
@@ -160,14 +210,6 @@ public:
    uint8_t* getCurrentBSSID();
 
    /*
-	* Return the current RSSI /Received Signal Strength in dBm)
-	* associated with the network
-	*
-	* return: signed value
-	*/
-   virtual int8_t get_rssi();
-
-   /*
 	* Return the Encryption Type associated with the network
 	*
 	* return: one value of wl_enc_type enum
@@ -195,6 +237,21 @@ public:
      */
     NetworkStack *get_stack();
 
+private: 
+
+    bool _is_sta_connected;
+    bool _is_ap_connected;
+    uint8_t wifi_status;
+    uint8_t ap_ch;
+
+    char ap_ssid[33]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
+    char ap_pass[64]; /* The longest allowed passphrase */
+
+    static void _wlan_status_cb_by_mico( WiFiEvent event, void *inContext );
+    void _wlan_status_cb( WiFiEvent event );
+
+    static void _scan_complete_cb_by_mico( ScanResult_adv *pApList, void *inContext );
+    void _scan_complete_cb( ScanResult_adv *pApList );
 };
 
 extern WiFiDrv wiFiDrv;

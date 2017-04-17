@@ -59,7 +59,6 @@ static char networkmask[17] = "\0";
 static bool use_dhcp = false;
 static bool if_enabled = false;
 
-
 void WiFiDrv::_wlan_status_cb_by_mico( WiFiEvent event, void *inContext )
 {
     WiFiDrv *handler = (WiFiDrv*) inContext;

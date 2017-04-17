@@ -17,22 +17,24 @@
 #include "EEPROMInterface.h"
 
 NetworkInterface *network = NULL;
+static char ssid[WIFI_SSID_MAX_LEN + 1] = { 0 };
 
-bool InitSystemWiFi(bool connect)
+bool InitSystemWiFi(void)
 {
-    network = new EMW10xxInterface();
-
-    if (!connect)
+    if (network == NULL)
     {
-        return true;
+        network = new EMW10xxInterface();
     }
-    
+    return (network != NULL);
+}
+
+bool SystemWiFiConnect(void)
+{
     EEPROMInterface eeprom;
     
-    uint8_t ssid[WIFI_SSID_MAX_LEN + 1] = { '\0' };
     uint8_t pwd[WIFI_PWD_MAX_LEN + 1] = { '\0' };
     
-    int ret = eeprom.read(ssid, WIFI_SSID_MAX_LEN, 0x00, WIFI_SSID_ZONE_IDX);
+    int ret = eeprom.read((uint8_t*)ssid, WIFI_SSID_MAX_LEN, 0x00, WIFI_SSID_ZONE_IDX);
     if (ret < 0)
     {
         Serial.print("ERROR: Failed to get the Wi-Fi SSID from EEPROM.\r\n");
@@ -63,6 +65,11 @@ bool InitSystemWiFi(bool connect)
     }
 }
 
+const char* SystemWiFiSSID(void)
+{
+    return ssid;
+}
+
 NetworkInterface* WiFiInterface(void)
 {
     return network;
@@ -75,4 +82,22 @@ int WiFiScan(WiFiAccessPoint *res, unsigned count)
         return ((EMW10xxInterface*)network)->scan(res, count);
     }
     return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// As EMW10xxInterface doesn't expose all functions for WiFi AP,
+// here is the temp wrap for WiFi AP.
+bool InitSystemWiFiAP(void)
+{
+    return false;
+}
+
+bool SystemWiFiAPStart(const char *ssid, const char *passphrase)
+{
+    return false;
+}
+
+NetworkInterface* WiFiAPInterface(void)
+{
+    return NULL;
 }

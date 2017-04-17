@@ -21,8 +21,14 @@
 extern "C"{
 #endif  // __cplusplus
 
-bool InitSystemWiFi(bool connect);
+bool InitSystemWiFi(void);
+bool SystemWiFiConnect(void);
+const char* SystemWiFiSSID(void);
 NetworkInterface* WiFiInterface(void);
+
+bool InitSystemWiFiAP(void);
+bool SystemWiFiAPStart(const char *ssid, const char *passphrase);
+NetworkInterface* WiFiAPInterface(void);
 
 int WiFiScan(WiFiAccessPoint *res, unsigned count);
 

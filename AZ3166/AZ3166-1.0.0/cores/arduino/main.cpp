@@ -22,6 +22,7 @@
 #include "mico_system.h"
 #include "console_cli.h"
 #include "SystemWiFi.h"
+#include "mbed_stats.h"
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -34,6 +35,9 @@ static bool Initialization(void)
     //watchdogSetup();
     
     initVariant();
+
+    mbed_stats_heap_t heap_stats;
+    mbed_stats_heap_get(&heap_stats);
     
 #if defined(USBCON)
     USBDevice.attach();
@@ -66,8 +70,11 @@ static void EnterConfigurationiMode()
 
     Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
 
-    InitSystemWiFi(false);
-
+    if (!InitSystemWiFi())
+    {
+        return;
+    }
+    
     const char* mac = WiFiInterface()->get_mac_address();
     
     char m[20] = { '\0'};
@@ -91,9 +98,11 @@ static void EnterUserMode()
 {
     Serial.print("You can press Button A and reset to enter configuration mode.\r\n\r\n");
     
+    /*
     Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
 
-    bool hasWiFi = InitSystemWiFi(true);
+    InitSystemWiFi();
+    bool hasWiFi = SystemWiFiConnect();
     
     Screen.print(2, "Running...      \r\n");
 
@@ -105,7 +114,8 @@ static void EnterUserMode()
     {
         Screen.print(1, "No Wi-Fi");
     }
-
+    */
+    
     // Arduino setup function
     setup();
 
