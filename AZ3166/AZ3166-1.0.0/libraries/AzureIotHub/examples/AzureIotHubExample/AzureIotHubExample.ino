@@ -6,22 +6,19 @@ static char msgText[1024];
 static char temp[100];
 
 #define pulsePin USER_BUTTON_A
-#define lightPin LED_USER
+#define lightPin LED_BUILTIN
 bool buttonStateChanged = false;
-volatile byte state = HIGH;
+volatile int state = HIGH;
 bool hasWifi = false;
-
-void turnLightOn() 
-{
-  Serial.println("*****************************TurnLightOn********************************");
-  digitalWrite(lightPin, LOW);
-}
 
 void pulseStateHook()
 {
-  auto prev = state;
-  state = digitalRead(pulsePin);
-  buttonStateChanged = prev != state;
+  int newstate = digitalRead(pulsePin);
+  if(newstate != state)
+  {
+      buttonStateChanged = true;
+      state = newstate;
+  }
 }
 
 void InitWiFi()
@@ -30,7 +27,8 @@ void InitWiFi()
   
   if(WiFi.begin() == WL_CONNECTED)
   {
-    Screen.print(1, WiFiInterface()->get_ip_address());
+    IPAddress ip = WiFi.localIP();
+    Screen.print(1, ip.get_address());
     hasWifi = true;
     Screen.print(2, "Running...      \r\n");
   }
@@ -53,6 +51,8 @@ void setup()
 
   Serial.begin(115200);
   Serial.println("start");
+  
+  state = digitalRead(pulsePin);
   digitalWrite(lightPin, HIGH);
 
   iothub_client_sample_mqtt_init();
@@ -61,11 +61,14 @@ void reportPulse()
 {
   if (state == LOW)
   {
-    // turn off LED_AZURE first
-    digitalWrite(lightPin, HIGH);
+    digitalWrite(lightPin, LOW);
     Serial.println("*****************************SendEvent********************************");
     sprintf(msgText, "{\"topic\":\"%s\"}", "#iot");
     iothub_client_sample_send_event((const unsigned char *)msgText);
+  }
+  else
+  {
+    digitalWrite(lightPin, HIGH);
   }
 }
 void loop()

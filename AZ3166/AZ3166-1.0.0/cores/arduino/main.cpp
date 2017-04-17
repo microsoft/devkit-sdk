@@ -98,24 +98,6 @@ static void EnterUserMode()
 {
     Serial.print("You can press Button A and reset to enter configuration mode.\r\n\r\n");
     
-    /*
-    Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
-
-    InitSystemWiFi();
-    bool hasWiFi = SystemWiFiConnect();
-    
-    Screen.print(2, "Running...      \r\n");
-
-    if (hasWiFi)
-    {
-        Screen.print(1, WiFiInterface()->get_ip_address());
-    }
-    else
-    {
-        Screen.print(1, "No Wi-Fi");
-    }
-    */
-    
     // Arduino setup function
     setup();
 
