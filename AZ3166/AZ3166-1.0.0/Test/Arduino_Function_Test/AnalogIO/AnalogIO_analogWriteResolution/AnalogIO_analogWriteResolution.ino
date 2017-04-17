@@ -1,6 +1,6 @@
 void setup() 
 {    
-    Serial.begin(9600);
+    Serial.begin(115200);
     pinMode(ARDUINO_PIN_A3, OUTPUT);
 }
 
