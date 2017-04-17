@@ -111,22 +111,28 @@ void iothub_client_sample_mqtt_run(void)
     
     callbackCounter = 0;
     int receiveContext = 0;
+
+    // Load connection from EEPROM
     EEPROMInterface eeprom;
-    uint8_t *pIotConnString = (uint8_t*)malloc(256);
-    int responseCode = eeprom.read(pIotConnString, 256 , 0x05);
-    if(!responseCode)
+    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
+    if (ret < 0)
     { 
-         printf("unable to get the azure iot connection string from EEPROM... Please set the value in configuration mode.\r\n");
-         return;
+        (void)printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
+        return;
+    }
+    else if (ret == 0)
+    {
+        (void)printf("INFO: The connection string is empty.\r\nPlease set the value in configuration mode.\r\n");
     }
 
     if (platform_init() != 0)
     {
-        (void)printf("Failed to initialize the platform.\r\n");
+        (void)printf("ERROR: Failed to initialize the platform.\r\n");
     }
     else
     {
-        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)pIotConnString, MQTT_Protocol)) == NULL)
+        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
         {
             (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
         }

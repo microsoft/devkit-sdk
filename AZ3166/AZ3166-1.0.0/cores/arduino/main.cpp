@@ -20,46 +20,93 @@
 #define ARDUINO_MAIN
 #include "Arduino.h"
 #include "mico_system.h"
-#include "cli\console_cli.h"
+#include "console_cli.h"
+#include "SystemWiFi.h"
 #include "telemetry.h"
-
-static void TryConfigurationiMode()
-{
-    pinMode(USER_BUTTON_A, INPUT);
-
-    int buttonState = digitalRead(USER_BUTTON_A);
-    if(buttonState == LOW)
-    {
-        // Enter configuration mode
-         cli_main();
-    }
-    else
-    {
-        Serial.println("\r\nPlease press Button A and reset to enter configuration mode.");
-    }
-}
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
 void initVariant() __attribute__((weak));
 void initVariant(){ }
-/*
- * \brief Main entry point of Arduino application
- */
-int main( void )
+
+static bool Initialization(void)
 {
     // Initialize watchdog
     //watchdogSetup();
     
-    //init();
     initVariant();
     
 #if defined(USBCON)
     USBDevice.attach();
 #endif
     
-    TryConfigurationiMode();
+    Serial.print("\r\n************************************************");
+    Serial.print("\r\n** MXChip - Microsoft Azure IoT Developer Kit **");
+    Serial.print("\r\n************************************************\r\n");
     
+    // Initialize the OLED screen
+    Screen.init();
+
+    return true;
+}
+
+static bool IsConfigurationMode()
+{
+    pinMode(USER_BUTTON_A, INPUT);
+    int buttonState = digitalRead(USER_BUTTON_A);
+    if(buttonState == LOW)
+    {
+        return true;
+    }
+    return false;
+}
+
+static void EnterConfigurationiMode()
+{
+    pinMode(USER_BUTTON_A, INPUT);
+
+    Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
+
+    InitSystemWiFi(false);
+
+    const char* mac = WiFiInterface()->get_mac_address();
+    
+    char m[20] = { '\0'};
+    m[0] = 'i';
+    m[1] = 'd';
+    m[2] = ':';
+    for(int i =0, j = 3; i < strlen(mac); i++)
+    {
+        if (mac[i] != ':')
+        {
+            m[j++] = mac[i];
+        }
+    }
+    Screen.print(1, m);
+
+    // Enter configuration mode
+    cli_main();
+}
+
+static void EnterUserMode()
+{
+    Serial.print("You can press Button A and reset to enter configuration mode.\r\n\r\n");
+    
+    Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
+
+    bool hasWiFi = InitSystemWiFi(true);
+    
+    Screen.print(2, "Running...      \r\n");
+
+    if (hasWiFi)
+    {
+        Screen.print(1, WiFiInterface()->get_ip_address());
+    }
+    else
+    {
+        Screen.print(1, "No Wi-Fi");
+    }
+
     // Arduino setup function
     setup();
     telemetry_init();
@@ -68,6 +115,23 @@ int main( void )
     {
         // Arduino loop function
         loop();
+    }
+}
+
+/*
+ * \brief Main entry point of Arduino application
+ */
+int main( void )
+{
+    Initialization();
+
+    if (IsConfigurationMode())
+    {
+        EnterConfigurationiMode();
+    }
+    else
+    {
+        EnterUserMode();
     }
     
     return 0;

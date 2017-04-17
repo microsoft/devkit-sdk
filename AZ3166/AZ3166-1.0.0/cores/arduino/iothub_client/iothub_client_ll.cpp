@@ -246,7 +246,6 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                                     else
                                     {
                                         config->iotHubName = STRING_c_str(hostNameString);
-                                        (void)printf("#DEBUG: func: %s, file: %s, line: %d, iotHubName == %s.\r\n", __FUNCTION__, __FILE__, __LINE__, config->iotHubName);
                                         if (STRING_TOKENIZER_get_next_token(tokenizer2, hostSuffixString, ";") != 0)
                                         {
                                             LogError("Tokenizer error");
@@ -256,7 +255,6 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                                         else
                                         {
                                             config->iotHubSuffix = STRING_c_str(hostSuffixString);
-                                            (void)printf("#DEBUG: func: %s, file: %s, line: %d, iotHubSuffix == %s.\r\n", __FUNCTION__, __FILE__, __LINE__, config->iotHubSuffix);
                                         }
                                     }
                                     STRING_TOKENIZER_destroy(tokenizer2);
@@ -914,7 +912,6 @@ static void DoTimeouts(IOTHUB_CLIENT_LL_HANDLE_DATA* handleData)
 
 void IoTHubClient_LL_DoWork(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle)
 {
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, entering the func.\r\n", __FUNCTION__, __FILE__, __LINE__);
     /*Codes_SRS_IOTHUBCLIENT_LL_02_020: [If parameter iotHubClientHandle is NULL then IoTHubClient_LL_DoWork shall not perform any action.] */
     if (iotHubClientHandle != NULL)
     {
@@ -956,7 +953,6 @@ void IoTHubClient_LL_DoWork(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle)
         }
 
         /*Codes_SRS_IOTHUBCLIENT_LL_02_021: [Otherwise, IoTHubClient_LL_DoWork shall invoke the underlaying layer's _DoWork function.]*/
-        (void)printf("#DEBUG: func: %s, file: %s, line: %d, calling IoTHubTransport_DoWork().\r\n", __FUNCTION__, __FILE__, __LINE__);
         handleData->IoTHubTransport_DoWork(handleData->transportHandle, iotHubClientHandle);
     }
 }

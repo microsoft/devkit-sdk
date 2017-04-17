@@ -34,8 +34,10 @@
  *----------------------------------------------------------------------------*/
 
 #include "Arduino.h"
+
 #ifdef __cplusplus
 #include "UARTClass.h"
+#include "OledDisplay.h"
 #endif
 
 //WI6LABS ----> TBD
@@ -153,7 +155,7 @@ extern UARTClass Serial;
 /*extern UARTClass Serial1;
 extern USARTClass Serial2;
 extern USARTClass Serial3;*/
-
+extern OLEDDisplay Screen;
 #endif
 
 #endif /* _VARIANT_ARDUINO_STM32_ */

@@ -1,3 +1,17 @@
+/* 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 #include "mbed.h"
 #include <stdio.h>
 #include "EEPROMInterface.h"
@@ -5,6 +19,7 @@
 #include "UARTClass.h"
 #include "console_cli.h"
 #include "mico.h"
+#include "SystemWiFi.h"
 
 struct console_command 
 {
@@ -14,10 +29,6 @@ struct console_command
 };
 
 #define MAX_CMD_ARG         4
-
-#define WIFI_SSID_MAX_LEN   32
-#define WIFI_PWD_MAX_LEN    64
-#define AZ_IOT_HUB_MAX_LEN  256
 
 #define NULL_CHAR       '\0'
 #define RET_CHAR        '\n'
@@ -39,6 +50,7 @@ extern UARTClass Serial;
 static void help_command(int argc, char **argv);
 static void get_version_command(int argc, char **argv);
 static void reboot_and_exit_command(int argc, char **argv);
+static void wifi_scan(int argc, char **argv);
 static void wifi_ssid_command(int argc, char **argv);
 static void wifi_pwd_Command(int argc, char **argv);
 static void az_iothub_command(int argc, char **argv);
@@ -47,6 +59,7 @@ static const struct console_command cmds[] = {
   {"help",          "Help document",                                            help_command},
   {"version",       "System version",                                           get_version_command},
   {"exit",          "Exit and reboot",                                          reboot_and_exit_command},
+  {"scan",          "Scan Wi-Fi AP",                                            wifi_scan},
   {"set_wifissid",  "Set Wi-Fi SSID",                                           wifi_ssid_command},
   {"set_wifipwd",   "Set Wi-Fi password",                                       wifi_pwd_Command},
   {"set_az_iothub", "Set the connection string of Microsoft Azure IOT hub",     az_iothub_command},
@@ -58,13 +71,11 @@ static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
 // Command handlers
 static void print_help()
 {
-    Serial.print("\r\n=========================================================");
-    Serial.print("\r\n= Configuration console                                 =");
-    Serial.print("\r\n=========================================================\r\n");
+    Serial.print("Configuration console:\r\n");
     
     for (int i = 0; i < cmd_count; i++)
     {
-        Serial.printf(" %s: %s.\r\n", cmds[i].name, cmds[i].help);
+        Serial.printf(" - %s: %s.\r\n", cmds[i].name, cmds[i].help);
     }
 }
 
@@ -96,33 +107,54 @@ static void get_version_command(int argc, char **argv)
     }
 }
 
+static void wifi_scan(int argc, char **argv)
+{
+    WiFiAccessPoint aps[10];
+    memset(aps, 0, sizeof(aps));
+    int count = WiFiScan(aps, 10);
+    if (count > 0)
+    {
+        Serial.printf("Available networks:\r\n");
+        for (int i =0; i < count; i++)
+        {
+            Serial.printf("  %s\r\n", aps[i].get_ssid());
+        }
+    }
+    else
+    {
+        Serial.printf("No available network.\r\n");
+    }
+}
+
 static void reboot_and_exit_command(int argc, char **argv)
 {
     Serial.printf("Reboot\r\n");
     mico_system_reboot();
 }
 
-static void write_eeprom(char* string, int idxZone)
+static int write_eeprom(char* string, int idxZone)
 {    
     EEPROMInterface eeprom;
     int len = strlen(string) + 1;
     
     // Write data to EEPROM
-    ResponseCode responseCode = eeprom.write((uint8_t*)string, len, idxZone);
-    if (responseCode != OK)
+    int result = eeprom.write((uint8_t*)string, len, idxZone);
+    if (result != 0)
     {
-        Serial.printf("ERROR: Failed to write EEPROM: 0x%02x.\r\n", responseCode);
-        return;
+        Serial.printf("ERROR: Failed to write EEPROM: 0x%02x.\r\n", idxZone);
+        return -1;
     }
     
     // Verify
     uint8_t *pBuff = (uint8_t*)malloc(len);
-    int result = eeprom.read(pBuff, len, idxZone);
+    result = eeprom.read(pBuff, len, 0x00, idxZone);
     if (result != len || strncmp(string, (char*)pBuff, len) != 0)
     {
         Serial.printf("ERROR: Verify failed.\r\n");
+        return -1;
     }
     free(pBuff);
+    return 0;
 }
 
 static void wifi_ssid_command(int argc, char **argv)
@@ -138,8 +170,11 @@ static void wifi_ssid_command(int argc, char **argv)
         Serial.printf("Invalid Wi-Fi SSID.\r\n");
     }
     
-    write_eeprom(argv[1], 0x03);
-    Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
+    int result = write_eeprom(argv[1], WIFI_SSID_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set Wi-Fi SSID successfully.\r\n");
+    }
 }
 
 static void wifi_pwd_Command(int argc, char **argv)
@@ -155,8 +190,11 @@ static void wifi_pwd_Command(int argc, char **argv)
         Serial.printf("Invalid Wi-Fi password.\r\n");
     }
     
-    write_eeprom(argv[1], 0x0A);
-    Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
+    int result = write_eeprom(argv[1], WIFI_PWD_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
+    }
 }
 
 static void az_iothub_command(int argc, char **argv)
@@ -172,8 +210,11 @@ static void az_iothub_command(int argc, char **argv)
         Serial.printf("Invalid Azure IoT hub connection string.\r\n");
     }
     
-    write_eeprom(argv[1], 0x05);
-    Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
+    int result = write_eeprom(argv[1], AZ_IOT_HUB_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -354,39 +395,6 @@ void cli_main(void)
     print_help();
     Serial.print(PROMPT);
     
-    EEPROMInterface eeprom;
-    
-    uint8_t *pSSID = (uint8_t*)malloc(WIFI_SSID_MAX_LEN);
-    int responseCode = eeprom.read(pSSID, WIFI_SSID_MAX_LEN, 0x03);
-
-    if(responseCode)
-    {
-        EMW10xxInterface wlan;
-        int ret;
-
-        Serial.printf("Trying to connect to Wifi. Current Wifi SSID is %s\n",pSSID);
-        uint8_t *pPassword = (uint8_t*)malloc(WIFI_PWD_MAX_LEN);
-        responseCode = eeprom.read(pPassword, WIFI_PWD_MAX_LEN, 0x0A);
-        if(responseCode)
-        {
-            ret = wlan.connect( (char*)pSSID, (char*)pPassword, NSAPI_SECURITY_WPA_WPA2, 0 );
-        }
-        else
-        {
-            //empty password
-            ret = wlan.connect( (char*)pSSID, "" , NSAPI_SECURITY_WPA_WPA2, 0 );          
-        }
-        
-        if ( ret != NSAPI_ERROR_OK ) 
-        {
-            Serial.printf("Wifi connection failed, please reset SSID and password\r\n");
-        }
-        else
-        {
-            Serial.printf("Wifi connected successfully.\r\n");
-        }        
-    }
-
     while (true) 
     {
         if (!get_input(inbuf, &bp))
