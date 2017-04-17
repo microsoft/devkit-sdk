@@ -38,7 +38,7 @@ WiFiClass::WiFiClass()
 	ap_number = 0;
 	is_station_inited = InitSystemWiFi();
 	is_ap_inited = false;
-	current_status = WL_NO_SHIELD;
+	current_status = WL_IDLE_STATUS;
 }
 
 const char* WiFiClass::firmwareVersion()
@@ -225,14 +225,15 @@ int8_t WiFiClass::scanNetworks()
 		return WL_FAILURE;
 	}
 
+	memset(aps, 0, sizeof(aps));
 	uint8_t attempts = sizeof(aps) / sizeof(aps[0]);
 
- 	int8_t count = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
-	 if(count > 0)
-	 {
-		 current_status = WL_SCAN_COMPLETED;
-	 }
-	 return count;
+ 	ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
+	if(ap_number > 0)
+	{
+		current_status = WL_SCAN_COMPLETED;
+	}
+	return ap_number;
 }
 
 
