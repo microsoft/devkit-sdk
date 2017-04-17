@@ -1,13 +1,13 @@
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600);  
 }
 
 int val = 0;
 
 void loop() {  
   Serial.println("[Analog I/0]: Test analyRead()");
-  analogReference(DEFAULT);
-  
+  analogReference(AR_DEFAULT);
+
   val= analogRead(ARDUINO_PIN_A2);
 
   if(val <0 || val >1023)

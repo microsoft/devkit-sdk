@@ -8,7 +8,7 @@ void setup()
 
 void loop()
 {
-    Serial.println("[Serial]: Test read() and write()")
+    Serial.println("[Serial]: Test read() and write()");
     incomingByte = Serial.read();
     Serial.println(incomingByte);
 

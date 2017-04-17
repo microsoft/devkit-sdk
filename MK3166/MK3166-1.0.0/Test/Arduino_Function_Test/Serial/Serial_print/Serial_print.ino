@@ -7,7 +7,7 @@ void setup()
 
 void loop()
 {
-    Serial.println("[Serial]: Test print() and println()")
+    Serial.println("[Serial]: Test print() and println()");
     Serial.print("No Format");
     Serial.print("\t");
 
@@ -53,8 +53,14 @@ void loop()
     Serial.println(analogValue, OCT);
     Serial.println(analogValue, BIN);
 
-    Serial.printf("testing format - String: %s; the length is %d", "hello", 5);
+    // test printf() and printf_P()
+    Serial.printf("testing printf() - String: %s; the length is %d", "hello", 5);
+    Serial.printf("testing printf_P() - String: %s; the length is %d", "hello", 5);
+    Serial.println();
 
+    // test print(double n, int digits)
+    Serial.print(11.2233,2);
+    
     Serial.println("[Serial]: Done");
     delay(1000);
 }

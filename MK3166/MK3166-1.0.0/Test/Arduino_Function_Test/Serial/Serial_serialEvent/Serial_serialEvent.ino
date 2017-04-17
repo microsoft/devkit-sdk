@@ -9,7 +9,7 @@ void setup()
 
 void loop()
 {
-    Serial.println("[Serial]: Test serialEvent")
+    Serial.println("[Serial]: Test serialEvent");
     if(strComplete)
     {
         Serial.println(inputStr);

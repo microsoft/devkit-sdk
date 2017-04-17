@@ -38,11 +38,11 @@ void loop()
 
     Serial.flush();
 
-    long result = Serial.parseInt();
-    Serial.println(result);
+    //long result = Serial.parseInt();
+    //Serial.println(result);
 
-    float result = Serial.parseFloat();
-    Serial.println(result);
+    //float resultFloat = Serial.parseFloat();
+    //Serial.println(resultFloat);
 
     Serial.println(Serial.peek());    
 
