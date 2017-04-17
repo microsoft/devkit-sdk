@@ -1,45 +1,47 @@
 {
   "packages": [
     {
-      "name": "azureboard",
+      "name": "AZ3166",
       "maintainer": "Microsoft Developer",
-      "websiteURL": "https://github.com/Microsoft/customized_board_Arduino",
-      "email": "renhel@microsoft.com",
+      "websiteURL": "https://github.com/Microsoft/azure-iot-developer-kit",
+      "email": "aziotdevkit@microsoft.com",
       "help": {
-        "online": "https://github.com/Microsoft/customized_board_Arduino"
+        "online": "https://github.com/Microsoft/azure-iot-developer-kit"
       },
       "platforms": [
         {
-          "name": "Azure Customized Boards",
+          "name": "Microsoft Azure IoT Developer Kit",
           "architecture": "stm32f4",
           "version": "1.0.0",
           "category": "Contributed",
           "help": {
-            "online": "https://github.com/Microsoft/customized_board_Arduino"
+            "online": "https://github.com/Microsoft/azure-iot-developer-kit"
           },
-          "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/MK3166-1.0.0.zip",
-          "archiveFileName": "MK3166-1.0.0.zip",
-          "checksum": "MD5:531d4012804c85a8625e9f0746ca53c6",
-          "size": "9572241",
+          "url": "https://azureboard.blob.core.windows.net/toolchain/AZ3166-1.0.0.zip",
+          "archiveFileName": "AZ3166-1.0.0.zip",
+          "checksum": "MD5:4e943d6b8d4594109f19ae4bd1df67c6",
+          "size": "6468060",
           "boards": [
-            {"name": "AzureBit"}
+            {
+              "name": "AZ3166"
+            }
           ],
           "toolsDependencies": [
             {
-              "packager": "azureboard",
+              "packager": "AZ3166",
               "name": "arm-none-eabi-gcc",
               "version": "5_4-2016q3"
             },
             {
-              "packager": "azureboard",
-              "name": "AzureBoardTools",
-              "version": "2017.3.22"
+              "packager": "AZ3166",
+              "name": "st-flash",
+              "version": "1.3.1"
             }
           ]
         }
       ],
-      "tools":[
-	          {
+      "tools": [
+        {
           "name": "arm-none-eabi-gcc",
           "version": "5_4-2016q3",
           "systems": [
@@ -74,36 +76,36 @@
           ]
         },
         {
-          "name": "AzureBoardTools",
-          "version": "2017.3.22",
+          "name": "st-flash",
+          "version": "1.3.1",
           "systems": [
             {
               "host": "i686-linux-gnu",
-              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
-              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
-              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
-              "size": "6623543"
+              "url": "https://azureboard.blob.core.windows.net/toolchain/st-flash-1.3.1.zip",
+              "archiveFileName": "st-flash-1.3.1.zip",
+              "checksum": "MD5:e60b9c48ce0561566b93374438e868b6",
+              "size": "462883"
             },
             {
               "host": "x86_64-pc-linux-gnu",
-              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
-              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
-              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
-              "size": "6623543"
+              "url": "https://azureboard.blob.core.windows.net/toolchain/st-flash-1.3.1.zip",
+              "archiveFileName": "st-flash-1.3.1.zip",
+              "checksum": "MD5:e60b9c48ce0561566b93374438e868b6",
+              "size": "462883"
             },
             {
               "host": "i686-mingw32",
-              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
-              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
-              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
-              "size": "6623543"
+              "url": "https://azureboard.blob.core.windows.net/toolchain/st-flash-1.3.1.zip",
+              "archiveFileName": "st-flash-1.3.1.zip",
+              "checksum": "MD5:e60b9c48ce0561566b93374438e868b6",
+              "size": "462883"
             },
             {
               "host": "i386-apple-darwin11",
-              "url": "https://github.com/lirenhe/arduinoazureboard/raw/master/AzureBoardTools-2017.3.22.zip",
-              "archiveFileName": "AzureBoardTools-2017.3.22.zip",
-              "checksum": "SHA-256:afe9da2841cc0c03b1c5232514b3eb25ef9763c30a4f974a174be4e3cd9ed721",
-              "size": "6623543"
+              "url": "https://azureboard.blob.core.windows.net/toolchain/st-flash-1.3.1.zip",
+              "archiveFileName": "st-flash-1.3.1.zip",
+              "checksum": "MD5:e60b9c48ce0561566b93374438e868b6",
+              "size": "462883"
             }
           ]
         }
