@@ -15,27 +15,28 @@ extern "C" {
 #include "telemetry.h"
 #include "azure_c_shared_utility/xlogging.h"
 
-#define AI_ENDPOINT "https://dc.services.visualstudio.com/v2/track"
-#define IKEY "f0d75de5-4331-4033-8bb2-bf96f435d184"
-#define AI_EVENT "AIEVENT"
-#define KEYWORD "AZ3166"
-#define HARDWARE_VERSION "1.0.0"
-#define MCU_TYPE "STM32F412"
 #define STACK_SIZE 0x2000
 #define IOTHUB_NAME_MAX_LEN 50
-#define MAX_MESSAGE_SIZE 256
-#define TEMPLATE "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "        \
-                 "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":" \
-                 "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"                        \
-                 "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}"
-NetworkInterface *network;
+#define MAX_MESSAGE_SIZE 128
+
+extern NetworkInterface *network;
+
+const char *body_template = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
+                            "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":"
+                            "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"
+                            "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}";
 static Thread ai_thread(osPriorityNormal, STACK_SIZE, NULL);
-static HTTPClient *client;
-static Http_Response *_response;
+static char mac_addr[33];
+const char *ai_endpoint = "https://dc.services.visualstudio.com/v2/track";
+const char *ikey = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
+const char *ai_event = "AIEVENT";
+const char *keyword = "AZ3166";
+const char *hardware_v = "1.0.0";
+const char *mcu_type = "STM32F412";
 
 struct Telemetry
 {
-    char iothub[IOTHUB_NAME_MAX_LEN + 1];
+    char iothub[IOTHUB_NAME_MAX_LEN + 2];
     char event[MAX_MESSAGE_SIZE];
     char message[MAX_MESSAGE_SIZE];
 };
@@ -44,88 +45,94 @@ static Queue<Telemetry, 16> queue;
 
 void telemetry_enqueue(const char *iothub, const char *event, const char *message)
 {
-    if(strlen(iothub) > IOTHUB_NAME_MAX_LEN || strlen(event) > MAX_MESSAGE_SIZE || strlen(message) > MAX_MESSAGE_SIZE)
+    if (!iothub || !event || !message || strlen(iothub) > IOTHUB_NAME_MAX_LEN || strlen(event) > MAX_MESSAGE_SIZE || strlen(message) > MAX_MESSAGE_SIZE)
     {
         LogError("telemetry message exceeds the max length permitted. IotHub %s, event %s, message %s", iothub, event, message);
         return;
     }
     struct Telemetry *telemetry = (Telemetry *)malloc(sizeof(struct Telemetry));
-    strcpy(telemetry->iothub, iothub);
-    strcpy(telemetry->event, event);
-    strcpy(telemetry->message, message);
+    strncpy(telemetry->iothub, iothub, strlen(iothub));
+    strncpy(telemetry->event, event, strlen(event));
+    strncpy(telemetry->message, message, strlen(message));
 
-    if (queue.put(telemetry) != 0)
+    telemetry->iothub[strlen(iothub)] = 0;
+    telemetry->event[strlen(event)] = 0;
+    telemetry->message[strlen(message)] = 0;
+    int ret = queue.put(telemetry);
+    if (ret != 0)
     {
-        LogError("error to enqueue telemetry with event: %s, iothub : %s, message: %s", event, iothub, message);
+        LogError("error to enqueue telemetry event: %s, iothub : %s, message: %s, ret %d.", event, iothub, message, ret);
     }
-    LogInfo("enqueue OK");
+}
+
+void hash(char *result, const char *input)
+{
+    unsigned char output[16];
+    unsigned char temp_buffer[20];
+
+    memcpy(temp_buffer, input, strlen(input));
+    mbedtls_md5(temp_buffer, sizeof(temp_buffer), output);
+
+    int i = 0;
+    for (i = 0; i < 16; i++)
+    {
+        sprintf(result + i * 2, "%02x", output[i]);
+    }
+    result[i * 2] = 0;
+}
+
+void do_trace_telemetry()
+{
+    osEvent evt = queue.get();
+    if (evt.status != osEventMessage)
+    {
+        return;
+    }
+
+    char serialized_body[512];
+    char *_ctime;
+    time_t t;
+    time(&t);
+    struct Telemetry *telemetry = (Telemetry *)evt.value.p;
+    unsigned char output[16];
+    unsigned char temp_buffer[20];
+    char iothub_name[33];
+    hash(iothub_name, telemetry->iothub);
+    _ctime = (char *)ctime(&t);
+    _ctime[strlen(_ctime) - 1] = 0;
+    sprintf(serialized_body, body_template, keyword, hardware_v, mcu_type, telemetry->message,
+            mac_addr, iothub_name, telemetry->event, _ctime, ai_event, ikey);
+
+    HTTPClient *client = new HTTPClient(HTTP_POST, ai_endpoint);
+    client->set_header("Content-Type", "application/json");
+    client->set_header("Connection", "keep-alive");
+
+    Http_Response *response = client->send(serialized_body, strlen(serialized_body));
+    if (response->status_code != 200)
+    {
+        LogError("Response error: <%d>, <%s>.", response->status_code, response->status_message);
+    }
+
+    free(telemetry);
+    delete client;
+    delete response;
 }
 
 static void trace_telemetry()
 {
-    osEvent evt;
-    char mac_addr[18];
-    unsigned char output[16];
-    char serialized_body[1024];
-    unsigned char mac_buffer[128];
-    unsigned char iot_buffer[128];
-    unsigned char temp_buffer[128];
-    size_t len;
-    char *_ctime;
-    time_t t;
-
+    hash(mac_addr, network->get_mac_address());
     while (true)
     {
-        evt = queue.get();
-        if (evt.status != osEventMessage)
-        {
-            continue;
-        }
-
-        time(&t);
-        _ctime = (char *)ctime(&t);
-        _ctime[strlen(_ctime) - 1] = 0;
-
-        struct Telemetry *telemetry = (Telemetry *)evt.value.p;
-        strcpy(mac_addr, network->get_mac_address());
-        memcpy(temp_buffer, mac_addr, sizeof(mac_addr));
-        mbedtls_md5(temp_buffer, strlen(mac_addr), output);
-        mbedtls_base64_encode(mac_buffer, sizeof(mac_buffer), &len, output, 64);
-        memcpy(temp_buffer, telemetry->iothub, sizeof(telemetry->iothub));
-        mbedtls_md5(temp_buffer, strlen(telemetry->iothub), output);
-        mbedtls_base64_encode(iot_buffer, sizeof(iot_buffer), &len, output, 64);
-
-        sprintf(serialized_body, TEMPLATE, KEYWORD, HARDWARE_VERSION, MCU_TYPE, telemetry->message,
-                mac_buffer, iot_buffer, telemetry->event, _ctime, AI_EVENT, IKEY);
-
-        _response = client->send(serialized_body, strlen(serialized_body));
-        if (_response->status_code != 200)
-        {
-            LogError("Response error: <%d>, <%s>.", _response->status_code, _response->status_message);
-        }
-
-        free(telemetry);
+        do_trace_telemetry();
     }
 }
 
 void telemetry_init()
 {
-    int ret = 0;
-    int retry = 0;
-    do
+    if (!network || ai_thread.start(trace_telemetry) != 0)
     {
-        ret = ai_thread.start(trace_telemetry);
-    } while (ret != 0 && retry < 3);
-
-    if (ret != 0)
-    {
-        LogError("telemetry start failed after retry 3 times");
-        return;
+        LogError("telemetry init failed.");
     }
-
-    client = new HTTPClient(HTTP_POST, AI_ENDPOINT);
-    client->set_header("Content-Type", "application/json");
-    client->set_header("Connection", "keep-alive");
 }
 
 #ifdef _cplusplus
