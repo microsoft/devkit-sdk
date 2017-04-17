@@ -22,6 +22,7 @@
 #include "mico_system.h"
 #include "console_cli.h"
 #include "SystemWiFi.h"
+#include "mbed_stats.h"
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -34,7 +35,10 @@ static bool Initialization(void)
     //watchdogSetup();
     
     initVariant();
-    
+
+    mbed_stats_heap_t heap_stats;
+    mbed_stats_heap_get(&heap_stats);
+
 #if defined(USBCON)
     USBDevice.attach();
 #endif
