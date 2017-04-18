@@ -1,39 +1,29 @@
-#ifndef wificlient_h
-#define wificlient_h
+#ifndef wifiserver_h
+#define wifiserver_h
 
-#include "Arduino.h"	
-#include "IPAddress.h"
-#include "TCPSocket.h"
+#include "Arduino.h"
+#include "TCPServer.h"
+#include "AZ3166WiFiClient.h"
 
-class WiFiClient
+class WiFiServer
 {
 public:
-	
-  WiFiClient();
+    WiFiServer(uint16_t port);
+    ~WiFiServer();
 
-  virtual int connect(IPAddress ip, uint16_t port);
-  virtual int connect(const char *host, uint16_t port);
-  virtual size_t write(uint8_t);
-  virtual size_t write(const uint8_t *buf, size_t size);
-  virtual int available();
-  virtual int read();
-  virtual int read(uint8_t *buf, size_t size);
-  virtual void flush();
-  virtual void stop();
-  virtual uint8_t connected();
-  virtual operator bool();
-  virtual int peek();
+    WiFiClient available(uint8_t *status = NULL);
+    void begin();
+    int accept(WiFiClient *client);
+    virtual size_t write(uint8_t);
+    virtual size_t write(const uint8_t *buf, size_t size);
+    void close();
+    void send(int code, char *content_type, const String &content);
   
 private:
-	TCPSocket* _pTcpSocket;
-  
-	uint8_t _sock;	 
-
-	uint8_t getFirstSocket();
-
-  bool _isConnected;
-
+	uint16_t _port;
+    TCPServer *_pTcpServer;
+    WiFiClient *_currentClient;
 };
 
-#endif
+#endif // wifiserver_h
 

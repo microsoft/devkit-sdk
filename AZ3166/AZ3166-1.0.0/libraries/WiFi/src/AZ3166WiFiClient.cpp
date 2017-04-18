@@ -26,6 +26,15 @@ WiFiClient::WiFiClient()  : _sock(MAX_SOCK_NUM), _isConnected(false)
     _pTcpSocket = new TCPSocket();
 }
 
+WiFiClient::~WiFiClient()
+{
+    if(_pTcpSocket != NULL)
+    {
+        delete _pTcpSocket;
+        _pTcpSocket = NULL;
+    }
+}
+
 int WiFiClient::peek() {
     return 0;
 }

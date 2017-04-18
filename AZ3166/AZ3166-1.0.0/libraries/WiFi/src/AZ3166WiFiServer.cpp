@@ -1,5 +1,5 @@
 /*
-  WiFiClient.cpp - Library for Arduino Wifi shield.
+  A3166WiFiClient.cpp
   Copyright (c) 2011-2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -18,144 +18,98 @@
 */
 
 #include "AZ3166WiFi.h"
-#include "AZ3166WiFiClient.h"
 #include "SystemWiFi.h"
+#include "IPAddress.h"
 
-WiFiClient::WiFiClient()  : _sock(MAX_SOCK_NUM), _isConnected(false)
+WiFiServer::WiFiServer(uint16_t port)
 {
-    _pTcpSocket = new TCPSocket();
+    _port = port;
+    _currentClient = NULL;
+    _pTcpServer = new TCPServer();
 }
 
-int WiFiClient::peek() {
-    return 0;
-}
-
-int WiFiClient::connect(const char* host, uint16_t port) 
+WiFiServer::~WiFiServer()
 {
-    int ret;
-    _sock = getFirstSocket();
-
-    if (_sock != SOCK_NOT_AVAIL)
+    if (_currentClient != NULL)
     {
-        ret = _pTcpSocket->open(WiFiInterface());
-        if ( ret != 0 ) 
-        {
-            _isConnected = false;
-            return 0; // socket connect failed. 
-        }
-        ret = _pTcpSocket->connect(host, port);
-        if ( ret != 0 ) 
-        {
-            _isConnected = false;
-            return 0; // socket connect failed. 
-        }
-        _pTcpSocket->set_blocking(false);
-        _isConnected = true;
-        WiFiClass::_state[_sock] = _sock;
+        delete _currentClient;
+        _currentClient = NULL;
     }
-    else
-    { 
-        Serial.println("No Socket available");
-        return 0;
+    if (_pTcpServer != NULL)
+    {
+        delete _pTcpServer;
+        _pTcpServer = NULL;
     }
-    return 1;
 }
 
-int WiFiClient::connect(IPAddress ip, uint16_t port) 
-{
-    return connect(ip.get_address(), port);
-}
-
-int WiFiClient::available() 
+void WiFiServer::begin()
 {
     int ret;
+    
+    if (!_pTcpServer)
+    {
+        return;
+    }
+    
+    ret = _pTcpServer->open(WiFiInterface());
+    if (ret != 0)
+    {
+        return;
+    }
 
-    if (_sock == 255) 
-        return 0;
+    ret = _pTcpServer->bind(_port);
+    if (ret != 0)
+    {
+        return;
+    }
 
-    if (_isConnected == false ) 
-        return 0;
-    else
-        return 1;
+    ret = _pTcpServer->listen();
+    if (ret != 0)
+    {
+        return;
+    }
 }
 
-size_t WiFiClient::write(uint8_t b) 
+WiFiClient WiFiServer::available(byte *status)
+{
+    if (_currentClient && _currentClient->read() != -1)
+    {
+        return *_currentClient;
+    }
+    WiFiClient _newClient;
+    return _newClient;
+}
+
+int WiFiServer::accept(WiFiClient *client)
+{
+    if (!_pTcpServer || !client || !client->_pTcpSocket)
+    {
+        return -1;
+    }
+    int ret = _pTcpServer->accept(client->_pTcpSocket);
+    _currentClient = client;
+    return ret;
+}
+
+size_t WiFiServer::write(uint8_t b)
 {
     return write(&b, 1);
 }
 
-size_t WiFiClient::write(const uint8_t *buf, size_t size) 
+size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 {
-    int i;  
-    return _pTcpSocket->send((void*)buf, (int)size);
-}
-
-
-int WiFiClient::read()
-{
-    uint8_t ch;
-    int ret;
-    
-    ret = read(&ch, 1);
-    if ( ret <= 0 ) 
-        return -1;
-    else 
-        return (int)ch;
-    
-}
-
-
-int WiFiClient::read(uint8_t* buf, size_t size) 
-{
-    return _pTcpSocket->recv((void*)buf, (int)size);
-}
-
-
-void WiFiClient::flush() 
-{
-
-}
-
-void WiFiClient::stop() 
-{
-    if (_sock == 255)
-        return;
-
-    _pTcpSocket->close();
-    WiFiClass::_state[_sock] = NA_STATE;
-
-    _sock = 255;
-}
-
-uint8_t WiFiClient::connected()
-{
-    if (_sock == 255) 
+    if (!_pTcpServer || !_currentClient || _currentClient->connected())
     {
         return 0;
-    } 
-    else 
-    {
-        return ( _isConnected == true )? 1 : 0;
     }
+    _currentClient->write(buffer, size);
 }
 
-WiFiClient::operator bool() 
+void WiFiServer::close()
 {
-    if ( _sock == 255 ) 
-        return false;
-    return _isConnected;
-}
-
-// Private Methods
-uint8_t WiFiClient::getFirstSocket()
-{
-    for (int i = 0; i < MAX_SOCK_NUM; i++) 
+    if (!_pTcpServer)
     {
-        if (WiFiClass::_state[i] == NA_STATE)
-        {
-            return i;
-        }
+        return;
     }
-    return SOCK_NOT_AVAIL;
+    _pTcpServer->close();
 }
-

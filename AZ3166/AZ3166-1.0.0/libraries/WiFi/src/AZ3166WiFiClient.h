@@ -10,6 +10,7 @@ class WiFiClient
 public:
 	
   WiFiClient();
+  ~WiFiClient();
 
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char *host, uint16_t port);
@@ -23,6 +24,8 @@ public:
   virtual uint8_t connected();
   virtual operator bool();
   virtual int peek();
+
+  friend class WiFiServer;
   
 private:
 	TCPSocket* _pTcpSocket;
