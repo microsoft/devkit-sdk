@@ -1,5 +1,6 @@
 #include "_iothub_client_sample_mqtt.h"
 #include <stdlib.h>
+#include "WiFi.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdint.h>
@@ -41,7 +42,7 @@ bool heartBeat = false;
 
 OLEDDisplay oled;
 
-void showMessage(const char* tweet)
+void showMessage(const char *tweet)
 {
   Serial.println("*****************************TurnLightOn********************************");
   digitalWrite(lightPin, LOW);
@@ -70,7 +71,22 @@ void reportPulse()
   sprintf(msgText, "{\"topic\":\"%s\", \"DeviceID\":\"%s\"}", "iot", "myDevice1");
   iothub_client_sample_send_event((const unsigned char *)msgText);
 }
+void InitWiFi()
+{
+  Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
 
+  if (WiFi.begin() == WL_CONNECTED)
+  {
+    IPAddress ip = WiFi.localIP();
+    Screen.print(1, ip.get_address());
+    hasWifi = true;
+    Screen.print(2, "Running...      \r\n");
+  }
+  else
+  {
+    Screen.print(1, "No Wi-Fi\r\n                ");
+  }
+}
 void setup()
 {
   pinMode(heartBeatPin, OUTPUT);
@@ -80,7 +96,11 @@ void setup()
   Serial.begin(115200);
   Serial.println("start\r\n");
   digitalWrite(lightPin, HIGH);
-
+  InitWiFi();
+  if (!hasWifi)
+  {
+    return;
+  }
   ext_i2c = new DevI2C(D14, D15);
   acc_gyro = new LSM6DSLSensor(*ext_i2c, D4, D5);
   acc_gyro->init(NULL);
@@ -105,5 +125,12 @@ void loop()
   }
   heartBeat = !heartBeat;
   digitalWrite(heartBeatPin, heartBeat ? HIGH : LOW);
-  iothub_client_sample_mqtt_loop();
+  if (hasWifi)
+  {
+    iothub_client_sample_mqtt_loop();
+  }
+  else
+  {
+    delay(100);
+  }
 }
