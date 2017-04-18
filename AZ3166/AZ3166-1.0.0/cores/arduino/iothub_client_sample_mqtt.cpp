@@ -12,6 +12,7 @@
 #include "iothubtransportmqtt.h"
 #include "azureiotcerts.h"
 #include "EEPROMInterface.h"
+#include "SystemWiFi.h"
 
 static int callbackCounter;
 static char msgText[1024];
@@ -101,6 +102,18 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
 
 void iothub_client_sample_mqtt_run(void)
 {
+    if(!InitSystemWiFi())
+    {
+        (void)printf("ERROR: Unable to initialize network.\r\n");
+        return;
+    }
+
+    if(!SystemWiFiConnect())
+    {
+        (void)printf("ERROR: Unable to connect to system network.\r\n");
+        return;        
+    }
+
     IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 
     EVENT_INSTANCE messages[MESSAGE_COUNT];
