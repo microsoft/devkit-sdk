@@ -1,12 +1,9 @@
 #include "_iothub_client_sample_mqtt.h"
 #include <stdlib.h>
-#include "WiFi.h"
+#include "AZ3166WiFi.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdint.h>
-#include <HTS221Sensor.h>
-#include <lis2mdl_class.h>
-#include <lps25h_class.h>
 #include <LSM6DSLSensor.h>
 #include "AzureIotHub.h"
 #include <OLEDDisplay.h>
