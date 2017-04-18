@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef AzureBoard_WiFi_h
-#define AzureBoard_WiFi_h
+#ifndef AZ3166_WiFi_h
+#define AZ3166_WiFi_h
 
 #include <inttypes.h>
 

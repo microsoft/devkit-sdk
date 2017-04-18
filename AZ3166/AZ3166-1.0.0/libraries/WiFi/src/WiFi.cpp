@@ -19,8 +19,7 @@
 
 #include <inttypes.h>
 
-#include "WiFi.h"
-#include "utility\wifi_drv.h"
+#include "AZ3166WiFi.h"
 #include "wiring.h"
 #include "utility\wl_types.h"
 #include "SystemWiFi.h"
