@@ -18,16 +18,19 @@
 #include "iothub_client_version.h"
 #include "iothub_transport_ll.h"
 #include <stdint.h>
+#include "telemetry.h"
 
-#ifndef DONT_USE_UPLOADTOBLOB
-#include "iothub_client_ll_uploadtoblob.h"
-#endif
+#define DONT_USE_UPLOADTOBLOB
 
 #define LOG_ERROR_RESULT LogError("result = %s", ENUM_TO_STRING(IOTHUB_CLIENT_RESULT, result));
 #define INDEFINITE_TIME ((time_t)(-1))
 
 DEFINE_ENUM_STRINGS(IOTHUB_CLIENT_RESULT, IOTHUB_CLIENT_RESULT_VALUES);
 DEFINE_ENUM_STRINGS(IOTHUB_CLIENT_CONFIRMATION_RESULT, IOTHUB_CLIENT_CONFIRMATION_RESULT_VALUES);
+
+#ifdef _cplusplus
+extern "C" {
+#endif
 
 typedef struct IOTHUB_CLIENT_LL_HANDLE_DATA_TAG
 {
@@ -352,7 +355,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                 else
                 {
                     /* Codes_SRS_IOTHUBCLIENT_LL_12_011: [IoTHubClient_LL_CreateFromConnectionString shall call into the IoTHubClient_LL_Create API with the current structure and returns with the return value of it] */
-                    
+                    telemetry_enqueue(config->iotHubName, "Create", "IoT hub established");
                     result = IoTHubClient_LL_Create(config);
                     if (result == NULL)
                     {
@@ -1554,4 +1557,9 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_UploadToBlob(IOTHUB_CLIENT_LL_HANDLE iotHub
     }
     return result;
 }
+
+#ifdef _cplusplus
+}
+#endif
+
 #endif

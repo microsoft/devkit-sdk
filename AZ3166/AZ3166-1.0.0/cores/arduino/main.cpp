@@ -22,6 +22,7 @@
 #include "mico_system.h"
 #include "console_cli.h"
 #include "SystemWiFi.h"
+#include "telemetry.h"
 #include "mbed_stats.h"
 
 // Weak empty variant initialization function.
@@ -112,6 +113,7 @@ static void EnterUserMode()
 
     // Arduino setup function
     setup();
+    telemetry_init();
 
     for (;;)
     {
