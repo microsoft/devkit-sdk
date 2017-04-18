@@ -18,7 +18,7 @@
 */
 
 #include "AZ3166WiFi.h"
-#include "WiFiClient.h"
+#include "AZ3166WiFiClient.h"
 #include "SystemWiFi.h"
 
 WiFiClient::WiFiClient()  : _sock(MAX_SOCK_NUM), _isConnected(false)
@@ -27,7 +27,7 @@ WiFiClient::WiFiClient()  : _sock(MAX_SOCK_NUM), _isConnected(false)
 }
 
 int WiFiClient::peek() {
-	return 0;
+    return 0;
 }
 
 int WiFiClient::connect(const char* host, uint16_t port) 
@@ -40,51 +40,50 @@ int WiFiClient::connect(const char* host, uint16_t port)
         ret = _pTcpSocket->open(WiFiInterface());
         if ( ret != 0 ) 
         {
-			      Serial.print("WiFiClient : socket open failed ret=");
-			      Serial.println(ret);
             _isConnected = false;
-			      return 0; // socket connect failed. 
-		    }
+            return 0; // socket connect failed. 
+        }
         ret = _pTcpSocket->connect(host, port);
         if ( ret != 0 ) 
         {
-			      Serial.print("WiFiClient : connect failed ret=");
-			      Serial.println(ret);
             _isConnected = false;
-			      return 0; // socket connect failed. 
-		    }
+            return 0; // socket connect failed. 
+        }
+        _pTcpSocket->set_blocking(false);
+        _pTcpSocket->set_timeout(1000);
+        
         _isConnected = true;
         WiFiClass::_state[_sock] = _sock;
     }
     else
     { 
-    	  Serial.println("No Socket available");
-    	  return 0;
+        Serial.println("No Socket available");
+        return 0;
     }
     return 1;
 }
 
 int WiFiClient::connect(IPAddress ip, uint16_t port) 
 {
-	   return connect(ip.get_address(), port);
+    return connect(ip.get_address(), port);
 }
 
-int WiFiClient::available() {
-	int ret;
+int WiFiClient::available() 
+{
+    int ret;
 
-	if (_sock == 255) 
-      return 0;
+    if (_sock == 255) 
+        return 0;
 
-	if (_isConnected == false ) 
-      return 0;
-  else
-      return 1;
-	
+    if (_isConnected == false ) 
+        return 0;
+    else
+        return 1;
 }
 
 size_t WiFiClient::write(uint8_t b) 
 {
-	  return write(&b, 1);
+    return write(&b, 1);
 }
 
 size_t WiFiClient::write(const uint8_t *buf, size_t size) 
@@ -94,60 +93,69 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size)
 }
 
 
-int WiFiClient::read() {
-	uint8_t ch;
-	int ret;
-	
-	ret = read(&ch, 1);
-	if ( ret <= 0 ) return -1;
-	else return (int)ch;
-	
+int WiFiClient::read()
+{
+    uint8_t ch;
+    int ret;
+    
+    ret = read(&ch, 1);
+    if ( ret <= 0 ) 
+        return -1;
+    else 
+        return (int)ch;
+    
 }
 
 
-int WiFiClient::read(uint8_t* buf, size_t size) {
-  return _pTcpSocket->recv((void*)buf, (int)size);
+int WiFiClient::read(uint8_t* buf, size_t size) 
+{
+    return _pTcpSocket->recv((void*)buf, (int)size);
 }
 
-
-void WiFiClient::flush() {
+void WiFiClient::flush() 
+{
 
 }
 
-void WiFiClient::stop() {
+void WiFiClient::stop() 
+{
+    if (_sock == 255)
+        return;
 
-  if (_sock == 255)
-    return;
+    _pTcpSocket->close();
+    WiFiClass::_state[_sock] = NA_STATE;
 
-  _pTcpSocket->close();
-  WiFiClass::_state[_sock] = NA_STATE;
-
-  _sock = 255;
+    _sock = 255;
 }
 
-uint8_t WiFiClient::connected() {
-
-  if (_sock == 255) {
-    return 0;
-  } else {
-  	return ( _isConnected == true )? 1 : 0;
-  }
+uint8_t WiFiClient::connected()
+{
+    if (_sock == 255) 
+    {
+        return 0;
+    } 
+    else 
+    {
+        return ( _isConnected == true )? 1 : 0;
+    }
 }
 
-WiFiClient::operator bool() {
-  if ( _sock == 255 ) 
-      return false;
-  return _isConnected;
+WiFiClient::operator bool() 
+{
+    if ( _sock == 255 ) 
+        return false;
+    return _isConnected;
 }
 
 // Private Methods
 uint8_t WiFiClient::getFirstSocket()
 {
-    for (int i = 0; i < MAX_SOCK_NUM; i++) {
-      if (WiFiClass::_state[i] == NA_STATE)
-      {
-          return i;
-      }
+    for (int i = 0; i < MAX_SOCK_NUM; i++) 
+    {
+        if (WiFiClass::_state[i] == NA_STATE)
+        {
+            return i;
+        }
     }
     return SOCK_NOT_AVAIL;
 }

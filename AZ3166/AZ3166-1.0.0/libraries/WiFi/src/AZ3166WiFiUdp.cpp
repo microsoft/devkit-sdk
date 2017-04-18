@@ -22,8 +22,8 @@ extern int rtl_printf(const char *fmt, ...);
 }
 #include <string.h>
 #include "AZ3166WiFi.h"
-#include "WiFiUdp.h"
-#include "WiFiClient.h"
+#include "AZ3166WiFiUdp.h"
+#include "AZ3166WiFiClient.h"
 #include "SystemWiFi.h"
 //#include "WiFiServer.h"
 
@@ -31,10 +31,7 @@ extern int rtl_printf(const char *fmt, ...);
 WiFiUDP::WiFiUDP() 
 {
     _pUdpSocket = new UDPSocket();
-    if ( _pUdpSocket == NULL ) {
-        (void)printf("Error:  UDPSocket allocation failed\r\n");
-    }
-
+    
     _localPort = 0;
     is_initialized = false;
 }
@@ -48,7 +45,6 @@ uint8_t WiFiUDP::begin(uint16_t port) {
         _pUdpSocket->set_timeout(5000);
         if(_pUdpSocket->open(WiFiInterface()) != 0)
         {
-            Serial.println("Error: Unable to initialize socket");
             return 0;
         }
         is_initialized = true;
@@ -59,8 +55,8 @@ uint8_t WiFiUDP::begin(uint16_t port) {
         _localPort = port;
         return 1;
     }
-    else{
-        Serial.println("Error: No Socket available");
+    else
+    {
         return 0;
     }
 }
@@ -86,11 +82,9 @@ void WiFiUDP::stop()
 int WiFiUDP::beginPacket(const char *host, uint16_t port)
 {
     // Look up the host first
-
     SocketAddress *outEndPoint = NULL;
     if(WiFiInterface()->gethostbyname(host, outEndPoint))
     {
-        Serial.println("Error: UNABLE TO GET THE HOST");
         return 0;
     }
     
@@ -106,7 +100,6 @@ int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
     {
         if(_pUdpSocket->open(WiFiInterface()) != 0)
         {
-            Serial.println("Error: Unable to initialize socket");
             return 0;
         }
         
@@ -130,7 +123,7 @@ int WiFiUDP::endPacket()
 
 size_t WiFiUDP::write(uint8_t byte)
 {
-  return write(&byte, 1);
+    return write(&byte, 1);
 }
 
 size_t WiFiUDP::write(const uint8_t *buffer, size_t size)
@@ -141,7 +134,6 @@ size_t WiFiUDP::write(const uint8_t *buffer, size_t size)
     _pUdpSocket->sendto(*_address, (char*)buffer, size);
     return size;
 }
-
 
 int WiFiUDP::parsePacket()
 {
@@ -187,7 +179,7 @@ IPAddress WiFiUDP::remoteIP()
 {
     if(_address == NULL)
     {
-         return INADDR_NONE;
+        return INADDR_NONE;
     }
     IPAddress ip((uint8_t*)_address->get_ip_address());
     return ip;
