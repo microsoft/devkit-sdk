@@ -111,8 +111,7 @@ int WiFiClient::read(uint8_t* buf, size_t size) {
 
 
 void WiFiClient::flush() {
-  while (available())
-    read();
+
 }
 
 void WiFiClient::stop() {

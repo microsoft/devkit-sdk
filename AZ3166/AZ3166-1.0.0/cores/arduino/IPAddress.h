@@ -69,9 +69,8 @@ public:
 
     friend class Client;
 
-    /*friend class EthernetClass;
     friend class UDP;
-    friend class Server;
+    /*friend class Server;
     friend class DhcpClass;
     friend class DNSClient;*/
 };
