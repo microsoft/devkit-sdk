@@ -5,7 +5,6 @@
 #include "Queue.h"
 #include "Thread.h"
 #include "md5.h"
-#include "base64.h"
 
 #ifdef _cplusplus
 extern "C" {
@@ -13,26 +12,28 @@ extern "C" {
 
 #include "Arduino.h"
 #include "telemetry.h"
-#include "azure_c_shared_utility/xlogging.h"
+#include "azure_c_shared_utility/platform.h"
 
 #define STACK_SIZE 0x2000
 #define IOTHUB_NAME_MAX_LEN 52
 #define MAX_MESSAGE_SIZE 128
 
 extern NetworkInterface *network;
+static Thread ai_thread(osPriorityNormal, STACK_SIZE, NULL);
+static char hash_mac_addr[33] = {NULL};
+static char hash_iothub_name[33] = {NULL};
+
+static const char *ai_endpoint = "https://dc.services.visualstudio.com/v2/track";
+static const char *ikey = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
+static const char *ai_event = "AIEVENT";
+static const char *keyword = "AZ3166";
+static const char *hardware_v = "0.8.0";
+static const char *mcu_type = "STM32F412";
 
 static const char *body_template = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
                                    "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":"
                                    "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"
                                    "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}";
-static Thread ai_thread(osPriorityNormal, STACK_SIZE, NULL);
-static char hash_mac_addr[33];
-static const char *ai_endpoint = "https://dc.services.visualstudio.com/v2/track";
-static const char *ikey = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
-static const char *ai_event = "AIEVENT";
-static const char *keyword = "AZ3166";
-static const char *hardware_v = "1.0.0";
-static const char *mcu_type = "STM32F412";
 
 struct Telemetry
 {
@@ -62,9 +63,11 @@ void hash(char *result, const char *input)
     mbedtls_md5(reinterpret_cast<const unsigned char *>(input), strlen(input), output);
 
     int i = 0;
+    char hex_str[] = "0123456789abcdef";
     for (i = 0; i < 16; i++)
     {
-        sprintf(result + i * 2, "%02x", output[i]);
+        result[i * 2] = hex_str[(output[i] >> 4) & 0x0F];
+        result[i * 2 + 1] = hex_str[(output[i]) & 0x0F];
     }
     result[i * 2] = 0;
 }
@@ -82,9 +85,13 @@ void do_trace_telemetry()
     time_t t;
     time(&t);
     struct Telemetry *telemetry = (Telemetry *)evt.value.p;
-    char hash_iothub_name[33];
-    hash(hash_iothub_name, telemetry->iothub);
-    _ctime = (char *)ctime(&t);
+
+    if (!hash_iothub_name[0])
+    {
+        hash(hash_iothub_name, telemetry->iothub);
+    }
+
+    _ctime = ctime(&t);
     _ctime[strlen(_ctime) - 1] = 0;
     sprintf(serialized_body, body_template, keyword, hardware_v, mcu_type, telemetry->message,
             hash_mac_addr, hash_iothub_name, telemetry->event, _ctime, ai_event, ikey);
@@ -92,10 +99,13 @@ void do_trace_telemetry()
     HTTPClient *client = new HTTPClient(HTTP_POST, ai_endpoint);
     client->set_header("Content-Type", "application/json");
     client->set_header("Connection", "keep-alive");
-    client->send(serialized_body, strlen(serialized_body));
+    Http_Response *response = client->send(serialized_body, strlen(serialized_body));
 
     free(telemetry);
+    free(response->status_message);
+    free(response->body);
     delete client;
+    delete response;
 }
 
 static void trace_telemetry()
@@ -109,9 +119,9 @@ static void trace_telemetry()
 
 void telemetry_init()
 {
-    if (network != NULL)
+    if (network != NULL && platform_init() == 0)
     {
-         ai_thread.start(trace_telemetry);
+        ai_thread.start(trace_telemetry);
     }
 }
 
