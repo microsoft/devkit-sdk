@@ -28,8 +28,11 @@
 
 struct EEPROMClass
 {
-    uint8_t read(int idx);
+  uint8_t read(int idx);
+  int getData(int idx, char* dataBuff, int buffSize);
 };
+
+static int getMaxLengthInZone(uint8_t zoneIndex);
 
 static EEPROMClass EEPROM;
 
