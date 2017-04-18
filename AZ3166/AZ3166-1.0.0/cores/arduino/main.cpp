@@ -71,8 +71,11 @@ static void EnterConfigurationiMode()
 
     Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
 
-    InitSystemWiFi(false);
-
+    if (!InitSystemWiFi())
+    {
+        return;
+    }
+    
     const char* mac = WiFiInterface()->get_mac_address();
     
     char m[20] = { '\0'};
@@ -96,21 +99,6 @@ static void EnterUserMode()
 {
     Serial.print("You can press Button A and reset to enter configuration mode.\r\n\r\n");
     
-    Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
-
-    bool hasWiFi = InitSystemWiFi(true);
-    
-    Screen.print(2, "Running...      \r\n");
-
-    if (hasWiFi)
-    {
-        Screen.print(1, WiFiInterface()->get_ip_address());
-    }
-    else
-    {
-        Screen.print(1, "No Wi-Fi");
-    }
-
     // Arduino setup function
     setup();
     telemetry_init();
