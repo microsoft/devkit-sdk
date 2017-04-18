@@ -8,16 +8,6 @@
 #include "AzureIotHub.h"
 #include <OLEDDisplay.h>
 
-/*** I2C ***/
-/* Use Arduino I2C Connectors */
-#define IKS01A2_PIN_I2C_SDA (D14)
-#define IKS01A2_PIN_I2C_SCL (D15)
-
-/* LSM6DSL INT1 */
-#define IKS01A2_PIN_LSM6DSL_INT1 (D4)
-/* LSM6DSL INT2 */
-#define IKS01A2_PIN_LSM6DSL_INT2 (D5)
-
 DevI2C *ext_i2c;
 LSM6DSLSensor *acc_gyro;
 int32_t axes[3];
