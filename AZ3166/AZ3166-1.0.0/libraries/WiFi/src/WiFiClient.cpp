@@ -17,10 +17,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "WiFi.h"
+#include "AZ3166WiFi.h"
 #include "WiFiClient.h"
-#include "utility\wifi_drv.h"
-
+#include "SystemWiFi.h"
 
 WiFiClient::WiFiClient()  : _sock(MAX_SOCK_NUM), _isConnected(false)
 {
@@ -38,7 +37,7 @@ int WiFiClient::connect(const char* host, uint16_t port)
 
     if (_sock != SOCK_NOT_AVAIL)
     {
-        ret = _pTcpSocket->open(&wiFiDrv);
+        ret = _pTcpSocket->open(WiFiInterface());
         if ( ret != 0 ) 
         {
 			      Serial.print("WiFiClient : socket open failed ret=");
