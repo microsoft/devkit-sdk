@@ -18,20 +18,7 @@
 
 #include "mbed.h"
 #include "EEPROM.h"
-#include "STSAFE_A.h"
-#include "STSAFE_A_I2C.h"
-
-#define STSAFE_A_POWER_PIN PB_14
-
-EEPROMClass::EEPROMClass()
-{
-    
-}
-
-EEPROMClass::~EEPROMClass()
-{
-
-}
+#include "EEPROMInterface.h"
 
 uint8_t EEPROMClass::read(int idx)
 {
@@ -42,10 +29,11 @@ uint8_t EEPROMClass::read(int idx)
 
     if (dataOffset < maxBuffLength)
     {
+        EEPROMInterface eepromInterface;
         uint8_t outData;
-        int responseCode = eepromRead(&outData, 1, dataOffset, zoneIndex);
+        int result = eepromInterface.read(&outData, 1, dataOffset, zoneIndex);
 
-        if (responseCode > 0)
+        if (result > 0)
         {
             return outData;
         }
@@ -62,8 +50,9 @@ int EEPROMClass::getData(int idx, char* dataBuff, int buffSize)
 
     if (buffSize <= maxBuffLength)
     {
+        EEPROMInterface eepromInterface;
         uint8_t* outData = (uint8_t*)malloc(buffSize);
-        int result = eepromRead(outData, buffSize, 0, zoneIndex);
+        int result = eepromInterface.read(outData, buffSize, 0, zoneIndex);
 
         if (result == buffSize)
         {
@@ -74,38 +63,6 @@ int EEPROMClass::getData(int idx, char* dataBuff, int buffSize)
     }
     
     return 0;
-}
-
-int EEPROMClass::eepromRead(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
-{
-    if (dataBuff == NULL)
-    {
-        return -1;
-    }
-    
-    // Power on supply
-    DigitalOut STSAFE_A_Power(STSAFE_A_POWER_PIN);
-    STSAFE_A_Power = 1;
-    DELAY(50);
-
-    // Set up I2C
-	cSTSAFE_A_I2c STSAFE_A_I2c(I2C_SDA, I2C_SCL);
-	STSAFE_A_I2c.Frequency(400000);
-
-    // Configure I2C communication buffer
-	cSTSAFE_A Peripheral(&STSAFE_A_I2c, 0x20);
-	Peripheral.DataBufferConfiguration();
-
-    // Read
-	ReadBuffer* sts_read = NULL;
-	ResponseCode result = Peripheral.Read(0x00, 0x00, ALWAYS, dataZoneIndex, offset, buffSize, &sts_read, NO_MAC);
-	if (result == 0)
-	{
-        memcpy(dataBuff, sts_read->Data, sts_read->Length);
-        return sts_read->Length;
-	}
-    
-    return -1;
 }
 
 int getMaxLengthInZone(uint8_t zoneIndex)
