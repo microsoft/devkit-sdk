@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdint.h>
-#include <LSM6DSLSensor.h>
+#include "LSM6DSLSensor.h"
 #include "AzureIotHub.h"
 #include <OLEDDisplay.h>
 
@@ -26,7 +26,7 @@ bool shakeStateChanged = false;
 volatile byte buttonState = HIGH;
 volatile byte shakeState = LOW;
 bool heartBeat = false;
-
+bool hasWifi = false;
 OLEDDisplay oled;
 
 void showMessage(const char *tweet)
