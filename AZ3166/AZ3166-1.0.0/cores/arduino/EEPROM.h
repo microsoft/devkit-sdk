@@ -32,7 +32,7 @@ struct EEPROMClass
   int getData(int idx, char* dataBuff, int buffSize);
 };
 
-int getMaxLengthInZone(uint8_t zoneIndex);
+static int getMaxLengthInZone(uint8_t zoneIndex);
 
 static EEPROMClass EEPROM;
 

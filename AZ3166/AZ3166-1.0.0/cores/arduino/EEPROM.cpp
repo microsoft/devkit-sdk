@@ -65,7 +65,7 @@ int EEPROMClass::getData(int idx, char* dataBuff, int buffSize)
     return 0;
 }
 
-int getMaxLengthInZone(uint8_t zoneIndex)
+static int getMaxLengthInZone(uint8_t zoneIndex)
 {
     int length = 0;
 
