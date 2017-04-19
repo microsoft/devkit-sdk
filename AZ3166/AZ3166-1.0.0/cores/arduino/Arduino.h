@@ -88,6 +88,7 @@ extern const PinDescription g_APinDescription[] ;
 #include "WString.h"
 #include "WCharacter.h"
 #include "Stream.h"
+#include "AudioClass.h"	
 
 
 #endif
