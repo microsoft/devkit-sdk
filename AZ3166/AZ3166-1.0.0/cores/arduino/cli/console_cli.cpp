@@ -25,6 +25,7 @@ struct console_command
 {
     const char *name;
     const char *help;
+    bool       isPrivacy;
     void (*function) (int argc, char **argv);
 };
 
@@ -56,13 +57,13 @@ static void wifi_pwd_Command(int argc, char **argv);
 static void az_iothub_command(int argc, char **argv);
 
 static const struct console_command cmds[] = {
-  {"help",          "Help document",                                            help_command},
-  {"version",       "System version",                                           get_version_command},
-  {"exit",          "Exit and reboot",                                          reboot_and_exit_command},
-  {"scan",          "Scan Wi-Fi AP",                                            wifi_scan},
-  {"set_wifissid",  "Set Wi-Fi SSID",                                           wifi_ssid_command},
-  {"set_wifipwd",   "Set Wi-Fi password",                                       wifi_pwd_Command},
-  {"set_az_iothub", "Set the connection string of Microsoft Azure IOT hub",     az_iothub_command},
+  {"help",          "Help document",                                            false, help_command},
+  {"version",       "System version",                                           false, get_version_command},
+  {"exit",          "Exit and reboot",                                          false, reboot_and_exit_command},
+  {"scan",          "Scan Wi-Fi AP",                                            false, wifi_scan},
+  {"set_wifissid",  "Set Wi-Fi SSID",                                           false, wifi_ssid_command},
+  {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
+  {"set_az_iothub", "Set the connection string of Microsoft Azure IOT hub",     true,  az_iothub_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -219,6 +220,35 @@ static void az_iothub_command(int argc, char **argv)
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Console app
+static bool is_privacy_cmd(char *inbuf, unsigned int bp)
+{
+    // Check privacy mode
+    char cmdName[INBUF_SIZE];
+    for(int j = 0; j < bp; j++)
+    {
+        if (inbuf[j] == SPACE_CHAR)
+        {
+            // Check the table
+            cmdName[j] = 0;
+            for(int i = 0; i < cmd_count; i++)
+            {
+                if(strcmp(cmds[i].name, cmdName) == 0)
+                {
+                    // It's privacy command
+                    return cmds[i].isPrivacy;
+                }
+            }
+            break;
+        }
+        else
+        {
+            cmdName[j] = inbuf[j];
+        }
+    }
+    
+    return false;
+}
+
 static bool get_input(char *inbuf, unsigned int *bp)
 {
     if (inbuf == NULL) 
@@ -261,9 +291,16 @@ static bool get_input(char *inbuf, unsigned int *bp)
         {
             continue;
         }
-        
+
         // Echo
-        Serial.write(inbuf[*bp]);
+        if (!is_privacy_cmd(inbuf, *bp))
+        {
+            Serial.write(inbuf[*bp]);
+        }
+        else
+        {
+            Serial.write('*');
+        }
         (*bp)++;
         
         if (*bp >= INBUF_SIZE) 
