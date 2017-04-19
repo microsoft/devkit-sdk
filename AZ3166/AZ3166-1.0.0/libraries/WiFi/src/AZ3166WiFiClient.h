@@ -2,16 +2,15 @@
 #define wificlient_h
 
 #include "Arduino.h"	
-#include "Print.h"
-#include "Client.h"
 #include "IPAddress.h"
 #include "TCPSocket.h"
+#include "Print.h"
 
-class WiFiClient : public Client {
-
+class WiFiClient : public Print
+{
 public:
-	
   WiFiClient();
+  ~WiFiClient();
 
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char *host, uint16_t port);
@@ -25,17 +24,11 @@ public:
   virtual uint8_t connected();
   virtual operator bool();
   virtual int peek();
-  using Print::write;
+  
+  friend class WiFiServer;
 
 private:
-	TCPSocket* _pTcpSocket;
-  
-	uint8_t _sock;	 
-
-	uint8_t getFirstSocket();
-
-  bool _isConnected;
-
+  TCPSocket* _pTcpSocket;
 };
 
 #endif

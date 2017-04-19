@@ -20,12 +20,12 @@
 #ifndef wifiudp_h
 #define wifiudp_h
 
-#include "AZ3166Udp.h"
 #include "UDPSocket.h"
 
 #define UDP_TX_PACKET_MAX_SIZE 24
 
-class WiFiUDP : public UDP {
+class WiFiUDP
+{
 private:
   uint16_t _port; // local port to listen on
 

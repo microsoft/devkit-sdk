@@ -4,45 +4,19 @@
 #include "azure_c_shared_utility/platform.h"
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
-#include "NTPClient.h"
+#include "SystemWiFi.h"
 #include "azure_c_shared_utility/xio.h"
 #include "azure_c_shared_utility/tlsio_mbedtls.h"
 
-extern NetworkInterface *network;
-
-static int SetupRealTime(void)
-{
-    int result;
-
-    NTPClient ntp(*network);
-    if (ntp.setTime("0.pool.ntp.org") != 0)
-    {
-        result = __LINE__;
-    }
-    else
-    {
-        result = 0;
-    }
-
-    return result;
-}
-
 int platform_init(void)
 {
-    int result = 0;
+    SyncTime();
     
-    if(SetupRealTime() != 0)
-    {
-        result = __LINE__;
-    }
-    else
-    {
-        // turn on Azure led 
-        DigitalOut LedAzure(LED_AZURE);
-        LedAzure = 0;
-    }
-   
-    return result;
+    // turn on Azure led 
+    DigitalOut LedAzure(LED_AZURE);
+    LedAzure = 0;
+    
+    return 0;
 }
 
 const IO_INTERFACE_DESCRIPTION* platform_get_default_tlsio(void)

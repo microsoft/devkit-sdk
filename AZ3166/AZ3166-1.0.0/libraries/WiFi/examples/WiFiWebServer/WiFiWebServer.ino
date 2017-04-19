@@ -7,10 +7,6 @@
  This example is written for a network using WPA encryption. For
  WEP or WPA, change the Wifi.begin() call accordingly.
 
- Circuit:
- * WiFi shield attached
- * Analog inputs attached to pins A0 through A5 (optional)
-
  created 13 July 2010
  by dlf (Metodo2 srl)
  modified 31 May 2012
@@ -18,12 +14,10 @@
 
  */
 
-#include <SPI.h>
-#include <WiFi.h>
+#include <AZ3166WiFi.h>
 
-
-char ssid[] = "yourNetwork";      // your network SSID (name)
-char pass[] = "secretPassword";   // your network password
+char ssid[] = "mynetwork";  //  your network SSID (name)
+char pass[] = "mypassword";       // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -32,11 +26,8 @@ WiFiServer server(80);
 
 void setup() {
   //Initialize serial and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-
+  Serial.begin(115200);
+  
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
@@ -44,11 +35,9 @@ void setup() {
     while (true);
   }
 
-  String fv = WiFi.firmwareVersion();
-  if (fv != "1.1.0") {
-    Serial.println("Please upgrade the firmware");
-  }
-
+  const char* fv = WiFi.firmwareVersion();
+  Serial.printf("Wi-Fi firmware: %s\r\n", fv);
+  
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
@@ -64,40 +53,33 @@ void setup() {
   printWifiStatus();
 }
 
-
 void loop() {
+  Serial.println("list for incoming clients");
   // listen for incoming clients
   WiFiClient client = server.available();
-  if (client) {
+  Serial.println("availabled");
+  if (client) 
+  {
     Serial.println("new client");
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
-    while (client.connected()) {
-      if (client.available()) {
+    while (client.connected())
+    {
+      if (client.available())
+      {
         char c = client.read();
         Serial.write(c);
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
-          // send a standard http response header
           client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
-          client.println("Connection: close");  // the connection will be closed after completion of the response
-          client.println("Refresh: 5");  // refresh the page automatically every 5 sec
-          client.println();
+          client.println("nontent-Type: text/html");
+          client.println("Connection: close");
+          client.println("Refresh: 5");
+          client.println("");
           client.println("<!DOCTYPE HTML>");
-          client.println("<html>");
-          // output the value of each analog input pin
-          for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
-            int sensorReading = analogRead(analogChannel);
-            client.print("analog input ");
-            client.print(analogChannel);
-            client.print(" is ");
-            client.print(sensorReading);
-            client.println("<br />");
-          }
-          client.println("</html>");
+          client.println("<html>Hello</html>");
           break;
         }
         if (c == '\n') {
