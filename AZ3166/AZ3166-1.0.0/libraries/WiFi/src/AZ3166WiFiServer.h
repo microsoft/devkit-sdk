@@ -4,8 +4,9 @@
 #include "Arduino.h"
 #include "TCPServer.h"
 #include "AZ3166WiFiClient.h"
+#include "Print.h"
 
-class WiFiServer
+class WiFiServer : public Print
 {
 public:
     WiFiServer(uint16_t port);
@@ -22,7 +23,7 @@ public:
 private:
 	uint16_t _port;
     TCPServer *_pTcpServer;
-    WiFiClient *_currentClient;
+    WiFiClient _currentClient;
 };
 
 #endif // wifiserver_h

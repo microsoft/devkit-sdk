@@ -18,76 +18,69 @@
 */
 
 #include "AZ3166WiFi.h"
+#include "AZ3166WiFiServer.h"
 #include "SystemWiFi.h"
 #include "IPAddress.h"
 
 WiFiServer::WiFiServer(uint16_t port)
 {
     _port = port;
-    _currentClient = NULL;
-    _pTcpServer = new TCPServer();
+    _pTcpServer = NULL;
 }
 
 WiFiServer::~WiFiServer()
 {
-    if (_currentClient != NULL)
-    {
-        delete _currentClient;
-        _currentClient = NULL;
-    }
-    if (_pTcpServer != NULL)
-    {
-        delete _pTcpServer;
-        _pTcpServer = NULL;
-    }
+    close();
 }
 
 void WiFiServer::begin()
 {
     int ret;
     
-    if (!_pTcpServer)
+    if (_pTcpServer != NULL)
     {
         return;
     }
     
-    ret = _pTcpServer->open(WiFiInterface());
-    if (ret != 0)
+    _pTcpServer = new TCPServer();
+    if(_pTcpServer == NULL)
     {
         return;
     }
-
-    ret = _pTcpServer->bind(_port);
-    if (ret != 0)
+    
+    if (_pTcpServer->open(WiFiInterface()) != 0)
     {
+        delete _pTcpServer;
+        _pTcpServer = NULL;
         return;
     }
-
-    ret = _pTcpServer->listen();
-    if (ret != 0)
+    if (_pTcpServer->bind(_port) != 0 || _pTcpServer->listen() != 0)
     {
+        _pTcpServer->close();
+        delete _pTcpServer;
+        _pTcpServer = NULL;
         return;
     }
 }
 
 WiFiClient WiFiServer::available(byte *status)
 {
-    if (_currentClient && _currentClient->read() != -1)
-    {
-        return *_currentClient;
-    }
-    WiFiClient _newClient;
-    return _newClient;
+    WiFiClient tmpClient;
+    accept(&tmpClient);
+    return tmpClient;
 }
 
 int WiFiServer::accept(WiFiClient *client)
 {
-    if (!_pTcpServer || !client || !client->_pTcpSocket)
+    if (_pTcpServer == NULL || client == NULL || client->_pTcpSocket != NULL)
     {
         return -1;
     }
     int ret = _pTcpServer->accept(client->_pTcpSocket);
-    _currentClient = client;
+    if (ret == 0)
+    {
+        _currentClient._pTcpSocket = client->_pTcpSocket;
+    }
     return ret;
 }
 
@@ -98,18 +91,16 @@ size_t WiFiServer::write(uint8_t b)
 
 size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 {
-    if (!_pTcpServer || !_currentClient || _currentClient->connected())
-    {
-        return 0;
-    }
-    _currentClient->write(buffer, size);
+    _currentClient.write(buffer, size);
 }
 
 void WiFiServer::close()
 {
-    if (!_pTcpServer)
+    if (_pTcpServer == NULL)
     {
         return;
     }
     _pTcpServer->close();
+    delete _pTcpServer;
+    _pTcpServer = NULL;
 }

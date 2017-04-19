@@ -37,7 +37,7 @@ void setup() {
 
   const char* fv = WiFi.firmwareVersion();
   Serial.printf("Wi-Fi firmware: %s\r\n", fv);
-
+  
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
@@ -53,12 +53,11 @@ void setup() {
   printWifiStatus();
 }
 
-const char response[] = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\nRefresh: 5\r\n\r\n<!DOCTYPE HTML>\r\n<html>Hello</html>\r\n";
-
 void loop() {
   Serial.println("list for incoming clients");
   // listen for incoming clients
   WiFiClient client = server.available();
+  Serial.println("availabled");
   if (client) 
   {
     Serial.println("new client");
@@ -74,7 +73,13 @@ void loop() {
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
-          client.write((const uint8_t *)response, strlen(response));
+          client.println("HTTP/1.1 200 OK");
+          client.println("nontent-Type: text/html");
+          client.println("Connection: close");
+          client.println("Refresh: 5");
+          client.println("");
+          client.println("<!DOCTYPE HTML>");
+          client.println("<html>Hello</html>");
           break;
         }
         if (c == '\n') {

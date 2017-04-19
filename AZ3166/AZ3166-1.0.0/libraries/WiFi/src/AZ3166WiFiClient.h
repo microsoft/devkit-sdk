@@ -4,11 +4,11 @@
 #include "Arduino.h"	
 #include "IPAddress.h"
 #include "TCPSocket.h"
+#include "Print.h"
 
-class WiFiClient
+class WiFiClient : public Print
 {
 public:
-	
   WiFiClient();
   ~WiFiClient();
 
@@ -24,18 +24,11 @@ public:
   virtual uint8_t connected();
   virtual operator bool();
   virtual int peek();
-
+  
   friend class WiFiServer;
-  
+
 private:
-	TCPSocket* _pTcpSocket;
-  
-	uint8_t _sock;	 
-
-	uint8_t getFirstSocket();
-
-  bool _isConnected;
-
+  TCPSocket* _pTcpSocket;
 };
 
 #endif

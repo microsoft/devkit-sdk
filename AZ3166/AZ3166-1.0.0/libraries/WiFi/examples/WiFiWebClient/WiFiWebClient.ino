@@ -35,9 +35,6 @@ char server[] = "www.httpbin.org";    // name address for Google (using DNS)
 // that you want to connect to (port 80 is default for HTTP):
 WiFiClient client;
 
-const char httprequest [] = "GET /ip HTTP/1.1\r\nHost: www.httpbin.org\r\nConnection: close\r\n\r\n";
-
-
 void setup() {
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
@@ -70,7 +67,9 @@ void setup() {
   if (client.connect(server, 80)) {
     Serial.println("connected to server");
     // Make a HTTP request:
-    client.write((const uint8_t *)httprequest, strlen(httprequest));
+    client.println("GET /ip HTTP/1.1");
+    client.println("Host: www.httpbin.org");
+    client.println("Connection: close\r\n");
     Serial.println("HTTP request sent.");
   }
 }
