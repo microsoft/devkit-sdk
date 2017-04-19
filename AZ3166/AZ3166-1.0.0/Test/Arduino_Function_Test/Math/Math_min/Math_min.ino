@@ -1,14 +1,14 @@
+#include "../Test/TestData.h"
+
 void setup(){
     Serial.begin(115200);
 }
 
 void loop(){
     Serial.println("[Math]: Test min()");
-    int oneNum=10;
-    int secondNum = 20;
-    int minVal = min(oneNum,secondNum);
+    int minVal = min(Math_NegativeNum,Math_PositiveNum);
 
-    if(minVal != oneNum)
+    if(minVal != Math_NegativeNum)
     {        
         Serial.println("[Math]: Error: Math.min(): Failed to get the min number.");
     }    

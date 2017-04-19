@@ -1,14 +1,15 @@
 void setup() {
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(ARDUINO_PIN_D1, INPUT);
+  pinMode(USER_BUTTON_A, INPUT);
 }
 
 int val=0;
 
 void loop() { 
     Serial.println("[Digital I/O]: Test digitalRead() and digitalWrite()");
-    val = digitalRead(ARDUINO_PIN_D1);
+    Serial.println("You can press button A to check the LED status");
+    val = digitalRead(USER_BUTTON_A);
     
     digitalWrite(LED_BUILTIN, val);
     

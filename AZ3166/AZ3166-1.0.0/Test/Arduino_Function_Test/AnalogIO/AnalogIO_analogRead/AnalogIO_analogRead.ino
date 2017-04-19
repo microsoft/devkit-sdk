@@ -6,7 +6,7 @@ int val = 0;
 
 void loop() {  
   Serial.println("[Analog I/0]: Test analyRead()");
-  analogReference(AR_DEFAULT);
+  //analogReference(AR_DEFAULT);
 
   val= analogRead(ARDUINO_PIN_A2);
 

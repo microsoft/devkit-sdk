@@ -1,26 +1,23 @@
+#include "../Test/TestData.h"
+
 void setup(){
     Serial.begin(115200);
 }
 
 void loop(){
     Serial.println("[Math]: Test constrain()");
-    int oneNum=1;
-    int secondNum = 100;
-    
-    int testVal =0;
-    if(constrain(testVal, oneNum, secondNum) != oneNum)
+
+    if(constrain(Math_NegativeNum, Math_Zero, Math_PositiveNum) != Math_Zero)
     {
         Serial.println("[Math]: Error: Math.constrain(): If testVal is less than oneNum, oneNum should be return"); 
     }
 
-    testVal =50;
-    if(constrain(testVal, oneNum, secondNum) != testVal)
+    if(constrain(Math_Zero, Math_NegativeNum, Math_PositiveNum) != Math_Zero)
     {
         Serial.println("[Math]: Error: Math.constrain(): If testVal is between oneNum and secondNum, testVal should be return"); 
     }
 
-    testVal =200;
-    if(constrain(testVal, oneNum, secondNum) != secondNum)
+    if(constrain(Math_PositiveNum, Math_NegativeNum, Math_Zero) != Math_Zero)
     {
         Serial.println("[Math]: Error: Math.constrain(): If testVal is greater than secondNum, secondNum should be return"); 
     }  

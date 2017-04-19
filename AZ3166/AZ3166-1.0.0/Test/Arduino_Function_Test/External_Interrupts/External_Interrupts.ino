@@ -3,8 +3,11 @@ volatile byte state=LOW;
 void setup()
 {
     pinMode(LED_BUILTIN, OUTPUT);
-    pinMode(ARDUINO_PIN_D1, INPUT);
-    attachInterrupt(digitalPinToInterrupt(ARDUINO_PIN_D1),blink,CHANGE);
+    pinMode(USER_BUTTON_A, INPUT);
+    
+    // need to be updated 
+    // as this function is not declare in this scope
+    //attachInterrupt(digitalPinToInterrupt(USER_BUTTON_A),blink,CHANGE);
 }
 
 void loop()

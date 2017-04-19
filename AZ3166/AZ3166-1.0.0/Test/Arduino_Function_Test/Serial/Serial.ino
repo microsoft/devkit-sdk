@@ -2,19 +2,11 @@ int incomingByte = 0;
 
 void setup()
 {
-    Serial.begin(115200);
-    while(!Serial)
-    {
-        ;
-    }
+    Serial.begin(115200);    
 }
 
 void loop()
 {
-    // if(Serial.available()>0)
-    // {
-
-    // }
     Serial.println("[Serial]: Test related functions");
     Serial.println(Serial.available());
 
@@ -23,17 +15,18 @@ void loop()
 
     Serial.end();
     Serial.println("Test serial.end()");
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Test serial.begin()");
 
-    if(!Serial.find("abc"))
+    Serial.println("Please enter some string which contain 'test'");
+    if(!Serial.find("test"))
     {
-      Serial.println("failed to find the string abc");
+      Serial.println("[Serial]: Error: failed to find the string test");
     }
 
-    if(!Serial.findUntil("abc","#"))
+    if(!Serial.findUntil("test","#"))
     {
-      Serial.println("failed to find the string abc");
+      Serial.println("[Serial]: Error: failed to find the string test");
     }
 
     Serial.flush();

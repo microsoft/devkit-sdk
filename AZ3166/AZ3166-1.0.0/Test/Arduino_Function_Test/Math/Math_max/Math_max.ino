@@ -1,14 +1,14 @@
+#include "../Test/TestData.h"
+
 void setup(){
     Serial.begin(115200);
 }
 
 void loop(){
     Serial.println("[Math]: Test max()");
-    int oneNum=10;
-    int secondNum = 20;
-    int maxVal = max(oneNum,secondNum);
+    int maxVal = max(Math_NegativeNum,Math_PositiveNum);
 
-    if(maxVal != secondNum)
+    if(maxVal != Math_PositiveNum)
     {
         Serial.println("[Math]: Error: Math.max(): Failed to get the max number.");
     }    

@@ -26,7 +26,7 @@ void loop()
     for(x=0; x<20; x++)
     {
         Serial.print(x);
-        Serial.print("\t");
+        Serial.print("\t\t");
 
         Serial.print(x, DEC);
         Serial.print("\t");
@@ -54,12 +54,13 @@ void loop()
     Serial.println(analogValue, BIN);
 
     // test printf() and printf_P()
-    Serial.printf("testing printf() - String: %s; the length is %d", "hello", 5);
-    Serial.printf("testing printf_P() - String: %s; the length is %d", "hello", 5);
+    Serial.printf("testing printf() - String: %s; the length is %d\n", "hello", 5);
+    Serial.printf_P("testing printf_P() - String: %s; the length is %d", "hello", 5);
     Serial.println();
 
     // test print(double n, int digits)
     Serial.print(11.2233,2);
+    Serial.println();
     
     Serial.println("[Serial]: Done");
     delay(1000);
