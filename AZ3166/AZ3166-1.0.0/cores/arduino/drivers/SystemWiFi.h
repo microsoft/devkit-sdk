@@ -25,6 +25,7 @@ bool InitSystemWiFi(void);
 bool SystemWiFiConnect(void);
 const char* SystemWiFiSSID(void);
 NetworkInterface* WiFiInterface(void);
+void SyncTime(void);
 
 bool InitSystemWiFiAP(void);
 bool SystemWiFiAPStart(const char *ssid, const char *passphrase);

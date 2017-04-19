@@ -12,7 +12,7 @@ extern "C" {
 
 #include "Arduino.h"
 #include "telemetry.h"
-#include "azure_c_shared_utility/platform.h"
+#include "SystemWiFi.h"
 
 #define STACK_SIZE 0x2000
 #define IOTHUB_NAME_MAX_LEN 52
@@ -34,6 +34,7 @@ static const char *body_template = "{\"data\": {\"baseType\": \"EventData\",\"ba
                                    "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":"
                                    "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"
                                    "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}";
+static const char hex_str[] = "0123456789abcdef";
 
 struct Telemetry
 {
@@ -63,7 +64,6 @@ void hash(char *result, const char *input)
     mbedtls_md5(reinterpret_cast<const unsigned char *>(input), strlen(input), output);
 
     int i = 0;
-    char hex_str[] = "0123456789abcdef";
     for (i = 0; i < 16; i++)
     {
         result[i * 2] = hex_str[(output[i] >> 4) & 0x0F];
@@ -77,8 +77,10 @@ void do_trace_telemetry()
     osEvent evt = queue.get();
     if (evt.status != osEventMessage)
     {
+        wait_ms(500);
         return;
     }
+    SyncTime();
 
     char serialized_body[512];
     char *_ctime;
@@ -119,10 +121,10 @@ static void trace_telemetry()
 
 void telemetry_init()
 {
-    if (network != NULL && platform_init() == 0)
-    {
-        ai_thread.start(trace_telemetry);
-    }
+    // Sync up the date
+    SyncTime();
+    // Start the telemetry thread
+    ai_thread.start(trace_telemetry);
 }
 
 #ifdef _cplusplus
