@@ -29,12 +29,12 @@ typedef struct
     uint32_t data_chunck_size;
 } WaveHeader;
 
-class Audio {
+class AudioClass {
     public:
-        Audio();
+        AudioClass();
         void format(uint32_t sampleRate = DEFAULT_SAMPLE_RATE, uint8_t sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
         void startRecord(char * audioFile, int fileSize, uint8_t durationInSeconds);
-        bool record_complete();
+        bool recordComplete();
         char* getWav(int *fileSize);
         double getRecordedDuration();
         int getCurrentSize();
@@ -44,7 +44,7 @@ class Audio {
         void start(uint16_t * recordBuf, uint16_t * playBuf, uint32_t size);
         WaveHeader * genericWAVHeader(int pcmDataSize);
 };
-   
 
+extern AudioClass Audio;
 
 #endif

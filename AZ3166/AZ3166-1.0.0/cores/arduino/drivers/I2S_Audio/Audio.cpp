@@ -25,7 +25,7 @@ static volatile char flag = 0;
 static bool record_finish = false;
 
 
-Audio::Audio()
+AudioClass::AudioClass()
 {
     format(DEFAULT_SAMPLE_RATE, DEFAULT_BITS_PER_SAMPLE);
 }
@@ -33,7 +33,7 @@ Audio::Audio()
 /* 
  * @brief Configure the audio data format
 */
-void Audio::format(uint32_t sampleRate, uint8_t sampleBitLength)
+void AudioClass::format(uint32_t sampleRate, uint8_t sampleBitLength)
 {
     m_sample_rate = sampleRate;
     m_channels = STEREO;
@@ -58,7 +58,7 @@ void Audio::format(uint32_t sampleRate, uint8_t sampleBitLength)
 }
 
 
-void Audio::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size)
+void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size)
 {
     if (transmitBuf == NULL || readBuf == NULL) {
         return;
@@ -71,7 +71,7 @@ void Audio::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size)
 /*
 ** @brief Start recording audio data usine underlying codec
 */
-void Audio::startRecord(char * audioFile, int fileSize, uint8_t durationInSeconds)
+void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInSeconds)
 {
     if (audioFile == NULL) return;
 
@@ -96,7 +96,7 @@ void Audio::startRecord(char * audioFile, int fileSize, uint8_t durationInSecond
 /*
  * @brief stop audio data transmition
 */
-void Audio::stop()
+void AudioClass::stop()
 {
     printf("Stop recording.\r\n");
     BSP_AUDIO_STOP();
@@ -106,7 +106,7 @@ void Audio::stop()
 /*
  * @brief query the record status to check if the DMA transmition is completed
  */   
-bool Audio::record_complete() 
+bool AudioClass::recordComplete() 
 {
     return record_finish;
 }
@@ -114,7 +114,7 @@ bool Audio::record_complete()
 /*
  * @brief compose the WAVE header according to the raw data size
  */
-WaveHeader* Audio::genericWAVHeader(int pcmDataSize)
+WaveHeader* AudioClass::genericWAVHeader(int pcmDataSize)
 {
     WaveHeader *hdr;
     hdr = (WaveHeader *)malloc(sizeof(*hdr));
@@ -140,7 +140,7 @@ WaveHeader* Audio::genericWAVHeader(int pcmDataSize)
 /*
 ** Get wave file
 */
-char * Audio::getWav(int *file_size)
+char * AudioClass::getWav(int *file_size)
 {
     int currentSize = m_record_cursor - m_wavFile;
     *file_size  = (int)currentSize;
@@ -148,11 +148,12 @@ char * Audio::getWav(int *file_size)
     // write wave header for this audio file
     WaveHeader * hdr = genericWAVHeader(currentSize - WAVE_HEADER_SIZE);
     memcpy(m_wavFile, hdr, sizeof(WaveHeader));
+    delete hdr;
 
     return m_wavFile;
 }
 
-double Audio::getRecordedDuration()
+double AudioClass::getRecordedDuration()
 {
     int pcmDataSize = m_record_cursor - m_wavFile - WAVE_HEADER_SIZE;  
 
@@ -160,11 +161,12 @@ double Audio::getRecordedDuration()
     return pcmDataSize / bytes_per_second;;
 }
 
-int Audio::getCurrentSize()
+int AudioClass::getCurrentSize()
 {
     return m_record_cursor - m_wavFile;
 }
 
+AudioClass Audio;
 
 /*------------------------------------------------------------------------------
        Callbacks implementation:
@@ -198,11 +200,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
     {
         memcpy(m_record_cursor, (char *)(m_rx_buffer), copySize);
         m_record_cursor += copySize;
-        
-        /*for (int i = 0; i < copySize; i += 2) {
-            memcpy(m_record_cursor, (char *)(m_rx_buffer), 2);
-            m_record_cursor += 2;
-        }*/
+
         BSP_AUDIO_In_Out_Transfer(m_rx_buffer, m_tx_buffer, BATCH_TRANSMIT_SIZE);
         flag = 1;
     }
@@ -210,12 +208,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
     {
         memcpy(m_record_cursor, (char *)(m_tx_buffer), copySize);
         m_record_cursor += copySize;
-        /*
-        for (int i = 0; i < copySize; i += 2) {
-            memcpy(m_record_cursor, (char *)(m_tx_buffer), 2);
-            m_record_cursor += 2;
-        }
-        */
+
         BSP_AUDIO_In_Out_Transfer(m_tx_buffer, m_rx_buffer, BATCH_TRANSMIT_SIZE);
         flag = 0;
     }
