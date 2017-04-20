@@ -21,7 +21,7 @@ MXCHIP_AZ3166.build.extra_flags=-mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 
 #---------------------------- UPLOAD METHODS ---------------------------
 
-MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod=openocd
+MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod=OpenOCD
 MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod.upload.protocol=
 MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod.upload.tool=openocd
 
