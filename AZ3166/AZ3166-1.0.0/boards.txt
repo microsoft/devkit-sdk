@@ -7,8 +7,8 @@ menu.upload_method=Upload method
 
 MXCHIP_AZ3166.name=MXCHIP AZ3166
 
-MXCHIP_AZ3166.upload.tool=nucleoFlasher
-MXCHIP_AZ3166.upload.protocol=nucleoFlasher
+MXCHIP_AZ3166.upload.tool=openocd
+MXCHIP_AZ3166.upload.protocol=openocd
 MXCHIP_AZ3166.upload.maximum_size=1048576
 MXCHIP_AZ3166.upload.maximum_data_size=131072
 
@@ -21,7 +21,12 @@ MXCHIP_AZ3166.build.extra_flags=-mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 
 #---------------------------- UPLOAD METHODS ---------------------------
 
+MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod=openocd
+MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod.upload.protocol=
+MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod.upload.tool=openocd
+
 MXCHIP_AZ3166.menu.upload_method.STLinkMethod=STLink
 MXCHIP_AZ3166.menu.upload_method.STLinkMethod.upload.protocol=STLink
 MXCHIP_AZ3166.menu.upload_method.STLinkMethod.upload.tool=stlink_upload
+
 ################################################################################
