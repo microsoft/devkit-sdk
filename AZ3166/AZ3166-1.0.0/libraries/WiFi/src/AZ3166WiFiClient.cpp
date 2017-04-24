@@ -24,6 +24,13 @@
 WiFiClient::WiFiClient()
 {
     _pTcpSocket = NULL;
+    _useServerSocket = false;
+}
+
+WiFiClient::WiFiClient(TCPSocket* socket)
+{
+    _pTcpSocket = socket;
+    _useServerSocket = true;
 }
 
 WiFiClient::~WiFiClient()
@@ -120,8 +127,11 @@ void WiFiClient::stop()
     if (_pTcpSocket != NULL)
     {
         _pTcpSocket->close();
-        delete _pTcpSocket;
-        _pTcpSocket = NULL;
+        if(!_useServerSocket)
+        {
+            delete _pTcpSocket;
+            _pTcpSocket = NULL;            
+        }
     }
 }
 

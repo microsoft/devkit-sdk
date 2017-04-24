@@ -14,7 +14,6 @@ public:
 
     WiFiClient available(uint8_t *status = NULL);
     void begin();
-    int accept(WiFiClient *client);
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *buf, size_t size);
     void close();
@@ -23,7 +22,7 @@ public:
 private:
 	uint16_t _port;
     TCPServer *_pTcpServer;
-    WiFiClient _currentClient;
+    TCPSocket _clientTcpSocket;
 };
 
 #endif // wifiserver_h

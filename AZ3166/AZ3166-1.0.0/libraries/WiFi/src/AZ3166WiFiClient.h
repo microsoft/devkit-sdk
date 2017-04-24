@@ -9,6 +9,7 @@
 class WiFiClient : public Print
 {
 public:
+  WiFiClient(TCPSocket* socket);
   WiFiClient();
   ~WiFiClient();
 
@@ -29,6 +30,7 @@ public:
 
 private:
   TCPSocket* _pTcpSocket;
+  bool _useServerSocket;
 };
 
 #endif
