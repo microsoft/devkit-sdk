@@ -45,8 +45,8 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     }
     else
     {
-        (void)printf("Received Message [%d]\r\n Message ID: %s\r\n Correlation ID: %s\r\n Data: <<<%.*s>>> & Size=%d\r\n", *counter, messageId, correlationId, (int)size, buffer, (int)size);
-        showMessage(buffer);
+        (void)printf("Received Message [%d], Size=%d\r\n", *counter, (int)size);
+        _showMessage(buffer, size);
     }
 
     // Retrieve properties from the message
@@ -84,6 +84,8 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     /* Some device specific action code goes here... */
     callbackCounter++;
     IoTHubMessage_Destroy(eventInstance->messageHandle);
+    
+    _SendConfirmationCallback();
 }
 
 void iothub_client_sample_mqtt_init()

@@ -102,7 +102,7 @@ void do_trace_telemetry()
     client->set_header("Content-Type", "application/json");
     client->set_header("Connection", "keep-alive");
     Http_Response *response = client->send(serialized_body, strlen(serialized_body));
-
+    
     free(telemetry);
     free(response->status_message);
     free(response->body);
