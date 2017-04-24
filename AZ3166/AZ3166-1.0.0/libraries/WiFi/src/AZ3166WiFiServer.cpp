@@ -65,23 +65,20 @@ void WiFiServer::begin()
 
 WiFiClient WiFiServer::available(byte *status)
 {
-    WiFiClient tmpClient;
-    accept(&tmpClient);
-    return tmpClient;
-}
-
-int WiFiServer::accept(WiFiClient *client)
-{
-    if (_pTcpServer == NULL || client == NULL || client->_pTcpSocket != NULL)
+    if (_pTcpServer == NULL )
     {
-        return -1;
+        return WiFiClient();
     }
-    int ret = _pTcpServer->accept(client->_pTcpSocket);
+
+    int ret = _pTcpServer->accept(&_clientTcpSocket);
     if (ret == 0)
     {
-        _currentClient._pTcpSocket = client->_pTcpSocket;
+        return WiFiClient(&_clientTcpSocket);
     }
-    return ret;
+    else
+    {
+        return WiFiClient();
+    }
 }
 
 size_t WiFiServer::write(uint8_t b)
@@ -91,7 +88,7 @@ size_t WiFiServer::write(uint8_t b)
 
 size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 {
-    _currentClient.write(buffer, size);
+    this->_clientTcpSocket.send((void*)buffer, size);
 }
 
 void WiFiServer::close()
