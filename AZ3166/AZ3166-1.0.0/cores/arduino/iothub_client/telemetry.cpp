@@ -97,8 +97,6 @@ void do_trace_telemetry()
     
     sprintf(body, BODY_TEMPLATE, KEYWORD, VERSION, MCU, telemetry->message, HASH_MAC, HASH_IOTHUB, telemetry->event, _ctime, EVENT, IKEY);
     HTTPClient *request = new HTTPClient(HTTP_POST, PATH);
-    client->set_header("Content-Type", "application/json");
-    client->set_header("Connection", "keep-alive");
     Http_Response *response = request->send(body, strlen(body));
     
     free(telemetry);
