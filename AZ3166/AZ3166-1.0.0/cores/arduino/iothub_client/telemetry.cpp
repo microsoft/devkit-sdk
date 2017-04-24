@@ -19,22 +19,21 @@ extern "C" {
 #define MAX_MESSAGE_SIZE 128
 
 extern NetworkInterface *network;
-static Thread ai_thread(osPriorityNormal, STACK_SIZE, NULL);
-static char hash_mac_addr[33] = {NULL};
-static char hash_iothub_name[33] = {NULL};
+static Thread TELEMETRY_THREAD(osPriorityNormal, STACK_SIZE, NULL);
+static char HASH_MAC[33] = {NULL};
+static char HASH_IOTHUB[33] = {NULL};
 
-static const char *ai_endpoint = "https://dc.services.visualstudio.com/v2/track";
-static const char *ikey = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
-static const char *ai_event = "AIEVENT";
-static const char *keyword = "AZ3166";
-static const char *hardware_v = "0.8.0";
-static const char *mcu_type = "STM32F412";
-
-static const char *body_template = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
+static const char *PATH = "https://dc.services.visualstudio.com/v2/track";
+static const char *IKEY = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
+static const char *EVENT = "AIEVENT";
+static const char *KEYWORD = "AZ3166";
+static const char *VERSION = "0.8.0";
+static const char *MCU = "STM32F412";
+static const char *BODY_TEMPLATE = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
                                    "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":"
                                    "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"
                                    "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}";
-static const char hex_str[] = "0123456789abcdef";
+static const char HEX_STR[] = "0123456789abcdef";
 
 struct Telemetry
 {
@@ -66,8 +65,8 @@ void hash(char *result, const char *input)
     int i = 0;
     for (i = 0; i < 16; i++)
     {
-        result[i * 2] = hex_str[(output[i] >> 4) & 0x0F];
-        result[i * 2 + 1] = hex_str[(output[i]) & 0x0F];
+        result[i * 2] = HEX_STR[(output[i] >> 4) & 0x0F];
+        result[i * 2 + 1] = HEX_STR[(output[i]) & 0x0F];
     }
     result[i * 2] = 0;
 }
@@ -82,37 +81,33 @@ void do_trace_telemetry()
     }
     SyncTime();
 
-    char serialized_body[512];
+    char body[512];
     char *_ctime;
     time_t t;
     time(&t);
     struct Telemetry *telemetry = (Telemetry *)evt.value.p;
 
-    if (!hash_iothub_name[0])
+    if (!HASH_IOTHUB[0])
     {
-        hash(hash_iothub_name, telemetry->iothub);
+        hash(HASH_IOTHUB, telemetry->iothub);
     }
 
     _ctime = ctime(&t);
     _ctime[strlen(_ctime) - 1] = 0;
-    sprintf(serialized_body, body_template, keyword, hardware_v, mcu_type, telemetry->message,
-            hash_mac_addr, hash_iothub_name, telemetry->event, _ctime, ai_event, ikey);
-
-    HTTPClient *client = new HTTPClient(HTTP_POST, ai_endpoint);
-    client->set_header("Content-Type", "application/json");
-    client->set_header("Connection", "keep-alive");
-    Http_Response *response = client->send(serialized_body, strlen(serialized_body));
+    sprintf(body, BODY_TEMPLATE, KEYWORD, VERSION, MCU, telemetry->message, HASH_MAC, HASH_IOTHUB, telemetry->event, _ctime, EVENT, IKEY);
+    HTTPClient *request = new HTTPClient(HTTP_POST, PATH);
+    Http_Response *response = request->send(body, strlen(body));
 
     free(telemetry);
     free(response->status_message);
     free(response->body);
-    delete client;
+    delete request;
     delete response;
 }
 
 static void trace_telemetry()
 {
-    hash(hash_mac_addr, network->get_mac_address());
+    hash(HASH_MAC, network->get_mac_address());
     while (true)
     {
         do_trace_telemetry();
@@ -124,7 +119,7 @@ void telemetry_init()
     // Sync up the date
     SyncTime();
     // Start the telemetry thread
-    ai_thread.start(trace_telemetry);
+    TELEMETRY_THREAD.start(trace_telemetry);
 }
 
 #ifdef _cplusplus
