@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "Arduino.h"
 #include "AzureIotHub.h"
 #include "EEPROMInterface.h"
 #include "_iothub_client_sample_mqtt.h"
@@ -41,11 +40,11 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     // Message content
     if (IoTHubMessage_GetByteArray(message, (const unsigned char **)&buffer, &size) != IOTHUB_MESSAGE_OK)
     {
-        (void)printf("unable to retrieve the message data\r\n");
+        (void)Serial.printf("unable to retrieve the message data\r\n");
     }
     else
     {
-        (void)printf("Received Message [%d], Size=%d\r\n", *counter, (int)size);
+        (void)Serial.printf("Received Message [%d], Size=%d\r\n", *counter, (int)size);
         _showMessage(buffer, size);
     }
 
@@ -62,12 +61,12 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
             {
                 size_t index;
 
-                printf(" Message Properties:\r\n");
+                (void)Serial.printf(" Message Properties:\r\n");
                 for (index = 0; index < propertyCount; index++)
                 {
-                    (void)printf("\tKey: %s Value: %s\r\n", keys[index], values[index]);
+                    (void)Serial.printf("\tKey: %s Value: %s\r\n", keys[index], values[index]);
                 }
-                (void)printf("\r\n");
+                (void)Serial.printf("\r\n");
             }
         }
     }
@@ -80,7 +79,7 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
 static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
 {
     EVENT_INSTANCE *eventInstance = (EVENT_INSTANCE *)userContextCallback;
-    (void)printf("Confirmation[%d] received for message tracking id = %d with result = %s\r\n", callbackCounter, eventInstance->messageTrackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
+    (void)Serial.printf("Confirmation[%d] received for message tracking id = %d with result = %s\r\n", callbackCounter, eventInstance->messageTrackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
     /* Some device specific action code goes here... */
     callbackCounter++;
     IoTHubMessage_Destroy(eventInstance->messageHandle);
@@ -101,37 +100,37 @@ void iothub_client_sample_mqtt_init()
     int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
     if (ret < 0)
     { 
-        (void)printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
+        (void)Serial.printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
         return;
     }
     else if (ret == 0)
     {
-        (void)printf("INFO: The connection string is empty.\r\nPlease set the value in configuration mode.\r\n");
+        (void)Serial.printf("INFO: The connection string is empty.\r\nPlease set the value in configuration mode.\r\n");
     }
     
     if (platform_init() != 0)
     {
-        (void)printf("Failed to initialize the platform.\r\n");
+        (void)Serial.printf("Failed to initialize the platform.\r\n");
         return;
     }
 
     if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
-        (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
+        (void)Serial.printf("ERROR: iotHubClientHandle is NULL!\r\n");
         return;
     }
     bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
-        printf("failure to set option \"TrustedCerts\"\r\n");
+        (void)Serial.printf("failure to set option \"TrustedCerts\"\r\n");
         return;
     }
 
     /* Setting Message call back, so we can receive Commands. */
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, ReceiveMessageCallback, &receiveContext) != IOTHUB_CLIENT_OK)
     {
-        (void)printf("ERROR: IoTHubClient_LL_SetMessageCallback..........FAILED!\r\n");
+        (void)Serial.printf("ERROR: IoTHubClient_LL_SetMessageCallback..........FAILED!\r\n");
         return;
     }
 }
@@ -141,16 +140,17 @@ void iothub_client_sample_send_event(const unsigned char *text)
     defaultMessage.messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
     defaultMessage.messageTrackingId ++;
     if (defaultMessage.messageHandle == NULL) {
-        (void)printf("ERROR: iotHubMessageHandle is NULL!\r\n");
+        (void)Serial.printf("ERROR: iotHubMessageHandle is NULL!\r\n");
         return;
     }
     if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, defaultMessage.messageHandle, SendConfirmationCallback, &defaultMessage) != IOTHUB_CLIENT_OK)
     {
-        (void)printf("ERROR: IoTHubClient_LL_SendEventAsync..........FAILED!\r\n");
+        (void)Serial.printf("ERROR: IoTHubClient_LL_SendEventAsync..........FAILED!\r\n");
         return;
     }
-    (void)printf("IoTHubClient_LL_SendEventAsync accepted messagefor transmission to IoT Hub.\r\n");
+    (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted messagefor transmission to IoT Hub.\r\n");
 }
+
 void iothub_client_sample_mqtt_loop(void)
 {
     IoTHubClient_LL_DoWork(iotHubClientHandle);

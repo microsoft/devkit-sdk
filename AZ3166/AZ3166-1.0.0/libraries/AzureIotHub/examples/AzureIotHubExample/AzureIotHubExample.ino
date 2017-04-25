@@ -5,12 +5,14 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 
-#define RGB_LED_BRIGHTNESS 16
+#define RGB_LED_BRIGHTNESS  16
+#define LOOP_DELAY          50
+#define HEARTBEAT_INTERVAL  (30000 / LOOP_DELAY)
 
 // 0 - idle
 // 1 - shaking
 // 2 - sending
-// 3 - waiting for tweets
+// 3 - recieved
 static int status;
 
 static boolean hasWifi;
@@ -21,8 +23,11 @@ static LSM6DSLSensor acc_gyro(ext_i2c, D4, D5);
 
 static RGB_LED rgbLed;
 
-static char msgBuff[200];
+static char msgHeader[20];
+static char msgBody[200];
 static int msgStart;
+
+static int heartbeat;
 
 void _SendConfirmationCallback(void)
 {
@@ -33,37 +38,38 @@ void _showMessage(const char *tweet, int lenTweet)
 {
   if (status > 1 && tweet != NULL)
   {
-    Screen.clean();
-    Screen.print(tweet, true);
-    
-    status = 0;
-    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
-    
     // Copy the body of the tweet, ignore the first line
-    boolean startCopy = false;
+    int i = 0;
     int j = 0;
-    for (int i = 0; i < lenTweet; i++)
+    // The header
+    for (; i < lenTweet; i++)
     {
-      if (!startCopy && tweet[i] == '\n')
-      {
-        startCopy = true;
-      }
-      else if (startCopy)
-      {
-        if (tweet[i] != '\r' && tweet[i] != '\n')
+        if(tweet[i] == '\n')
         {
-          msgBuff[j++] = tweet[i];
+            msgHeader[j] = 0;
+            break;
         }
+        msgHeader[j++] = tweet[i];
+    }
+    j = 0;
+    for (; i < lenTweet; i++)
+    {
+      if (tweet[i] != '\r' && tweet[i] != '\n')
+      {
+        msgBody[j++] = tweet[i];
       }
     }
-    msgBuff[j] = 0;
-    Serial.println(msgBuff);
+    msgBody[j] = 0;
+    Serial.println(msgBody);
     msgStart = 0;  // Enable scrolling
+    
+    status = 3;
   }
 }
 
 void SendEventToIoTHub()
 {
+  // Here the DeviceID is hardcoded, it shall be the same one in the IoT Hub connection string otherwise no tweets will come back
   iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"myDevice1\"}");
 }
 
@@ -113,23 +119,18 @@ static void InitBoard(void)
   acc_gyro.set_pedometer_threshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_LOW);
 }
 
-static void ScrollTweet(void)
+static void DoHeartBeat(void)
 {
-  if (msgStart >=0 && digitalRead(USER_BUTTON_B) == LOW)
+  if (heartbeat >= HEARTBEAT_INTERVAL)
   {
-    // Scroll it if Button B has been pressed
-    msgStart += 16;
-    if (msgStart >= strlen(msgBuff))
+    Serial.println(">>Heartbeat<<");
+    eventSent = false;
+    iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"Heartbeat\", \"event\":\"heartbeat\"}");
+    while (!eventSent)
     {
-        msgStart = 0;
+      iothub_client_sample_mqtt_loop();
     }
-        
-    // Clean the msg screen
-    Screen.print(1, "                     ");
-    Screen.print(2, "                     ");
-    Screen.print(3, "                     ");
-    // Update it
-    Screen.print(1, &msgBuff[msgStart], true);
+    heartbeat = 0;
   }
 }
 
@@ -145,18 +146,91 @@ void setup()
   Screen.print(3, " > IoT Hub           ");
   status = 0;
   msgStart = -1;
+  
   iothub_client_sample_mqtt_init();
-  eventSent = false;
-  SendEventToIoTHub();
+  
+  // Rune one heartbeat to warm up the Azure service
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-  while (!eventSent)
-  {
-    iothub_client_sample_mqtt_loop();
-  }
+  heartbeat = HEARTBEAT_INTERVAL;
+  DoHeartBeat();
   rgbLed.setColor(0, 0, 0);
   
   Screen.print(2, "Press A to Shake!    ");
   Screen.print(3, "                     ");
+}
+
+static void DoIdle(void)
+{
+    if (digitalRead(USER_BUTTON_A) == LOW)
+    {
+      acc_gyro.reset_step_counter();
+      Screen.print(0, "Azure IoT DevKit     ");
+      Screen.print(1, "  Shake!             ");
+      Screen.print(2, "     Shake!          ");
+      Screen.print(3, "        Shake!       ");
+      status = 1;
+      msgStart = -1;
+      rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
+      acc_gyro.reset_step_counter();
+    }
+    heartbeat++;
+}
+
+static void DoShake(void)
+{
+  uint16_t steps = 0;
+  acc_gyro.get_step_counter(&steps);
+  if (steps > 2)
+  {
+    // Trigger the twitter
+    SendEventToIoTHub();
+    status = 2;
+    heartbeat = 0;
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
+    Screen.print(1, "                     ");
+    Screen.print(2, " Processing...       ");
+    Screen.print(3, "                     ");
+  }
+  else
+  {
+    heartbeat++;
+  }
+}
+
+static void DoSending(void)
+{
+  iothub_client_sample_mqtt_loop();
+  heartbeat = 0;
+}
+
+static void DoRecived(void)
+{
+  // Show the tweet
+  Screen.clean();
+  Screen.print(0, msgHeader);
+  Screen.print(1, msgBody, true);
+  rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
+  status = 0;
+}
+
+static void ScrollTweet(void)
+{
+  if (msgStart >=0 && digitalRead(USER_BUTTON_B) == LOW)
+  {
+    // Scroll it if Button B has been pressed
+    msgStart += 16;
+    if (msgStart >= strlen(msgBody))
+    {
+        msgStart = 0;
+    }
+        
+    // Clean the msg screen
+    Screen.print(1, "                     ");
+    Screen.print(2, "                     ");
+    Screen.print(3, "                     ");
+    // Update it
+    Screen.print(1, &msgBody[msgStart], true);
+  }
 }
 
 void loop()
@@ -164,42 +238,25 @@ void loop()
   switch(status)
   {
     case 0:
-      if (digitalRead(USER_BUTTON_A) == LOW)
-      {
-        Screen.print(0, "Azure IoT DevKit     ");
-        Screen.print(1, "  Shake!             ");
-        Screen.print(2, "     Shake!          ");
-        Screen.print(3, "        Shake!       ");
-        status = 1;
-        msgStart = -1;
-        rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
-        acc_gyro.reset_step_counter();
-      }
+      DoIdle();
       break;
     
     case 1:
-      {
-        uint16_t steps = 0;
-        acc_gyro.get_step_counter(&steps);
-        if (steps > 2)
-        {
-          acc_gyro.reset_step_counter();
-          // Trigger the twitter
-          SendEventToIoTHub();
-          status = 2;
-          rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-          Screen.print(1, "                     ");
-          Screen.print(2, " Processing...       ");
-          Screen.print(3, "                     ");
-        }
-      }
+      DoShake();
       break;
       
     case 2:
-      iothub_client_sample_mqtt_loop();
+      DoSending();
+      break;
+      
+    case 3:
+      DoRecived();
       break;
   }
+  
   ScrollTweet();
   
-  delay(50);
+  DoHeartBeat();
+  
+  delay(LOOP_DELAY);
 }
