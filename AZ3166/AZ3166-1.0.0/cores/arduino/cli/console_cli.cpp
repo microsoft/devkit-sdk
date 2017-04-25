@@ -180,18 +180,27 @@ static void wifi_ssid_command(int argc, char **argv)
 
 static void wifi_pwd_Command(int argc, char **argv)
 {
-    if (argc == 1 || argv[1] == NULL) 
+    char* pwd = NULL;
+    if (argc == 1)
     {
-        Serial.printf("Usage: set_wifipwd <password>. Please provide the password of the Wi-Fi.\r\n");
-        return;
+        pwd = "";
     }
-    int len = strlen(argv[1]);
-    if (len == 0 || len > WIFI_PWD_MAX_LEN)
+    else
     {
-        Serial.printf("Invalid Wi-Fi password.\r\n");
+        if (argv[1] == NULL) 
+        {
+            Serial.printf("Usage: set_wifipwd [password]. Please provide the password of the Wi-Fi.\r\n");
+            return;
+        }
+        int len = strlen(argv[1]);
+        if (len == 0 || len > WIFI_PWD_MAX_LEN)
+        {
+            Serial.printf("Invalid Wi-Fi password.\r\n");
+        }
+        pwd = argv[1];
     }
-    
-    int result = write_eeprom(argv[1], WIFI_PWD_ZONE_IDX);
+        
+    int result = write_eeprom(pwd, WIFI_PWD_ZONE_IDX);
     if (result == 0)
     {
         Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
