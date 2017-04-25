@@ -10,7 +10,7 @@ MXCHIP_AZ3166.name=MXCHIP AZ3166
 MXCHIP_AZ3166.upload.tool=openocd
 MXCHIP_AZ3166.upload.protocol=openocd
 MXCHIP_AZ3166.upload.maximum_size=1048576
-MXCHIP_AZ3166.upload.maximum_data_size=131072
+MXCHIP_AZ3166.upload.maximum_data_size=262144
 
 MXCHIP_AZ3166.build.mcu=cortex-m4	
 MXCHIP_AZ3166.build.board=MXCHIP_AZ3166
