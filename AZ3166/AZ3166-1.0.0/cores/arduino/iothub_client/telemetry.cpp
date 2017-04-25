@@ -94,10 +94,11 @@ void do_trace_telemetry()
 
     _ctime = ctime(&t);
     _ctime[strlen(_ctime) - 1] = 0;
+    
     sprintf(body, BODY_TEMPLATE, KEYWORD, VERSION, MCU, telemetry->message, HASH_MAC, HASH_IOTHUB, telemetry->event, _ctime, EVENT, IKEY);
     HTTPClient *request = new HTTPClient(HTTP_POST, PATH);
     Http_Response *response = request->send(body, strlen(body));
-
+    
     free(telemetry);
     free(response->status_message);
     free(response->body);
