@@ -63,10 +63,10 @@ bool SystemWiFiConnect(void)
     else
     {
         Serial.printf("Wi-Fi %s connected.\r\n", ssid);
+        // Initialize the telemtry only after Wi-Fi established
+        telemetry_init();
         return true;
     }
-    // Initialize the telemtry only after Wi-Fi established
-    telemetry_init();
 }
 
 const char* SystemWiFiSSID(void)
