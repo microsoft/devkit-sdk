@@ -91,6 +91,16 @@ recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
 
 # Uploader tool
 # -------------------
+#Upload to Nucleo via openocd
+tools.openocd.path={runtime.tools.openocd.path}
+tools.openocd.cmd=bin/openocd
+tools.openocd.cmd.windows=bin/openocd.exe
+
+tools.openocd.upload.params.verbose=-d2
+tools.openocd.upload.params.quiet=-d0
+
+tools.openocd.upload.pattern="{path}/{cmd}" -f "{path}/scripts/interface/stlink-v2-1.cfg" -c 'transport select hla_swd' -f "{path}/scripts/target/stm32f4x.cfg" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x8008000; shutdown"
+
 
 # stlink upload
 tools.stlink_upload.cmd=stlink_upload
