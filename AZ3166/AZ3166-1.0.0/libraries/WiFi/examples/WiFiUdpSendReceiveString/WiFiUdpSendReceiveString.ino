@@ -5,22 +5,18 @@
  This sketch wait an UDP packet on localPort using a WiFi shield.
  When a packet is received an Acknowledge packet is sent to the client on port remotePort
 
- Circuit:
- * WiFi shield attached
-
  created 30 December 2012
  by dlf (Metodo2 srl)
 
  */
 
 
-#include <SPI.h>
-#include <WiFi.h>
-#include <WiFiUdp.h>
+#include <AZ3166WiFi.h>
+#include <AZ3166WiFiUdp.h>
 
 int status = WL_IDLE_STATUS;
-char ssid[] = "yourNetwork"; //  your network SSID (name)
-char pass[] = "secretPassword";    // your network password (use for WPA, or use as key for WEP)
+char ssid[] = "mynetwork";  //  your network SSID (name)
+char pass[] = "mypassword";       // your network password
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
 
 unsigned int localPort = 2390;      // local port to listen on
@@ -32,11 +28,8 @@ WiFiUDP Udp;
 
 void setup() {
   //Initialize serial and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-
+  Serial.begin(115200);
+  
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
@@ -44,17 +37,15 @@ void setup() {
     while (true);
   }
 
-  String fv = WiFi.firmwareVersion();
-  if (fv != "1.1.0") {
-    Serial.println("Please upgrade the firmware");
-  }
+  const char* fv = WiFi.firmwareVersion();
+  Serial.printf("Wi-Fi firmware: %s\r\n", fv);
 
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    status = WiFi.begin(ssid);
+    status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
     delay(10000);
@@ -90,7 +81,7 @@ void loop() {
 
     // send a reply, to the IP address and port that sent us the packet we received
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write(ReplyBuffer);
+    Udp.write((const uint8_t *)ReplyBuffer, sizeof(ReplyBuffer));
     Udp.endPacket();
   }
 }

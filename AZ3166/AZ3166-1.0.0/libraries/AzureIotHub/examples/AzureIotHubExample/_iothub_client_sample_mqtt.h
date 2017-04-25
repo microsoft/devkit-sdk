@@ -7,5 +7,7 @@
 void iothub_client_sample_mqtt_init(void);
 void iothub_client_sample_send_event(const unsigned char *text);
 void iothub_client_sample_mqtt_loop(void);
-void showMessage(const char* tweet);
+
+void _showMessage(const char* tweet, int lenTweet);
+void _SendConfirmationCallback(void);
 #endif /* IOTHUB_CLIENT_SAMPLE_MQTT_H */

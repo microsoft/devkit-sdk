@@ -101,8 +101,7 @@ static void EnterUserMode()
     
     // Arduino setup function
     setup();
-    telemetry_init();
-
+    
     for (;;)
     {
         // Arduino loop function

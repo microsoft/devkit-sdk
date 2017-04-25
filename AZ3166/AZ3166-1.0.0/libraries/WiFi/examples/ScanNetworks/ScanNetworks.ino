@@ -15,7 +15,7 @@
  */
 
 
-#include <WiFi.h>
+#include <AZ3166WiFi.h>
 
 void setup() {
   //Initialize serial and wait for port to open:
@@ -28,10 +28,8 @@ void setup() {
     while (true);
   }
 
-  String fv = WiFi.firmwareVersion();
-  if (fv != "1.1.0") {
-    Serial.println("Please upgrade the firmware");
-  }
+  const char* fv = WiFi.firmwareVersion();
+  Serial.printf("Wi-Fi firmware: %s\r\n", fv);
 
   // Print WiFi MAC address:
   printMacAddress();

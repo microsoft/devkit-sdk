@@ -3,16 +3,13 @@
  This example connects to an unencrypted Wifi network.
  Then it prints the  MAC address of the Wifi shield,
  the IP address obtained, and other network details.
-
- Circuit:
- * WiFi shield attached
-
+ 
  created 13 July 2010
  by dlf (Metodo2 srl)
  modified 31 May 2012
  by Tom Igoe
  */
-#include <WiFi.h>
+#include <AZ3166WiFi.h>
 
 char ssid[] = "yourNetwork";     //  your network SSID (name)
 char pass[] = "secretPassword";  // your network password
@@ -29,10 +26,8 @@ void setup() {
     while (true);
   }
 
-  String fv = WiFi.firmwareVersion();
-  if (fv != "1.1.0") {
-    Serial.println("Please upgrade the firmware");
-  }
+  const char* fv = WiFi.firmwareVersion();
+  Serial.printf("Wi-Fi firmware: %s\r\n", fv);
 
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {

@@ -5,7 +5,6 @@
 #include "Queue.h"
 #include "Thread.h"
 #include "md5.h"
-#include "base64.h"
 
 #ifdef _cplusplus
 extern "C" {
@@ -13,26 +12,28 @@ extern "C" {
 
 #include "Arduino.h"
 #include "telemetry.h"
-#include "azure_c_shared_utility/xlogging.h"
+#include "SystemWiFi.h"
 
 #define STACK_SIZE 0x2000
 #define IOTHUB_NAME_MAX_LEN 52
 #define MAX_MESSAGE_SIZE 128
 
 extern NetworkInterface *network;
+static Thread TELEMETRY_THREAD(osPriorityNormal, STACK_SIZE, NULL);
+static char HASH_MAC[33] = {NULL};
+static char HASH_IOTHUB[33] = {NULL};
 
-static const char *body_template = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
+static const char *PATH = "https://dc.services.visualstudio.com/v2/track";
+static const char *IKEY = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
+static const char *EVENT = "AIEVENT";
+static const char *KEYWORD = "AZ3166";
+static const char *VERSION = "0.8.0";
+static const char *MCU = "STM32F412";
+static const char *BODY_TEMPLATE = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
                                    "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":"
                                    "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"
                                    "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}";
-static Thread ai_thread(osPriorityNormal, STACK_SIZE, NULL);
-static char hash_mac_addr[33];
-static const char *ai_endpoint = "https://dc.services.visualstudio.com/v2/track";
-static const char *ikey = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
-static const char *ai_event = "AIEVENT";
-static const char *keyword = "AZ3166";
-static const char *hardware_v = "1.0.0";
-static const char *mcu_type = "STM32F412";
+static const char HEX_STR[] = "0123456789abcdef";
 
 struct Telemetry
 {
@@ -64,7 +65,8 @@ void hash(char *result, const char *input)
     int i = 0;
     for (i = 0; i < 16; i++)
     {
-        sprintf(result + i * 2, "%02x", output[i]);
+        result[i * 2] = HEX_STR[(output[i] >> 4) & 0x0F];
+        result[i * 2 + 1] = HEX_STR[(output[i]) & 0x0F];
     }
     result[i * 2] = 0;
 }
@@ -74,33 +76,39 @@ void do_trace_telemetry()
     osEvent evt = queue.get();
     if (evt.status != osEventMessage)
     {
+        wait_ms(500);
         return;
     }
+    SyncTime();
 
-    char serialized_body[512];
+    char body[512];
     char *_ctime;
     time_t t;
     time(&t);
     struct Telemetry *telemetry = (Telemetry *)evt.value.p;
-    char hash_iothub_name[33];
-    hash(hash_iothub_name, telemetry->iothub);
-    _ctime = (char *)ctime(&t);
+
+    if (!HASH_IOTHUB[0])
+    {
+        hash(HASH_IOTHUB, telemetry->iothub);
+    }
+
+    _ctime = ctime(&t);
     _ctime[strlen(_ctime) - 1] = 0;
-    sprintf(serialized_body, body_template, keyword, hardware_v, mcu_type, telemetry->message,
-            hash_mac_addr, hash_iothub_name, telemetry->event, _ctime, ai_event, ikey);
-
-    HTTPClient *client = new HTTPClient(HTTP_POST, ai_endpoint);
-    client->set_header("Content-Type", "application/json");
-    client->set_header("Connection", "keep-alive");
-    client->send(serialized_body, strlen(serialized_body));
-
+    
+    sprintf(body, BODY_TEMPLATE, KEYWORD, VERSION, MCU, telemetry->message, HASH_MAC, HASH_IOTHUB, telemetry->event, _ctime, EVENT, IKEY);
+    HTTPClient *request = new HTTPClient(HTTP_POST, PATH);
+    Http_Response *response = request->send(body, strlen(body));
+    
     free(telemetry);
-    delete client;
+    free(response->status_message);
+    free(response->body);
+    delete request;
+    delete response;
 }
 
 static void trace_telemetry()
 {
-    hash(hash_mac_addr, network->get_mac_address());
+    hash(HASH_MAC, network->get_mac_address());
     while (true)
     {
         do_trace_telemetry();
@@ -109,10 +117,10 @@ static void trace_telemetry()
 
 void telemetry_init()
 {
-    if (network != NULL)
-    {
-         ai_thread.start(trace_telemetry);
-    }
+    // Sync up the date
+    SyncTime();
+    // Start the telemetry thread
+    TELEMETRY_THREAD.start(trace_telemetry);
 }
 
 #ifdef _cplusplus

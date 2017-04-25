@@ -15,6 +15,8 @@
 #include "SystemWiFi.h"
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
+#include "NTPClient.h"
+#include "telemetry.h"
 
 NetworkInterface *network = NULL;
 static char ssid[WIFI_SSID_MAX_LEN + 1] = { 0 };
@@ -61,6 +63,8 @@ bool SystemWiFiConnect(void)
     else
     {
         Serial.printf("Wi-Fi %s connected.\r\n", ssid);
+        // Initialize the telemtry only after Wi-Fi established
+        telemetry_init();
         return true;
     }
 }
@@ -82,6 +86,12 @@ int WiFiScan(WiFiAccessPoint *res, unsigned count)
         return ((EMW10xxInterface*)network)->scan(res, count);
     }
     return 0;
+}
+
+void SyncTime(void)
+{
+    NTPClient ntp(*network);
+    ntp.setTime("0.pool.ntp.org");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
