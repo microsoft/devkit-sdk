@@ -19,6 +19,9 @@
 #define __HTTPS_REQUEST_H__
 
 #include "http_common.h"
+#include "http_response.h"
+#include "http_header_builder.h"
+#include "http_parsed_url.h"
 
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
@@ -78,7 +81,7 @@ public:
      * @param[in] key Header key
      * @param[in] value Header value
      */
-    void set_header(string key, string value);
+    void set_header(const char* key, const char* value);
 
     /**
      * Get the error code.

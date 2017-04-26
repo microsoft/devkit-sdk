@@ -19,6 +19,7 @@
 #define _HTTP_RESPONSE_PARSER_H_
 
 #include "http_common.h"
+#include "http_response.h"
 
 class HttpResponseParser 
 {
@@ -31,7 +32,7 @@ public:
 
     void finish();
 
-private:
+public:
     // Member functions
     int on_message_begin(http_parser* parser);
     int on_url(http_parser* parser, const char *at, size_t length);
@@ -44,18 +45,7 @@ private:
     int on_chunk_header(http_parser* parser);
     int on_chunk_complete(http_parser* parser);
 
-    // Static http_parser callback functions
-    static int on_message_begin_callback(http_parser* parser);
-    static int on_url_callback(http_parser* parser, const char *at, size_t length);
-    static int on_status_callback(http_parser* parser, const char *at, size_t length);
-    static int on_header_field_callback(http_parser* parser, const char *at, size_t length);
-    static int on_header_value_callback(http_parser* parser, const char *at, size_t length);
-    static int on_headers_complete_callback(http_parser* parser);
-    static int on_body_callback(http_parser* parser, const char *at, size_t length);
-    static int on_message_complete_callback(http_parser* parser);
-    static int on_chunk_header_callback(http_parser* parser);
-    static int on_chunk_complete_callback(http_parser* parser);
-    
+private:
     Callback<void(const char *at, size_t length)> body_callback;
     http_parser parser;
     http_parser_settings settings;

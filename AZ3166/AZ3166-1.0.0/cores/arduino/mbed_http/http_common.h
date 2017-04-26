@@ -20,11 +20,16 @@
 
 #define DEBUG_LEVEL 0
 
+typedef struct _tagKeyValue
+{
+    char* key;
+    char* value;
+    
+    struct _tagKeyValue* prev;
+} KEYVALUE;
+
+#include "mbed.h"
 #include "http_parser.h"
-#include "http_response.h"
-#include "http_header_builder.h"
-#include "http_response_parser.h"
-#include "http_parsed_url.h"
 
 #if DEBUG_LEVEL > 0
 #define ERROR(x) do { print("ERROR: "); print(x); print("\r\n"); } while(0);
@@ -40,12 +45,5 @@
 
 #define HTTP_RECEIVE_BUFFER_SIZE 2048
 
-typedef struct _tagKeyValue
-{
-    char* key;
-    char* value;
-    
-    struct _tagKeyValue* prev;
-} KEYVALUE;
-    
+
 #endif // __HTTPS_COMMON_H__

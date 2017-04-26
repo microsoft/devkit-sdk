@@ -22,7 +22,7 @@ HttpHeaderBuilder::HttpHeaderBuilder(http_method method, ParsedUrl* parsed_url)
 {
     _method = method;
     _parsed_url = parsed_url;
-    set_header("Host", string(parsed_url->host()));
+    set_header("Host", _parsed_url->host());
     
     headers = NULL;
 }
@@ -43,7 +43,7 @@ HttpHeaderBuilder::~HttpHeaderBuilder()
  * Set a header for the request
  * If the key already exists, it will be overwritten...
  */
-void HttpHeaderBuilder::set_header(string key, string value)
+void HttpHeaderBuilder::set_header(const char* key, const char* value)
 {
     if (key == NULL || value == NULL)
     {
@@ -74,17 +74,17 @@ void HttpHeaderBuilder::set_header(string key, string value)
 
 char* HttpHeaderBuilder::build(size_t body_size, size_t &size)
 {
-    const char* method_str = http_method_str(method);
+    const char* method_str = http_method_str(_method);
 
-    if (method == HTTP_POST || method == HTTP_PUT) 
+    if (_method == HTTP_POST || _method == HTTP_PUT) 
     {
         char buffer[10];
         snprintf(buffer, 10, "%d", body_size);
-        set_header("Content-Length", string(buffer));
+        set_header("Content-Length", buffer);
     }
 
     // first line is METHOD PATH+QUERY HTTP/1.1\r\n
-    int len_first_line = strlen(method_str) + 1 + strlen(parsed_url->path()) + (strlen(parsed_url->query()) ? strlen(parsed_url->query()) + 1 : 0) + 1 + 8 + 2;
+    int len_first_line = strlen(method_str) + 1 + strlen(_parsed_url->path()) + (strlen(_parsed_url->query()) ? strlen(_parsed_url->query()) + 1 : 0) + 1 + 8 + 2;
     size += len_first_line;
 
     // after that we'll do the headers
@@ -107,12 +107,12 @@ char* HttpHeaderBuilder::build(size_t body_size, size_t &size)
     }
     char* originalReq = req;
 
-    if (strlen(parsed_url->query())) 
+    if (strlen(_parsed_url->query())) 
     {
-        sprintf(req, "%s %s?%s HTTP/1.1\r\n", method_str, parsed_url->path(), parsed_url->query());
+        sprintf(req, "%s %s?%s HTTP/1.1\r\n", method_str, _parsed_url->path(), _parsed_url->query());
     } else 
     {
-        sprintf(req, "%s %s%s HTTP/1.1\r\n", method_str, parsed_url->path(), parsed_url->query());
+        sprintf(req, "%s %s%s HTTP/1.1\r\n", method_str, _parsed_url->path(), _parsed_url->query());
     }
     req += len_first_line;
 

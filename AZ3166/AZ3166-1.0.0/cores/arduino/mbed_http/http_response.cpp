@@ -56,7 +56,7 @@ void HttpResponse::set_status(int a_status_code, const char *status_message_at, 
         {
             free(status_message);
         }
-        status_message = malloc(status_message_length + 1);
+        status_message = (char*)malloc(status_message_length + 1);
         memcpy(status_message, status_message_at, status_message_length);
         status_message[status_message_length] = 0;
     }
@@ -67,7 +67,7 @@ int HttpResponse::get_status_code()
     return status_code;
 }
 
-string HttpResponse::get_status_message()
+const char* HttpResponse::get_status_message()
 {
     return status_message;
 }
@@ -82,7 +82,7 @@ void HttpResponse::set_header_field(const char* field_at, size_t length)
     concat_header_value = false;
     
     // headers can be chunked
-    char* key = malloc(length + 1);
+    char* key = (char*)malloc(length + 1);
     memcpy(key, field_at, length);
     key[length] = 0;
     if (concat_header_field) 
@@ -116,7 +116,7 @@ void HttpResponse::set_header_value(const char* value_at, size_t length)
     concat_header_field = false;
 
     // headers can be chunked
-    char* value = malloc(length + 1);
+    char* value = (char*)malloc(length + 1);
     memcpy(value, value_at, length);
     value[length] = 0;
     if (concat_header_value) 
@@ -155,7 +155,7 @@ void HttpResponse::set_body(const char* at, size_t length)
     if(body != NULL)
     {
         int len1 = strlen(body);
-        char* bd = malloc(len1 + length + 1);
+        char* bd = (char*)malloc(len1 + length + 1);
         memcpy(bd, body, len1);
         memcpy(&bd[len1], at, length);
         bd[len1 + length] = 0;
@@ -164,13 +164,13 @@ void HttpResponse::set_body(const char* at, size_t length)
     }
     else
     {
-        body = malloc(length + 1);
+        body = (char*)malloc(length + 1);
         memcpy(body, at, length);
         body[length] = 0;
     }
 }
 
-string HttpResponse::get_body()
+const char* HttpResponse::get_body()
 {
     return body;
 }

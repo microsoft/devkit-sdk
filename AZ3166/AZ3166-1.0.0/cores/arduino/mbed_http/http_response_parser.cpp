@@ -20,52 +20,52 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Response callback funcctions
-static int HttpResponseParser::on_message_begin_callback(http_parser* parser) 
+static int on_message_begin_callback(http_parser* parser) 
 {
     return ((HttpResponseParser*)parser->data)->on_message_begin(parser);
 }
 
-static int HttpResponseParser::on_url_callback(http_parser* parser, const char *at, size_t length) 
+static int on_url_callback(http_parser* parser, const char *at, size_t length) 
 {
     return ((HttpResponseParser*)parser->data)->on_url(parser, at, length);
 }
 
-static int HttpResponseParser::on_status_callback(http_parser* parser, const char *at, size_t length) 
+static int on_status_callback(http_parser* parser, const char *at, size_t length) 
 {
     return ((HttpResponseParser*)parser->data)->on_status(parser, at, length);
 }
 
-static int HttpResponseParser::on_header_field_callback(http_parser* parser, const char *at, size_t length) 
+static int on_header_field_callback(http_parser* parser, const char *at, size_t length) 
 {
     return ((HttpResponseParser*)parser->data)->on_header_field(parser, at, length);
 }
 
-static int HttpResponseParser::on_header_value_callback(http_parser* parser, const char *at, size_t length) 
+static int on_header_value_callback(http_parser* parser, const char *at, size_t length) 
 {
     return ((HttpResponseParser*)parser->data)->on_header_value(parser, at, length);
 }
 
-static int HttpResponseParser::on_headers_complete_callback(http_parser* parser) 
+static int on_headers_complete_callback(http_parser* parser) 
 {
     return ((HttpResponseParser*)parser->data)->on_headers_complete(parser);
 }
 
-static int HttpResponseParser::on_body_callback(http_parser* parser, const char *at, size_t length) 
+static int on_body_callback(http_parser* parser, const char *at, size_t length) 
 {
     return ((HttpResponseParser*)parser->data)->on_body(parser, at, length);
 }
 
-static int HttpResponseParser::on_message_complete_callback(http_parser* parser) 
+static int on_message_complete_callback(http_parser* parser) 
 {
     return ((HttpResponseParser*)parser->data)->on_message_complete(parser);
 }
 
-static int HttpResponseParser::on_chunk_header_callback(http_parser* parser) 
+static int on_chunk_header_callback(http_parser* parser) 
 {
     return ((HttpResponseParser*)parser->data)->on_chunk_header(parser);
 }
 
-static int HttpResponseParser::on_chunk_complete_callback(http_parser* parser) 
+static int on_chunk_complete_callback(http_parser* parser) 
 {
     return ((HttpResponseParser*)parser->data)->on_chunk_complete(parser);
 }
@@ -73,16 +73,16 @@ static int HttpResponseParser::on_chunk_complete_callback(http_parser* parser)
 // Class
 HttpResponseParser::HttpResponseParser(HttpResponse* a_response, Callback<void(const char *at, size_t length)> a_body_callback)
 {
-    settings.on_message_begin = &HttpResponseParser::on_message_begin_callback;
-    settings.on_url = &HttpResponseParser::on_url_callback;
-    settings.on_status = &HttpResponseParser::on_status_callback;
-    settings.on_header_field = &HttpResponseParser::on_header_field_callback;
-    settings.on_header_value = &HttpResponseParser::on_header_value_callback;
-    settings.on_headers_complete = &HttpResponseParser::on_headers_complete_callback;
-    settings.on_chunk_header = &HttpResponseParser::on_chunk_header_callback;
-    settings.on_chunk_complete = &HttpResponseParser::on_chunk_complete_callback;
-    settings.on_body = &HttpResponseParser::on_body_callback;
-    settings.on_message_complete = &HttpResponseParser::on_message_complete_callback;
+    settings.on_message_begin = on_message_begin_callback;
+    settings.on_url = on_url_callback;
+    settings.on_status = on_status_callback;
+    settings.on_header_field = on_header_field_callback;
+    settings.on_header_value = on_header_value_callback;
+    settings.on_headers_complete = on_headers_complete_callback;
+    settings.on_chunk_header = on_chunk_header_callback;
+    settings.on_chunk_complete = on_chunk_complete_callback;
+    settings.on_body = on_body_callback;
+    settings.on_message_complete = on_message_complete_callback;
 
     // Construct the http_parser object
     http_parser_init(&parser, HTTP_RESPONSE);
@@ -95,12 +95,12 @@ HttpResponseParser::~HttpResponseParser()
 
 size_t HttpResponseParser::execute(const char* buffer, size_t buffer_size)
 {
-    return http_parser_execute(parser, settings, buffer, buffer_size);
+    return http_parser_execute(&parser, &settings, buffer, buffer_size);
 }
 
 void HttpResponseParser::finish()
 {
-    http_parser_execute(parser, settings, NULL, 0);
+    http_parser_execute(&parser, &settings, NULL, 0);
 }
 
 int HttpResponseParser::on_message_begin(http_parser* parser)

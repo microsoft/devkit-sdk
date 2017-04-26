@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 #include "https_request.h"
- 
-#define TLS_CUNSTOM "Arduino TLS client"
+#include "http_response_parser.h"
 
+#define TLS_CUNSTOM "Arduino TLS client"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // SSL callback
@@ -126,7 +126,7 @@ HttpsRequest::HttpsRequest(NetworkInterface* net_iface,
                            Callback<void(const char *at, size_t length)> body_callback)
     : _parsed_url(url),
       _tcpsocket(net_iface),
-      _headerBuilder(method, _parsed_url)
+      _headerBuilder(method, &_parsed_url)
 {
     _response = NULL;
     _ssl_ca_pem = ssl_ca_pem;
@@ -177,8 +177,8 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
      */
     int ret;
     if ((ret = mbedtls_ctr_drbg_seed(&_ctr_drbg, mbedtls_entropy_func, &_entropy,
-                      (const unsigned char *) DRBG_PERS,
-                      sizeof (DRBG_PERS))) != 0)
+                      (const unsigned char *) TLS_CUNSTOM,
+                      sizeof (TLS_CUNSTOM))) != 0)
     {
         ERROR("mbedtls_crt_drbg_init");
         _error = ret;
@@ -244,7 +244,7 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
         if (ret != MBEDTLS_ERR_SSL_WANT_READ &&
             ret != MBEDTLS_ERR_SSL_WANT_WRITE) 
         {
-            ERROR("mbedtls_ssl_handshake", ret);
+            ERROR("mbedtls_ssl_handshake");
             ret = -1;
         }
         
@@ -254,7 +254,7 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
     
     /* Send the HTTP header */
     size_t request_size = 0;
-    char* request = _headerBuilder->build(body_size, request_size);   
+    char* request = _headerBuilder.build(body_size, request_size);   
     ret = mbedtls_ssl_write(&_ssl, (const unsigned char *)request, request_size);
     if (check_mbedtls_ssl_write(ret)) 
     {
@@ -282,21 +282,21 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
         return NULL;
     }
     
-    char buf = new char[1024];
+    char buf[1024];
     mbedtls_x509_crt_info(buf, sizeof(buf), "\r    ", mbedtls_ssl_get_peer_cert(&_ssl));
     buf[sizeof(buf) - 1] = 0;
-    Info("Server certificate:");
-    Info(buf);
+    INFO("Server certificate:");
+    INFO(buf);
 
     uint32_t flags = mbedtls_ssl_get_verify_result(&_ssl);
     if( flags != 0 )
     {
-        mbedtls_x509_crt_verify_info(buf, buf_size, "\r  ! ", flags);
+        mbedtls_x509_crt_verify_info(buf, 1024, "\r  ! ", flags);
         ERROR("Certificate verification failed");
     }
     else 
     {
-        Info("Certificate verification passed");
+        INFO("Certificate verification passed");
     }
 
     // Create a response object
@@ -379,7 +379,7 @@ bool HttpsRequest::check_mbedtls_ssl_write(int ret)
  * @param[in] key Header key
  * @param[in] value Header value
  */
-void HttpsRequest::set_header(string key, string value)
+void HttpsRequest::set_header(const char* key, const char* value)
 {
     _headerBuilder.set_header(key, value);
 }

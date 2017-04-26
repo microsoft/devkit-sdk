@@ -19,6 +19,7 @@
 #define _HTTP_HEADER_BUILDER_H_
 
 #include "http_common.h"
+#include "http_parsed_url.h"
 
 class HttpHeaderBuilder 
 {
@@ -30,7 +31,7 @@ public:
      * Set a header for the request
      * If the key already exists, it will be overwritten...
      */
-    void set_header(string key, string value);
+    void set_header(const char* key, const char* value);
 
     char* build(size_t body_size, size_t &size);
 
