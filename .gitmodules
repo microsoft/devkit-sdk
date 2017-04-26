@@ -1,6 +1,3 @@
 [submodule "AZ3166/AZ3166-1.0.0/libraries/Sensors"]
 	path = AZ3166/AZ3166-1.0.0/libraries/Sensors
 	url = https://github.com/VSChina/Sensors
-[submodule "AZ3166/AZ3166-1.0.0/cores/arduino/IoT-Cognitive"]
-	path = AZ3166/AZ3166-1.0.0/cores/arduino/IoT-Cognitive
-	url = https://github.com/VSChina/IoT-Cognitive
