@@ -1,0 +1,49 @@
+#######################################
+# Syntax Coloring Map For WiFi
+#######################################
+
+#######################################
+# Library (KEYWORD1)
+#######################################
+
+LSM6DSLSensor	KEYWORD1	LSM6DSLSensor
+HTS221Sensor	KEYWORD1	HTS221Sensor
+LIS3MDL	KEYWORD1	LIS3MDL
+LPS25H	KEYWORD1	LPS25H
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+enable_x	KEYWORD2
+get_x_axes	KEYWORD2
+get_g_axes	KEYWORD2
+get_x_sensitivity	KEYWORD2
+get_g_sensitivity	KEYWORD2
+get_x_axes_raw	KEYWORD2
+get_g_axes_raw	KEYWORD2
+get_x_odr	KEYWORD2
+get_g_odr	KEYWORD2
+get_x_fs	KEYWORD2
+get_g_fs	KEYWORD2
+set_g_odr	KEYWORD2
+set_x_odr	KEYWORD2
+set_x_fs	KEYWORD2
+set_g_fs	KEYWORD2
+get_m_axes	KEYWORD2 LIS2MDL
+get_m_axes_raw	KEYWORD2 LIS2MDL
+init	KEYWORD2 LIS2MDL
+PowerOff		KEYWORD2 LIS2MDL
+read_id	KEYWORD2 LPS25H
+Reset	KEYWORD2 LPS25H
+get_pressure	KEYWORD2 LPS25H
+get_temperature	KEYWORD2 LPS25H
+init	KEYWORD2	HTS221Sensor
+get_humidity	KEYWORD2	HTS221Sensor
+get_temperature		KEYWORD2	HTS221Sensor
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
