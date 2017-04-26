@@ -92,8 +92,9 @@ recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
 # Uploader tool
 # -------------------
 #Upload to Nucleo via openocd
-tools.openocd.path={runtime.tools.openocd.path}
-tools.openocd.cmd=bin/openocd
+tools.openocd.path.windows={runtime.tools.openocd.path}
+tools.openocd.path.macosx={runtime.tools.openocd.path}/macosx
+tools.openocd.cmd.macosx=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
@@ -106,7 +107,7 @@ tools.openocd.upload.pattern="{path}/{cmd}" -f "{path}/scripts/interface/stlink-
 tools.stlink_upload.cmd=stlink_upload
 tools.stlink_upload.cmd.windows=stlink_upload.bat
 tools.stlink_upload.path.windows={runtime.tools.st-flash.path}/tools/win
-tools.stlink_upload.path.macosx={runtime.tools.st-flash.path}/tools/macosx
+tools.stlink_upload.path.macosx={runtime.tools.st-flash.path}/macosx
 tools.stlink_upload.path.linux={runtime.tools.st-flash.path}/tools/linux
 tools.stlink_upload.path.linux64={runtime.tools.st-flash.path}/tools/linux64
 tools.stlink_upload.upload.params.verbose=-d
