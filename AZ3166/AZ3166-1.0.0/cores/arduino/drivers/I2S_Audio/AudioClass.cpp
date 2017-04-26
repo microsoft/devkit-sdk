@@ -114,7 +114,7 @@ bool AudioClass::recordComplete()
 /*
  * @brief compose the WAVE header according to the raw data size
  */
-WaveHeader* AudioClass::genericWAVHeader(int pcmDataSize)
+WaveHeader* AudioClass::genericWAVHeader(int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels)
 {
     WaveHeader *hdr;
     hdr = (WaveHeader *)malloc(sizeof(*hdr));
@@ -125,11 +125,11 @@ WaveHeader* AudioClass::genericWAVHeader(int pcmDataSize)
     memcpy(&hdr->format_marker, "fmt ", 4);
     hdr->data_header_length = 16;
     hdr->format_type = 1;
-    hdr->number_of_channels = m_channels;
-    hdr->sample_rate = m_sample_rate;
-    hdr->bytes_per_second = m_sample_rate * m_channels * m_bit_depth / 8;
-    hdr->bytes_per_frame = m_channels * m_bit_depth / 8;
-    hdr->bits_per_sample = m_bit_depth;
+    hdr->number_of_channels = channels;
+    hdr->sample_rate = sampleRate;
+    hdr->bytes_per_second = sampleRate * channels * sampleBitDepth / 8;
+    hdr->bytes_per_frame = channels * sampleBitDepth / 8;
+    hdr->bits_per_sample = sampleBitDepth;
     hdr->file_size = pcmDataSize + 36;
     memcpy(&hdr->data_chunck_id, "data", 4);
     hdr->data_chunck_size = pcmDataSize;
@@ -146,15 +146,55 @@ char * AudioClass::getWav(int *file_size)
     *file_size  = (int)currentSize;
 
     // write wave header for this audio file
-    WaveHeader * hdr = genericWAVHeader(currentSize - WAVE_HEADER_SIZE);
+    WaveHeader * hdr = genericWAVHeader(currentSize - WAVE_HEADER_SIZE, m_sample_rate, m_bit_depth, m_channels);
     memcpy(m_wavFile, hdr, sizeof(WaveHeader));
     delete hdr;
 
     return m_wavFile;
 }
 
+int AudioClass::convertToMono(char * audioFile, int size, uint8_t sampleBitLength)
+{
+    if (sampleBitLength != 16 && sampleBitLength != 24 && sampleBitLength != 32) {
+        printf("Error: value of sampleBitLength param is not supported.\r\n");
+        return -1;
+    }
+
+    if (audioFile == NULL || size < WAVE_HEADER_SIZE) {
+        printf("Error: input wave file is NULL or empty.\t\n");
+        return -1;
+    }
+
+    int bytesPerSample = sampleBitLength / 8;
+
+    char * curReader = audioFile + WAVE_HEADER_SIZE + bytesPerSample * 2;
+    char * curWriter = audioFile + WAVE_HEADER_SIZE + bytesPerSample;
+
+    while (curReader < audioFile + size) {
+        memcpy(curWriter, curReader, bytesPerSample);
+        curWriter += bytesPerSample;
+        curReader += bytesPerSample * 2;
+    }
+
+    int curFileSize = curWriter - audioFile;
+
+    // re-calculate wave header since the raw data is re-sized from stereo to mono
+    WaveHeader * hdr = genericWAVHeader(curFileSize - WAVE_HEADER_SIZE, m_sample_rate, m_bit_depth, 1);
+    memcpy(audioFile, hdr, sizeof(WaveHeader));
+    delete hdr;
+
+    // clean up the remaining file
+    //memset(curWriter, 0, audioFile + size - curWriter);
+
+    return curFileSize;
+}
+
 double AudioClass::getRecordedDuration()
 {
+    if (m_wavFile == NULL) {
+        return 0;
+    }
+
     int pcmDataSize = m_record_cursor - m_wavFile - WAVE_HEADER_SIZE;  
 
     int bytes_per_second = m_sample_rate * m_channels * m_bit_depth / 8;
@@ -163,6 +203,10 @@ double AudioClass::getRecordedDuration()
 
 int AudioClass::getCurrentSize()
 {
+    if (m_wavFile == NULL) {
+        return 0;
+    }
+    
     return m_record_cursor - m_wavFile;
 }
 
