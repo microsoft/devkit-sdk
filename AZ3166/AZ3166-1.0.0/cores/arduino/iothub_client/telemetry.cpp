@@ -119,7 +119,6 @@ void telemetry_init()
 {
     // Sync up the date
     SyncTime();
-    telemetry_enqueue("", "wifi connected", "");
     TELEMETRY_THREAD.start(trace_telemetry);
 }
 
