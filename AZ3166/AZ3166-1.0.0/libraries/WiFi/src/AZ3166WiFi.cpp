@@ -21,9 +21,9 @@
 
 #include "AZ3166WiFi.h"
 #include "wiring.h"
-#include "utility\wl_types.h"
+#include "utility/wl_types.h"
 #include "SystemWiFi.h"
-#include "utility\wl_definitions.h"
+#include "utility/wl_definitions.h"
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "mico.h"
