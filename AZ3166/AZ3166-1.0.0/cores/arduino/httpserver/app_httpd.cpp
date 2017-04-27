@@ -30,6 +30,7 @@
  ******************************************************************************
  */
 
+#include "EEPROMInterface.h"
 #include <httpd.h>
 #include "mico.h"
 #include "app_httpd.h"
@@ -39,7 +40,31 @@
 #define HTTPD_HDR_DEFORT (HTTPD_HDR_ADD_SERVER|HTTPD_HDR_ADD_CONN_CLOSE|HTTPD_HDR_ADD_PRAGMA_NO_CACHE)
 bool is_http_init;
 bool is_handlers_registered;
-struct httpd_wsgi_call g_app_handlers[];
+
+int write_eeprom(char* string, int idxZone)
+{
+  int result;
+  EEPROMInterface eeprom;
+  int len = strlen(string) + 1;
+    
+  // Write data to EEPROM
+  result = eeprom.write((uint8_t*)string, len, idxZone);
+  if (result) {
+    app_httpd_log("ERROR: Failed to write EEPROM");
+    return -1;
+  }
+    
+  // Verify
+  uint8_t *pBuff = (uint8_t*)malloc(len);
+  result = eeprom.read(pBuff, len, 0x00, idxZone);
+  if (result != len || strncmp(string, (char*)pBuff, len) != 0)
+  {
+    app_httpd_log("ERROR: Verify failed.\r\n");
+    return -1;
+  }
+  free(pBuff);
+  return 0;
+}
 
 int web_send_wifisetting_page(httpd_request_t *req)
 {
@@ -49,7 +74,7 @@ int web_send_wifisetting_page(httpd_request_t *req)
   char *ssid = "";
 
   setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + strlen(ssid) + 1;
-  setting_page = malloc(setting_page_len);
+  setting_page = (char *)malloc(setting_page_len);
   snprintf(setting_page, setting_page_len, "%s%s%s%s", page_head, wifi_setting_a, ssid, wifi_setting_b);
 
   err = httpd_send_all_header(req, HTTP_RES_200, setting_page_len, HTTP_CONTENT_HTML_STR);
@@ -71,7 +96,7 @@ int web_send_result(httpd_request_t *req, bool is_success)
   const char *result_body = is_success ? success_result : failed_result;
 
   result_page_len = strlen(page_head) + strlen(result_body) + 1;
-  result_page = malloc(result_page_len);
+  result_page = (char *)malloc(result_page_len);
   snprintf(result_page, result_page_len, "%s%s", page_head, result_body);
 
   err = httpd_send_all_header(req, HTTP_RES_200, result_page_len, HTTP_CONTENT_HTML_STR);
@@ -89,14 +114,14 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
 {
   OSStatus err = kNoErr;
   bool para_succ = false;
-  int buf_size = 512;
+  int buf_size = 512, len = 0;
   char *buf;
-  char value_ssid[maxSsidLen];
-  char value_pass[maxKeyLen];
+  char value_ssid[WIFI_SSID_MAX_LEN];
+  char value_pass[WIFI_PWD_MAX_LEN];
   char *boundary = NULL;
   // mico_Context_t* context = NULL;
 
-  buf = malloc(buf_size);
+  buf = (char *)malloc(buf_size);
   err = httpd_get_data(req, buf, buf_size);
   app_httpd_log("httpd_get_data return value: %d", err);
   require_noerr( err, Save_Out );
@@ -106,26 +131,41 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
     boundary = strstr(req->content_type, "boundary=");
     boundary += 9;
 
-    err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, maxSsidLen);
+    err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
     require_noerr( err, Save_Out );
 
     if(!strncmp(value_ssid, "\0", 1)) goto Save_Out;
 
-    err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, maxKeyLen);
+    err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
     require_noerr( err, Save_Out );
   }
   else // Post data is URL encoded
   {
-    err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, maxSsidLen);
+    err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
     require_noerr( err, Save_Out );
 
     if(!strncmp(value_ssid, "\0", 1)) goto Save_Out;
 
-    err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, maxKeyLen);
+    err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
     require_noerr( err, Save_Out );
   }
+  
+  len = strlen(value_ssid);
+  if (len == 0 || len > WIFI_SSID_MAX_LEN)
+  {
+    app_httpd_log("Invalid Wi-Fi SSID.\r\n");
+  }
+  err = write_eeprom(value_ssid, WIFI_SSID_ZONE_IDX);
+  require_noerr( err, Save_Out );
+  
+  len = strlen(value_pass);
+  if (len == 0 || len > WIFI_PWD_MAX_LEN)
+  {
+    app_httpd_log("Invalid Wi-Fi SSID.\r\n");
+  }
+  err = write_eeprom(value_pass, WIFI_PWD_ZONE_IDX);
+  require_noerr( err, Save_Out );
 
-  printf("<%s> <%s>\r\n", value_ssid, value_pass);
   para_succ = true;
   
 Save_Out:
