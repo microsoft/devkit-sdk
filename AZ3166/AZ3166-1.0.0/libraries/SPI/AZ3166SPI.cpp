@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 
-#include "SPI.h"
+#include "AZ3166SPI.h"
 
 
 SPIClass SPI;
