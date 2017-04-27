@@ -39,10 +39,11 @@ class AudioClass {
         double getRecordedDuration();
         int getCurrentSize();
         void stop();
+        int convertToMono(char * audioFile, int size, uint8_t sampleBitLength);
 
     private:
         void start(uint16_t * recordBuf, uint16_t * playBuf, uint32_t size);
-        WaveHeader * genericWAVHeader(int pcmDataSize);
+        void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels);
 };
 
 extern AudioClass Audio;
