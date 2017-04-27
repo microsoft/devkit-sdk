@@ -34,7 +34,6 @@
 #include "httpd.h"
 #include "httpd_wsgi.h"
 #include "http-strings.h"
-#include "base64-x.h"
 #include "mico.h"
 
 typedef enum
@@ -617,37 +616,4 @@ int httpd_use_tls_certificates( const httpd_tls_certs_t *tls_certs )
 
     httpd_d("HTTPS is not enabled in server. ");
     return -kInProgressErr;
-}
-
-static char *auth_str = NULL;
-
-int httpd_auth_init(char *name, char *passwd)
-{
-  int len, outlen;
-  char *src_str;
-  
-  len = strlen(name) + strlen(passwd) + 2;
-  
-  if (auth_str)
-    free(auth_str);
-  
-  auth_str = NULL;
-  if (strlen(name) == 0 && strlen(passwd) == 0) // no username and password
-    return 0;
-  
-  src_str = malloc(len);
-  if (src_str == 0)
-    return -1;
-  
-  sprintf(src_str, "%s:%s", name, passwd);
-  auth_str = (char *)base64_encode((unsigned char const *)src_str, strlen(src_str), &outlen); 
-  len = strlen(auth_str);
-  auth_str[len-1] = 0;
-  free(src_str);
-  return kNoErr;
-}
-
-char *get_httpd_auth( void )
-{
-  return auth_str;
 }

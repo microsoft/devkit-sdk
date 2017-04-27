@@ -1,3 +1,37 @@
+/**
+ ******************************************************************************
+ * @file    httpd_wsgi.h
+ * @author  QQ DING
+ * @version V1.0.0
+ * @date    1-September-2015
+ * @brief   This file contains the functions for the WSGI handling of the
+ *          httpd. Additionally, two WSGI handlers are also registered. These
+ *          handlers perform the basic tasks of parsing the HTTPD headers and
+ *          the form data in case of non-WSGI requests.
+ ******************************************************************************
+ *
+ *  The MIT License
+ *  Copyright (c) 2014 MXCHIP Inc.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is furnished
+ *  to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ *  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ ******************************************************************************
+ */
+
 #ifndef _HTTPD_WSGI_H_
 #define _HTTPD_WSGI_H_
 
@@ -121,8 +155,6 @@ int httpd_purge_headers(int sock);
  *  @return  -WM_FAIL   :otherwise
  */
 int httpd_get_data(httpd_request_t *req, char *content, int length);
-
-int httpd_auth_init(char *name, char *passwd);
 
 int httpd_wsgi_init(void);
 

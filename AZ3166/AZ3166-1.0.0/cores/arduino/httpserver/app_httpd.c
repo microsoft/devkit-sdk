@@ -31,7 +31,6 @@
  */
 
 #include <httpd.h>
-#include <http-strings.h>
 #include "mico.h"
 #include "app_httpd.h"
 

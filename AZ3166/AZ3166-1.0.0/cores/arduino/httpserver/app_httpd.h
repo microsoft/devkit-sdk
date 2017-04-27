@@ -42,8 +42,6 @@ extern const char *wifi_setting_a;
 
 extern const char *wifi_setting_b;
 
-extern const char *upload_script;
-
 extern const char *success_result;
 
 extern const char *failed_result;
@@ -55,7 +53,3 @@ int app_httpd_stop();
 #ifdef __cplusplus
 }
 #endif
-
-/************************************************************************
- * Max length of uploaded user file */
-#define MAX_USER_FILE_LEN 3076
