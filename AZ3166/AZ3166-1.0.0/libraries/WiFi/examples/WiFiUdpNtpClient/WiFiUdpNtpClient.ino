@@ -26,7 +26,7 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 
 unsigned int localPort = 2390;      // local port to listen for UDP packets
 
-IPAddress timeServer(129, 6, 15, 28); // time.nist.gov NTP server
+char* timeServer = "0.pool.ntp.org"; // 0.pool.ntp.org NTP server
 
 const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
 
@@ -71,12 +71,11 @@ void loop() {
   sendNTPpacket(timeServer); // send an NTP packet to a time server
   // wait to see if a reply is available
   delay(1000);
-  Serial.println(Udp.parsePacket());
-  if (Udp.parsePacket()) {
-    Serial.println("packet received");
+  if (Udp.read(packetBuffer, NTP_PACKET_SIZE)> 0) // read the packet into the buffer
+  {
     // We've received a packet, read the data from it
-    Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
-
+    Serial.println("packet received");
+    
     //the timestamp starts at byte 40 of the received packet and is four bytes,
     // or two words, long. First, esxtract the two words:
 
@@ -114,12 +113,16 @@ void loop() {
     }
     Serial.println(epoch % 60); // print the second
   }
+  else
+  {
+    Serial.println("Unable to receive package, retry later.");
+  }
   // wait ten seconds before asking for the time again
   delay(10000);
 }
 
 // send an NTP request to the time server at the given address
-unsigned long sendNTPpacket(IPAddress& address) {
+unsigned long sendNTPpacket(char* address) {
   //Serial.println("1");
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
@@ -165,13 +168,5 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
-
-
-
-
-
-
-
-
 
 
