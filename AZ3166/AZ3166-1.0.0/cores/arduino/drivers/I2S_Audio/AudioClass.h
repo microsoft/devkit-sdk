@@ -43,8 +43,7 @@ class AudioClass {
 
     private:
         void start(uint16_t * recordBuf, uint16_t * playBuf, uint32_t size);
-        WaveHeader * genericWAVHeader(int pcmDataSize);
-        WaveHeader* genericWAVHeader(int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels);
+        void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels);
 };
 
 extern AudioClass Audio;
