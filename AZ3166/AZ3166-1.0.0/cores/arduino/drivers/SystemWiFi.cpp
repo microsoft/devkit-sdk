@@ -65,7 +65,6 @@ bool SystemWiFiConnect(void)
         Serial.printf("Wi-Fi %s connected.\r\n", ssid);
         // Initialize the telemtry only after Wi-Fi established
         telemetry_init();
-        telemetry_enqueue("", "wifi", "Wi-Fi connected");
         return true;
     }
 }
@@ -100,15 +99,36 @@ void SyncTime(void)
 // here is the temp wrap for WiFi AP.
 bool InitSystemWiFiAP(void)
 {
+    if (network != NULL)
+    {
+         ((EMW10xxInterface*)network)->set_interface(Soft_AP);
+         return true;
+    }
+
     return false;
 }
 
 bool SystemWiFiAPStart(const char *ssid, const char *passphrase)
 {
+    if (network != NULL)
+    {
+        int ret = ((EMW10xxInterface*)network)->connect( (char*)ssid, (char*)passphrase, NSAPI_SECURITY_WPA_WPA2, 0 );
+        if(ret != 0)
+        {
+            Serial.printf("ERROR: Failed to start AP for Wi-Fi %s.\r\n", ssid);
+            return false;
+        }
+        else
+        {
+            Serial.printf("AP mode Wi-Fi %s started .\r\n", ssid);
+            return true;
+        }
+    }
+
     return false;
 }
 
 NetworkInterface* WiFiAPInterface(void)
 {
-    return NULL;
+    return network;
 }
