@@ -147,6 +147,7 @@ char * AudioClass::getWav(int *file_size)
     WaveHeader hdr;
     genericWAVHeader(&hdr, currentSize - WAVE_HEADER_SIZE, m_sample_rate, m_bit_depth, m_channels);
     memcpy(m_wavFile, &hdr, sizeof(WaveHeader));
+    delete &hdr;
 
     return m_wavFile;
 }
@@ -169,17 +170,27 @@ int AudioClass::convertToMono(char * audioFile, int size, uint8_t sampleBitLengt
     char * curReader = audioFile + WAVE_HEADER_SIZE + bytesPerSample * 2;
     char * curWriter = audioFile + WAVE_HEADER_SIZE + bytesPerSample;
 
-    while (curReader < audioFile + size) {
-        if (sampleBitLength == 16) {
+    if (sampleBitLength == 16) {
+        while (curReader < audioFile + size) {
             *(uint16_t *)curWriter = *((uint16_t *)curReader);
-        } else if (sampleBitLength == 32) {
-            *(uint32_t *)curWriter = *((uint32_t *)curReader);
-        } else {
-            memcpy(curWriter, curReader, bytesPerSample);
-        }
 
-        curWriter += bytesPerSample;
-        curReader += bytesPerSample * 2;
+            curWriter += bytesPerSample;
+            curReader += bytesPerSample * 2;
+        }
+    } else if (sampleBitLength == 32) {
+        while (curReader < audioFile + size) {
+            *(uint32_t *)curWriter = *((uint32_t *)curReader);
+
+            curWriter += bytesPerSample;
+            curReader += bytesPerSample * 2;
+        }
+    } else {
+        while (curReader < audioFile + size) {
+            memcpy(curWriter, curReader, bytesPerSample);
+
+            curWriter += bytesPerSample;
+            curReader += bytesPerSample * 2;
+        }
     }
 
     curFileSize = curWriter - audioFile;
@@ -188,6 +199,7 @@ int AudioClass::convertToMono(char * audioFile, int size, uint8_t sampleBitLengt
     WaveHeader hdr;
     genericWAVHeader(&hdr, curFileSize - WAVE_HEADER_SIZE, m_sample_rate, m_bit_depth, 1);
     memcpy(audioFile, &hdr, sizeof(WaveHeader));
+    delete &hdr;
 
     // clean up the remaining file
     //memset(curWriter, 0, audioFile + size - curWriter);
