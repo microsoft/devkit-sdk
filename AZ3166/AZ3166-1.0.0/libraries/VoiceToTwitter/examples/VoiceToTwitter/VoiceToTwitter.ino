@@ -70,9 +70,9 @@ static void enterUploading2State(int size)
     status = 3;
     Screen.clean();
     Screen.print(0, "Processing...          ");
-    char buf[20];
-    sprintf(buf, "Uploading..(size %d)", size);
-    Screen.print(1, buf, true);
+    // char buf[20];
+    // sprintf(buf, "Uploading..(size %d)", size);
+    // Screen.print(1, buf, true);
     rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
 }
 
@@ -120,7 +120,7 @@ void setup()
     int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
     if (ret < 0)
     {
-        (void)Serial.printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
+        (void)Serial.println("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
         return;
     }
     iot_client_set_connection_string((const char *)connString);
@@ -136,6 +136,7 @@ void freeWavFile()
 }
 void loop()
 {
+    Serial.println("LOOP");
     uint32_t delayTimes = 600;
     uint32_t curr = millis();
     if (status == 0)
@@ -209,16 +210,16 @@ void loop()
     }
     else if (status == 3)
     {
-        char buf[30];
-        sprintf(buf, "Uploading size %d          ", wavFileSize);
-        Serial.println(buf);
+        // char buf[30];
+        // sprintf(buf, "Uploading size %d          ", wavFileSize);
+        Serial.println(wavFileSize);
         step2Result = iot_client_blob_upload_step2(waveFile, wavFileSize);
 
         enterUploading3State();
     }
     else if (status == 4)
     {
-        Screen.print(3, "Send notification...             ");
+        // Screen.print(3, "Send notification...             ");
         if (iot_client_blob_upload_step3(step2Result == 0) == 0)
         {
             enterReceivingState();
