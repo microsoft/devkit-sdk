@@ -5,7 +5,7 @@
 #include "mbed_memory_status.h"
 
 #define RGB_LED_BRIGHTNESS  16
-#define LOOP_DELAY          5000
+#define LOOP_DELAY          2000
 
 static boolean hasWifi;
 
@@ -128,4 +128,5 @@ void loop()
     rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
     Screen.print(3, "  > Done             ");
   }
+  delay(LOOP_DELAY);
 }

@@ -307,7 +307,7 @@ void print_heap_info(void)
     
     mbed_stats_heap_get(&heap_stats);
 
-    DPL("     heap ( start: ");
+    DPL(">>heap ( start: ");
     debug_print_pointer(mbed_heap_start);
     
     DPL(" end: ");
@@ -337,7 +337,7 @@ void print_isr_stack_info(void)
 {
     extern unsigned char * mbed_stack_isr_start;
     
-    DPL("isr_stack ( start: ");
+    DPL(">>isr_stack ( start: ");
     debug_print_pointer(mbed_stack_isr_start);
     
     DPL(" end: ");
