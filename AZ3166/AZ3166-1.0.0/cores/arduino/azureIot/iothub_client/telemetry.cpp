@@ -31,7 +31,7 @@ static const char *VERSION = "0.8.0";
 static const char *MCU = "STM32F412";
 static const char *BODY_TEMPLATE = "{\"data\": {\"baseType\": \"EventData\",\"baseData\": {\"properties\": "
                                    "{\"keyword\": \"%s\",\"hardware_version\": \"%s\",\"mcu\": \"%s\",\"message\":"
-                                   "\"%s\",\"hash_mac_address\": \"%s\",\"hash_iothub_name\":\"%s\"},"
+                                   "\"%s\",\"mac_address\": \"%s\",\"iothub_name\":\"%s\"},"
                                    "\"name\": \"%s\"}},\"time\": \"%s\",\"name\": \"%s\",\"iKey\": \"%s\"}";
 static const char HEX_STR[] = "0123456789abcdef";
 
@@ -87,7 +87,7 @@ void do_trace_telemetry()
     time(&t);
     struct Telemetry *telemetry = (Telemetry *)evt.value.p;
 
-    if (!HASH_IOTHUB[0] && telemetry->iothub[0] != '\0')
+    if (!HASH_IOTHUB[0])
     {
         hash(HASH_IOTHUB, telemetry->iothub);
     }
@@ -119,6 +119,7 @@ void telemetry_init()
 {
     // Sync up the date
     SyncTime();
+    // Start the telemetry thread
     TELEMETRY_THREAD.start(trace_telemetry);
 }
 
