@@ -131,6 +131,7 @@ static void EnterAPMode()
     }
 
     if (!InitSystemWiFiAP()) {
+        Serial.println("Set wifi AP Mode failed");
         return;
     }
 
