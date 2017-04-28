@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#include "http_client.h"
+#include "Arduino.h"
+#include "telemetry.h"
+#include "SystemWiFi.h"
 #include "Queue.h"
 #include "Thread.h"
 #include "md5.h"
+#include "http_client.h"
 
 #ifdef _cplusplus
 extern "C" {
 #endif
-
-#include "Arduino.h"
-#include "telemetry.h"
-#include "SystemWiFi.h"
 
 #define STACK_SIZE 0x2000
 #define IOTHUB_NAME_MAX_LEN 52
@@ -81,11 +80,13 @@ void do_trace_telemetry()
     }
     SyncTime();
 
+    struct Telemetry *telemetry = (Telemetry *)evt.value.p;
+
     char body[512];
     char *_ctime;
     time_t t;
     time(&t);
-    struct Telemetry *telemetry = (Telemetry *)evt.value.p;
+    
 
     if (!HASH_IOTHUB[0] && telemetry->iothub[0] != '\0')
     {
@@ -97,13 +98,11 @@ void do_trace_telemetry()
     
     sprintf(body, BODY_TEMPLATE, KEYWORD, VERSION, MCU, telemetry->message, HASH_MAC, HASH_IOTHUB, telemetry->event, _ctime, EVENT, IKEY);
     HTTPClient *request = new HTTPClient(HTTP_POST, PATH);
-    Http_Response *response = request->send(body, strlen(body));
+    request->set_header("mem","good");
+    const Http_Response *response = request->send(body, strlen(body));
     
     free(telemetry);
-    free(response->status_message);
-    free(response->body);
     delete request;
-    delete response;
 }
 
 static void trace_telemetry()

@@ -1,4 +1,7 @@
-/* 
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright (c) 2017 ARM Limited
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,33 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#ifndef wifiserver_h
-#define wifiserver_h
 
-#include "Arduino.h"
-#include "TCPServer.h"
-#include "AZ3166WiFiClient.h"
-#include "Print.h"
+#ifndef _HTTP_HEADER_BUILDER_H_
+#define _HTTP_HEADER_BUILDER_H_
 
-class WiFiServer : public Print
+#include "http_common.h"
+#include "http_parsed_url.h"
+
+class HttpHeaderBuilder 
 {
 public:
-    WiFiServer(uint16_t port);
-    ~WiFiServer();
+    HttpHeaderBuilder(http_method method, ParsedUrl* parsed_url);
+    virtual ~HttpHeaderBuilder();
+    
+    void set_header(const char* key, const char* value);
 
-    WiFiClient available(uint8_t *status = NULL);
-    void begin();
-    virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *buf, size_t size);
-    void close();
-    void send(int code, char *content_type, const String &content);
-  
+    char* build(size_t body_size, size_t &size);
+
+    void free_headers(char* data);
+
 private:
-	uint16_t _port;
-    TCPServer *_pTcpServer;
-    TCPSocket _clientTcpSocket;
+    http_method _method;
+    ParsedUrl* _parsed_url;
+    
+    KEYVALUE *headers;
 };
 
-#endif // wifiserver_h
-
+#endif // _HTTP_HEADER_BUILDER_H_

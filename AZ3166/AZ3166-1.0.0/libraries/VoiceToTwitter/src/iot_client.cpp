@@ -21,7 +21,6 @@ static char temp2[1024];
 const char *_json_object_get_string(json_object *obj, const char *name);
 void _setString(char **p, const char *value, int length);
 int _check_iot_ready_for_request();
-void _destructor_response(Http_Response *response);
 /// Utility methods end
 
 // Public methods
@@ -91,7 +90,7 @@ int iot_client_blob_upload_step1(const char *blobName)
     HTTPClient blobRequest = HTTPClient(HTTP_GET, temp);
     blobRequest.set_header("Authorization", current_token);
     blobRequest.set_header("Accept", "application/json'");
-    Http_Response *response = blobRequest.send();
+    const Http_Response *response = blobRequest.send();
     bool error = false;
     if (response == NULL)
     {
@@ -146,8 +145,7 @@ int iot_client_blob_upload_step1(const char *blobName)
         if (jsonObject != NULL)
             json_object_put(jsonObject);
     }
-    _destructor_response(response);
-
+    
     return error ? -1 : 0;
 }
 
@@ -175,7 +173,7 @@ int iot_client_blob_upload_step2(const char *content, int length)
     }
     HTTPClient uploadRequest = HTTPClient(HTTP_PUT, sasUri);
     uploadRequest.set_header("x-ms-blob-type", "BlockBlob");
-    Http_Response *response = uploadRequest.send(content, length);
+    const Http_Response *response = uploadRequest.send(content, length);
     if (response == NULL)
     {
         Serial.println("Cannot upload(2)(Null Response)!");
@@ -183,7 +181,6 @@ int iot_client_blob_upload_step2(const char *content, int length)
     }
     printf("Upload blob result: <%d> message <%s>\r\n", response->status_code, response->status_message);
     step2_status_code = response->status_code;
-    _destructor_response(response);
     return !(step2_status_code >= 200 && step2_status_code < 300);
 }
 
@@ -202,14 +199,13 @@ int iot_client_blob_upload_step3(bool isSuccess)
 
     int postBodyLength = sprintf(temp2, "{\"isSuccess\":%s, \"statusCode\":%d, \"statusDescription\":\"%s\"}",
                                  (isSuccess ? "true" : "false"), step2_status_code, (isSuccess ? "ok" : "failure"));
-    Http_Response *response = notificationRequest.send(temp2, postBodyLength);
+    const Http_Response *response = notificationRequest.send(temp2, postBodyLength);
     if (response == NULL)
     {
         Serial.println("Cannot send notification(Null Response)!");
         return -1;
     }
     printf("Send notification result: <%d> message <%s>\r\n", response->status_code, response->status_message);
-    _destructor_response(response);
     return 0;
 }
 
@@ -224,14 +220,13 @@ int iot_client_send_event(const char *event, int length)
     HTTPClient request = HTTPClient(HTTP_POST, temp);
     request.set_header("Authorization", current_token);
     request.set_header("Accept", "application/json'");
-    Http_Response *response = request.send(event, length);
+    const Http_Response *response = request.send(event, length);
     if (response == NULL)
     {
         Serial.println("Cannot send event(Null Response)!");
         return -1;
     }
     printf("Send event result: <%d> message <%s>\r\n", response->status_code, response->status_message);
-    _destructor_response(response);
     return 0;
 }
 
@@ -249,14 +244,13 @@ int complete_c2d_message(char *etag)
     }
     sprintf(temp, C2D_CB_ENDPOINT, hostNameString, deviceIdString, etag);
     HTTPClient request = HTTPClient(HTTP_DELETE, temp);
-    Http_Response *response = request.send();
+    const Http_Response *response = request.send();
     if (response == NULL)
     {
         Serial.println("Cannot delete message(Null Response).");
         return -1;
     }
     int status = response->status_code;
-    _destructor_response(response);
     return !(status >= 200 && status < 300);
 }
 
@@ -271,8 +265,8 @@ const char *iot_client_get_c2d_message()
     HTTPClient request = HTTPClient(HTTP_GET, temp);
     request.set_header("Authorization", current_token);
     request.set_header("Accept", "application/json'");
-    Http_Response *response = request.send();
-    char *res = NULL;
+    const Http_Response *response = request.send();
+    const char *res = NULL;
     if (response == NULL)
     {
         Serial.println("Cannot get message(Null Response).");
@@ -284,10 +278,7 @@ const char *iot_client_get_c2d_message()
     {
         res = response->body;
     }
-    // don't free body since it is returned
-    response->body = NULL;
-    _destructor_response(response);
-    return res;
+    return strdup(res);
 }
 
 const char *_json_object_get_string(json_object *obj, const char *name)
@@ -347,14 +338,4 @@ int _check_iot_ready_for_request()
         return -1;
     }
     return 0;
-}
-
-void _destructor_response(Http_Response *response)
-{
-    if (response != NULL)
-    {
-        free(response->body);
-        free(response->status_message);
-        delete response;
-    }
 }
