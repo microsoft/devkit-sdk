@@ -22,9 +22,8 @@ HttpHeaderBuilder::HttpHeaderBuilder(http_method method, ParsedUrl* parsed_url)
 {
     _method = method;
     _parsed_url = parsed_url;
-    set_header("Host", _parsed_url->host());
-    
     headers = NULL;
+    set_header("Host", _parsed_url->host());
 }
 
 HttpHeaderBuilder::~HttpHeaderBuilder()
@@ -134,4 +133,9 @@ char* HttpHeaderBuilder::build(size_t body_size, size_t &size)
     INFO(originalReq);
     
     return originalReq;
+}
+
+void HttpHeaderBuilder::free_headers(char* data)
+{
+    free(data);
 }

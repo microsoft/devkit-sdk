@@ -23,18 +23,10 @@
 #include "http_header_builder.h"
 #include "http_parsed_url.h"
 
-#include "mbedtls/platform.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/error.h"
-
-#if DEBUG_LEVEL > 0
-#include "mbedtls/debug.h"
-#endif
+#include "TLSSocket.h"
 
 /**
- * \brief HttpsRequest implements the logic for interacting with HTTPS servers.
+ * \brief HttpsRequest implements the logic for interacting with HTTP(S) servers.
  */
 class HttpsRequest 
 {
@@ -91,24 +83,14 @@ public:
     nsapi_error_t get_error();
     
 private:
-    ParsedUrl _parsed_url;
-    TCPSocket _tcpsocket;
-    HttpHeaderBuilder _headerBuilder;
+    ParsedUrl *_parsed_url;
+    TLSSocket *_tlssocket;
+    HttpHeaderBuilder *_headerBuilder;
     
     Callback<void(const char *at, size_t length)> _body_callback;
     HttpResponse* _response;
-    const char *_ssl_ca_pem;
     
     nsapi_error_t _error;
-    
-    mbedtls_entropy_context _entropy;
-    mbedtls_ctr_drbg_context _ctr_drbg;
-    mbedtls_x509_crt _cacert;
-    mbedtls_ssl_context _ssl;
-    mbedtls_ssl_config _ssl_conf;
-    
-    void on_error(int error);
-    bool check_mbedtls_ssl_write(int ret);
 };
 
 #endif // __HTTPS_REQUEST_H__

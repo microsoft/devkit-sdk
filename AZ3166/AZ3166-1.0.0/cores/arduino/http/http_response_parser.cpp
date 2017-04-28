@@ -73,34 +73,45 @@ static int on_chunk_complete_callback(http_parser* parser)
 // Class
 HttpResponseParser::HttpResponseParser(HttpResponse* a_response, Callback<void(const char *at, size_t length)> a_body_callback)
 {
-    settings.on_message_begin = on_message_begin_callback;
-    settings.on_url = on_url_callback;
-    settings.on_status = on_status_callback;
-    settings.on_header_field = on_header_field_callback;
-    settings.on_header_value = on_header_value_callback;
-    settings.on_headers_complete = on_headers_complete_callback;
-    settings.on_chunk_header = on_chunk_header_callback;
-    settings.on_chunk_complete = on_chunk_complete_callback;
-    settings.on_body = on_body_callback;
-    settings.on_message_complete = on_message_complete_callback;
+    settings = new http_parser_settings;
+    settings->on_message_begin = on_message_begin_callback;
+    settings->on_url = on_url_callback;
+    settings->on_status = on_status_callback;
+    settings->on_header_field = on_header_field_callback;
+    settings->on_header_value = on_header_value_callback;
+    settings->on_headers_complete = on_headers_complete_callback;
+    settings->on_chunk_header = on_chunk_header_callback;
+    settings->on_chunk_complete = on_chunk_complete_callback;
+    settings->on_body = on_body_callback;
+    settings->on_message_complete = on_message_complete_callback;
 
+    response = a_response;
     // Construct the http_parser object
-    http_parser_init(&parser, HTTP_RESPONSE);
-    parser.data = (void*)this;
+    parser = new http_parser;
+    http_parser_init(parser, HTTP_RESPONSE);
+    parser->data = (void*)this;
 }
 
 HttpResponseParser::~HttpResponseParser()
 {
+    if (settings)
+    {
+        delete settings;
+    }
+    if (parser)
+    {
+        delete parser;
+    }
 }
 
 size_t HttpResponseParser::execute(const char* buffer, size_t buffer_size)
 {
-    return http_parser_execute(&parser, &settings, buffer, buffer_size);
+    return http_parser_execute(parser, settings, buffer, buffer_size);
 }
 
 void HttpResponseParser::finish()
 {
-    http_parser_execute(&parser, &settings, NULL, 0);
+    http_parser_execute(parser, settings, NULL, 0);
 }
 
 int HttpResponseParser::on_message_begin(http_parser* parser)

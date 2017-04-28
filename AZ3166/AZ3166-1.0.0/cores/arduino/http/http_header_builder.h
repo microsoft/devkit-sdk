@@ -26,14 +26,12 @@ class HttpHeaderBuilder
 public:
     HttpHeaderBuilder(http_method method, ParsedUrl* parsed_url);
     virtual ~HttpHeaderBuilder();
-
-    /**
-     * Set a header for the request
-     * If the key already exists, it will be overwritten...
-     */
+    
     void set_header(const char* key, const char* value);
 
     char* build(size_t body_size, size_t &size);
+
+    void free_headers(char* data);
 
 private:
     http_method _method;

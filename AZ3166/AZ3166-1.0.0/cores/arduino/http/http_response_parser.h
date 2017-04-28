@@ -47,8 +47,8 @@ public:
 
 private:
     Callback<void(const char *at, size_t length)> body_callback;
-    http_parser parser;
-    http_parser_settings settings;
+    http_parser *parser;
+    http_parser_settings *settings;
     
     HttpResponse* response;
 };

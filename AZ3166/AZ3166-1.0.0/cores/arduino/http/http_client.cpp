@@ -30,20 +30,12 @@ const char CERT[] =
 
 HTTPClient::HTTPClient(http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback)
 {
-    HTTPClient(CERT, method, url, body_callback);
+    init(CERT, method, url, body_callback);
 }
 
 HTTPClient::HTTPClient(const char* ssl_ca_pem, http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback)
 {
-    _https_request = NULL;
-    if (strlen(url) >= 5 && (strncmp("http:", url, 5) == 0))
-    {
-        // HTTP request
-    }
-    else if(strlen(url) >= 6 && (strncmp("https:", url, 6) == 0))
-    {
-        _https_request = new HttpsRequest(WiFiInterface(), ssl_ca_pem, method, url, body_callback);
-    }
+    init(ssl_ca_pem, method, url, body_callback);
 }
 
 HTTPClient::~HTTPClient()
@@ -51,6 +43,10 @@ HTTPClient::~HTTPClient()
     if (_https_request)
     {
         delete _https_request;
+    }
+    if (_response)
+    {
+        delete _response;
     }
 }
 
@@ -61,10 +57,10 @@ const Http_Response* HTTPClient::send(const void* body, int body_size)
         HttpResponse *response = _https_request->send(body, body_size);
         if (response != NULL)
         {
-            _response.status_code = response->get_status_code();
-            _response.status_message = response->get_status_message();
-            _response.body = response->get_body();
-            return &_response;
+            _response->status_code = response->get_status_code();
+            _response->status_message = response->get_status_message();
+            _response->body = response->get_body();
+            return _response;
         }
     }
     return NULL;
@@ -85,4 +81,18 @@ nsapi_error_t HTTPClient::get_error()
         return _https_request->get_error();
     }
     return -1;
+}
+
+void HTTPClient::init(const char* ssl_ca_pem, http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback)
+{
+    _https_request = NULL;
+    _response = new Http_Response;
+    if (strlen(url) >= 5 && (strncmp("http:", url, 5) == 0))
+    {
+        // HTTP request
+    }
+    else if(strlen(url) >= 6 && (strncmp("https:", url, 6) == 0))
+    {
+        _https_request = new HttpsRequest(WiFiInterface(), ssl_ca_pem, method, url, body_callback);
+    }
 }

@@ -65,6 +65,8 @@ bool SystemWiFiConnect(void)
         Serial.printf("Wi-Fi %s connected.\r\n", ssid);
         // Initialize the telemtry only after Wi-Fi established
         telemetry_init();
+
+        
         return true;
     }
 }

@@ -28,17 +28,20 @@ typedef struct
 
 class HTTPClient 
 {
-    public:
-        HTTPClient(http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback = 0);
-        HTTPClient(const char* ssl_ca_pem, http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback = 0);
-        virtual ~HTTPClient(void);
-        const Http_Response* send(const void* body = NULL, int body_size = 0);
-        void set_header(const char* key, const char* value);
-        nsapi_error_t get_error();
-        
-    private:
-        HttpsRequest* _https_request;
-        Http_Response _response;
+public:
+    HTTPClient(http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback = 0);
+    HTTPClient(const char* ssl_ca_pem, http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback = 0);
+    virtual ~HTTPClient(void);
+    
+    const Http_Response* send(const void* body = NULL, int body_size = 0);
+    void set_header(const char* key, const char* value);
+    nsapi_error_t get_error();
+    
+private:
+    void init(const char* ssl_ca_pem, http_method method, const char* url, Callback<void(const char *at, size_t length)> body_callback);
+    
+    HttpsRequest *_https_request;
+    Http_Response *_response;
 };
 
 #endif

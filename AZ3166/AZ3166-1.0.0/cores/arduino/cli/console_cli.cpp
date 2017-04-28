@@ -63,7 +63,7 @@ static const struct console_command cmds[] = {
   {"scan",          "Scan Wi-Fi AP",                                            false, wifi_scan},
   {"set_wifissid",  "Set Wi-Fi SSID",                                           false, wifi_ssid_command},
   {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
-  {"set_az_iothub", "Set the connection string of Microsoft Azure IOT hub",     true,  az_iothub_command},
+  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     true,  az_iothub_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -169,6 +169,7 @@ static void wifi_ssid_command(int argc, char **argv)
     if (len == 0 || len > WIFI_SSID_MAX_LEN)
     {
         Serial.printf("Invalid Wi-Fi SSID.\r\n");
+        return;
     }
     
     int result = write_eeprom(argv[1], WIFI_SSID_ZONE_IDX);
@@ -186,9 +187,10 @@ static void wifi_pwd_Command(int argc, char **argv)
         return;
     }
     int len = strlen(argv[1]);
-    if (len == 0 || len > WIFI_PWD_MAX_LEN)
+    if (len > WIFI_PWD_MAX_LEN)
     {
         Serial.printf("Invalid Wi-Fi password.\r\n");
+        return;
     }
     
     int result = write_eeprom(argv[1], WIFI_PWD_ZONE_IDX);
@@ -209,6 +211,7 @@ static void az_iothub_command(int argc, char **argv)
     if (len == 0 || len > AZ_IOT_HUB_MAX_LEN)
     {
         Serial.printf("Invalid Azure IoT hub connection string.\r\n");
+        return;
     }
     
     int result = write_eeprom(argv[1], AZ_IOT_HUB_ZONE_IDX);

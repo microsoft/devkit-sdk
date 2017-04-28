@@ -32,13 +32,13 @@ typedef struct _tagKeyValue
 #include "http_parser.h"
 
 #if DEBUG_LEVEL > 0
-#define ERROR(x) do { print("ERROR: "); print(x); print("\r\n"); } while(0);
+#define ERROR(x) do { printf("ERROR: "); printf(x); printf("\r\n"); } while(0);
 #else
 #define ERROR(x) do {  } while(0);
 #endif
 
 #if DEBUG_LEVEL > 1
-#define INFO(x) do { print(x); } while(0);
+#define INFO(x) do { printf(x); printf("\r\n"); } while(0);
 #else
 #define INFO(x) do {  } while(0);
 #endif
