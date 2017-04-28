@@ -1,0 +1,233 @@
+#include "Arduino.h"
+#include "iot_client.h"
+#include "AZ3166WiFi.h"
+#include "EEPROMInterface.h"
+#include "OLEDDisplay.h"
+#include "http_client.h"
+#include "mbed_memory_status.h"
+#include <json.h>
+static boolean hasWifi;
+static int status = 0; // idle
+static const int AUDIO_SIZE = 32044 * 2;
+static char *waveFile = NULL;
+static int wavFileSize;
+static int timeout = 0;
+static int step2Result = -1;
+
+const char *_json_object_get_string(json_object *obj, const char *name);
+static void InitWiFi()
+{
+    if (WiFi.begin() == WL_CONNECTED)
+    {
+        hasWifi = true;
+    }
+    else
+    {
+        Screen.print(1, "No Wi-Fi           ");
+    }
+}
+static void InitBoard(void)
+{
+    Screen.clean();
+    Screen.print(0, "Azure IoT DevKit     ");
+    Screen.print(2, "Initializing...      ");
+
+    // Initialize the WiFi module
+    Screen.print(3, " > WiFi              ");
+    hasWifi = false;
+    InitWiFi();
+    enterIdleState();
+}
+static void enterIdleState()
+{
+    status = 0;
+    Screen.clean();
+    Screen.print(0, "Welcome to AzureDevKit");
+}
+static void enterRecordState()
+{
+    status = 1;
+    Screen.clean();
+    Screen.print(0, "Recording             ");
+}
+static void enterUploading1State()
+{
+    status = 2;
+    Screen.clean();
+    Screen.print(0, "Uploading(1)           ");
+}
+
+static void enterUploading2State()
+{
+    status = 3;
+    Screen.clean();
+    Screen.print(0, "Uploading(2)           ");
+}
+
+static void enterUploading3State()
+{
+    status = 4;
+    Screen.clean();
+    Screen.print(0, "Compeleting             ");
+}
+static void enterReceivingState()
+{
+    status = 5;
+    Screen.clean();
+    Screen.print(0, "Receiving               ");
+}
+void setup()
+{
+    Serial.begin(115200);
+    InitBoard();
+    EEPROMInterface eeprom;
+    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = {'\0'};
+    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
+    if (ret < 0)
+    {
+        (void)Serial.printf("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.\r\n");
+        return;
+    }
+    iot_client_set_connection_string((const char *)connString);
+}
+
+void freeWavFile()
+{
+    if (waveFile != NULL)
+    {
+        free(waveFile);
+        waveFile = NULL;
+    }
+}
+void loop()
+{
+    uint32_t delayTimes = 600;
+    uint32_t curr = millis();
+    if (status == 0)
+    {
+        int buttonB = !digitalRead(USER_BUTTON_B);
+        if (buttonB)
+        {
+            waveFile = (char *)malloc(AUDIO_SIZE + 1);
+            if (waveFile == NULL)
+            {
+                Serial.println("Not enough Memory! ");
+                enterIdleState();
+                return;
+            }
+            memset(waveFile, 0, AUDIO_SIZE + 1);
+            Audio.format(8000, 16);
+            Audio.startRecord(waveFile, AUDIO_SIZE, 2);
+            enterRecordState();
+        }
+    }
+    else if (status == 1)
+    {
+        int buttonB = !digitalRead(USER_BUTTON_B);
+        if (!buttonB)
+        {
+            Audio.getWav(&wavFileSize);
+            if (wavFileSize > 0)
+            {
+                wavFileSize = Audio.convertToMono(waveFile, wavFileSize, 16);
+                if (wavFileSize <= 0)
+                {
+                    Serial.println("ConvertToMono failed! ");
+                    enterIdleState();
+                    freeWavFile();
+                    return;
+                }
+                else
+                {
+                    enterUploading1State();
+                }
+            }
+            else
+            {
+                Serial.println("No Data Recorded! ");
+                freeWavFile();
+                enterIdleState();
+                return;
+            }
+        }
+    }
+    else if (status == 2)
+    {
+        if (wavFileSize > 0 && waveFile != NULL)
+        {
+            if (0 == iot_client_blob_upload_step1("test.wav"))
+            {
+                enterUploading2State();
+            }
+            else
+            {
+                Serial.println("Upload(1) Failure");
+                freeWavFile();
+                enterIdleState();
+            }
+        }
+        else
+        {
+            freeWavFile();
+            enterIdleState();
+        }
+    }
+    else if (status == 3)
+    {
+        Serial.print("Uploading ");
+        char buf[10];
+        sprintf(buf, "Uploading size %d     ", wavFileSize);
+        Serial.println(buf);
+        Screen.print(1, buf);
+        step2Result = iot_client_blob_upload_step2(waveFile, wavFileSize);
+
+        enterUploading3State();
+    }
+    else if (status == 4)
+    {
+        Screen.print(3, "Send notification...             ");
+        if (iot_client_blob_upload_step3(step2Result == 0) == 0)
+        {
+            enterReceivingState();
+        }
+        else
+        {
+            freeWavFile();
+            enterIdleState();
+        }
+    }
+    else if (status == 5)
+    {
+        const char *p = iot_client_get_c2d_message();
+        while (p != NULL)
+        {
+            if (strlen(p) == 0)
+            {
+                free((void *)p);
+                break;
+            }
+            if (strlen(p) > 0 && p[0] == '{')
+            {
+                json_object *jsonObject = json_tokener_parse(p);
+                if (jsonObject != NULL)
+                {
+                    const char *jsonText = _json_object_get_string(jsonObject, "text");
+                    char output[64];
+                    sprintf(output, " > %s", jsonText);
+                    Screen.print(output, true);
+                    json_object_put(jsonObject);
+                }
+            }
+            free((void *)p);
+            p = iot_client_get_c2d_message();
+        }
+        freeWavFile();
+        enterIdleState();
+    }
+
+    curr = millis() - curr;
+    if (curr < delayTimes)
+    {
+        delay(delayTimes - curr);
+    }
+}
