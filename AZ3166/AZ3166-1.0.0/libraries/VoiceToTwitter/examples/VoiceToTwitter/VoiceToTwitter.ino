@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "RGB_LED.h"
 #include "iot_client.h"
 #include "AZ3166WiFi.h"
 #include "EEPROMInterface.h"
@@ -6,6 +7,7 @@
 #include "http_client.h"
 #include "mbed_memory_status.h"
 #include <json.h>
+#define RGB_LED_BRIGHTNESS  16
 static boolean hasWifi;
 static int status = 0; // idle
 static const int AUDIO_SIZE = 32044 * 3;
@@ -13,7 +15,7 @@ static char *waveFile = NULL;
 static int wavFileSize;
 static int timeout = 0;
 static int step2Result = -1;
-
+static RGB_LED rgbLed;
 const char *_json_object_get_string(json_object *obj, const char *name);
 static void InitWiFi()
 {
@@ -35,20 +37,24 @@ static void InitBoard(void)
     // Initialize the WiFi module
     Screen.print(3, " > WiFi              ");
     hasWifi = false;
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
     InitWiFi();
+    rgbLed.setColor(0, 0, 0);
     enterIdleState();
 }
 static void enterIdleState()
 {
     status = 0;
     Screen.clean();
-    Screen.print(0, "Hold button A to talk   ");
+    Screen.print(0, "Hold  B to talk   ");
+    rgbLed.setColor(0, 0, 0);
 }
 static void enterRecordState()
 {
     status = 1;
     Screen.clean();
-    Screen.print(0, "Release button to send    ");
+    Screen.print(0, "Release B to send    ");
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
 }
 static void enterUploading1State()
 {
@@ -56,14 +62,18 @@ static void enterUploading1State()
     Screen.clean();
     Screen.print(0, "Processing...          ");
     Screen.print(1, "Uploading.", true);
+    rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
 }
 
-static void enterUploading2State()
+static void enterUploading2State(int size)
 {
     status = 3;
     Screen.clean();
     Screen.print(0, "Processing...          ");
-    Screen.print(1, "Uploading..", true);
+    char buf[20];
+    sprintf(buf, "Uploading..(size %d)", size);
+    Screen.print(1, buf, true);
+    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
 }
 
 static void enterUploading3State()
@@ -72,6 +82,8 @@ static void enterUploading3State()
     Screen.clean();
     Screen.print(0, "Processing...          ");
     Screen.print(1, "Uploading...", true);
+
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, RGB_LED_BRIGHTNESS);
 }
 static void enterReceivingState()
 {
@@ -80,6 +92,7 @@ static void enterReceivingState()
     Screen.print(0, "Processing...          ");
 
     Screen.print(1, "Receiving...", true);
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, RGB_LED_BRIGHTNESS, RGB_LED_BRIGHTNESS);
 }
 
 static void enterShowMessageState(const char *message)
@@ -88,13 +101,15 @@ static void enterShowMessageState(const char *message)
     Screen.print(0, "Message about to send:           ");
     Screen.print(1, message, true);
 
+    rgbLed.setColor(0, 0, 0);
+
 }
 static void enterShowErrorMessageState(const char *message)
 {
     Screen.clean();
     Screen.print(0, "Failed to process the voice!          ");
     Screen.print(1, message, true);
-
+    rgbLed.setColor(0, 0, 0);
 }
 void setup()
 {
@@ -177,7 +192,7 @@ void loop()
         {
             if (0 == iot_client_blob_upload_step1("test.wav"))
             {
-                enterUploading2State();
+                enterUploading2State(wavFileSize);
             }
             else
             {
