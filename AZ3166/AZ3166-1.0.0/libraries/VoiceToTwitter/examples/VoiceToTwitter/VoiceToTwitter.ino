@@ -8,7 +8,7 @@
 #include <json.h>
 static boolean hasWifi;
 static int status = 0; // idle
-static const int AUDIO_SIZE = 32044 * 2;
+static const int AUDIO_SIZE = 32044 * 3;
 static char *waveFile = NULL;
 static int wavFileSize;
 static int timeout = 0;
@@ -101,6 +101,7 @@ void freeWavFile()
 }
 void loop()
 {
+    Serial.println("Loop~");
     uint32_t delayTimes = 600;
     uint32_t curr = millis();
     if (status == 0)
@@ -174,9 +175,8 @@ void loop()
     }
     else if (status == 3)
     {
-        Serial.print("Uploading ");
         char buf[10];
-        sprintf(buf, "Uploading size %d     ", wavFileSize);
+        sprintf(buf, "Uploading size %d          ", wavFileSize);
         Serial.println(buf);
         Screen.print(1, buf);
         step2Result = iot_client_blob_upload_step2(waveFile, wavFileSize);
@@ -206,6 +206,7 @@ void loop()
                 free((void *)p);
                 break;
             }
+            Serial.println(p);
             if (strlen(p) > 0 && p[0] == '{')
             {
                 json_object *jsonObject = json_tokener_parse(p);
@@ -213,8 +214,10 @@ void loop()
                 {
                     const char *jsonText = _json_object_get_string(jsonObject, "text");
                     char output[64];
-                    sprintf(output, " > %s", jsonText);
+                    sprintf(output, " > %s                 ", jsonText);
                     Screen.print(output, true);
+                    Serial.println("Got messsage");
+                    Serial.println(output);
                     json_object_put(jsonObject);
                 }
             }
