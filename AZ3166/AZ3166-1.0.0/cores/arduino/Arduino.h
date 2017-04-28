@@ -20,7 +20,8 @@
 #ifndef Arduino_h
 #define Arduino_h
 
-// Useful C libraries#include <math.h>
+// Useful C libraries
+#include <math.h>
 #include <time.h>
 
 #include <stdint.h>
