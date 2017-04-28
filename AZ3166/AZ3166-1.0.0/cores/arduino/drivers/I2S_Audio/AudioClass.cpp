@@ -73,7 +73,7 @@ void AudioClass::format(uint32_t sampleRate, uint8_t sampleBitLength)
     } else {
         sample_bit_depth = I2S_DATAFORMAT_16B;
     }
-    
+
     BSP_AUDIO_IN_OUT_Init(OUTPUT_DEVICE_AUTO, sample_bit_depth, sampleRate);
     record_finish = false;
 }
@@ -172,7 +172,6 @@ char * AudioClass::getWav(int *file_size)
     WaveHeader hdr;
     genericWAVHeader(&hdr, currentSize - WAVE_HEADER_SIZE, m_sample_rate, m_bit_depth, m_channels);
     memcpy(m_wavFile, &hdr, sizeof(WaveHeader));
-    delete &hdr;
 
     return m_wavFile;
 }
@@ -224,7 +223,6 @@ int AudioClass::convertToMono(char * audioFile, int size, uint8_t sampleBitLengt
     WaveHeader hdr;
     genericWAVHeader(&hdr, curFileSize - WAVE_HEADER_SIZE, m_sample_rate, m_bit_depth, 1);
     memcpy(audioFile, &hdr, sizeof(WaveHeader));
-    delete &hdr;
 
     // clean up the remaining file
     //memset(curWriter, 0, audioFile + size - curWriter);
