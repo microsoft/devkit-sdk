@@ -23,7 +23,7 @@
  */
 
 // the sensor communicates using SPI, so include the library:
-#include <SPI.h>
+#include "AZ3166SPI.h"
 
 //Sensor's memory register addresses:
 const int PRESSURE = 0x1F;      //3 most significant bits of pressure
@@ -80,7 +80,8 @@ void loop() {
     long pressure = ((pressure_data_high << 16) | pressure_data_low) / 4;
 
     // display the temperature:
-    Serial.println("\tPressure [Pa]=" + String(pressure));
+    Serial.print("\tPressure [Pa]=");
+    Serial.println(pressure);
   }
 }
 

@@ -94,35 +94,3 @@ UARTClass Serial;
 */
 OLEDDisplay Screen;
 
-/*
-UARTClass Serial(USART2_E);    //available on PA2/PA3
-UARTClass Serial1(USART1_E);   //available on PA9/PA10
-USARTClass Serial2(USART2_E);  //available on PA2/PA3
-USARTClass Serial3(UART4_E);   //available on PA0/PA1
-
-void serialEvent() __attribute__((weak));
-void serialEvent() { }
-
-void serialEventRun(void)
-{
-  if (Serial.available()) serialEvent();
-}
-
-// ----------------------------------------------------------------------------
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void __libc_init_array(void);
-
-
-void init( void )
-{
-  hw_config_init();
-}
-
-
-#ifdef __cplusplus
-}
-#endif*/
