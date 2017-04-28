@@ -42,39 +42,59 @@ static void enterIdleState()
 {
     status = 0;
     Screen.clean();
-    Screen.print(0, "Welcome to AzureDevKit");
+    Screen.print(0, "Hold button A to talk   ");
 }
 static void enterRecordState()
 {
     status = 1;
     Screen.clean();
-    Screen.print(0, "Recording             ");
+    Screen.print(0, "Release button to send    ");
 }
 static void enterUploading1State()
 {
     status = 2;
     Screen.clean();
-    Screen.print(0, "Uploading(1)           ");
+    Screen.print(0, "Processing...          ");
+    Screen.print(1, "Uploading.", true);
 }
 
 static void enterUploading2State()
 {
     status = 3;
     Screen.clean();
-    Screen.print(0, "Uploading(2)           ");
+    Screen.print(0, "Processing...          ");
+    Screen.print(1, "Uploading..", true);
 }
 
 static void enterUploading3State()
 {
     status = 4;
     Screen.clean();
-    Screen.print(0, "Compeleting             ");
+    Screen.print(0, "Processing...          ");
+    Screen.print(1, "Uploading...", true);
 }
 static void enterReceivingState()
 {
     status = 5;
     Screen.clean();
-    Screen.print(0, "Receiving               ");
+    Screen.print(0, "Processing...          ");
+
+    Screen.print(1, "Receiving...", true);
+}
+
+static void enterShowMessageState(const char *message)
+{
+    Screen.clean();
+    Screen.print(0, "Message about to send:           ");
+    Screen.print(1, message, true);
+
+}
+static void enterShowErrorMessageState(const char *message)
+{
+    Screen.clean();
+    Screen.print(0, "Failed to process the voice!          ");
+    Screen.print(1, message, true);
+
 }
 void setup()
 {
@@ -101,7 +121,6 @@ void freeWavFile()
 }
 void loop()
 {
-    Serial.println("Loop~");
     uint32_t delayTimes = 600;
     uint32_t curr = millis();
     if (status == 0)
@@ -118,7 +137,7 @@ void loop()
             }
             memset(waveFile, 0, AUDIO_SIZE + 1);
             Audio.format(8000, 16);
-            Audio.startRecord(waveFile, AUDIO_SIZE, 2);
+            Audio.startRecord(waveFile, AUDIO_SIZE, 3);
             enterRecordState();
         }
     }
@@ -213,11 +232,21 @@ void loop()
                 if (jsonObject != NULL)
                 {
                     const char *jsonText = _json_object_get_string(jsonObject, "text");
-                    char output[64];
-                    sprintf(output, " > %s                 ", jsonText);
-                    Screen.print(output, true);
-                    Serial.println("Got messsage");
-                    Serial.println(output);
+                    if (jsonText != NULL && strlen(jsonText) > 0)
+                    {
+                        Serial.println("Got messsage");
+                        Serial.println(jsonText);
+                        enterShowMessageState(jsonText);
+                    }
+                    else
+                    {
+                        const char *jsonError = _json_object_get_string(jsonObject, "error");
+                        Serial.print("Got error ");
+                        Serial.println(jsonError);
+                        enterShowErrorMessageState(jsonError);
+                    }
+                    // delay to let user read this message
+                    delay(5000);
                     json_object_put(jsonObject);
                 }
             }
