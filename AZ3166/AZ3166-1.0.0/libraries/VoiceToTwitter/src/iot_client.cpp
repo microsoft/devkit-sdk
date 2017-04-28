@@ -1,4 +1,6 @@
-// TODO MIT header
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 #include "iot_client.h"
 #include "Arduino.h"
 #include <json.h>
@@ -278,7 +280,7 @@ const char *iot_client_get_c2d_message()
     {
         res = response->body;
     }
-    return strdup(res);
+    return res != NULL ? strdup(res) : NULL;
 }
 
 const char *_json_object_get_string(json_object *obj, const char *name)
