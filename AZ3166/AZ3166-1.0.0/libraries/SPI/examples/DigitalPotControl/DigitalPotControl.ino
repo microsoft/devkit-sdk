@@ -28,7 +28,7 @@
 
 
 // inslude the SPI library:
-#include <SPI.h>
+#include "AZ3166SPI.h"
 
 
 // set pin 10 as the slave select for the digital pot:

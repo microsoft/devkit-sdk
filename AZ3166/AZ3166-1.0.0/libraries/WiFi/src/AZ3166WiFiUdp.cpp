@@ -61,13 +61,6 @@ uint8_t WiFiUDP::begin(uint16_t port) {
     }
 }
 
-/* return number of bytes available in the current packet,
-   will return zero if parsePacket hasn't been called yet */
-int WiFiUDP::available() 
-{   
-    // always return 1 as we don't try to receive a byte.
-    return 1;
-}
 
 /* Release any resources being used by this WiFiUDP instance */
 void WiFiUDP::stop()
@@ -82,13 +75,13 @@ void WiFiUDP::stop()
 int WiFiUDP::beginPacket(const char *host, uint16_t port)
 {
     // Look up the host first
-    SocketAddress *outEndPoint = NULL;
-    if(WiFiInterface()->gethostbyname(host, outEndPoint))
+    SocketAddress outEndPoint(host, port);
+    if(WiFiInterface()->gethostbyname(host, &outEndPoint))
     {
         return 0;
     }
-    
-    IPAddress remote_addr((uint8_t*)outEndPoint->get_ip_address());
+    IPAddress remote_addr;
+    remote_addr.fromString(outEndPoint.get_ip_address());
     return beginPacket(remote_addr, port);
 }
 
@@ -109,7 +102,7 @@ int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
         is_initialized = true;
     }
     
-    if ( is_initialized >= 0 )
+    if ( is_initialized )
     {
         _address = new SocketAddress(ip.get_address(), port);
     }   
@@ -135,11 +128,6 @@ size_t WiFiUDP::write(const uint8_t *buffer, size_t size)
     return size;
 }
 
-int WiFiUDP::parsePacket()
-{
-    return available();
-}
-
 int WiFiUDP::read()
 {
     int n;
@@ -163,11 +151,6 @@ int WiFiUDP::read(unsigned char* buffer, size_t len)
     recvAddress.set_ip_address(_address->get_ip_address());
     recvAddress.set_port(_address->get_port());
     return _pUdpSocket->recvfrom(&recvAddress, (char*)buffer, len);
-}
-
-int WiFiUDP::peek()
-{
-    return 1;
 }
 
 void WiFiUDP::flush()

@@ -20,8 +20,7 @@
 #ifndef Arduino_h
 #define Arduino_h
 
-// Useful C libraries
-#include <math.h>
+// Useful C libraries#include <math.h>
 #include <time.h>
 
 #include <stdint.h>
@@ -89,6 +88,13 @@ extern const PinDescription g_APinDescription[] ;
 #include "WCharacter.h"
 #include "Stream.h"
 #include "AudioClass.h"	
+
 #include "app_httpd.h"
+#include "HTS221Sensor.h"
+#include "lis2mdl_class.h"
+#include "RGB_LED.h"
+#include "LSM6DSLSensor.h"
+#include "lps25h_class.h"
+
 
 #endif
