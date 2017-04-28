@@ -107,6 +107,8 @@ extern void telemetry_enqueue(const char *iothub, const char *event, const char 
 
 void loop()
 {
+  print_heap_info();
+  delay(LOOP_DELAY);
   if (hasWifi)
   {
     Screen.print(3, "  > Test HTTP requst ");
@@ -126,6 +128,4 @@ void loop()
     rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
     Screen.print(3, "  > Done             ");
   }
-  delay(LOOP_DELAY);
-  print_heap_info();
 }
