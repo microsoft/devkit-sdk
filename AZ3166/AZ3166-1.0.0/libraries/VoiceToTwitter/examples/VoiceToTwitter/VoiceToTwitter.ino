@@ -209,10 +209,9 @@ void loop()
     }
     else if (status == 3)
     {
-        char buf[10];
+        char buf[30];
         sprintf(buf, "Uploading size %d          ", wavFileSize);
         Serial.println(buf);
-        Screen.print(1, buf);
         step2Result = iot_client_blob_upload_step2(waveFile, wavFileSize);
 
         enterUploading3State();
