@@ -50,12 +50,7 @@ public:
   virtual size_t write(uint8_t);
   // Write size bytes from buffer into the packet
   virtual size_t write(const uint8_t *buffer, size_t size);
-  
-  // Start processing the next available incoming packet
-  // Returns the size of the packet in bytes, or 0 if no packets are available
-  virtual int parsePacket();
-  // Number of bytes remaining in the current packet
-  virtual int available();
+
   // Read a single byte from the current packet
   virtual int read();
   // Read up to len bytes from the current packet and place them into buffer
@@ -64,8 +59,7 @@ public:
   // Read up to len characters from the current packet and place them into buffer
   // Returns the number of characters read, or 0 if none are available
   virtual int read(char* buffer, size_t len) { return read((unsigned char*)buffer, len); };
-  // Return the next byte from the current packet without moving on to the next byte
-  virtual int peek();
+
   virtual void flush();	// Finish reading the current packet
 
   // Return the IP address of the host who sent the current incoming packet

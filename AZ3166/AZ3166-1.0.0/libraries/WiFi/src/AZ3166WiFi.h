@@ -16,7 +16,7 @@
 #define AZ3166_WiFi_h
 
 extern "C" {
-    #include "utility\wl_definitions.h"
+    #include "utility/wl_definitions.h"
 }
 
 #include "IPAddress.h"
