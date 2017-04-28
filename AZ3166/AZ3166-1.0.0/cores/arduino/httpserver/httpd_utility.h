@@ -40,7 +40,7 @@
 //#include <json.h>
 
 /** Port on which the httpd listens for non secure connections. */
-#define HTTP_PORT 999
+#define HTTP_PORT 80
 
 /** Port on which the httpd listens for secure connections. */
 #define HTTPS_PORT 443
