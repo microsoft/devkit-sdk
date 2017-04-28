@@ -24,6 +24,7 @@
 #include "SystemWiFi.h"
 #include "telemetry.h"
 #include "mbed_stats.h"
+#include "../../libraries/WiFi/src/AZ3166WiFi.h"
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -65,6 +66,17 @@ static bool IsConfigurationMode()
     return false;
 }
 
+static bool IsAPMode()
+{
+    pinMode(USER_BUTTON_B, INPUT);
+    int buttonState = digitalRead(USER_BUTTON_B);
+    if(buttonState == LOW)
+    {
+        return true;
+    }
+    return false;
+}
+
 static void EnterConfigurationiMode()
 {
     pinMode(USER_BUTTON_A, INPUT);
@@ -95,9 +107,34 @@ static void EnterConfigurationiMode()
     cli_main();
 }
 
+
+static void EnterAPMode()
+{
+    pinMode(USER_BUTTON_B, INPUT);
+
+    Screen.print("Azure IoT DevKit\r\n \r\nAP Mode config \r\n");
+
+    byte mac[6];
+    WiFi.macAddress(mac);
+
+    char ap_name[20];
+    sprintf(ap_name, "AZ3166_%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    
+    int ret = WiFi.beginAP(ap_name, "");
+    if ( ret != WL_CONNECTED) {
+        Serial.println("Soft ap creation failed");
+        return ;
+    }
+    
+    httpd_server_start();
+    
+    Screen.print(1, "1.Connect WiFi \r\n2.Config at:    \r\n192.168.0.1:999\r\n");
+    Serial.println("Connect WiFi and config at \"http://192.168.0.1:999/\"");
+}
+
 static void EnterUserMode()
 {
-    Serial.print("You can press Button A and reset to enter configuration mode.\r\n\r\n");
+    Serial.print("You can 1. press Button A and reset to enter configuration mode.\r\n   Or   2. press Button B and reset to enter AP mode.\r\n\r\n");
     
     // Arduino setup function
     setup();
@@ -119,6 +156,10 @@ int main( void )
     if (IsConfigurationMode())
     {
         EnterConfigurationiMode();
+    }
+    else if (IsAPMode())
+    {
+        EnterAPMode();
     }
     else
     {
