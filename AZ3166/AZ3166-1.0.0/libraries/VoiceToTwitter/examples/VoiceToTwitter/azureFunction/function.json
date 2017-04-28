@@ -1,0 +1,13 @@
+{
+  "bindings": [
+    {
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "dataType": "binary",
+      "direction": "in",
+      "path": "voiceclips/{name}",
+      "connection": "storageConnectionString"
+    }
+  ],
+  "disabled": false
+}

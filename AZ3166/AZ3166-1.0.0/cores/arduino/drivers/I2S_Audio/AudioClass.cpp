@@ -161,6 +161,10 @@ void AudioClass::genericWAVHeader(WaveHeader* hdr, int pcmDataSize, uint32_t sam
 */
 char * AudioClass::getWav(int *file_size)
 {
+    if (!record_finish) {
+        record_finish = true;
+    }
+
     int currentSize = m_record_cursor - m_wavFile;
     *file_size  = (int)currentSize;
 
@@ -264,6 +268,10 @@ AudioClass Audio;
   */
 void BSP_AUDIO_IN_TransferComplete_CallBack(void)
 {
+    if (record_finish) {
+        return;
+    }
+    
     char * bufferTail = m_wavFile + m_max_pcm_size + WAVE_HEADER_SIZE;
 
     if (m_record_cursor >=  bufferTail) {
