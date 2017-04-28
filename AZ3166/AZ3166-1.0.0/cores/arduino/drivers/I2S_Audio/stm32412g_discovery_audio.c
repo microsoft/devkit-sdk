@@ -259,7 +259,7 @@ uint8_t BSP_AUDIO_IN_OUT_Init( uint16_t OutputDevice, uint32_t AudiosampleBitLen
 
     /* nau88c10 codec initialization */
     deviceid = nau88c10_drv.ReadID( AUDIO_I2C_READ_ADDRESS );
-    printf( "deviceid is 0x%02x \r\n", deviceid );
+    //printf( "deviceid is 0x%02x \r\n", deviceid );
 
     if ( deviceid == NAU88C10_ID )
     {

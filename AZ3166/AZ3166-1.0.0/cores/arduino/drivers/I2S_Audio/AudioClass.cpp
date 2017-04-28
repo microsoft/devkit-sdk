@@ -85,7 +85,7 @@ void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size
         return;
     }
 
-    printf("Start recording...\r\n");
+    //printf("Start recording...\r\n");
     BSP_AUDIO_In_Out_Transfer(transmitBuf, readBuf, size);
 }
 
@@ -110,7 +110,7 @@ void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInS
         m_max_pcm_size = m_file_size - WAVE_HEADER_SIZE;
     }
 
-    printf("Max audio data size(include 44 bytes header): %d\r\n", m_max_pcm_size + WAVE_HEADER_SIZE);
+    //printf("Max audio data size(include 44 bytes header): %d\r\n", m_max_pcm_size + WAVE_HEADER_SIZE);
     start(m_tx_buffer, m_rx_buffer, BATCH_TRANSMIT_SIZE);
 }
 
@@ -119,7 +119,7 @@ void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInS
 */
 void AudioClass::stop()
 {
-    printf("Stop recording.\r\n");
+    //printf("Stop recording.\r\n");
     BSP_AUDIO_STOP();
     record_finish = true;
 }
@@ -271,7 +271,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
     if (record_finish) {
         return;
     }
-    
+
     char * bufferTail = m_wavFile + m_max_pcm_size + WAVE_HEADER_SIZE;
 
     if (m_record_cursor >=  bufferTail) {
@@ -322,5 +322,4 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 void BSP_AUDIO_OUT_Error_CallBack(void)
 {
   /* Display message on the LCD screen */
-    printf("dma error\r\n");
 }
