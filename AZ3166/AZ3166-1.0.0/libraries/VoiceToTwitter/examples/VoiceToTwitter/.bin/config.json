@@ -1,0 +1,9 @@
+{
+  "sketch": "../VoiceToTwitter.ino",
+  "config": "deviceConnectionString",
+  "provision_iot_hub": true,
+  "provision_storage": true,
+  "provision_logic_app": true,
+  "provision_azure_function": false,
+  "functionRelativePath": "azureFunction"
+}
