@@ -149,7 +149,7 @@ void setup()
   
   iothub_client_sample_mqtt_init();
   
-  // Rune one heartbeat to warm up the Azure service
+  // Run one heartbeat to warm up the Azure service
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
   heartbeat = HEARTBEAT_INTERVAL;
   DoHeartBeat();
