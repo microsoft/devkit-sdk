@@ -13,10 +13,10 @@ module.exports = function (context, myBlob) {
     const fileName = context.bindingData.name;
     async.waterfall([
         callback => {
-            context.log('getting speech service api tocken...');
+            context.log('getting speech service api token...');
             const option = {
                 method: 'POST',
-                url: config.tockenRequestUrl,
+                url: config.tokenRequestUrl,
                 headers: {
                     'Ocp-Apim-Subscription-Key': process.env['speechServiceKey'],
                 }
@@ -28,12 +28,12 @@ module.exports = function (context, myBlob) {
                     if (response && response.statusCode == 200) {
                         callback(null, body);
                     } else {
-                        callback(`Error in getApiTocken, response code: ${response.statusCode}. body: ${body}`);
+                        callback(`Error in getApiToken, response code: ${response.statusCode}. body: ${body}`);
                     }
                 }
             });
         },
-        (tocken, callback) => {
+        (token, callback) => {
             context.log('uploading speech...');
             const option = {
                 method: 'POST',
@@ -50,7 +50,7 @@ module.exports = function (context, myBlob) {
                 },
                 headers: {
                     'Content-Type': 'audio/wav',
-                    'Authorization': `Bearer ${tocken}`,
+                    'Authorization': `Bearer ${token}`,
                     'Host': config.speechHeaderHost,
                 },
                 body: myBlob,

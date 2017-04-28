@@ -1,5 +1,5 @@
 {
-    "tockenRequestUrl": "https://api.cognitive.microsoft.com/sts/v1.0/issueToken",
+    "tokenRequestUrl": "https://api.cognitive.microsoft.com/sts/v1.0/issueToken",
     "speechRecognitionUrl": "https://speech.platform.bing.com/recognize",
     "speechSenario": "websearch",
     "speechAppId": "D4D52672-91D7-4C74-8AD8-42B1D98141A5",
