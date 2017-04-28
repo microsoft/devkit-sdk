@@ -143,8 +143,11 @@ static void EnterAPMode()
     
     httpd_server_start();
     
-    Screen.print(1, "1.Connect WiFi \r\n2.Config at:    \r\n192.168.0.1:999\r\n");
-    Serial.println("Connect WiFi and config at \"http://192.168.0.1:999/\"");
+    Screen.print("    AP Mode     \r\n");
+    Screen.print(1, "AZ3166_");
+    Screen.print(2, ap_name + 7);
+    Screen.print(3, "  192.168.0.1  \r\n");
+    Serial.println("Connect WiFi and config at \"http://192.168.0.1/\"");
 }
 
 static void EnterUserMode()

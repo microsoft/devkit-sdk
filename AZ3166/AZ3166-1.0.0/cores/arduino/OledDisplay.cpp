@@ -120,6 +120,9 @@ uint8_t OLEDDisplay::println(uint8_t line, const char *s, uint8_t len, bool wrap
                 oled_show_line[i] = ' ';
             }
         }
+        for (; i < OLED_DISPLAY_MAX_CHAR_PER_ROW; i++) {
+            oled_show_line[i] = ' ';
+        }
         oled_show_line[i] = 0;
         OLED_ShowString(OLED_DISPLAY_COLUMN_START, lineNumber[line ++], oled_show_line);
         
