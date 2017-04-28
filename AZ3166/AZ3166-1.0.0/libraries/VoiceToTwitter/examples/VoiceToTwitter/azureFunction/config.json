@@ -1,0 +1,12 @@
+{
+    "tockenRequestUrl": "https://api.cognitive.microsoft.com/sts/v1.0/issueToken",
+    "speechRecognitionUrl": "https://speech.platform.bing.com/recognize",
+    "speechSenario": "websearch",
+    "speechAppId": "D4D52672-91D7-4C74-8AD8-42B1D98141A5",
+    "speechLocale": "en-US",
+    "speechDevice": "Linux",
+    "speechVersion": "3.0",
+    "speechFormat": "json",
+    "speechInstanceId": "948062d9-cb45-40cd-b28c-29d3c02eccd1",
+    "speechHeaderHost": "speech.platform.bing.com"
+}
