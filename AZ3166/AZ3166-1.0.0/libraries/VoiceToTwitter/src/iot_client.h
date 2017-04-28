@@ -1,4 +1,6 @@
-// TODO MIT header
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 #ifndef _IOT_HUB_CLIENT_H
 #define _IOT_HUB_CLIENT_H
 

@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "RGB_LED.h"
 #include "iot_client.h"
 #include "AZ3166WiFi.h"
 #include "EEPROMInterface.h"
@@ -6,14 +7,15 @@
 #include "http_client.h"
 #include "mbed_memory_status.h"
 #include <json.h>
+#define RGB_LED_BRIGHTNESS  16
 static boolean hasWifi;
 static int status = 0; // idle
-static const int AUDIO_SIZE = 32044 * 2;
+static const int AUDIO_SIZE = 32044 * 3;
 static char *waveFile = NULL;
 static int wavFileSize;
 static int timeout = 0;
 static int step2Result = -1;
-
+static RGB_LED rgbLed;
 const char *_json_object_get_string(json_object *obj, const char *name);
 static void InitWiFi()
 {
@@ -35,46 +37,79 @@ static void InitBoard(void)
     // Initialize the WiFi module
     Screen.print(3, " > WiFi              ");
     hasWifi = false;
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
     InitWiFi();
+    rgbLed.setColor(0, 0, 0);
     enterIdleState();
 }
 static void enterIdleState()
 {
     status = 0;
     Screen.clean();
-    Screen.print(0, "Welcome to AzureDevKit");
+    Screen.print(0, "Hold  B to talk   ");
+    rgbLed.setColor(0, 0, 0);
 }
 static void enterRecordState()
 {
     status = 1;
     Screen.clean();
-    Screen.print(0, "Recording             ");
+    Screen.print(0, "Release B to send    ");
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
 }
 static void enterUploading1State()
 {
     status = 2;
     Screen.clean();
-    Screen.print(0, "Uploading(1)           ");
+    Screen.print(0, "Processing...          ");
+    Screen.print(1, "Uploading.", true);
+    rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
 }
 
-static void enterUploading2State()
+static void enterUploading2State(int size)
 {
     status = 3;
     Screen.clean();
-    Screen.print(0, "Uploading(2)           ");
+    Screen.print(0, "Processing...          ");
+    char buf[20];
+    sprintf(buf, "Uploading..(size %d)", size);
+    Screen.print(1, buf, true);
+    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
 }
 
 static void enterUploading3State()
 {
     status = 4;
     Screen.clean();
-    Screen.print(0, "Compeleting             ");
+    Screen.print(0, "Processing...          ");
+    Screen.print(1, "Uploading...", true);
+
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, RGB_LED_BRIGHTNESS);
 }
 static void enterReceivingState()
 {
     status = 5;
     Screen.clean();
-    Screen.print(0, "Receiving               ");
+    Screen.print(0, "Processing...          ");
+
+    Screen.print(1, "Receiving...", true);
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, RGB_LED_BRIGHTNESS, RGB_LED_BRIGHTNESS);
+}
+
+static void enterShowMessageState(const char *message)
+{
+    Screen.clean();
+    Screen.print(0, "Message about to send:           ");
+    Screen.print(1, message, true);
+
+    rgbLed.setColor(0, 0, 0);
+
+}
+static void enterShowErrorMessageState(const char *message)
+{
+    Screen.clean();
+    Screen.print(0, "Failed to process the voice!          ");
+    Screen.print(1, message, true);
+    rgbLed.setColor(0, 0, 0);
 }
 void setup()
 {
@@ -117,7 +152,7 @@ void loop()
             }
             memset(waveFile, 0, AUDIO_SIZE + 1);
             Audio.format(8000, 16);
-            Audio.startRecord(waveFile, AUDIO_SIZE, 2);
+            Audio.startRecord(waveFile, AUDIO_SIZE, 3);
             enterRecordState();
         }
     }
@@ -157,7 +192,7 @@ void loop()
         {
             if (0 == iot_client_blob_upload_step1("test.wav"))
             {
-                enterUploading2State();
+                enterUploading2State(wavFileSize);
             }
             else
             {
@@ -174,9 +209,8 @@ void loop()
     }
     else if (status == 3)
     {
-        Serial.print("Uploading ");
         char buf[10];
-        sprintf(buf, "Uploading size %d     ", wavFileSize);
+        sprintf(buf, "Uploading size %d          ", wavFileSize);
         Serial.println(buf);
         Screen.print(1, buf);
         step2Result = iot_client_blob_upload_step2(waveFile, wavFileSize);
@@ -206,15 +240,28 @@ void loop()
                 free((void *)p);
                 break;
             }
+            Serial.println(p);
             if (strlen(p) > 0 && p[0] == '{')
             {
                 json_object *jsonObject = json_tokener_parse(p);
                 if (jsonObject != NULL)
                 {
                     const char *jsonText = _json_object_get_string(jsonObject, "text");
-                    char output[64];
-                    sprintf(output, " > %s", jsonText);
-                    Screen.print(output, true);
+                    if (jsonText != NULL && strlen(jsonText) > 0)
+                    {
+                        Serial.println("Got messsage");
+                        Serial.println(jsonText);
+                        enterShowMessageState(jsonText);
+                    }
+                    else
+                    {
+                        const char *jsonError = _json_object_get_string(jsonObject, "error");
+                        Serial.print("Got error ");
+                        Serial.println(jsonError);
+                        enterShowErrorMessageState(jsonError);
+                    }
+                    // delay to let user read this message
+                    delay(5000);
                     json_object_put(jsonObject);
                 }
             }
