@@ -6,14 +6,14 @@
 #include <stddef.h>
 #include "TCPSocket.h"
 #include "azure_c_shared_utility/tcpsocketconnection_c.h"
+#include "SystemWifi.h"
 
-extern NetworkInterface *network;
 bool tcpsocketconnection_isConnected = false;
 
 TCPSOCKETCONNECTION_HANDLE tcpsocketconnection_create(void)
 {
 	TCPSocket* tcpSocket = new TCPSocket();
-	tcpSocket->open(network);
+	tcpSocket->open(WiFiAPInterface());
     return tcpSocket;
 }
 
