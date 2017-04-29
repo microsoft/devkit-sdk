@@ -7,7 +7,7 @@
 
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          50
-#define HEARTBEAT_INTERVAL  (30000 / LOOP_DELAY)
+#define HEARTBEAT_INTERVAL  (60000 / LOOP_DELAY)
 
 // 0 - idle
 // 1 - shaking
@@ -109,6 +109,7 @@ static void InitBoard(void)
   Screen.print(3, " > Button            ");
   pinMode(USER_BUTTON_A, INPUT);
   pinMode(USER_BUTTON_B, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   
   // Initialize the motion sensor
   Screen.print(3, " > Motion sensor     ");
@@ -123,14 +124,24 @@ static void DoHeartBeat(void)
 {
   if (heartbeat >= HEARTBEAT_INTERVAL)
   {
+    digitalWrite(LED_BUILTIN, LOW);
     Serial.println(">>Heartbeat<<");
     eventSent = false;
     iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"Heartbeat\", \"event\":\"heartbeat\"}");
-    while (!eventSent)
+    for (int i =0; i < 20; i++)
     {
       iothub_client_sample_mqtt_loop();
+      if (eventSent)
+      {
+        break;
+      }
+    }
+    if (!eventSent)
+    {
+      Serial.println("Failed to get response from IoT hub: timeout.");
     }
     heartbeat = 0;
+    digitalWrite(LED_BUILTIN, HIGH);
   }
 }
 

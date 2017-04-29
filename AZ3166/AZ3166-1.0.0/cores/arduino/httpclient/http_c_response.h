@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _MBED_HTTP_HTTP_RESPONSE
-#define _MBED_HTTP_HTTP_RESPONSE
+#ifndef __HTTP_C_RESPONSE_2017_4_29__
+#define __HTTP_C_RESPONSE_2017_4_29__
 
 #include "http_common.h"
 
@@ -53,4 +53,4 @@ private:
 
     char* body;
 };
-#endif
+#endif  // __HTTP_C_RESPONSE_2017_4_29__

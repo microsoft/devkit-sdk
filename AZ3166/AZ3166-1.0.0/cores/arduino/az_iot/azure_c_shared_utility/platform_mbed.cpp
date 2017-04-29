@@ -5,13 +5,14 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "SystemWiFi.h"
+#include "SystemTime.h"
 #include "azure_c_shared_utility/xio.h"
 #include "azure_c_shared_utility/tlsio_mbedtls.h"
 
 int platform_init(void)
 {
     SyncTime();
-    
+
     // turn on Azure led 
     DigitalOut LedAzure(LED_AZURE);
     LedAzure = 0;

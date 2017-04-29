@@ -19,7 +19,7 @@
 #define _HTTP_RESPONSE_PARSER_H_
 
 #include "http_common.h"
-#include "http_response.h"
+#include "http_c_response.h"
 
 class HttpResponseParser 
 {
