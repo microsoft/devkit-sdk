@@ -251,8 +251,6 @@ int AudioClass::getCurrentSize()
     return m_record_cursor - m_wavFile;
 }
 
-AudioClass Audio;
-
 /*------------------------------------------------------------------------------
        Callbacks implementation:
            the callbacks API are defined __weak in the stm32412g_discovery_audio.c file
