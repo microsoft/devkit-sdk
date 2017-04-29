@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __SYSTME_WIFI_H__
-#define __SYSTME_WIFI_H__
+#ifndef __SYSTME_CLOCK_H__
+#define __SYSTME_CLOCK_H__
 
 #include "mbed.h"
 
@@ -28,19 +28,10 @@
 extern "C"{
 #endif  // __cplusplus
 
-bool InitSystemWiFi(void);
-bool SystemWiFiConnect(void);
-const char* SystemWiFiSSID(void);
-NetworkInterface* WiFiInterface(void);
-
-bool InitSystemWiFiAP(void);
-bool SystemWiFiAPStart(const char *ssid, const char *passphrase);
-NetworkInterface* WiFiAPInterface(void);
-
-int WiFiScan(WiFiAccessPoint *res, unsigned count);
+void SyncTime(void);
 
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
 
-#endif  // __SYSTME_WIFI_H__
+#endif  // __SYSTME_CLOCK_H__

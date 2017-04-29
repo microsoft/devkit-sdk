@@ -8,8 +8,10 @@
 extern "C"
 {
 #endif
+
     void telemetry_init();
-    void telemetry_enqueue(const char *iothub, const char *event, const char *message);
+    void send_telemetry_data(const char *iothub, const char *event, const char *message);
+    void send_telemetry_data_async(const char *iothub, const char *event, const char *message);
 
 #ifdef _cplusplus
 }

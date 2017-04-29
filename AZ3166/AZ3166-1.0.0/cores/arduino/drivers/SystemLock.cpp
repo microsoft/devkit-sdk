@@ -19,28 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __SYSTME_WIFI_H__
-#define __SYSTME_WIFI_H__
+#include "SystemLock.h"
 
-#include "mbed.h"
+//////////////////////////////////////////////////////////////////////////////////////////////
+// We didn't find a thread unsafe issue, it looks like the WiFi driver is not thread safe.
+// So here has a lock to work around it.
+// Once fix the root cause, remove all these stuffs.
+static rtos::Mutex _lock;
 
-#ifdef __cplusplus
-extern "C"{
-#endif  // __cplusplus
-
-bool InitSystemWiFi(void);
-bool SystemWiFiConnect(void);
-const char* SystemWiFiSSID(void);
-NetworkInterface* WiFiInterface(void);
-
-bool InitSystemWiFiAP(void);
-bool SystemWiFiAPStart(const char *ssid, const char *passphrase);
-NetworkInterface* WiFiAPInterface(void);
-
-int WiFiScan(WiFiAccessPoint *res, unsigned count);
-
-#ifdef __cplusplus
+SystemLock::SystemLock()
+{
+    _lock.lock();
 }
-#endif  // __cplusplus
 
-#endif  // __SYSTME_WIFI_H__
+SystemLock::~SystemLock()
+{
+    _lock.unlock();
+}

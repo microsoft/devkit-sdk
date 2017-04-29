@@ -132,24 +132,6 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
         return NULL;
     }
     
-/*
-    char buf[1024];
-    mbedtls_x509_crt_info(buf, sizeof(buf), "\r    ", mbedtls_ssl_get_peer_cert(&_ssl));
-    buf[sizeof(buf) - 1] = 0;
-    INFO("Server certificate:");
-    INFO(buf);
-
-    uint32_t flags = mbedtls_ssl_get_verify_result(&_ssl);
-    if( flags != 0 )
-    {
-        mbedtls_x509_crt_verify_info(buf, 1024, "\r  ! ", flags);
-        ERROR("Certificate verification failed");
-    }
-    else 
-    {
-        INFO("Certificate verification passed");
-    }
-*/
     // Create a response object
     if (_response)
     {

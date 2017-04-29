@@ -19,28 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __SYSTME_WIFI_H__
-#define __SYSTME_WIFI_H__
+#include "Arduino.h"
+#include "SystemTime.h"
+#include "SystemLock.h"
+#include "SystemWiFi.h"
+#include "NTPClient.h"
 
-#include "mbed.h"
+static const char* ntpHost = "0.pool.ntp.org";
 
-#ifdef __cplusplus
-extern "C"{
-#endif  // __cplusplus
-
-bool InitSystemWiFi(void);
-bool SystemWiFiConnect(void);
-const char* SystemWiFiSSID(void);
-NetworkInterface* WiFiInterface(void);
-
-bool InitSystemWiFiAP(void);
-bool SystemWiFiAPStart(const char *ssid, const char *passphrase);
-NetworkInterface* WiFiAPInterface(void);
-
-int WiFiScan(WiFiAccessPoint *res, unsigned count);
-
-#ifdef __cplusplus
+static NTPResult NTPSyncUP(void)
+{
+    SystemLock lock;
+    NTPClient ntp(WiFiInterface());
+    return ntp.setTime(ntpHost);
 }
-#endif  // __cplusplus
 
-#endif  // __SYSTME_WIFI_H__
+void SyncTime(void)
+{
+    if (NTPSyncUP() == NTP_OK)
+    {
+        time_t t = time(NULL);
+        Serial.printf("Time is now (UTC): %s\r\n", ctime(&t));
+    }
+    else
+    {
+        Serial.printf("Unable to get the NTP host %s\r\n", ntpHost);
+    }
+}

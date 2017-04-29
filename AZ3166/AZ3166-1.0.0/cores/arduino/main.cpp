@@ -22,9 +22,9 @@
 #include "mico_system.h"
 #include "console_cli.h"
 #include "SystemWiFi.h"
+#include "SystemLock.h"
 #include "telemetry.h"
 #include "mbed_stats.h"
-#include "../../libraries/WiFi/src/AZ3166WiFi.h"
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -150,17 +150,30 @@ static void EnterAPMode()
     Serial.println("Connect WiFi and config at \"http://192.168.0.1/\"");
 }
 
+static void _setup()
+{
+    SystemLock lock;
+    setup();
+}
+
+static void _loop(void)
+{
+    SystemLock lock;
+
+    loop();
+}
+
 static void EnterUserMode()
 {
-    Serial.print("You can 1. press Button A and reset to enter configuration mode.\r\n   Or   2. press Button B and reset to enter AP mode.\r\n\r\n");
+    Serial.print("You can 1. press Button A and reset to enter configuration mode.\r\n        2. press Button B and reset to enter AP mode.\r\n\r\n");
     
     // Arduino setup function
-    setup();
+    _setup();
     
     for (;;)
     {
         // Arduino loop function
-        loop();
+        _loop();
     }
 }
 
