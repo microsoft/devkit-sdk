@@ -67,6 +67,4 @@ class AudioClass {
         void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels);
 };
 
-extern AudioClass Audio;
-
 #endif
