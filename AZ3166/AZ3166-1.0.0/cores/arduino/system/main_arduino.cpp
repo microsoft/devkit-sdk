@@ -31,10 +31,10 @@ static void arduino_main( void )
     }
 }
 
-static Thread arduino_thread(osPriorityNormal, 8196, NULL);
+static Thread arduino_thread(osPriorityNormal, 0x2000, NULL);
 
 void start_arduino ( void )
 {
-    // Put arduino entries in a thread due to the small stack of the main thread (only 512 Byte)
+    // Put arduino entries in a thread due to the small stack of the main thread (only 512 Bytes)
     arduino_thread.start(arduino_main);
 }
