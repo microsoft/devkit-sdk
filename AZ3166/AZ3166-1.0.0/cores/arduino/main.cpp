@@ -113,23 +113,41 @@ static void EnterAPMode()
     pinMode(USER_BUTTON_B, INPUT);
 
     Screen.print("Azure IoT DevKit\r\n \r\nAP Mode config \r\n");
-
-    byte mac[6];
-    WiFi.macAddress(mac);
-
-    char ap_name[20];
-    sprintf(ap_name, "AZ3166_%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+   
+    if (!InitSystemWiFi())
+    {
+        return;
+    }
     
-    int ret = WiFi.beginAP(ap_name, "");
-    if ( ret != WL_CONNECTED) {
+    const char* mac = WiFiInterface()->get_mac_address();
+    
+    char ap_name[22] = "AZ3166_000000000000";
+    for(int i =0, j = 7; i < strlen(mac); i++)
+    {
+        if (mac[i] != ':')
+        {
+            ap_name[j++] = mac[i];
+        }
+    }
+
+    if (!InitSystemWiFiAP()) {
+        Serial.println("Set wifi AP Mode failed");
+        return;
+    }
+
+    int ret = SystemWiFiAPStart(ap_name, "");
+    if ( ret == false) {
         Serial.println("Soft ap creation failed");
         return ;
     }
     
     httpd_server_start();
     
-    Screen.print(1, "1.Connect WiFi \r\n2.Config at:    \r\n192.168.0.1:999\r\n");
-    Serial.println("Connect WiFi and config at \"http://192.168.0.1:999/\"");
+    Screen.print("    AP Mode     \r\n");
+    Screen.print(1, "AZ3166_");
+    Screen.print(2, ap_name + 7);
+    Screen.print(3, "  192.168.0.1  \r\n");
+    Serial.println("Connect WiFi and config at \"http://192.168.0.1/\"");
 }
 
 static void EnterUserMode()

@@ -70,9 +70,9 @@ static void enterUploading2State(int size)
     status = 3;
     Screen.clean();
     Screen.print(0, "Processing...          ");
-    // char buf[20];
-    // sprintf(buf, "Uploading..(size %d)", size);
-    // Screen.print(1, buf, true);
+    char buf[30];
+    sprintf(buf, "Uploading..(size %d)", size);
+    Screen.print(1, buf, true);
     rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
 }
 
@@ -210,9 +210,9 @@ void loop()
     }
     else if (status == 3)
     {
-        // char buf[30];
-        // sprintf(buf, "Uploading size %d          ", wavFileSize);
-        Serial.println(wavFileSize);
+        char buf[30];
+        sprintf(buf, "Uploading size %d          ", wavFileSize);
+        Serial.println(buf);
         step2Result = iot_client_blob_upload_step2(waveFile, wavFileSize);
 
         enterUploading3State();

@@ -16,7 +16,7 @@ void setup() {
   Serial.println("soft ap started\r\n");
   httpd_server_start();
 
-  // you can connect to the board and set wifi at "http://192.168.0.1:999/" now
+  // you can connect to the board and set wifi at "http://192.168.0.1/" now
 }
 
 void loop() {
