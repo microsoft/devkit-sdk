@@ -19,7 +19,7 @@
 #define __HTTPS_REQUEST_H__
 
 #include "http_common.h"
-#include "http_response.h"
+#include "http_c_response.h"
 #include "http_header_builder.h"
 #include "http_parsed_url.h"
 

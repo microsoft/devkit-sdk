@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "http_response.h"
+#include "http_c_response.h"
 
 HttpResponse::HttpResponse()
 {

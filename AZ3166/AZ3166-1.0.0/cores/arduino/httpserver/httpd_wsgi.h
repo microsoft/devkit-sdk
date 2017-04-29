@@ -46,10 +46,6 @@ extern "C"
 
 static struct httpd_wsgi_call *calls[MAX_WSGI_HANDLERS];
 
-/** This is the maximum size of a POST response */
-#define MAX_HTTP_POST_RESPONSE 256
-char http_response[MAX_HTTP_POST_RESPONSE];
-
 /** @brief  Register a WSGI handler
  *
  *  @note   WSGI handlers declared must be registered with the

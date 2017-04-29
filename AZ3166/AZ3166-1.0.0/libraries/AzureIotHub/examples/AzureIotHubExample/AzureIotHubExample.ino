@@ -109,6 +109,7 @@ static void InitBoard(void)
   Screen.print(3, " > Button            ");
   pinMode(USER_BUTTON_A, INPUT);
   pinMode(USER_BUTTON_B, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   
   // Initialize the motion sensor
   Screen.print(3, " > Motion sensor     ");
@@ -123,6 +124,7 @@ static void DoHeartBeat(void)
 {
   if (heartbeat >= HEARTBEAT_INTERVAL)
   {
+    digitalWrite(LED_BUILTIN, LOW);
     Serial.println(">>Heartbeat<<");
     eventSent = false;
     iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"Heartbeat\", \"event\":\"heartbeat\"}");
@@ -131,6 +133,7 @@ static void DoHeartBeat(void)
       iothub_client_sample_mqtt_loop();
     }
     heartbeat = 0;
+    digitalWrite(LED_BUILTIN, HIGH);
   }
 }
 

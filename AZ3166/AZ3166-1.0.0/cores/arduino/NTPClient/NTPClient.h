@@ -49,7 +49,7 @@ public:
     /**
     Instantiate the NTP client
     */
-    NTPClient(NetworkInterface& p_networkInterface);
+    NTPClient(NetworkInterface *networkInterface);
 
     /**Get current time (blocking)
     Update the time using the server host
@@ -90,7 +90,7 @@ private:
     } __attribute__ ((packed));
   
     UDPSocket m_sock;
-    NetworkInterface& m_net;
+    NetworkInterface *m_net;
 };
 
 

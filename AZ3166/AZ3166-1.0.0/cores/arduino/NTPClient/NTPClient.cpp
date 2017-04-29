@@ -28,19 +28,13 @@
 #define NTP_CLIENT_PORT 0 //Random port
 #define NTP_TIMESTAMP_DELTA 2208988800ull //Diff btw a UNIX timestamp (Starting Jan, 1st 1970) and a NTP timestamp (Starting Jan, 1st 1900)
 
-NTPClient::NTPClient(NetworkInterface& p_networkInterface)
-    : m_sock(), 
-    m_net(p_networkInterface)
+NTPClient::NTPClient(NetworkInterface *networkInterface)
+    : m_sock(networkInterface), m_net(networkInterface)
 {
 }
 
 NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
 {
-    if( m_sock.open(&m_net) != 0)
-    { 
-        return NTP_CONN;
-    }
-
     //Create & bind socket
     m_sock.set_blocking(false);
     m_sock.set_timeout(timeout);
@@ -69,13 +63,12 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
 
     SocketAddress outEndpoint(host, port);
 
-    if(m_net.gethostbyname(host, &outEndpoint)!= 0)
+    if(m_net->gethostbyname(host, &outEndpoint)!= 0)
     {
-        printf("UNABLE TO GET THE HOST\r\n");
         m_sock.close();
         return NTP_DNS;    
     }
-
+    
     const char *ip = outEndpoint.get_ip_address();
     //Set timeout, non-blocking and wait using select
     int ret = m_sock.sendto(outEndpoint, (char*)&pkt, sizeof(NTPPacket) );
@@ -84,11 +77,11 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
         m_sock.close();
         return NTP_CONN;
     }
+    
     SocketAddress recvAddress;
     recvAddress.set_ip_address(outEndpoint.get_ip_address());
     recvAddress.set_port(port);
     ret = m_sock.recvfrom(&recvAddress, (char*)&pkt, sizeof(NTPPacket) ); //FIXME need a DNS Resolver to actually compare the incoming address with the DNS name
-
     if (ret > 0)
     {
         if (strcmp(outEndpoint.get_ip_address(), recvAddress.get_ip_address()) != 0)
@@ -130,10 +123,7 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
     int64_t offset = ( (int64_t)( pkt.rxTm_s - pkt.origTm_s ) + (int64_t) ( pkt.txTm_s - destTm_s ) ) / 2; //Avoid overflow
     //Set time accordingly
     set_time( time(NULL) + offset );
-
-    time_t ctTime = time(NULL);
-    printf("Time is now (UTC): %s\r\n", ctime(&ctTime));
-
+    
     m_sock.close();
 
     return NTP_OK;
