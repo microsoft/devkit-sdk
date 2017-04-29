@@ -16,28 +16,14 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-#define ARDUINO_MAIN
 #include "Arduino.h"
 #include "mico_system.h"
 #include "console_cli.h"
 #include "SystemWiFi.h"
-#include "SystemLock.h"
-#include "telemetry.h"
 #include "mbed_stats.h"
-
-// Weak empty variant initialization function.
-// May be redefined by variant files.
-void initVariant() __attribute__((weak));
-void initVariant(){ }
 
 static bool Initialization(void)
 {
-    // Initialize watchdog
-    //watchdogSetup();
-    
-    initVariant();
-
     mbed_stats_heap_t heap_stats;
     mbed_stats_heap_get(&heap_stats);
 
@@ -77,6 +63,21 @@ static bool IsAPMode()
     return false;
 }
 
+static int GetMacWichoutColon(char* buff)
+{
+    const char* mac = WiFiInterface()->get_mac_address();
+    int j = 0;
+    for(int i =0; i < strlen(mac); i++)
+    {
+        if (mac[i] != ':')
+        {
+            buff[j++] = mac[i];
+        }
+    }
+
+    return j;
+}
+
 static void EnterConfigurationiMode()
 {
     pinMode(USER_BUTTON_A, INPUT);
@@ -88,20 +89,9 @@ static void EnterConfigurationiMode()
         return;
     }
     
-    const char* mac = WiFiInterface()->get_mac_address();
-    
-    char m[20] = { '\0'};
-    m[0] = 'i';
-    m[1] = 'd';
-    m[2] = ':';
-    for(int i =0, j = 3; i < strlen(mac); i++)
-    {
-        if (mac[i] != ':')
-        {
-            m[j++] = mac[i];
-        }
-    }
-    Screen.print(1, m);
+    char id[24] = "id:";
+    id[3 + GetMacWichoutColon(id + 3)] = 0;
+    Screen.print(1, id);
 
     // Enter configuration mode
     cli_main();
@@ -112,74 +102,54 @@ static void EnterAPMode()
 {
     pinMode(USER_BUTTON_B, INPUT);
 
-    Screen.print("Azure IoT DevKit\r\n \r\nAP Mode config \r\n");
+    Screen.print("Azure IoT DevKit");
    
     if (!InitSystemWiFi())
     {
         return;
     }
     
-    const char* mac = WiFiInterface()->get_mac_address();
+    char ap_name[24] = "AZ-";
+    ap_name[3 + GetMacWichoutColon(ap_name + 3)] = 0;
     
-    char ap_name[22] = "AZ3166_000000000000";
-    for(int i =0, j = 7; i < strlen(mac); i++)
+    if (!InitSystemWiFiAP())
     {
-        if (mac[i] != ':')
-        {
-            ap_name[j++] = mac[i];
-        }
-    }
-
-    if (!InitSystemWiFiAP()) {
         Serial.println("Set wifi AP Mode failed");
         return;
     }
 
     int ret = SystemWiFiAPStart(ap_name, "");
-    if ( ret == false) {
+    if ( ret == false) 
+    {
         Serial.println("Soft ap creation failed");
         return ;
     }
     
     httpd_server_start();
     
-    Screen.print("    AP Mode     \r\n");
-    Screen.print(1, "AZ3166_");
-    Screen.print(2, ap_name + 7);
-    Screen.print(3, "  192.168.0.1  \r\n");
-    Serial.println("Connect WiFi and config at \"http://192.168.0.1/\"");
+    Screen.print(1, ap_name);
+    Screen.print(2, "Soft AP started");
+    Screen.print(3, " > 192.168.0.1");
+
+    Serial.printf("Soft AP %s is running...\r\n", ap_name);
+    Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the Wi-Fi settings.\r\n");
 }
 
-static void _setup()
-{
-    SystemLock lock;
-    setup();
-}
-
-static void _loop(void)
-{
-    SystemLock lock;
-
-    loop();
-}
+extern void start_arduino ( void );
 
 static void EnterUserMode()
 {
     Serial.print("You can 1. press Button A and reset to enter configuration mode.\r\n        2. press Button B and reset to enter AP mode.\r\n\r\n");
     
-    // Arduino setup function
-    _setup();
-    
+    start_arduino();
+
     for (;;)
     {
-        // Arduino loop function
-        _loop();
+        // loop
+        wait_ms(60000);
     }
 }
 
-/*
- * \brief Main entry point of Arduino application
- */
 int main( void )
 {
     Initialization();

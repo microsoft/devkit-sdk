@@ -21,7 +21,6 @@
 
 #include "Arduino.h"
 #include "SystemTime.h"
-#include "SystemLock.h"
 #include "SystemWiFi.h"
 #include "NTPClient.h"
 
@@ -29,7 +28,6 @@ static const char* ntpHost = "0.pool.ntp.org";
 
 static NTPResult NTPSyncUP(void)
 {
-    SystemLock lock;
     NTPClient ntp(WiFiInterface());
     return ntp.setTime(ntpHost);
 }

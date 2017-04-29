@@ -78,7 +78,7 @@ bool SystemWiFiConnect(void)
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
         
-        send_telemetry_data_async("", "wifi", "Wi-Fi connected");
+        send_telemetry_data("", "wifi", "Wi-Fi connected");
 
         return true;
     }

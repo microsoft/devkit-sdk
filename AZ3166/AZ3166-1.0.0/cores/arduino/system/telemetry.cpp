@@ -5,14 +5,14 @@
 #include "telemetry.h"
 #include "SystemWiFi.h"
 #include "SystemTime.h"
-#include "SystemLock.h"
 #include "Queue.h"
 #include "Thread.h"
 #include "md5.h"
 #include "http_client.h"
 
-#define STACK_SIZE 0x2000
+#define STACK_SIZE 0x1000
 #define IOTHUB_NAME_MAX_LEN 52
+#define MAX_EVENT_SIZE 64
 #define MAX_MESSAGE_SIZE 128
 
 // Todo, the url and key of AI shall be get from REST service / web page, instead of hardcode here 
@@ -45,18 +45,9 @@ static const char *BODY_TEMPLATE =
 "}";
 static const char HEX_STR[] = "0123456789abcdef";
 
-static Thread TELEMETRY_THREAD(osPriorityNormal, STACK_SIZE, NULL);
 static char hash_mac[33] = { '\0' };
 static char hash_iothub_name[33] = { '\0' };
-
-typedef struct _tagTelemetry
-{
-    char iothub[IOTHUB_NAME_MAX_LEN];
-    char event[MAX_MESSAGE_SIZE];
-    char message[MAX_MESSAGE_SIZE];
-}Telemetry;
-
-static Queue<Telemetry, 16> queue;
+static int base_size;
 
 static void hash(char *result, const char *input)
 {
@@ -74,7 +65,6 @@ static void hash(char *result, const char *input)
 
 static void send_data_to_ai(const char* data, int size)
 {
-    SystemLock lock;
     HTTPClient *client = new HTTPClient(HTTP_POST, PATH);
     client->set_header("mem","good");
     const Http_Response *response = client->send(data, size);
@@ -101,8 +91,7 @@ static void do_trace_telemetry(const char *iothub, const char *event, const char
     _ctime[tlen] = 0;
 
     // Calculate the size of the event (json) string
-    int size = strlen(BODY_TEMPLATE) + strlen(KEYWORD) + strlen(VERSION) + strlen(MCU) + strlen(EVENT) + strlen(IKEY) - 20;
-    size += strlen(message) + strlen(hash_mac) + strlen(hash_iothub_name) + strlen(event) + tlen + 1;
+    int size = base_size + strlen(message) + strlen(event) + tlen + 1;
     
     // Send
     char* data = new char[size];
@@ -111,45 +100,14 @@ static void do_trace_telemetry(const char *iothub, const char *event, const char
     delete [] data;
 }
 
-static void trace_telemetry()
-{
-    while (true)
-    {
-        osEvent evt = queue.get();
-        if (evt.status != osEventMessage)
-        {
-            wait_ms(500);
-            return;
-        }
-        SyncTime();
-
-        Telemetry *telemetry = (Telemetry *)evt.value.p;
-
-        do_trace_telemetry(telemetry->iothub, telemetry->event, telemetry->message);
-        
-        delete telemetry;
-    }
-}
-
 void telemetry_init()
 {
+    base_size = strlen(BODY_TEMPLATE) + strlen(KEYWORD) + strlen(VERSION) + strlen(MCU) + strlen(EVENT) + strlen(IKEY) - 20 + sizeof(hash_mac) + sizeof(hash_iothub_name);
     // Sync up the date
     SyncTime();
-    TELEMETRY_THREAD.start(trace_telemetry);
-}
-
-void send_telemetry_data_async(const char *iothub, const char *event, const char *message)
-{
-    Telemetry *telemetry = new Telemetry;
-    memset(telemetry, 0, sizeof(Telemetry));
-    strncpy(telemetry->iothub, iothub, IOTHUB_NAME_MAX_LEN - 1);
-    strncpy(telemetry->event, event, MAX_MESSAGE_SIZE - 1);
-    strncpy(telemetry->message, message, MAX_MESSAGE_SIZE - 1);
-
-    queue.put(telemetry);
 }
 
 void send_telemetry_data(const char *iothub, const char *event, const char *message)
 {
-    do_trace_telemetry(iothub, event, message);
+    do_trace_telemetry(iothub ? iothub : "", event ? event : "", message ? message : "");
 }
