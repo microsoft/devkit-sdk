@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
 #include "Arduino.h"
 #include "mico_system.h"
 #include "console_cli.h"
@@ -66,7 +66,7 @@ static bool IsAPMode()
     return false;
 }
 
-static int GetMacWichoutColon(char* buff)
+static int GetMACWithoutColon(char* buff)
 {
     const char* mac = WiFiInterface()->get_mac_address();
     int j = 0;
@@ -93,7 +93,7 @@ static void EnterConfigurationiMode()
     }
     
     char id[24] = "id:";
-    id[3 + GetMacWichoutColon(id + 3)] = 0;
+    id[3 + GetMACWithoutColon(id + 3)] = 0;
     Screen.print(1, id);
 
     // Enter configuration mode
@@ -113,7 +113,7 @@ static void EnterAPMode()
     }
     
     char ap_name[24] = "AZ-";
-    ap_name[3 + GetMacWichoutColon(ap_name + 3)] = 0;
+    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
     
     if (!InitSystemWiFiAP())
     {
