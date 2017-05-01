@@ -131,7 +131,7 @@ static void DoHeartBeat(void)
   {
     return;
   }
-  
+
   digitalWrite(LED_BUILTIN, LOW);
   Serial.println(">>Heartbeat<<");
   eventSent = false;
