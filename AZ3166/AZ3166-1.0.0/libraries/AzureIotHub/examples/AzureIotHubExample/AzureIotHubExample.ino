@@ -245,7 +245,7 @@ static void DoSending(void)
   time(&time_hb);
 }
 
-static void DoRecived(void)
+static void DoRecieved(void)
 {
   // Show the tweet
   Screen.clean();
@@ -292,7 +292,7 @@ void loop()
       break;
       
     case 3:
-      DoRecived();
+      DoRecieved();
       break;
   }
   
