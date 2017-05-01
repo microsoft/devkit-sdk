@@ -7,7 +7,7 @@
 
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          50
-#define HEARTBEAT_INTERVAL  60.0
+#define HEARTBEAT_INTERVAL  30.0
 #define PULL_TIMEOUT        60.0
 
 // 0 - idle
@@ -147,18 +147,21 @@ static void DoHeartBeat(void)
     else
     {
       time(&cur);
-      if (difftime(cur, time_sending) >= PULL_TIMEOUT)
+      int diff = difftime(cur, time_sending);
+      if (diff >= PULL_TIMEOUT)
       {
         Serial.println("Failed to get response from IoT hub: timeout.");
         break;
+      }
+      else
+      {
+        Serial.printf("Get response from IoT hub: retry (%d).\r\n", diff);
       }
     }
   }
   
   time(&time_hb);
   digitalWrite(LED_BUILTIN, HIGH);
-  
-  print_heap_info();
 }
 
 void setup()
