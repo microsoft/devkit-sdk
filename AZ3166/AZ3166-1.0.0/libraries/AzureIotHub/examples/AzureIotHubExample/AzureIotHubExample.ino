@@ -7,8 +7,8 @@
 
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          50
-#define HEARTBEAT_INTERVAL  30.0
-#define PULL_TIMEOUT        60.0
+#define HEARTBEAT_INTERVAL  1800.0
+#define PULL_TIMEOUT        120.0
 
 // 0 - idle
 // 1 - shaking
@@ -135,7 +135,7 @@ static void DoHeartBeat(void)
   digitalWrite(LED_BUILTIN, LOW);
   Serial.println(">>Heartbeat<<");
   eventSent = false;
-  iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"Heartbeat\", \"event\":\"heartbeat\"}");
+  iothub_client_sample_send_event((const unsigned char *)"{\"DeviceID\":\"myDevice1\", \"event\":\"heartbeat\"}");
   time(&time_sending);
   for (;;)
   {
@@ -152,10 +152,6 @@ static void DoHeartBeat(void)
       {
         Serial.println("Failed to get response from IoT hub: timeout.");
         break;
-      }
-      else
-      {
-        Serial.printf("Get response from IoT hub: retry (%d).\r\n", diff);
       }
     }
   }
