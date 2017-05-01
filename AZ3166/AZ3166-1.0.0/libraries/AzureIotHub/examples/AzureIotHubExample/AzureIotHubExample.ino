@@ -7,7 +7,7 @@
 
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          50
-#define HEARTBEAT_INTERVAL  1800.0
+#define HEARTBEAT_INTERVAL  300.0
 #define PULL_TIMEOUT        120.0
 
 // 0 - idle
@@ -31,9 +31,17 @@ static int msgStart;
 static time_t time_hb;
 static time_t time_sending;
 
+static const char* iot_event = "{\"topic\":\"iot\", \"DeviceID\":\"myDevice1\"}";
+
 void _SendConfirmationCallback(void)
 {
     eventSent = true;
+}
+
+static char printable_char(char c)
+{
+  return c;
+  return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
 
 void _showMessage(const char *tweet, int lenTweet)
@@ -51,14 +59,14 @@ void _showMessage(const char *tweet, int lenTweet)
             msgHeader[j] = 0;
             break;
         }
-        msgHeader[j++] = tweet[i];
+        msgHeader[j++] = printable_char(tweet[i]);
     }
     j = 0;
     for (; i < lenTweet; i++)
     {
       if (tweet[i] != '\r' && tweet[i] != '\n')
       {
-        msgBody[j++] = tweet[i];
+        msgBody[j++] = printable_char(tweet[i]);
       }
     }
     msgBody[j] = 0;
@@ -72,7 +80,7 @@ void _showMessage(const char *tweet, int lenTweet)
 void SendEventToIoTHub()
 {
   // Here the DeviceID is hardcoded, it shall be the same one in the IoT Hub connection string otherwise no tweets will come back
-  iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"myDevice1\"}");
+  iothub_client_sample_send_event((const unsigned char *)iot_event);
 }
 
 static void InitWiFi()
@@ -135,7 +143,7 @@ static void DoHeartBeat(void)
   digitalWrite(LED_BUILTIN, LOW);
   Serial.println(">>Heartbeat<<");
   eventSent = false;
-  iothub_client_sample_send_event((const unsigned char *)"{\"DeviceID\":\"myDevice1\", \"event\":\"heartbeat\"}");
+  iothub_client_sample_send_event((const unsigned char *)iot_event);
   time(&time_sending);
   for (;;)
   {
