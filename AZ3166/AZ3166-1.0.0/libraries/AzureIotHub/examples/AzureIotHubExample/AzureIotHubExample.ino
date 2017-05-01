@@ -7,7 +7,8 @@
 
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          50
-#define HEARTBEAT_INTERVAL  (60000 / LOOP_DELAY)
+#define HEARTBEAT_INTERVAL  60.0
+#define PULL_TIMEOUT        60.0
 
 // 0 - idle
 // 1 - shaking
@@ -27,7 +28,8 @@ static char msgHeader[20];
 static char msgBody[200];
 static int msgStart;
 
-static int heartbeat;
+static time_t time_hb;
+static time_t time_sending;
 
 void _SendConfirmationCallback(void)
 {
@@ -122,27 +124,41 @@ static void InitBoard(void)
 
 static void DoHeartBeat(void)
 {
-  if (heartbeat >= HEARTBEAT_INTERVAL)
+  time_t cur;
+  time(&cur);
+
+  if (difftime(cur, time_hb) < HEARTBEAT_INTERVAL)
   {
-    digitalWrite(LED_BUILTIN, LOW);
-    Serial.println(">>Heartbeat<<");
-    eventSent = false;
-    iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"Heartbeat\", \"event\":\"heartbeat\"}");
-    for (int i =0; i < 20; i++)
+    return;
+  }
+  
+  digitalWrite(LED_BUILTIN, LOW);
+  Serial.println(">>Heartbeat<<");
+  eventSent = false;
+  iothub_client_sample_send_event((const unsigned char *)"{\"topic\":\"iot\", \"DeviceID\":\"Heartbeat\", \"event\":\"heartbeat\"}");
+  time(&time_sending);
+  for (;;)
+  {
+    iothub_client_sample_mqtt_loop();
+    if (eventSent)
     {
-      iothub_client_sample_mqtt_loop();
-      if (eventSent)
+      break;
+    }
+    else
+    {
+      time(&cur);
+      if (difftime(cur, time_sending) >= PULL_TIMEOUT)
       {
+        Serial.println("Failed to get response from IoT hub: timeout.");
         break;
       }
     }
-    if (!eventSent)
-    {
-      Serial.println("Failed to get response from IoT hub: timeout.");
-    }
-    heartbeat = 0;
-    digitalWrite(LED_BUILTIN, HIGH);
   }
+  
+  time(&time_hb);
+  digitalWrite(LED_BUILTIN, HIGH);
+  
+  print_heap_info();
 }
 
 void setup()
@@ -162,7 +178,7 @@ void setup()
   
   // Run one heartbeat to warm up the Azure service
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-  heartbeat = HEARTBEAT_INTERVAL;
+  time_hb = 0;
   DoHeartBeat();
   rgbLed.setColor(0, 0, 0);
   
@@ -184,7 +200,6 @@ static void DoIdle(void)
       rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
       acc_gyro.reset_step_counter();
     }
-    heartbeat++;
 }
 
 static void DoShake(void)
@@ -196,22 +211,31 @@ static void DoShake(void)
     // Trigger the twitter
     SendEventToIoTHub();
     status = 2;
-    heartbeat = 0;
+    time(&time_sending);
+    time(&time_hb);
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
     Screen.print(1, "                     ");
     Screen.print(2, " Processing...       ");
     Screen.print(3, "                     ");
-  }
-  else
-  {
-    heartbeat++;
   }
 }
 
 static void DoSending(void)
 {
   iothub_client_sample_mqtt_loop();
-  heartbeat = 0;
+  time_t cur;
+  time(&cur);
+  if (difftime(cur, time_sending) >= PULL_TIMEOUT)
+  {
+    // Switch back to status 0
+    Screen.print(1, "Ooooops");
+    Screen.print(2, " > TIMEOUT");
+    Screen.print(3, "Press A to Shake!");
+    rgbLed.setColor(0, 0, 0);
+    status = 0;
+  }
+
+  time(&time_hb);
 }
 
 static void DoRecived(void)

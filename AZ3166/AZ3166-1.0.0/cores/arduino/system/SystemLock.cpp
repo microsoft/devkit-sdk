@@ -20,19 +20,25 @@
  */
 
 #include "SystemLock.h"
+#include "mbed.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // We didn't find a thread unsafe issue, it looks like the WiFi driver is not thread safe.
 // So here has a lock to work around it.
 // Once fix the root cause, remove all these stuffs.
-static rtos::Mutex _lock;
+static rtos::Mutex *_lock;
 
-SystemLock::SystemLock()
+void init_system_lock(void)
 {
-    _lock.lock();
+    _lock = new rtos::Mutex();
 }
 
-SystemLock::~SystemLock()
+void lwip_lock(void)
 {
-    _lock.unlock();
+    _lock->lock();
+}
+
+void lwip_unlock(void)
+{
+    _lock->unlock();
 }

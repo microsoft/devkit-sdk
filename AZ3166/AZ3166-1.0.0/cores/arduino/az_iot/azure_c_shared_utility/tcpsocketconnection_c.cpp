@@ -13,7 +13,7 @@ bool tcpsocketconnection_isConnected = false;
 TCPSOCKETCONNECTION_HANDLE tcpsocketconnection_create(void)
 {
 	TCPSocket* tcpSocket = new TCPSocket();
-	tcpSocket->open(WiFiAPInterface());
+	tcpSocket->open(WiFiInterface());
     return tcpSocket;
 }
 

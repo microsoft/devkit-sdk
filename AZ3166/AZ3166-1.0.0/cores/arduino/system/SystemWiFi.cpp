@@ -104,10 +104,14 @@ int WiFiScan(WiFiAccessPoint *res, unsigned count)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-// As EMW10xxInterface doesn't expose all functions for WiFi AP,
-// here is the temp wrap for WiFi AP.
+// WiFi AP related functsion.
 bool InitSystemWiFiAP(void)
 {
+    if (network == NULL)
+    {
+        InitSystemWiFi();
+    }
+    
     if (network != NULL)
     {
          ((EMW10xxInterface*)network)->set_interface(Soft_AP);

@@ -24,11 +24,14 @@
 #include "console_cli.h"
 #include "SystemWiFi.h"
 #include "mbed_stats.h"
+#include "SystemLock.h"
 
 static bool Initialization(void)
 {
     mbed_stats_heap_t heap_stats;
     mbed_stats_heap_get(&heap_stats);
+
+    init_system_lock();
 
 #if defined(USBCON)
     USBDevice.attach();

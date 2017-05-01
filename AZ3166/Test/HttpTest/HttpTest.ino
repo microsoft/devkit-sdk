@@ -3,6 +3,9 @@
 #include "RGB_LED.h"
 #include "AZ3166WiFi.h"
 #include "mbed_memory_status.h"
+#include "Thread.h"
+#include "NTPClient.h"
+#include "SystemWiFi.h"
 
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          2000
@@ -79,6 +82,49 @@ static void InitBoard(void)
   Screen.print(3, "                     ");
 }
 
+static Thread thread1(osPriorityNormal, 0x1000, NULL);
+static Thread thread2(osPriorityNormal, 0x1000, NULL);
+
+static void http_test()
+{
+    HTTPClient *httpClient = new HTTPClient(SSL_CA_PEM, HTTP_GET, "https://httpbin.org/status/418");
+    const Http_Response* result = httpClient->send();
+    if (result == NULL) 
+    {
+      Serial.print("X");
+    }
+    else
+    {
+      Serial.print("O");
+    }
+    delete httpClient;
+}
+
+static const char* ntpHost = "0.pool.ntp.org";
+static void ntp_test()
+{
+    NTPClient ntp(WiFiInterface());
+    if (ntp.setTime(ntpHost) == NTP_OK)
+    {
+      Serial.print("O");
+    }
+    else
+    {
+      Serial.print("x");
+    }
+}
+
+static void thread_proc()
+{
+    while(true)
+    {
+        http_test();
+        ntp_test();
+        int d = 500 + rand() % 200;
+        delay(d);
+    }
+}
+
 void setup()
 {
   InitBoard();
@@ -87,6 +133,9 @@ void setup()
     Screen.print(3, " > Fault         ");
     return;
   }
+  Screen.print(3, " > Running...");
+  thread1.start(thread_proc);
+  thread2.start(thread_proc);
 }
 
 void dump_response(const Http_Response* res)
@@ -103,30 +152,9 @@ void dump_response(const Http_Response* res)
     }
 }
 
-extern void telemetry_enqueue(const char *iothub, const char *event, const char *message);
-
 void loop()
 {
-  print_heap_info();
   delay(LOOP_DELAY);
-  if (hasWifi)
-  {
-    Screen.print(3, "  > Test HTTP requst ");
-    HTTPClient *httpClient = new HTTPClient(SSL_CA_PEM, HTTP_GET, "https://httpbin.org/status/418");
-    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-    const Http_Response* result = httpClient->send();
-    if (result == NULL) 
-    {
-      Serial.printf("HttpRequest failed (error code %d)\r\n", httpClient->get_error());
-    }
-    else
-    {
-      Serial.printf("\r\n----- HTTPS GET response -----\r\n");
-      dump_response(result);
-    }
-    delete httpClient;
-    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
-    Screen.print(3, "  > Done             ");
-  }
+  print_heap_info();
   delay(LOOP_DELAY);
 }
