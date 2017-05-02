@@ -219,16 +219,16 @@ typedef enum {
 
     // Generic signals namings
     LED1            = MBED_GPIO_2,
-    LED2            = MBED_GPIO_16,
-    LED3            = MBED_GPIO_14,
+    LED2            = MBED_GPIO_9,
+    LED3            = MBED_GPIO_16,
     LED_RED         = LED3,
     LED_WIFI        = LED1,
-    LED_AZURE       = LED3,
-    LED_USER        = LED2,
+    LED_AZURE       = LED2,
+    LED_USER        = LED3,
     RGB_R           = MBED_GPIO_31,
     RGB_G           = MBED_GPIO_27,
     RGB_B           = MBED_GPIO_12,
-    USER_BUTTON_A   = MBED_GPIO_37,
+    USER_BUTTON_A   = MBED_GPIO_38,
     USER_BUTTON_B   = MBED_GPIO_33,
     USER_BUTTON     = USER_BUTTON_A,
     SERIAL_TX       = MBED_GPIO_30,
@@ -241,6 +241,7 @@ typedef enum {
     SPI_MISO        = MBED_GPIO_7,
     SPI_SCK         = MBED_GPIO_6,
     SPI_CS          = MBED_GPIO_5,
+    IR_DATA         = MBED_GPIO_19,
     PWM_OUT         = D9,
 
     // Not connected
