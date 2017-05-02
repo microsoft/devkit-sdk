@@ -127,7 +127,7 @@ int HTS221Sensor::disable(void)
  * @param  id the pointer where the ID of the device is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::read_id(uint8_t *id)
+int HTS221Sensor::readId(uint8_t *id)
 {
   if(!id)
   { 
@@ -175,7 +175,7 @@ int HTS221Sensor::reset(void)
  * @param  pfData the pointer to data output
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::get_humidity(float* pfData)
+int HTS221Sensor::getHumidity(float* pfData)
 {
   uint16_t uint16data = 0;
 
@@ -195,7 +195,7 @@ int HTS221Sensor::get_humidity(float* pfData)
  * @param  pfData the pointer to data output
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::get_temperature(float* pfData)
+int HTS221Sensor::getTemperature(float* pfData)
 {
   int16_t int16data = 0;
 
