@@ -6,7 +6,9 @@
 #include "OLEDDisplay.h"
 #include "http_client.h"
 #include "mbed_memory_status.h"
-#include <json.h>
+#include "json.h"
+#include "AudioClass.h"
+
 #define RGB_LED_BRIGHTNESS  16
 static boolean hasWifi;
 static int status = 0; // idle
@@ -17,6 +19,8 @@ static int timeout = 0;
 static int step2Result = -1;
 static RGB_LED rgbLed;
 const char *_json_object_get_string(json_object *obj, const char *name);
+static AudioClass Audio;
+
 static void InitWiFi()
 {
     if (WiFi.begin() == WL_CONNECTED)

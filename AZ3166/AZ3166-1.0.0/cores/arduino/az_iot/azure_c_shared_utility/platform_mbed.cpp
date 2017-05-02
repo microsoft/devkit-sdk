@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include "azure_c_shared_utility/platform.h"
-#include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "SystemWiFi.h"
 #include "SystemTime.h"

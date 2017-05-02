@@ -64,7 +64,7 @@ class LIS2MDL : public MagneticSensor {
 		return LIS2MDL_Init();
 	}
 
-	virtual int read_id(uint8_t *m_id) {
+	virtual int readId(uint8_t *m_id) {
 		return LIS2MDL_Read_M_ID(m_id);
 	}
 
