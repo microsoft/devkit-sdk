@@ -61,7 +61,7 @@ public:
 	 * @param[out]  pf_data Pointer to where to store humidity to
 	 * @return      0 in case of success, an error code otherwise
 	 */
-	virtual int get_humidity(float *pf_data) = 0;
+	virtual int getHumidity(float *pf_data) = 0;
 
     /**
      * @brief Destructor.

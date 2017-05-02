@@ -61,18 +61,18 @@ public:
 	 * @param[out]  pf_data Pointer to where to store temperature to
 	 * @return      0 in case of success, an error code otherwise
 	 */
-	virtual int get_temperature(float *pf_data) = 0;
+	virtual int getTemperature(float *pf_data) = 0;
 
 	/**
 	 * @brief       Get current temperature in degrees Fahrenheit [°F]
 	 * @param[out]  pf_data Pointer to where to store temperature to
 	 * @return      0 in case of success, an error code otherwise
 	 */
-	virtual int get_fahrenheit(float *pf_data) {
+	virtual int getFahrenheit(float *pf_data) {
 		float celsius;
 		int ret;
 
-		ret = get_temperature(&celsius);
+		ret = getTemperature(&celsius);
 		if (ret) {
 			return ret;
 		}
