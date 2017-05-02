@@ -154,5 +154,4 @@ void iothub_client_sample_send_event(const unsigned char *text)
 void iothub_client_sample_mqtt_loop(void)
 {
     IoTHubClient_LL_DoWork(iotHubClientHandle);
-    ThreadAPI_Sleep(1);
 }

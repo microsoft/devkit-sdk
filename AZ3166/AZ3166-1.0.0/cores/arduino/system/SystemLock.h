@@ -22,13 +22,19 @@
 #ifndef __SYSTME_LOCK_H__
 #define __SYSTME_LOCK_H__
 
-#include "mbed.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-class SystemLock
-{
-public:
-    SystemLock();
-    ~SystemLock();
-};
+void init_system_lock(void);
+
+void lwip_lock(void);
+
+void lwip_unlock(void);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __SYSTME_LOCK_H__

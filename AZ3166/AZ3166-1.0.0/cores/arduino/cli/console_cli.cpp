@@ -22,7 +22,6 @@
 #include "mbed.h"
 #include <stdio.h>
 #include "EEPROMInterface.h"
-#include "EMW10xxInterface.h"
 #include "UARTClass.h"
 #include "console_cli.h"
 #include "mico.h"
