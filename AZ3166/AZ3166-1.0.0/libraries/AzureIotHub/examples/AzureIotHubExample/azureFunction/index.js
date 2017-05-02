@@ -11,8 +11,13 @@ function truncateByDot(text, limit){
 }
 
 module.exports = function (context, myEventHubMessage) {
-    context.log(myEventHubMessage);
-    if (myEventHubMessage.DeviceID) {
+    if (!context.bindingData || !context.bindingData.systemProperties || !context.bindingData.systemProperties['iothub-connection-device-id']) {
+        context.log('no device id');
+        context.done();
+        return;
+    }
+    var deviceId = context.bindingData.systemProperties['iothub-connection-device-id'];
+    if (deviceId && myEventHubMessage.topic) {
         cloudClient.open(function (err) {
             if (err) {
                 context.log('Could not connect: ' + err.message);
@@ -20,7 +25,7 @@ module.exports = function (context, myEventHubMessage) {
                 context.log('Client connected');
                 let tweet = '';
                 let options = {
-                    url: process.env['twitterAPI'] + '?count=3&q=%23' + myEventHubMessage.topic || '',
+                    url: process.env['twitterAPI'] + '?count=3&q=%23' + myEventHubMessage.topic,
                     headers: {
                         'Authorization': "Bearer " + process.env['twitterBearerKey']
                     }
@@ -31,7 +36,7 @@ module.exports = function (context, myEventHubMessage) {
                         tweet = (info.statuses && info.statuses.length) ? `@${truncateByDot(info.statuses[0].user.name, 13)}:\n${info.statuses[0].text}` : "No new tweet.";
                         context.log(tweet);
                         const message = new Message(tweet);
-                        cloudClient.send(myEventHubMessage.DeviceID, message, function (err, res) {
+                        cloudClient.send(deviceId, message, function (err, res) {
                             if (err) {
                                 context.log(`Error in send C2D message: ${err}`);
                             } else {

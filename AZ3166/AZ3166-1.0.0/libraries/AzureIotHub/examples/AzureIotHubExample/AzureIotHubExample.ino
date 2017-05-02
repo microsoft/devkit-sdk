@@ -31,7 +31,7 @@ static int msgStart;
 static time_t time_hb;
 static time_t time_sending;
 
-static const char* iot_event = "{\"topic\":\"iot\", \"DeviceID\":\"myDevice1\"}";
+static const char* iot_event = "{\"topic\":\"iot\"}";
 
 void _SendConfirmationCallback(void)
 {
