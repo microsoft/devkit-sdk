@@ -17,7 +17,7 @@ module.exports = function (context, myEventHubMessage) {
         return;
     }
     var deviceId = context.bindingData.systemProperties['iothub-connection-device-id'];
-    if (deviceId) {
+    if (deviceId && myEventHubMessage.topic) {
         cloudClient.open(function (err) {
             if (err) {
                 context.log('Could not connect: ' + err.message);
@@ -25,7 +25,7 @@ module.exports = function (context, myEventHubMessage) {
                 context.log('Client connected');
                 let tweet = '';
                 let options = {
-                    url: process.env['twitterAPI'] + '?count=3&q=%23' + myEventHubMessage.topic || '',
+                    url: process.env['twitterAPI'] + '?count=3&q=%23' + myEventHubMessage.topic,
                     headers: {
                         'Authorization': "Bearer " + process.env['twitterBearerKey']
                     }
