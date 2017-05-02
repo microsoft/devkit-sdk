@@ -61,18 +61,6 @@ void record() {
       Serial.print("Mono size:" );
       Serial.println(monoSize);
       delay(100);
-
-      /*
-      // Print the binary of the wave data
-      int16_t *p = (int16_t *)waveFile;
-
-      for (int i = 0; i < monoSize / 2; i++) {
-        if (i % 40 == 0) printf("\n");
-        printf("%d,", *p);
-        //Serial.print(*p, DEC);
-        p++;
-      }
-      */
       
       break;
     }
