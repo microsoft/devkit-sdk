@@ -13,7 +13,7 @@
 static boolean hasWifi;
 static int status = 0; // idle
 static const int recordedDuration = 3;
-static const int AUDIO_SIZE = 32044 * recordedDuration;
+static const int AUDIO_SIZE = ((32000 * recordedDuration) + 44);
 static char *waveFile = NULL;
 static int wavFileSize;
 static int timeout = 0;
