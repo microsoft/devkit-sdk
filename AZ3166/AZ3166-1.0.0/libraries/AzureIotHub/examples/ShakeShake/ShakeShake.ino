@@ -134,7 +134,7 @@ static void DoHeartBeat(void)
   }
   
   eventSent = false;
-  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(LED_BUILTIN, HIGH);
   Serial.println(">>Heartbeat<<");
   iothub_client_sample_send_event((const unsigned char *)iot_event);
   for (;;)
@@ -146,7 +146,7 @@ static void DoHeartBeat(void)
     }
   }
   time(&time_hb);
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void setup()
