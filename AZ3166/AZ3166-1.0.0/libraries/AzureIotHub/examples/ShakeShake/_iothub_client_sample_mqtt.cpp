@@ -8,35 +8,21 @@
 
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
-int receiveContext = 0;
+static int receiveContext = 0;
+static int trackingId = 0;
 
 typedef struct EVENT_INSTANCE_TAG
 {
     IOTHUB_MESSAGE_HANDLE messageHandle;
     int messageTrackingId; // For tracking the messages within the user callback.
 } EVENT_INSTANCE;
-EVENT_INSTANCE defaultMessage;
 
 static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
 {
     int *counter = (int *)userContextCallback;
     const char *buffer;
     size_t size;
-    MAP_HANDLE mapProperties;
-    const char *messageId;
-    const char *correlationId;
-
-    // Message properties
-    if ((messageId = IoTHubMessage_GetMessageId(message)) == NULL)
-    {
-        messageId = "<null>";
-    }
-
-    if ((correlationId = IoTHubMessage_GetCorrelationId(message)) == NULL)
-    {
-        correlationId = "<null>";
-    }
-
+    
     // Message content
     if (IoTHubMessage_GetByteArray(message, (const unsigned char **)&buffer, &size) != IOTHUB_MESSAGE_OK)
     {
@@ -46,29 +32,6 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     {
         (void)Serial.printf("Received Message [%d], Size=%d\r\n", *counter, (int)size);
         _showMessage(buffer, size);
-    }
-
-    // Retrieve properties from the message
-    mapProperties = IoTHubMessage_Properties(message);
-    if (mapProperties != NULL)
-    {
-        const char *const *keys;
-        const char *const *values;
-        size_t propertyCount = 0;
-        if (Map_GetInternals(mapProperties, &keys, &values, &propertyCount) == MAP_OK)
-        {
-            if (propertyCount > 0)
-            {
-                size_t index;
-
-                (void)Serial.printf(" Message Properties:\r\n");
-                for (index = 0; index < propertyCount; index++)
-                {
-                    (void)Serial.printf("\tKey: %s Value: %s\r\n", keys[index], values[index]);
-                }
-                (void)Serial.printf("\r\n");
-            }
-        }
     }
 
     /* Some device specific action code goes here... */
@@ -92,7 +55,7 @@ void iothub_client_sample_mqtt_init()
     callbackCounter = 0;
     
     srand((unsigned int)time(NULL));
-    defaultMessage.messageTrackingId = 0;
+    trackingId = 0;
 
     // Load connection from EEPROM
     EEPROMInterface eeprom;
@@ -137,21 +100,34 @@ void iothub_client_sample_mqtt_init()
 
 void iothub_client_sample_send_event(const unsigned char *text)
 {
-    defaultMessage.messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
-    defaultMessage.messageTrackingId ++;
-    if (defaultMessage.messageHandle == NULL) {
+    EVENT_INSTANCE currentMessage;
+    currentMessage.messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
+    currentMessage.messageTrackingId = trackingId++;
+    if (currentMessage.messageHandle == NULL) {
         (void)Serial.printf("ERROR: iotHubMessageHandle is NULL!\r\n");
         return;
     }
-    if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, defaultMessage.messageHandle, SendConfirmationCallback, &defaultMessage) != IOTHUB_CLIENT_OK)
+
+    MAP_HANDLE propMap = IoTHubMessage_Properties(currentMessage.messageHandle);
+    
+    char propText[32];
+    sprintf_s(propText, sizeof(propText), "PropMsg_%d", currentMessage.messageTrackingId);
+    if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
+    {
+         (void)Serial.printf("ERROR: Map_AddOrUpdate Failed!\r\n");
+         return;
+    }
+
+    if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, currentMessage.messageHandle, SendConfirmationCallback, &currentMessage) != IOTHUB_CLIENT_OK)
     {
         (void)Serial.printf("ERROR: IoTHubClient_LL_SendEventAsync..........FAILED!\r\n");
         return;
     }
-    (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.\r\n");
+    (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted messagefor transmission to IoT Hub.\r\n");
 }
 
 void iothub_client_sample_mqtt_loop(void)
 {
     IoTHubClient_LL_DoWork(iotHubClientHandle);
+    ThreadAPI_Sleep(1);
 }
