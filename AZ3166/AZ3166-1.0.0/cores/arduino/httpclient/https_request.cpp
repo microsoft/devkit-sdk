@@ -88,7 +88,8 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
     {
         body_size = 0;
     }
-    // Connect to the HTTP(S) server
+	
+	// Connect to the HTTP(S) server
     _error = _tlssocket->connect(_parsed_url->host(), _parsed_url->port());
     if (_error != NSAPI_ERROR_OK)
     {
@@ -98,7 +99,7 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
     
     /* Send the HTTP header */
     size_t request_size = 0;
-    char* request = _headerBuilder->build(body_size, request_size);   
+    char* request = _headerBuilder->build(body_size, request_size);
     _error = _tlssocket->send(request, request_size);
     if (_error != request_size)
     {
