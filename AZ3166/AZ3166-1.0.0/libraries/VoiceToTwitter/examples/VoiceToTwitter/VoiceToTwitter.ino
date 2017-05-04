@@ -110,7 +110,7 @@ static void enterReceivingState()
 static void enterShowMessageState(const char *message)
 {
     Screen.clean();
-    Screen.print(0, "Message about to send:           ");
+    Screen.print(0, "Message to send:           ");
     Screen.print(1, message, true);
 
     rgbLed.setColor(0, 0, 0);
@@ -151,9 +151,7 @@ void freeWavFile()
 
 void loop()
 {
-    Serial.println("Enter loop.");
-
-    uint32_t delayTimes = 600;
+    uint32_t delayTimes = 1000;
     uint32_t curr = millis();
     if (status == 0)
     {
@@ -248,9 +246,11 @@ void loop()
     }
     else if (status == 5)
     {
-        const char *p = iot_client_get_c2d_message();
+        char * etag = (char *)malloc(40);
+        const char *p = iot_client_get_c2d_message(etag);
         while (p != NULL)
         {
+            complete_c2d_message((char *)etag);
             if (strlen(p) == 0)
             {
                 free((void *)p);
@@ -265,14 +265,14 @@ void loop()
                     const char *jsonText = _json_object_get_string(jsonObject, "text");
                     if (jsonText != NULL && strlen(jsonText) > 0)
                     {
-                        Serial.println("Got messsage");
+                        Serial.print("Audio text:");
                         Serial.println(jsonText);
                         enterShowMessageState(jsonText);
                     }
                     else
                     {
                         const char *jsonError = _json_object_get_string(jsonObject, "error");
-                        Serial.print("Got error ");
+                        Serial.print("Got error: ");
                         Serial.println(jsonError);
                         enterShowErrorMessageState(jsonError);
                     }
@@ -282,8 +282,10 @@ void loop()
                 }
             }
             free((void *)p);
-            p = iot_client_get_c2d_message();
+            p = iot_client_get_c2d_message(etag);
         }
+
+        free(etag);
         freeWavFile();
         enterIdleState();
     }
