@@ -13,8 +13,8 @@
 
 // 0 - idle
 // 1 - shaking
-// 2 - sending
-// 3 - recieved
+// 2 - do work
+// 3 - received
 static volatile int status;
 
 DevI2C *ext_i2c;
@@ -252,7 +252,7 @@ static void DoWork()
   time(&time_hb);
 }
 
-static void DoRecieved()
+static void DoReceived()
 {
   Screen.clean();
   Screen.print(0, msgHeader);
@@ -281,7 +281,7 @@ void loop()
       break;
       
     case 3:
-      DoRecieved();
+      DoReceived();
       break;
   }
   
