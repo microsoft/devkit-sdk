@@ -9,8 +9,9 @@
 // 2 - Humidity & Temperature Sensor
 // 3 - Magnetic Sensor
 static int status;
-
-
+static bool showWiFi;
+static bool isConnected;
+static bool buttonClicked;
 static int counter;
 
 static struct _tagRGB
@@ -35,13 +36,30 @@ HTS221Sensor *ht_sensor;
 LIS2MDL *magnetometer;
 
 int32_t axes[3];
+char wifiBuff[128];
 
+void InitWiFi()
+{
+  Screen.print("WiFi \r\n \r\nConnecting...\r\n             \r\n");
+  
+  if(WiFi.begin() == WL_CONNECTED)
+  {
+    IPAddress ip = WiFi.localIP();
+    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
+    Screen.print(wifiBuff);
+  }
+  else
+  {
+    sprintf(wifiBuff, "WiFi  \r\n             \r\nNo connection\r\n                 \r\n");
+    Screen.print(wifiBuff);
+  }
+}
 
 void showMotionGyroSensor()
 {
   acc_gyro->get_x_axes(axes);
   char buff[128];
-  sprintf(buff, "Azure IoT DevKit\r\nGyroscopeX:%d   \r\nGyroscopeY:%d   \r\nGyroscopeZ:%d  ", axes[0], axes[1], axes[2]);
+  sprintf(buff, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
@@ -51,7 +69,7 @@ void showPressureSensor()
   float temperature = 0;
   lps25hb_Read_Data(&temperature, &pressure);
   char buff[128];
-  sprintf(buff, "Azure IoT DevKit\r\n Pressure:%s      \r\n                 \r\n             \r\n",f2s(pressure, 2));
+  sprintf(buff, "Pressure\r\n    %shPa  \r\n                 \r\n             \r\n",f2s(pressure, 2));
   Screen.print(buff);
 }
 
@@ -60,11 +78,13 @@ void showHumidTempSensor()
   ht_sensor->reset();
   float temperature = 0;
   ht_sensor->getTemperature(&temperature);
+  //convert from C to F
+  temperature = temperature*1.8 + 32;
   float humidity = 0;
   ht_sensor->getHumidity(&humidity);
   
   char buff[128];
-  sprintf(buff, "Azure IoT DevKit\r\nTemperature:%s     \r\nHumidity:%s    \r\n          \r\n",f2s(temperature, 1), f2s(humidity, 2));
+  sprintf(buff, "Environment \r\n Temp:%sF    \r\n Humidity:%s%% \r\n          \r\n",f2s(temperature, 1), f2s(humidity, 1));
   Screen.print(buff);
 }
 
@@ -72,7 +92,7 @@ void showMagneticSensor()
 {
   magnetometer->get_m_axes(axes);
   char buff[128];
-  sprintf(buff, "Azure IoT DevKit\r\nMagnetic x:%d     \r\nMagnetic y:%d     \r\nMagnetic z:%d     ", axes[0], axes[1], axes[2]);
+  sprintf(buff, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
@@ -163,7 +183,7 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
 
 
 void setup() {
-  Screen.print(0, "Azure IoT DevKit");
+  Screen.print("DevKit Status \r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n");
   pinMode(LED_WIFI, OUTPUT);
   pinMode(LED_AZURE, OUTPUT);
   pinMode(LED_USER, OUTPUT);
@@ -194,8 +214,11 @@ void setup() {
      Serial.println(WiFi.encryptionType(thisNet));
   }   
 
-  status = 0;
+  status = 3;
   counter = 0;
+  showWiFi = false;
+  isConnected = false;
+  buttonClicked = false;
 }
 
 
@@ -215,36 +238,57 @@ void loop() {
       color = (color + 1) % (sizeof(_rgb) / sizeof(struct _tagRGB));
       counter = 0;
   }
-
+ 
   if(IsButtonClicked(USER_BUTTON_A))
   {
-      Screen.print("Azure IoT DevKit\r\n Button A   \r\n is clicked    \r\n          \r\n");
-      status = (status - 1 + NUMSENSORS) % NUMSENSORS;
+      showWiFi = true;
+      buttonClicked = true;
       delay(50);
   }
   else if(IsButtonClicked(USER_BUTTON_B))
   {
-      Screen.print("Azure IoT DevKit\r\n Button B   \r\n is clicked    \r\n         \r\n");
       status = (status + 1) % NUMSENSORS;
+      showWiFi = false;
+      buttonClicked = true;
       delay(50);
   }
 
-  switch(status)
+  if(!buttonClicked)
   {
-    case 0:
-        showMotionGyroSensor();
-        break;
-    case 1:
-        showPressureSensor();
-        break; 
-    case 2:
-        showHumidTempSensor();
-        break;
-    case 3:
-        showMagneticSensor();
-        break; 
+    Screen.print("DevKit Status \r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n");
+    return;
   }
-  delay(50);
+
+  if(showWiFi)
+  {
+    if(!isConnected)
+    {
+      InitWiFi();
+      isConnected = true;
+    }
+    else
+    {
+      Screen.print(wifiBuff);
+    }
+  }
+  else
+  {
+    switch(status)
+    {
+        case 0:
+            showHumidTempSensor();
+            break;
+        case 1:
+            showPressureSensor();
+            break; 
+        case 2:
+            showMagneticSensor();
+            break;
+        case 3:
+            showMotionGyroSensor();
+            break;
+    }
+  }
 }
 
 
