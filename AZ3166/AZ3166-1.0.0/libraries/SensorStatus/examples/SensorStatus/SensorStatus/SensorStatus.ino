@@ -69,7 +69,7 @@ void showPressureSensor()
   float temperature = 0;
   lps25hb_Read_Data(&temperature, &pressure);
   char buff[128];
-  sprintf(buff, "Pressure\r\n    %s  \r\n                 \r\n             \r\n",f2s(pressure, 2));
+  sprintf(buff, "Pressure\r\n    %shPa  \r\n                 \r\n             \r\n",f2s(pressure, 2));
   Screen.print(buff);
 }
 
