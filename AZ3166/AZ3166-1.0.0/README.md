@@ -8,17 +8,17 @@ The DevKit board features ARM Cortex-M processors. At its core, it comes with a 
 
 ## Documentation
 
-* [Github Page](http://github.com/Microsoft/azure-iot-developer-kit/) - DevKit home
-* [Getting Started Guide](https://microsoft.github.io/azure-iot-developer-kit/getting-started.html) - Setup guide
-* [Mini Solutions Catalog](https://microsoft.github.io/azure-iot-developer-kit/mini-solutions.html/) - Learn and build IoT apps powered by Microsoft Azure within minutes
-* [Specs & Schematics](http://github.com/Microsoft/azure-iot-developer-kit/wiki/about-the-kit) - Datasheet, schematic, all about the kit hardware
+* [Github Page](http://microsoft.github.io/azure-iot-developer-kit/) - DevKit home
+* [Getting Started Guide](https://microsoft.github.io/azure-iot-developer-kit/docs/getting-started/) - Setup guide
+* [Projects Catalog](https://microsoft.github.io/azure-iot-developer-kit/docs/projects/) - Learn and build IoT apps powered by Microsoft Azure within minutes
+* [Specs & Schematics](http://www.mxchip.com/az3166) - Datasheet, schematic, all about the kit hardware
 
 ## Release Notes
 
-### April 2017 (version 0.1)
+### April 2017
 
 This is our first release of the Microsoft Azure IoT Developer Kit.
 
-### 0.1 Release Summary
+### Release Summary
 
 Everything is brand new!
