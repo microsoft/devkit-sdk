@@ -13,7 +13,7 @@
     "showOutput": "always",
     "tasks": [
         {
-            "taskName": "provision",
+            "taskName": "cloud-provision",
             "command": "./.bin/provision",
             "windows": {
                 "command": ".bin\\provision.cmd"
@@ -22,7 +22,7 @@
             "isBuildCommand": false
         },
         {
-            "taskName": "build",
+            "taskName": "device-upload",
             "command": "./.bin/build",
             "windows": {
                 "command": ".bin\\build.cmd"
@@ -31,7 +31,7 @@
             "isBuildCommand": true
         },
         {
-            "taskName": "deploy",
+            "taskName": "cloud-deploy",
             "command": "./.bin/deploy",
             "windows": {
                 "command": ".bin\\deploy.cmd"
