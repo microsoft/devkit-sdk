@@ -118,7 +118,7 @@ static void EnterAPMode()
     char ap_name[24] = "AZ-";
     ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
     
-    if (!InitSystemWiFiAP())
+    if (!InitSystemWiFi())
     {
         Serial.println("Set wifi AP Mode failed");
         return;

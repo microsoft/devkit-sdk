@@ -87,7 +87,8 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
 	{
 		return WL_CONNECT_FAILED;
 	}
-
+    
+	((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
 	if (((EMW10xxInterface*)WiFiInterface())->connect(ssid, passphrase, NSAPI_SECURITY_WPA_WPA2, 0) == 0)
 	{
 		strcpy(this->ssid, ssid);
@@ -103,7 +104,9 @@ int WiFiClass::disconnect()
 {
 	if (is_station_inited)
 	{
+		((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
 		WiFiInterface()->disconnect();
+		is_station_inited = false;
 	}
     disconnectAP();
 	current_status = WL_DISCONNECTED;
@@ -116,7 +119,7 @@ int WiFiClass::beginAP(char* ssid, const char *passphrase)
 	{
 		return WL_CONNECTED;
 	}
-	if (InitSystemWiFiAP())
+	if (InitSystemWiFi())
 	{
 		is_ap_inited = SystemWiFiAPStart(ssid, passphrase);
 		if (is_ap_inited)
@@ -134,6 +137,8 @@ int WiFiClass::disconnectAP()
 {
 	if (is_ap_inited)
 	{
+		Serial.println("disconnect AP");
+		((EMW10xxInterface*)WiFiInterface())->set_interface(Soft_AP);
     	WiFiAPInterface()->disconnect();
 		is_ap_inited = false;
 	}

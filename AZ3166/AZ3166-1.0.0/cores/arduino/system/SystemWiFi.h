@@ -33,7 +33,6 @@ bool SystemWiFiConnect(void);
 const char* SystemWiFiSSID(void);
 NetworkInterface* WiFiInterface(void);
 
-bool InitSystemWiFiAP(void);
 bool SystemWiFiAPStart(const char *ssid, const char *passphrase);
 NetworkInterface* WiFiAPInterface(void);
 
