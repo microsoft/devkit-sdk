@@ -65,7 +65,8 @@ bool SystemWiFiConnect(void)
         Serial.print("ERROR: Failed to get the Wi-Fi password from EEPROM.\r\n");
         return false;
     }
-    
+
+    ((EMW10xxInterface*)network)->set_interface(Station);
     ret = ((EMW10xxInterface*)network)->connect( (char*)ssid, (char*)pwd, NSAPI_SECURITY_WPA_WPA2, 0 );
     if(ret != 0)
     {
@@ -103,28 +104,11 @@ int WiFiScan(WiFiAccessPoint *res, unsigned count)
     return 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-// WiFi AP related functsion.
-bool InitSystemWiFiAP(void)
-{
-    if (network == NULL)
-    {
-        InitSystemWiFi();
-    }
-    
-    if (network != NULL)
-    {
-         ((EMW10xxInterface*)network)->set_interface(Soft_AP);
-         return true;
-    }
-
-    return false;
-}
-
 bool SystemWiFiAPStart(const char *ssid, const char *passphrase)
 {
     if (network != NULL)
     {
+        ((EMW10xxInterface*)network)->set_interface(Soft_AP);
         int ret = ((EMW10xxInterface*)network)->connect( (char*)ssid, (char*)passphrase, NSAPI_SECURITY_WPA_WPA2, 0 );
         if(ret != 0)
         {
