@@ -13,7 +13,7 @@
     "showOutput": "always",
     "tasks": [
         {
-            "taskName": "build",
+            "taskName": "device-upload",
             "command": "./.bin/build",
             "windows": {
                 "command": ".bin\\build.cmd"
