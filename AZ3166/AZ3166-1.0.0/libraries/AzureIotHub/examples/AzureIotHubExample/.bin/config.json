@@ -1,7 +1,0 @@
-{
-  "sketch": "../AzureIotHubExample.ino",
-  "config": "deviceConnectionString",
-  "provision_iot_hub": true,
-  "provision_azure_function": true,
-  "functionRelativePath": "azureFunction"
-}

@@ -12,7 +12,8 @@
 #define RGB_LED_BRIGHTNESS  16
 static boolean hasWifi;
 static int status = 0; // idle
-static const int AUDIO_SIZE = 32044 * 3;
+static const int recordedDuration = 3;
+static const int AUDIO_SIZE = ((32000 * recordedDuration) + 44);
 static char *waveFile = NULL;
 static int wavFileSize;
 static int timeout = 0;
@@ -32,6 +33,7 @@ static void InitWiFi()
         Screen.print(1, "No Wi-Fi           ");
     }
 }
+
 static void InitBoard(void)
 {
     Screen.clean();
@@ -46,26 +48,31 @@ static void InitBoard(void)
     rgbLed.setColor(0, 0, 0);
     enterIdleState();
 }
+
 static void enterIdleState()
 {
     status = 0;
     Screen.clean();
-    Screen.print(0, "Hold  B to talk   ");
+    Screen.print(0, "Hold B to talk   ");
+    Serial.println("Hold B to talk   ");
     rgbLed.setColor(0, 0, 0);
 }
+
 static void enterRecordState()
 {
     status = 1;
     Screen.clean();
-    Screen.print(0, "Release B to send    ");
+    Screen.print(0, "Release B to send\r\nMax duraion: 3 sec");
+    Serial.println("Release B to send    ");
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
 }
+
 static void enterUploading1State()
 {
     status = 2;
     Screen.clean();
     Screen.print(0, "Processing...          ");
-    Screen.print(1, "Uploading.", true);
+    Screen.print(1, "Uploading #1", true);
     rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
 }
 
@@ -75,7 +82,7 @@ static void enterUploading2State(int size)
     Screen.clean();
     Screen.print(0, "Processing...          ");
     char buf[30];
-    sprintf(buf, "Uploading..(size %d)", size);
+    sprintf(buf, "Uploading #2: size %d", size);
     Screen.print(1, buf, true);
     rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
 }
@@ -85,10 +92,11 @@ static void enterUploading3State()
     status = 4;
     Screen.clean();
     Screen.print(0, "Processing...          ");
-    Screen.print(1, "Uploading...", true);
+    Screen.print(1, "Uploading #3", true);
 
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, RGB_LED_BRIGHTNESS);
 }
+
 static void enterReceivingState()
 {
     status = 5;
@@ -102,12 +110,13 @@ static void enterReceivingState()
 static void enterShowMessageState(const char *message)
 {
     Screen.clean();
-    Screen.print(0, "Message about to send:           ");
+    Screen.print(0, "Message to send:           ");
     Screen.print(1, message, true);
 
     rgbLed.setColor(0, 0, 0);
 
 }
+
 static void enterShowErrorMessageState(const char *message)
 {
     Screen.clean();
@@ -115,6 +124,7 @@ static void enterShowErrorMessageState(const char *message)
     Screen.print(1, message, true);
     rgbLed.setColor(0, 0, 0);
 }
+
 void setup()
 {
     Serial.begin(115200);
@@ -138,15 +148,15 @@ void freeWavFile()
         waveFile = NULL;
     }
 }
+
 void loop()
 {
-    Serial.println("LOOP");
-    uint32_t delayTimes = 600;
+    uint32_t delayTimes = 1000;
     uint32_t curr = millis();
     if (status == 0)
     {
-        int buttonB = !digitalRead(USER_BUTTON_B);
-        if (buttonB)
+        int buttonB = digitalRead(USER_BUTTON_B);
+        if (buttonB == LOW)
         {
             waveFile = (char *)malloc(AUDIO_SIZE + 1);
             if (waveFile == NULL)
@@ -157,14 +167,14 @@ void loop()
             }
             memset(waveFile, 0, AUDIO_SIZE + 1);
             Audio.format(8000, 16);
-            Audio.startRecord(waveFile, AUDIO_SIZE, 3);
+            Audio.startRecord(waveFile, AUDIO_SIZE, recordedDuration);
             enterRecordState();
         }
     }
     else if (status == 1)
     {
-        int buttonB = !digitalRead(USER_BUTTON_B);
-        if (!buttonB)
+        int buttonB = digitalRead(USER_BUTTON_B);
+        if (buttonB == HIGH)
         {
             Audio.getWav(&wavFileSize);
             if (wavFileSize > 0)
@@ -236,9 +246,11 @@ void loop()
     }
     else if (status == 5)
     {
-        const char *p = iot_client_get_c2d_message();
+        char * etag = (char *)malloc(40);
+        const char *p = iot_client_get_c2d_message(etag);
         while (p != NULL)
         {
+            complete_c2d_message((char *)etag);
             if (strlen(p) == 0)
             {
                 free((void *)p);
@@ -253,14 +265,14 @@ void loop()
                     const char *jsonText = _json_object_get_string(jsonObject, "text");
                     if (jsonText != NULL && strlen(jsonText) > 0)
                     {
-                        Serial.println("Got messsage");
+                        Serial.print("Audio text:");
                         Serial.println(jsonText);
                         enterShowMessageState(jsonText);
                     }
                     else
                     {
                         const char *jsonError = _json_object_get_string(jsonObject, "error");
-                        Serial.print("Got error ");
+                        Serial.print("Got error: ");
                         Serial.println(jsonError);
                         enterShowErrorMessageState(jsonError);
                     }
@@ -270,8 +282,10 @@ void loop()
                 }
             }
             free((void *)p);
-            p = iot_client_get_c2d_message();
+            p = iot_client_get_c2d_message(etag);
         }
+
+        free(etag);
         freeWavFile();
         enterIdleState();
     }

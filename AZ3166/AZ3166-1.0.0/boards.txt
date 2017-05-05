@@ -25,8 +25,5 @@ MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod=OpenOCD
 MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod.upload.protocol=
 MXCHIP_AZ3166.menu.upload_method.OpenOCDMethod.upload.tool=openocd
 
-MXCHIP_AZ3166.menu.upload_method.STLinkMethod=STLink
-MXCHIP_AZ3166.menu.upload_method.STLinkMethod.upload.protocol=STLink
-MXCHIP_AZ3166.menu.upload_method.STLinkMethod.upload.tool=stlink_upload
 
 ################################################################################
