@@ -14,7 +14,7 @@ int platform_init(void)
 
     // turn on Azure led 
     DigitalOut LedAzure(LED_AZURE);
-    LedAzure = 0;
+    LedAzure = 1;
     
     return 0;
 }
@@ -28,5 +28,5 @@ void platform_deinit(void)
 {
     // turn off Azure led 
     DigitalOut LedAzure(LED_AZURE);
-    LedAzure = 1;
+    LedAzure = 0;
 }

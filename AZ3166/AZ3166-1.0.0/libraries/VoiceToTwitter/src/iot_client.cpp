@@ -91,12 +91,12 @@ int iot_client_blob_upload_step1(const char *blobName)
     sprintf(temp, BLOB_REQUEST_ENDPOINT, hostNameString, deviceIdString, blobName);
     HTTPClient blobRequest = HTTPClient(HTTP_GET, temp);
     blobRequest.set_header("Authorization", current_token);
-    blobRequest.set_header("Accept", "application/json'");
+    blobRequest.set_header("Accept", "application/json");
     const Http_Response *response = blobRequest.send();
     bool error = false;
     if (response == NULL)
     {
-        Serial.println("Cannot upload(1)(Null Response)!");
+        Serial.println("iot_client_blob_upload_step1 failed!");
         return -1;
     }
     if (response->status_code < 300)
@@ -178,7 +178,7 @@ int iot_client_blob_upload_step2(const char *content, int length)
     const Http_Response *response = uploadRequest.send(content, length);
     if (response == NULL)
     {
-        Serial.println("Cannot upload(2)(Null Response)!");
+        Serial.println("iot_client_blob_upload_step2 failed!");
         return -1;
     }
     printf("Upload blob result: <%d> message <%s>\r\n", response->status_code, response->status_message);
@@ -204,7 +204,7 @@ int iot_client_blob_upload_step3(bool isSuccess)
     const Http_Response *response = notificationRequest.send(temp2, postBodyLength);
     if (response == NULL)
     {
-        Serial.println("Cannot send notification(Null Response)!");
+        Serial.println("iot_client_blob_upload_step3 (send notification) faield!");
         return -1;
     }
     printf("Send notification result: <%d> message <%s>\r\n", response->status_code, response->status_message);
@@ -213,7 +213,6 @@ int iot_client_blob_upload_step3(bool isSuccess)
 
 int iot_client_send_event(const char *event, int length)
 {
-    Serial.println("iot_client_send_event");
     if (_check_iot_ready_for_request() != 0)
     {
         return -1;
@@ -221,11 +220,11 @@ int iot_client_send_event(const char *event, int length)
     sprintf(temp, D2C_ENDPOINT, hostNameString, deviceIdString);
     HTTPClient request = HTTPClient(HTTP_POST, temp);
     request.set_header("Authorization", current_token);
-    request.set_header("Accept", "application/json'");
+    request.set_header("Accept", "application/json");
     const Http_Response *response = request.send(event, length);
     if (response == NULL)
     {
-        Serial.println("Cannot send event(Null Response)!");
+        Serial.println("iot_client_send_event faield.");
         return -1;
     }
     printf("Send event result: <%d> message <%s>\r\n", response->status_code, response->status_message);
@@ -234,8 +233,7 @@ int iot_client_send_event(const char *event, int length)
 
 int complete_c2d_message(char *etag)
 {
-    Serial.println("iot_client_send_event");
-    if (etag == NULL || !strlen(etag))
+    if (etag == NULL || strlen(etag) < 2)
     {
         Serial.println("Invalid etag.");
         return -1;
@@ -244,21 +242,25 @@ int complete_c2d_message(char *etag)
     {
         return -1;
     }
-    sprintf(temp, C2D_CB_ENDPOINT, hostNameString, deviceIdString, etag);
+    etag[strlen(etag) - 1] = '\0';
+    sprintf(temp, C2D_CB_ENDPOINT, hostNameString, deviceIdString, etag + 1);
     HTTPClient request = HTTPClient(HTTP_DELETE, temp);
+    request.set_header("Authorization", current_token);
+    request.set_header("Accept", "application/json");
+
     const Http_Response *response = request.send();
     if (response == NULL)
     {
         Serial.println("Cannot delete message(Null Response).");
         return -1;
     }
+
     int status = response->status_code;
     return !(status >= 200 && status < 300);
 }
 
-const char *iot_client_get_c2d_message()
+const char *iot_client_get_c2d_message(char * etag)
 {
-    Serial.println("iot_client_get_c2d_message");
     if (_check_iot_ready_for_request() != 0)
     {
         return NULL;
@@ -266,7 +268,7 @@ const char *iot_client_get_c2d_message()
     sprintf(temp, C2D_ENDPOINT, hostNameString, deviceIdString);
     HTTPClient request = HTTPClient(HTTP_GET, temp);
     request.set_header("Authorization", current_token);
-    request.set_header("Accept", "application/json'");
+    request.set_header("Accept", "application/json");
     const Http_Response *response = request.send();
     const char *res = NULL;
     if (response == NULL)
@@ -275,7 +277,17 @@ const char *iot_client_get_c2d_message()
         return NULL;
     }
 
-    // TODO: get response header for etag which is used for send back notification.
+    KEYVALUE *header = (KEYVALUE *)response -> headers;
+    while (header -> prev != NULL) {
+        if (strcmp("ETag", header -> prev -> key) == 0) {
+            _setString(&etag, header -> value, strlen(header -> value));
+            Serial.print("ETag: ");
+            Serial.println(etag);
+        }
+
+        header = header -> prev;
+    }
+
     if (response->body != NULL)
     {
         res = response->body;

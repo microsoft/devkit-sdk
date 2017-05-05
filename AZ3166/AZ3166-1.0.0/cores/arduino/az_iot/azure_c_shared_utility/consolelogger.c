@@ -2,38 +2,59 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <stdlib.h>
-#ifdef _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
 #include <stdarg.h>
 #include <stdio.h>
 #include "azure_c_shared_utility/xlogging.h"
 
+#include "SerialLog.h"
+
 void consolelogger_log(LOG_CATEGORY log_category, const char* file, const char* func, const int line, unsigned int options, const char* format, ...)
 {
-    va_list args;
-    va_start(args, format);
+    va_list arg;
+    char temp[64];
+    char* buffer = temp;
+    
+    va_start(arg, format);
+    size_t len = vsnprintf(temp, sizeof(temp), format, arg);
+    va_end(arg);
+    
+    if (len > sizeof(temp) - 1)
+    {
+        buffer = (char*)malloc(len + 1);
+        if (!buffer)
+        {
+            return;
+        }
 
-    time_t t = time(NULL); 
+        va_start(arg, format);
+        vsnprintf(buffer, len + 1, format, arg);
+        va_end(arg);
+    }
     
     switch (log_category)
     {
     case AZ_LOG_INFO:
-        (void)printf("Info: ");
+        (void)serial_log("Info: ");
         break;
     case AZ_LOG_ERROR:
-        (void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), file, func, line);
+        {
+            time_t t = time(NULL); 
+            (void)serial_xlog("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), file, func, line);
+        }
         break;
     default:
         break;
     }
 
-	(void)vprintf(format, args);
-	va_end(args);
-
-    (void)log_category;
-	if (options & LOG_LINE)
+    serial_log(buffer);
+    
+    if (options & LOG_LINE)
 	{
-		(void)printf("\r\n");
+		(void)serial_log("\r\n");
 	}
+
+    if (buffer != temp)
+    {
+        free(buffer);
+    }	
 }

@@ -24,6 +24,7 @@ typedef struct
     int status_code;
     const char* status_message;
     const char* body;
+    const KEYVALUE* headers;
 } Http_Response;
 
 class HTTPClient 
