@@ -227,7 +227,7 @@ exit:
   return err;
 }
 
-int httpd_server_start()
+int httpd_server_start(WiFiAccessPoint *res, unsigned count)
 {
   int err = kNoErr;
   err = _app_httpd_start();

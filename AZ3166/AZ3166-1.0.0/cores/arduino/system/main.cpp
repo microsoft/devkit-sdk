@@ -25,6 +25,7 @@
 #include "SystemWiFi.h"
 #include "mbed_stats.h"
 #include "SystemLock.h"
+#include "EMW10xxInterface.h"
 
 static bool Initialization(void)
 {
@@ -112,17 +113,22 @@ static void EnterAPMode()
    
     if (!InitSystemWiFi())
     {
-        return;
-    }
-    
-    char ap_name[24] = "AZ-";
-    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
-    
-    if (!InitSystemWiFi())
-    {
         Serial.println("Set wifi AP Mode failed");
         return;
     }
+    
+    // scan network
+    WiFiAccessPoint aps[10];
+    unsigned count = 10; // only get at Max 10 Aps
+    int resultCount = ((EMW10xxInterface*)WiFiAPInterface())->scan(aps, count);
+    if(resultCount <= 0)
+    {
+        Serial.println("Unable to find networks to connect");
+        //Shall we continue at this time? 
+    }
+
+    char ap_name[24] = "AZ-";
+    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
 
     int ret = SystemWiFiAPStart(ap_name, "");
     if ( ret == false) 
@@ -130,8 +136,8 @@ static void EnterAPMode()
         Serial.println("Soft ap creation failed");
         return ;
     }
-    
-    httpd_server_start();
+
+    httpd_server_start(aps, resultCount);
     
     Screen.print(1, ap_name);
     Screen.print(2, "Soft AP started");

@@ -31,6 +31,8 @@
  ******************************************************************************
  */
 
+#include "WiFiAccessPoint.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -46,7 +48,7 @@ extern const char *success_result;
 
 extern const char *failed_result;
 
-int httpd_server_start();
+int httpd_server_start(WiFiAccessPoint *res, unsigned count);
 
 int app_httpd_stop();
 
