@@ -31,7 +31,7 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     else
     {
         (void)Serial.printf("Received Message [%d], Size=%d\r\n", *counter, (int)size);
-        _showMessage(buffer, size);
+        TwitterMessageCallback(buffer, size);
     }
 
     /* Some device specific action code goes here... */
@@ -46,8 +46,9 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     /* Some device specific action code goes here... */
     callbackCounter++;
     IoTHubMessage_Destroy(eventInstance->messageHandle);
+    free(eventInstance);
     
-    _SendConfirmationCallback();
+    SendConfirmationCallback();
 }
 
 void iothub_client_sample_mqtt_init()
@@ -100,25 +101,25 @@ void iothub_client_sample_mqtt_init()
 
 void iothub_client_sample_send_event(const unsigned char *text)
 {
-    EVENT_INSTANCE currentMessage;
-    currentMessage.messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
-    currentMessage.messageTrackingId = trackingId++;
-    if (currentMessage.messageHandle == NULL) {
+    EVENT_INSTANCE *currentMessage = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
+    currentMessage->messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
+    if (currentMessage->messageHandle == NULL) {
         (void)Serial.printf("ERROR: iotHubMessageHandle is NULL!\r\n");
         return;
     }
+    currentMessage->messageTrackingId = trackingId++;
 
-    MAP_HANDLE propMap = IoTHubMessage_Properties(currentMessage.messageHandle);
+    MAP_HANDLE propMap = IoTHubMessage_Properties(currentMessage->messageHandle);
     
     char propText[32];
-    sprintf_s(propText, sizeof(propText), "PropMsg_%d", currentMessage.messageTrackingId);
+    sprintf_s(propText, sizeof(propText), "PropMsg_%d", currentMessage->messageTrackingId);
     if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
     {
          (void)Serial.printf("ERROR: Map_AddOrUpdate Failed!\r\n");
          return;
     }
 
-    if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, currentMessage.messageHandle, SendConfirmationCallback, &currentMessage) != IOTHUB_CLIENT_OK)
+    if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, currentMessage->messageHandle, SendConfirmationCallback, currentMessage) != IOTHUB_CLIENT_OK)
     {
         (void)Serial.printf("ERROR: IoTHubClient_LL_SendEventAsync..........FAILED!\r\n");
         return;
@@ -130,4 +131,9 @@ void iothub_client_sample_mqtt_loop(void)
 {
     IoTHubClient_LL_DoWork(iotHubClientHandle);
     ThreadAPI_Sleep(1);
+}
+
+void iothub_client_sample_mqtt_close(void)
+{
+    IoTHubClient_LL_Destroy(iotHubClientHandle);
 }

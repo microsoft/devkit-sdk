@@ -100,6 +100,10 @@ static void do_trace_telemetry(const char *iothub, const char *event, const char
     delete [] data;
 }
 
+#ifdef __cplusplus
+extern "C"{
+#endif  // __cplusplus
+
 void telemetry_init()
 {
     base_size = strlen(BODY_TEMPLATE) + strlen(KEYWORD) + strlen(VERSION) + strlen(MCU) + strlen(EVENT) + strlen(IKEY) - 20 + sizeof(hash_mac) + sizeof(hash_iothub_name);
@@ -111,3 +115,7 @@ void send_telemetry_data(const char *iothub, const char *event, const char *mess
 {
     do_trace_telemetry(iothub ? iothub : "", event ? event : "", message ? message : "");
 }
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
