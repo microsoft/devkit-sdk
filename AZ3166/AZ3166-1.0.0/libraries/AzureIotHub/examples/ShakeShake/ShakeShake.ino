@@ -240,7 +240,6 @@ static void DoWork()
   time_t cur;
   time(&cur);
   double diff = difftime(cur, time_sending);
-  Serial.printf(">> Waiting %d ms\r\n", (int)(diff * 1000));
   if (diff >= PULL_TIMEOUT)
   {
     // Switch back to status 0

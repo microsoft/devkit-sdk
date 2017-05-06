@@ -220,7 +220,6 @@ static void on_underlying_io_error(void* context)
     }
 }
 
-int g_created = 0;
 
 static void on_underlying_io_close_complete(void* context)
 {
@@ -232,8 +231,8 @@ static void on_underlying_io_close_complete(void* context)
         {
             tls_io_instance->on_io_close_complete(tls_io_instance->on_io_close_complete_context);
         }
-//	if (g_created)
-//		tls_io_instance->tlsio_state = TLSIO_STATE_NOT_OPEN;
+	    
+		tls_io_instance->tlsio_state = TLSIO_STATE_NOT_OPEN;
     }
 }
 
@@ -414,7 +413,6 @@ CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
                     // mbeTLS initialize
                     mbedtls_init((void *)result,tls_io_config->hostname);
                     result->tlsio_state = TLSIO_STATE_NOT_OPEN;
-		            g_created = 1;
                 }
             }
         }
@@ -445,7 +443,6 @@ void tlsio_mbedtls_destroy(CONCRETE_IO_HANDLE tls_io)
         xio_destroy(tls_io_instance->socket_io);
         free(tls_io);
     }
-    g_created = 0;
 }
 
 int tlsio_mbedtls_open(CONCRETE_IO_HANDLE tls_io, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
