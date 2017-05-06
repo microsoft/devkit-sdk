@@ -576,7 +576,14 @@ void tlsio_mbedtls_dowork(CONCRETE_IO_HANDLE tls_io)
         if ((tls_io_instance->tlsio_state != TLSIO_STATE_NOT_OPEN) &&
             (tls_io_instance->tlsio_state != TLSIO_STATE_ERROR))
         {
-            decode_ssl_received_bytes(tls_io_instance);
+            if (tls_io_instance->tlsio_state != TLSIO_STATE_CLOSING)
+            {
+                // 
+                // If the socket is closed, there is no data incoming, but the decode_ssl_received_bytes continues trying to get data which causes infinite loop and block the system.
+                // This is why can't destroy the iot client and also can't re-connect after SAS token is expired.
+                //
+                decode_ssl_received_bytes(tls_io_instance);
+            }
             xio_dowork(tls_io_instance->socket_io);
         }
     }

@@ -199,9 +199,6 @@ void setup()
   
   Screen.print(2, "Press A to Shake!");
   Screen.print(3, " ");
-
-  iothub_client_sample_mqtt_close();
-  Screen.print(2, "Closed!");
 }
 
 static void DoIdle()
