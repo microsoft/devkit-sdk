@@ -8,7 +8,7 @@
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
 
-#define HEARTBEAT_INTERVAL  60.0
+#define HEARTBEAT_INTERVAL  120.0
 #define PULL_TIMEOUT        15.0
 
 // 0 - idle
