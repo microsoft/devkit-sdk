@@ -34,12 +34,20 @@
 #include <httpd.h>
 #include "mico.h"
 #include "app_httpd.h"
+#include "OledDisplay.h"
+#include "EMW10xxInterface.h"
 
 #define app_httpd_log(...) 
 
 #define HTTPD_HDR_DEFORT (HTTPD_HDR_ADD_SERVER|HTTPD_HDR_ADD_CONN_CLOSE|HTTPD_HDR_ADD_PRAGMA_NO_CACHE)
+
+extern OLEDDisplay Screen;
+extern NetworkInterface *network;
+
 bool is_http_init;
 bool is_handlers_registered;
+WiFiAccessPoint* wifiScanResult;
+unsigned wifiCount; 
 
 int write_eeprom(char* string, int idxZone)
 {
@@ -66,16 +74,64 @@ int write_eeprom(char* string, int idxZone)
   return 0;
 }
 
+bool connect_wifi(char *value_ssid, char *value_pass) {
+  int len = strlen(value_ssid);
+  if (len == 0 || len > WIFI_SSID_MAX_LEN) return false;
+  
+  len = strlen(value_pass);
+  if (len > WIFI_PWD_MAX_LEN) return false;
+
+  Screen.clean();
+  Screen.print("WiFi \r\n \r\nConnecting...\r\n \r\n");
+
+  if(network == NULL)
+  {
+    network = new EMW10xxInterface();
+  }
+  
+  ((EMW10xxInterface*)network)->set_interface(Station);
+  int err = ((EMW10xxInterface*)network)->connect( (char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0 );
+  if (err != 0) return false;
+  else
+  {
+    char wifiBuff[128];
+    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n", value_ssid, network->get_ip_address());
+    Screen.print(wifiBuff);
+  }
+
+  err = write_eeprom(value_ssid, WIFI_SSID_ZONE_IDX);
+  if (err != 0) return false;
+  err = write_eeprom(value_pass, WIFI_PWD_ZONE_IDX);
+  if (err != 0) return false;
+
+  return true;
+}
+
 int web_send_wifisetting_page(httpd_request_t *req)
 {
   int setting_page_len = 0;
   char *setting_page = NULL;
   int err = kNoErr;
   char *ssid = "";
+  int ssidLen = 0;
 
-  setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + strlen(ssid) + 1;
+  setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + 1;
+  for (int i = 0; i < wifiCount; ++i) {
+    ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
+    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) setting_page_len += 26 + 2 * ssidLen;
+  }
   setting_page = (char *)malloc(setting_page_len);
-  snprintf(setting_page, setting_page_len, "%s%s%s%s", page_head, wifi_setting_a, ssid, wifi_setting_b);
+  char *p = setting_page;
+
+  snprintf(p, strlen(page_head) + strlen(wifi_setting_a) + 1, "%s%s", page_head, wifi_setting_a);
+  p += strlen(page_head) + strlen(wifi_setting_a);
+  for(int i = 0; i < wifiCount; ++i){
+    ssid = (char *)wifiScanResult[i].get_ssid();
+    ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
+    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) snprintf(p, 27 + 2 * ssidLen, "<option value=\"%s\">%s</option>", ssid, ssid);
+    p += 26 + 2 * strlen(ssid);
+  }
+  snprintf(p, strlen(wifi_setting_b) + 1, "%s", wifi_setting_b);
 
   err = httpd_send_all_header(req, HTTP_RES_200, setting_page_len, HTTP_CONTENT_HTML_STR);
   require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http wifisetting headers.") );
@@ -88,16 +144,20 @@ exit:
   return err; 
 }
 
-int web_send_result(httpd_request_t *req, bool is_success)
+int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
 {
   int result_page_len = 0;
   char *result_page = NULL;
   OSStatus err = kNoErr;
-  const char *result_body = is_success ? success_result : failed_result;
-
-  result_page_len = strlen(page_head) + strlen(result_body) + 1;
-  result_page = (char *)malloc(result_page_len);
-  snprintf(result_page, result_page_len, "%s%s", page_head, result_body);
+  if (is_success) {
+    result_page_len = strlen(page_head) + strlen(success_result) + strlen(value_ssid) + strlen(network->get_ip_address()) - 5;
+    result_page = (char *)malloc(result_page_len);
+    snprintf(result_page, result_page_len, success_result, page_head, value_ssid, network->get_ip_address());
+  } else {
+    result_page_len = strlen(page_head) + strlen(failed_result) + strlen(value_ssid) - 3;
+    result_page = (char *)malloc(result_page_len);
+    snprintf(result_page, result_page_len, failed_result, page_head, value_ssid);
+  }
 
   err = httpd_send_all_header(req, HTTP_RES_200, result_page_len, HTTP_CONTENT_HTML_STR);
   require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http result headers.") );
@@ -107,17 +167,21 @@ int web_send_result(httpd_request_t *req, bool is_success)
 
 exit:
   if (result_page) free(result_page);
+  if (err == 0 && is_success) {
+    wait_ms(3000);
+    mico_system_reboot();
+  }
   return err; 
 }
 
 int web_send_wifisetting_result_page(httpd_request_t *req)
 {
   OSStatus err = kNoErr;
-  bool para_succ = false;
-  int buf_size = 512, len = 0;
+  bool connect_succ = false;
+  int buf_size = 512;
   char *buf;
-  char value_ssid[WIFI_SSID_MAX_LEN];
-  char value_pass[WIFI_PWD_MAX_LEN];
+  char value_ssid[WIFI_SSID_MAX_LEN + 1];
+  char value_pass[WIFI_PWD_MAX_LEN + 1];
   char *boundary = NULL;
   // mico_Context_t* context = NULL;
 
@@ -125,7 +189,7 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
   err = httpd_get_data(req, buf, buf_size);
   app_httpd_log("httpd_get_data return value: %d", err);
   require_noerr( err, Save_Out );
-  
+
   if (strstr(req->content_type, "multipart/form-data") != NULL) // Post data is multipart encoded
   {
     boundary = strstr(req->content_type, "boundary=");
@@ -150,36 +214,20 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
     require_noerr( err, Save_Out );
   }
   
-  len = strlen(value_ssid);
-  if (len == 0 || len > WIFI_SSID_MAX_LEN)
-  {
-    app_httpd_log("Invalid Wi-Fi SSID.\r\n");
-  }
-  err = write_eeprom(value_ssid, WIFI_SSID_ZONE_IDX);
-  require_noerr( err, Save_Out );
-  
-  len = strlen(value_pass);
-  if (len == 0 || len > WIFI_PWD_MAX_LEN)
-  {
-    app_httpd_log("Invalid Wi-Fi SSID.\r\n");
-  }
-  err = write_eeprom(value_pass, WIFI_PWD_ZONE_IDX);
-  require_noerr( err, Save_Out );
-
-  para_succ = true;
+  connect_succ = connect_wifi(value_ssid, value_pass);
   
 Save_Out:
   
-  if(para_succ == true)
+  if(connect_succ == true)
   {
-    err = web_send_result(req, true);
+    err = web_send_result(req, true, value_ssid);
     require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http success result"));
 
     // mico_system_power_perform(context, eState_Software_Reset);
   }
   else
   {
-    err = web_send_result(req, false);
+    err = web_send_result(req, false, value_ssid);
     require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http failed result"));  
   }
   
@@ -229,6 +277,8 @@ exit:
 
 int httpd_server_start(WiFiAccessPoint *res, unsigned count)
 {
+  wifiScanResult = res;
+  wifiCount = count;
   int err = kNoErr;
   err = _app_httpd_start();
   require_noerr( err, exit ); 
