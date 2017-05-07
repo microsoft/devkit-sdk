@@ -78,22 +78,31 @@ int write_eeprom(char* string, int idxZone)
 bool connect_wifi(char *value_ssid, char *value_pass)
 {
   int len = strlen(value_ssid);
-  if (len == 0 || len > WIFI_SSID_MAX_LEN) return false;
+  if (len == 0 || len > WIFI_SSID_MAX_LEN) 
+  {
+    return false;
+  }
   
   len = strlen(value_pass);
-  if (len > WIFI_PWD_MAX_LEN) return false;
+  if (len > WIFI_PWD_MAX_LEN) 
+  {
+    return false;
+  }
 
   Screen.clean();
   Screen.print("WiFi \r\n \r\nConnecting...\r\n \r\n");
 
-  if(network == NULL)
+  if (network == NULL)
   {
     network = new EMW10xxInterface();
   }
   
   ((EMW10xxInterface*)network)->set_interface(Station);
   int err = ((EMW10xxInterface*)network)->connect( (char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0 );
-  if (err != 0) return false;
+  if (err != 0) 
+  {
+    return false;
+  }
   else
   {
     char wifiBuff[128];
@@ -102,9 +111,15 @@ bool connect_wifi(char *value_ssid, char *value_pass)
   }
 
   err = write_eeprom(value_ssid, WIFI_SSID_ZONE_IDX);
-  if (err != 0) return false;
+  if (err != 0) 
+  {
+    return false;
+  }
   err = write_eeprom(value_pass, WIFI_PWD_ZONE_IDX);
-  if (err != 0) return false;
+  if (err != 0) 
+  {
+    return false;
+  }
 
   return true;
 }
@@ -121,7 +136,10 @@ int web_send_wifisetting_page(httpd_request_t *req)
   for (int i = 0; i < wifiCount; ++i) 
   {
     ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
-    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) setting_page_len += 26 + 2 * ssidLen;
+    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) 
+    {
+      setting_page_len += 26 + 2 * ssidLen;
+    }
   }
   setting_page = (char *)malloc(setting_page_len);
   char *p = setting_page;
@@ -132,7 +150,10 @@ int web_send_wifisetting_page(httpd_request_t *req)
   {
     ssid = (char *)wifiScanResult[i].get_ssid();
     ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
-    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) snprintf(p, 27 + 2 * ssidLen, "<option value=\"%s\">%s</option>", ssid, ssid);
+    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) 
+    {
+      snprintf(p, 27 + 2 * ssidLen, "<option value=\"%s\">%s</option>", ssid, ssid);
+    }
     p += 26 + 2 * strlen(ssid);
   }
   snprintf(p, strlen(wifi_setting_b) + 1, "%s", wifi_setting_b);
@@ -144,7 +165,10 @@ int web_send_wifisetting_page(httpd_request_t *req)
   require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http wifisetting body.") );
   
 exit:
-  if (setting_page) free(setting_page);
+  if (setting_page) 
+  {
+    free(setting_page);
+  }
   return err; 
 }
 
@@ -172,7 +196,10 @@ int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
   require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http result body.") );
 
 exit:
-  if (result_page) free(result_page);
+  if (result_page)
+  {
+    free(result_page);
+  }
   if (err == 0 && is_success) 
   {
     wait_ms(3000);
@@ -205,7 +232,10 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
     err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
     require_noerr( err, Save_Out );
 
-    if(!strncmp(value_ssid, "\0", 1)) goto Save_Out;
+    if (!strncmp(value_ssid, "\0", 1)) 
+    {
+      goto Save_Out;
+    }
 
     err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
     require_noerr( err, Save_Out );
@@ -215,7 +245,10 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
     err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
     require_noerr( err, Save_Out );
 
-    if(!strncmp(value_ssid, "\0", 1)) goto Save_Out;
+    if (!strncmp(value_ssid, "\0", 1)) 
+    {
+      goto Save_Out;
+    }
 
     err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
     require_noerr( err, Save_Out );
@@ -225,7 +258,7 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
   
 Save_Out:
   
-  if(connect_succ == true)
+  if (connect_succ == true)
   {
     err = web_send_result(req, true, value_ssid);
     require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http success result"));
@@ -239,7 +272,10 @@ Save_Out:
   }
   
 exit:  
-  if(buf) free(buf);
+  if (buf) 
+  {
+    free(buf);
+  }
   return err; 
 }
 
@@ -267,7 +303,7 @@ int _app_httpd_start()
   app_httpd_log("initializing web-services");
   
   /*Initialize HTTPD*/
-  if(is_http_init == false) 
+  if (is_http_init == false) 
   {
     err = httpd_init();
     require_noerr_action( err, exit, app_httpd_log("failed to initialize httpd") );
@@ -276,7 +312,7 @@ int _app_httpd_start()
   
   /*Start http thread*/
   err = httpd_start();
-  if(err != kNoErr) 
+  if (err != kNoErr) 
   {
     app_httpd_log("failed to start httpd thread");
     httpd_shutdown();
