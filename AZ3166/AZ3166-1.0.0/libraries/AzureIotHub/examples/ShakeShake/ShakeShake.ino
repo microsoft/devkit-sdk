@@ -156,7 +156,7 @@ static void DoHeartBeat(void)
     if (diff >= PULL_TIMEOUT)
     {
       // Not get back the send confirmation msg, increase the restart count by 1
-      Serial.println("Send confirmation timeout");
+      Serial.println(">>Failed to retrieve the sending confirmation message: timeout.");
       restart_iot_client++;
       break;
     }
