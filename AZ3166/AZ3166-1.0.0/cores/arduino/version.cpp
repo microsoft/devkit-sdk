@@ -27,6 +27,11 @@
 #define DEVKIT_MINOR_VERSION 8
 #define DEVKIT_PATCH_VERSION 1
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 char version[10] = { "\0" };
 
 const char* getDevkitVersion()
@@ -52,3 +57,7 @@ uint32_t getPatchVersion()
 {
     return DEVKIT_PATCH_VERSION;
 }
+
+#ifdef __cplusplus
+}
+#endif

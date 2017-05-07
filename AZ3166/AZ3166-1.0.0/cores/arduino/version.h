@@ -23,9 +23,8 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-#ifdef _cplusplus
-extern "C"
-{
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -41,7 +40,7 @@ uint32_t getMinorVersion();
 //Get patch version
 uint32_t getPatchVersion();
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 }
 #endif
 

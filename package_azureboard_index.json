@@ -10,20 +10,20 @@
       },
       "platforms": [
         {
-          "name": "Microsoft Azure IoT Developer Kit",
+          "name": "MXChip - Microsoft Azure IoT Developer Kit",
           "architecture": "stm32f4",
-          "version": "1.0.0",
+          "version": "0.8.0",
           "category": "Contributed",
           "help": {
             "online": "https://github.com/Microsoft/azure-iot-developer-kit"
           },
-          "url": "https://azureboard.blob.core.windows.net/toolchain/AZ3166-1.0.0.zip",
-          "archiveFileName": "AZ3166-1.0.0.zip",
-          "checksum": "MD5:4e943d6b8d4594109f19ae4bd1df67c6",
-          "size": "6468060",
+          "url": "https://azureboard.blob.core.windows.net/arduinopackage/AZ3166-0.8.0.zip",
+          "archiveFileName": "AZ3166-0.8.0.zip",
+          "checksum": "MD5:a2bde1493a6609913f017bcf6ea37cc9",
+          "size": "6270165",
           "boards": [
             {
-              "name": "AZ3166"
+              "name": "MXChip - Microsoft Azure IoT Developer Kit AZ3166"
             }
           ],
           "toolsDependencies": [
@@ -32,10 +32,45 @@
               "name": "arm-none-eabi-gcc",
               "version": "5_4-2016q3"
             },
-            {
+			{
               "packager": "AZ3166",
               "name": "st-flash",
               "version": "1.3.1"
+            },
+			{
+              "packager": "AZ3166",
+              "name": "openocd",
+              "version": "0.10.0"
+            }
+          ]
+        },
+        {
+          "name": "MXChip - Microsoft Azure IoT Developer Kit",
+          "architecture": "stm32f4",
+          "version": "0.8.1",
+          "category": "Contributed",
+          "help": {
+            "online": "https://github.com/Microsoft/azure-iot-developer-kit"
+          },
+          "url": "https://azureboard.blob.core.windows.net/arduinopackage/AZ3166-0.8.1.zip",
+          "archiveFileName": "AZ3166-0.8.1.zip",
+          "checksum": "MD5:807f39343d15ba6975be8468eaa77ab7",
+          "size": "6258471",
+          "boards": [
+            {
+              "name": "MXChip - Microsoft Azure IoT Developer Kit AZ3166"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "AZ3166",
+              "name": "arm-none-eabi-gcc",
+              "version": "5_4-2016q3"
+            },
+			{
+              "packager": "AZ3166",
+              "name": "openocd",
+              "version": "0.10.0"
             }
           ]
         }
@@ -54,10 +89,10 @@
             },
             {
               "host": "x86_64-apple-darwin",
-              "url": "http://downloads.arduino.cc/gcc-arm-none-eabi-4.8.3-2014q1-mac.tar.gz",
-              "archiveFileName": "gcc-arm-none-eabi-4.8.3-2014q1-mac.tar.gz",
-              "checksum": "SHA-256:3598acf21600f17a8e4a4e8e193dc422b894dc09384759b270b2ece5facb59c2",
-              "size": "52518522"
+              "url": "https://azureboard.blob.core.windows.net/toolchain/gcc-arm-none-eabi-5_4-2016q3.tar.gz",
+              "archiveFileName": "gcc-arm-none-eabi-5_4-2016q3.tar.gz",
+              "checksum": "MD5:1c44cafab7d4c3d437c81828a6c85c7e",
+              "size": "116878042"
             },
             {
               "host": "x86_64-pc-linux-gnu",
@@ -102,10 +137,44 @@
             },
             {
               "host": "i386-apple-darwin11",
-              "url": "https://azureboard.blob.core.windows.net/toolchain/st-flash-1.3.1.zip",
-              "archiveFileName": "st-flash-1.3.1.zip",
-              "checksum": "MD5:e60b9c48ce0561566b93374438e868b6",
+              "url": "https://azureboard.blob.core.windows.net/toolchain/st-flash-1.3.1.tar.gz",
+              "archiveFileName": "st-flash-1.3.1.tar.gz",
+              "checksum": "MD5:485e0aad9ba38293b60f7cc76dfc1909",
               "size": "462883"
+            }
+          ]
+        },
+        {
+          "name": "openocd",
+          "version": "0.10.0",
+          "systems": [
+            {
+              "host": "i686-linux-gnu",
+              "url": "https://azureboard.blob.core.windows.net/toolchain/openocd-0.10.0.zip",
+              "archiveFileName": "openocd-0.10.0.zip",
+              "checksum": "MD5:3648e4cd6af88ae4e3a59e068723a1d7",
+              "size": "10406262"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "url": "https://azureboard.blob.core.windows.net/toolchain/openocd-0.10.0.zip",
+              "archiveFileName": "openocd-0.10.0.zip",
+              "checksum": "MD5:3648e4cd6af88ae4e3a59e068723a1d7",
+              "size": "10406262"
+            },
+            {
+              "host": "i686-mingw32",
+              "url": "https://azureboard.blob.core.windows.net/toolchain/openocd-0.10.0-32.zip",
+              "archiveFileName": "openocd-0.10.0-32.zip",
+              "checksum": "MD5:83e1ed6c7d7558f09c1e39f9c168126c",
+              "size": "2751074"
+            },
+            {
+              "host": "i386-apple-darwin11",
+              "url": "https://azureboard.blob.core.windows.net/toolchain/openocd-0.10.0.tar.gz",
+              "archiveFileName": "openocd-0.10.0.tar.gz",
+              "checksum": "MD5:cc33d45956f146038c315880de83bdb1",
+              "size": "2470470"
             }
           ]
         }
