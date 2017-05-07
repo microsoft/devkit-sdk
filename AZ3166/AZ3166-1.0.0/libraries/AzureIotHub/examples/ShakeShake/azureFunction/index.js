@@ -11,12 +11,18 @@ function truncateByDot(text, limit){
 }
 
 module.exports = function (context, myEventHubMessage) {
+    // The right way to retrieve the device id is to get it from Azure Function proerpy bag
+    // But seems the property bag cannot be stably retrieved from Azure so we choose to hard code the device id here for stability.
+    /*
     if (!context.bindingData || !context.bindingData.systemProperties || !context.bindingData.systemProperties['iothub-connection-device-id']) {
         context.log('no device id');
         context.done();
         return;
     }
     var deviceId = context.bindingData.systemProperties['iothub-connection-device-id'];
+    */
+
+    var deviceId = "AZ3166";
     if (deviceId && myEventHubMessage.topic) {
         cloudClient.open(function (err) {
             if (err) {
