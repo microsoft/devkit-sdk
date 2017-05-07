@@ -1811,8 +1811,10 @@ static int InitializeConnection(PMQTTTRANSPORT_HANDLE_DATA transport_data)
             {
                 if ((current_time - transport_data->mqtt_connect_time) / 1000 > (SAS_TOKEN_DEFAULT_LIFETIME*SAS_REFRESH_MULTIPLIER))
                 {
-                    (void)mqtt_client_disconnect(transport_data->mqttClient);
+                    // TODO: shall keep these commented out codes if the retry policy works 
+                    //(void)mqtt_client_disconnect(transport_data->mqttClient);
                     IoTHubClient_LL_ConnectionStatusCallBack(transport_data->llClientHandle, IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED, IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN);
+                    /*
                     transport_data->mqttClientStatus = MQTT_CLIENT_STATUS_NOT_CONNECTED;
                     transport_data->currPacketState = UNKNOWN_TYPE;
                     transport_data->device_twin_get_sent = false;
@@ -1832,6 +1834,7 @@ static int InitializeConnection(PMQTTTRANSPORT_HANDLE_DATA transport_data)
                     {
                         transport_data->topics_ToSubscribe |= SUBSCRIBE_DEVICE_METHOD_TOPIC;
                     }
+                    */
                 }
             }
         }
