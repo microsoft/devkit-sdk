@@ -101,6 +101,7 @@ bool connect_wifi(char *value_ssid, char *value_pass)
   int err = ((EMW10xxInterface*)network)->connect( (char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0 );
   if (err != 0) 
   {
+    Screen.print("WiFi \r\n \r\nNo connection \r\n \r\n");
     return false;
   }
   else
