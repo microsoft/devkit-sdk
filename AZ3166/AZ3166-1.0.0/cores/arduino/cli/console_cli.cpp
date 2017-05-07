@@ -69,7 +69,7 @@ static const struct console_command cmds[] = {
   {"scan",          "Scan Wi-Fi AP",                                            false, wifi_scan},
   {"set_wifissid",  "Set Wi-Fi SSID",                                           false, wifi_ssid_command},
   {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
-  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     true,  az_iothub_command},
+  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     false, az_iothub_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);

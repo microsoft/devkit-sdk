@@ -25,6 +25,7 @@
 #include "NTPClient.h"
 
 static const char* ntpHost = "0.pool.ntp.org";
+static bool timeSynced = false;
 
 static NTPResult NTPSyncUP(void)
 {
@@ -37,7 +38,11 @@ void SyncTime(void)
     if (NTPSyncUP() == NTP_OK)
     {
         time_t t = time(NULL);
-        Serial.printf("Time is now (UTC): %s\r\n", ctime(&t));
+        if (!timeSynced)
+        {
+            Serial.printf("Time is now (UTC): %s\r\n", ctime(&t));
+            timeSynced = true;
+        }
     }
     else
     {

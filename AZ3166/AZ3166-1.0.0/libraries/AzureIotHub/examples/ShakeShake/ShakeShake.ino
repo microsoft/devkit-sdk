@@ -5,11 +5,11 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 
-#define RGB_LED_BRIGHTNESS  16
+#define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
 
-#define HEARTBEAT_INTERVAL  300.0
-#define PULL_TIMEOUT        120.0
+#define HEARTBEAT_INTERVAL  120.0
+#define PULL_TIMEOUT        15.0
 
 // 0 - idle
 // 1 - shaking
@@ -38,7 +38,7 @@ static const char* iot_event = "{\"topic\":\"iot\"}";
 static time_t time_hb;
 static time_t time_sending;
 
-void _SendConfirmationCallback(void)
+void SendConfirmationCallback(void)
 {
   eventSent = true;
 }
@@ -49,7 +49,7 @@ static char printable_char(char c)
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
 
-void _showMessage(const char *tweet, int lenTweet)
+void TwitterMessageCallback(const char *tweet, int lenTweet)
 {
   if (status < 2 || lenTweet == NULL)
   {
@@ -239,12 +239,13 @@ static void DoWork()
   iothub_client_sample_mqtt_loop();
   time_t cur;
   time(&cur);
-  if (difftime(cur, time_sending) >= PULL_TIMEOUT)
+  double diff = difftime(cur, time_sending);
+  if (diff >= PULL_TIMEOUT)
   {
     // Switch back to status 0
-    Screen.print(1, "Ooooops");
-    Screen.print(2, " > TIMEOUT");
-    Screen.print(3, "Press A to Shake!");
+    Screen.print(1, "No tweets...");
+    Screen.print(2, "Press A to Shake!");
+    Screen.print(3, " ");
     rgbLed.setColor(0, 0, 0);
     status = 0;
   }
