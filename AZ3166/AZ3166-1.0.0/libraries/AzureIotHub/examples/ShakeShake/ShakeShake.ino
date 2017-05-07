@@ -151,8 +151,6 @@ static void DoHeartBeat(void)
     iothub_client_sample_mqtt_loop();
     if (eventSent)
     {
-      // Got the send confirmation msg, clear the re-connect count
-      restart_iot_client = 0;
       break;
     }
     time(&cur);
