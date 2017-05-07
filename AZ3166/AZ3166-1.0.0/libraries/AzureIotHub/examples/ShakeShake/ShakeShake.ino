@@ -11,6 +11,8 @@
 #define HEARTBEAT_INTERVAL  120.0
 #define PULL_TIMEOUT        15.0
 
+#define RECONNECT_THRESHOLD 3
+
 // 0 - idle
 // 1 - shaking
 // 2 - do work
@@ -37,6 +39,8 @@ static const char* iot_event = "{\"topic\":\"iot\"}";
 
 static time_t time_hb;
 static time_t time_sending_timeout;
+
+static int restart_iot_client = 0;
 
 void SendConfirmationCallback(void)
 {
@@ -125,16 +129,15 @@ void InitWiFi()
 
 static void DoHeartBeat(void)
 {
-  if (difftime(cur, time_hb) < HEARTBEAT_INTERVAL)
+  time_t start;
+  time_t cur;
+  
+  time(&start);
+  if (difftime(start, time_hb) < HEARTBEAT_INTERVAL)
   {
     return;
   }
   
-  time_t start;
-  time_t cur; 
-
-  time(&start);
-
   eventSent = false;
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println(">>Heartbeat<<");
@@ -144,13 +147,17 @@ static void DoHeartBeat(void)
     iothub_client_sample_mqtt_loop();
     if (eventSent)
     {
+      // Got the send confirmation msg, clear the re-connect count
+      restart_iot_client = 0;
       break;
     }
     time(&cur);
     double diff = difftime(cur, start);
     if (diff >= PULL_TIMEOUT)
     {
+      // Not get back the send confirmation msg, increase the restart count by 1
       Serial.println("Send confirmation timeout");
+      restart_iot_client++;
       break;
     }
   }
@@ -164,6 +171,7 @@ void setup()
   msgBody = (char*) malloc(200);
   msgBody[0] = 0;
   status = 0;
+  restart_iot_client = 0;
   
   Screen.init();
   Screen.print(0, "Azure IoT DevKit");
@@ -231,11 +239,13 @@ static void DoShake()
   acc_gyro->get_step_counter(&steps);
   if (steps > 2)
   {
+    time(&time_hb); // Reset the heartbeat clock
+
     // Trigger the twitter
+    eventSent = false;
     iothub_client_sample_send_event((const unsigned char *)iot_event);
     status = 2;
-    time(&time_sending_timeout);
-    time(&time_hb);
+    time(&time_sending_timeout);  // Start sending timeout clock
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
     Screen.print(1, " ");
     Screen.print(2, " Processing...");
@@ -245,18 +255,28 @@ static void DoShake()
 
 static void DoWork()
 {
+  time(&time_hb); // Reset the heartbeat clock
+
   iothub_client_sample_mqtt_loop();
-  time_t cur;
-  time(&cur);
-  double diff = difftime(cur, time_sending_timeout);
-  if (diff >= PULL_TIMEOUT)
+
+  if (status != 3)
   {
-    // Switch back to status 0
-    Screen.print(1, "No tweets...");
-    Screen.print(2, "Press A to Shake!");
-    Screen.print(3, " ");
-    rgbLed.setColor(0, 0, 0);
-    status = 0;
+    // Not get the tweet, check the sending timeout
+    time_t cur;
+    time(&cur);
+    double diff = difftime(cur, time_sending_timeout);
+    if (diff >= PULL_TIMEOUT)
+    {
+      // If not get back the send confirmation msg then increase the restart count by 1, else clear it
+      restart_iot_client = eventSent ? 0 : (restart_iot_client + 1);
+      
+      // Switch back to status 0
+      Screen.print(1, "No tweets...");
+      Screen.print(2, "Press A to Shake!");
+      Screen.print(3, " ");
+      rgbLed.setColor(0, 0, 0);
+      status = 0;
+    }
   }
 
   time(&time_hb);
@@ -264,14 +284,24 @@ static void DoWork()
 
 static void DoReceived()
 {
+  time(&time_hb); // Reset the heartbeat clock
+
   Screen.clean();
   Screen.print(0, msgHeader);
   Screen.print(1, msgBody, true);
   
   rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
   status = 0;
-  
-  time(&time_hb);
+}
+
+static void CheckConnection()
+{
+  if (restart_iot_client > RECONNECT_THRESHOLD)
+  {
+    iothub_client_sample_mqtt_close();
+    iothub_client_sample_mqtt_init();
+    restart_iot_client = 0;
+  }
 }
       
 void loop()
@@ -298,6 +328,8 @@ void loop()
   ScrollTweet();
   
   DoHeartBeat();
+
+  CheckConnection();
   
   delay(LOOP_DELAY);
 }
