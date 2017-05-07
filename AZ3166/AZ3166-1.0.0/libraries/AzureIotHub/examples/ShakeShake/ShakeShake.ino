@@ -8,7 +8,7 @@
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
 
-#define HEARTBEAT_INTERVAL  60.0
+#define HEARTBEAT_INTERVAL  120.0
 #define PULL_TIMEOUT        15.0
 
 // 0 - idle
@@ -36,7 +36,7 @@ bool hasWifi = false;
 static const char* iot_event = "{\"topic\":\"iot\"}";
 
 static time_t time_hb;
-static time_t time_sending;
+static time_t time_sending_timeout;
 
 void SendConfirmationCallback(void)
 {
@@ -125,14 +125,16 @@ void InitWiFi()
 
 static void DoHeartBeat(void)
 {
-  time_t cur;
-  time(&cur);
-
   if (difftime(cur, time_hb) < HEARTBEAT_INTERVAL)
   {
     return;
   }
   
+  time_t start;
+  time_t cur; 
+
+  time(&start);
+
   eventSent = false;
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println(">>Heartbeat<<");
@@ -142,6 +144,13 @@ static void DoHeartBeat(void)
     iothub_client_sample_mqtt_loop();
     if (eventSent)
     {
+      break;
+    }
+    time(&cur);
+    double diff = difftime(cur, start);
+    if (diff >= PULL_TIMEOUT)
+    {
+      Serial.println("Send confirmation timeout");
       break;
     }
   }
@@ -199,9 +208,6 @@ void setup()
   
   Screen.print(2, "Press A to Shake!");
   Screen.print(3, " ");
-
-  iothub_client_sample_mqtt_close();
-  Screen.print(2, "Closed!");
 }
 
 static void DoIdle()
@@ -228,7 +234,7 @@ static void DoShake()
     // Trigger the twitter
     iothub_client_sample_send_event((const unsigned char *)iot_event);
     status = 2;
-    time(&time_sending);
+    time(&time_sending_timeout);
     time(&time_hb);
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
     Screen.print(1, " ");
@@ -242,8 +248,7 @@ static void DoWork()
   iothub_client_sample_mqtt_loop();
   time_t cur;
   time(&cur);
-  double diff = difftime(cur, time_sending);
-  Serial.printf(">> Waiting %d ms\r\n", (int)(diff * 1000));
+  double diff = difftime(cur, time_sending_timeout);
   if (diff >= PULL_TIMEOUT)
   {
     // Switch back to status 0

@@ -118,8 +118,8 @@ static void EnterAPMode()
     }
     
     // scan network
-    WiFiAccessPoint aps[10];
-    unsigned count = 10; // only get at Max 10 Aps
+    WiFiAccessPoint aps[15];
+    unsigned count = 15; // only get at Max 15 Aps
     int resultCount = ((EMW10xxInterface*)WiFiAPInterface())->scan(aps, count);
     if(resultCount <= 0)
     {

@@ -9,7 +9,10 @@
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 static int receiveContext = 0;
+static int statusContext = 0;
 static int trackingId = 0;
+
+static int reconnect = false;
 
 typedef struct EVENT_INSTANCE_TAG
 {
@@ -49,6 +52,32 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     free(eventInstance);
     
     SendConfirmationCallback();
+<<<<<<< HEAD
+=======
+}
+
+
+static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void* userContextCallback)
+{
+    if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED && reason == IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN)
+    {
+        (void)Serial.println("Connection timeout");
+        reconnect = true;
+    }
+}
+
+static void CheckConnection()
+{
+    if (!reconnect)
+    {
+        return;
+    }
+
+    iothub_client_sample_mqtt_close();
+    iothub_client_sample_mqtt_init();
+
+    reconnect = false;
+>>>>>>> 2dbf9f52971502b7de3c78edfc3091fe6fd53e1c
 }
 
 void iothub_client_sample_mqtt_init()
@@ -97,10 +126,21 @@ void iothub_client_sample_mqtt_init()
         (void)Serial.printf("ERROR: IoTHubClient_LL_SetMessageCallback..........FAILED!\r\n");
         return;
     }
+
+    if (IoTHubClient_LL_SetConnectionStatusCallback(iotHubClientHandle, ConnectionStatusCallback, &statusContext) != IOTHUB_CLIENT_OK)
+    {
+        (void)Serial.printf("ERROR: IoTHubClient_LL_SetConnectionStatusCallback..........FAILED!\r\n");
+        return;
+    }
 }
 
 void iothub_client_sample_send_event(const unsigned char *text)
 {
+<<<<<<< HEAD
+=======
+    CheckConnection();
+
+>>>>>>> 2dbf9f52971502b7de3c78edfc3091fe6fd53e1c
     EVENT_INSTANCE *currentMessage = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
     currentMessage->messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
     if (currentMessage->messageHandle == NULL) {
@@ -129,6 +169,7 @@ void iothub_client_sample_send_event(const unsigned char *text)
 
 void iothub_client_sample_mqtt_loop(void)
 {
+    CheckConnection();
     IoTHubClient_LL_DoWork(iotHubClientHandle);
     ThreadAPI_Sleep(1);
 }

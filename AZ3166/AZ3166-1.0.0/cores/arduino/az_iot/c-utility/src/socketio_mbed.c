@@ -2,16 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <stdlib.h>
-#ifdef _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
-
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include "azure_c_shared_utility/socketio.h"
 #include "azure_c_shared_utility/singlylinkedlist.h"
 #include "azure_c_shared_utility/tcpsocketconnection_c.h"
+#include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/xlogging.h"
 
 #define UNABLE_TO_COMPLETE -2
@@ -103,7 +100,7 @@ static int add_pending_io(SOCKET_IO_INSTANCE* socket_io_instance, const unsigned
     PENDING_SOCKET_IO* pending_socket_io = (PENDING_SOCKET_IO*)malloc(sizeof(PENDING_SOCKET_IO));
     if (pending_socket_io == NULL)
     {
-        result = __LINE__;
+        result = __FAILURE__;
     }
     else
     {
@@ -111,7 +108,7 @@ static int add_pending_io(SOCKET_IO_INSTANCE* socket_io_instance, const unsigned
         if (pending_socket_io->bytes == NULL)
         {
             free(pending_socket_io);
-            result = __LINE__;
+            result = __FAILURE__;
         }
         else
         {
@@ -125,7 +122,7 @@ static int add_pending_io(SOCKET_IO_INSTANCE* socket_io_instance, const unsigned
             {
                 free(pending_socket_io->bytes);
                 free(pending_socket_io);
-                result = __LINE__;
+                result = __FAILURE__;
             }
             else
             {
@@ -141,7 +138,7 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
 {
     SOCKETIO_CONFIG* socket_io_config = io_create_parameters;
     SOCKET_IO_INSTANCE* result;
-    
+
     if (socket_io_config == NULL)
     {
         result = NULL;
@@ -216,17 +213,18 @@ void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
 int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
 {
     int result;
+
     SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
     if (socket_io == NULL)
     {
-        result = __LINE__;
+        result = __FAILURE__;
     }
     else
     {
         socket_io_instance->tcp_socket_connection = tcpsocketconnection_create();
         if (socket_io_instance->tcp_socket_connection == NULL)
         {
-            result = __LINE__;
+            result = __FAILURE__;
         }
         else
         {
@@ -234,11 +232,11 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
             {
                 tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
                 socket_io_instance->tcp_socket_connection = NULL;
-                result = __LINE__;
+                result = __FAILURE__;
             }
             else
             {
-                tcpsocketconnection_set_blocking(socket_io_instance->tcp_socket_connection, false, 1500);
+                tcpsocketconnection_set_blocking(socket_io_instance->tcp_socket_connection, false, 50);
 
                 socket_io_instance->on_bytes_received = on_bytes_received;
                 socket_io_instance->on_bytes_received_context = on_bytes_received_context;
@@ -248,14 +246,14 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
 
                 socket_io_instance->io_state = IO_STATE_OPEN;
 
-                if (on_io_open_complete != NULL)
-                {
-                    on_io_open_complete(on_io_open_complete_context, IO_OPEN_OK);
-                }
-
                 result = 0;
             }
         }
+    }
+    
+    if (on_io_open_complete != NULL)
+    {
+        on_io_open_complete(on_io_open_complete_context, result == 0 ? IO_OPEN_OK : IO_OPEN_ERROR);
     }
 
     return result;
@@ -267,7 +265,7 @@ int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_clos
 
     if (socket_io == NULL)
     {
-        result = __LINE__;
+        result = __FAILURE__;
     }
     else
     {
@@ -276,7 +274,7 @@ int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_clos
         if ((socket_io_instance->io_state == IO_STATE_CLOSED) ||
             (socket_io_instance->io_state == IO_STATE_CLOSING))
         {
-            result = __LINE__;
+            result = __FAILURE__;
         }
         else
         {
@@ -304,17 +302,15 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
         (buffer == NULL) ||
         (size == 0))
     {
-    	LogError("socket io or buffer or size is not valid \n");
         /* Invalid arguments */
-        result = __LINE__;
+        result = __FAILURE__;
     }
     else
     {
         SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
         if (socket_io_instance->io_state != IO_STATE_OPEN)
         {
-        	LogError("socket io is not open \n");
-            result = __LINE__;
+            result = __FAILURE__;
         }
         else
         {
@@ -323,7 +319,7 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
             {
                 if (add_pending_io(socket_io_instance, buffer, size, on_send_complete, callback_context) != 0)
                 {
-                    result = __LINE__;
+                    result = __FAILURE__;
                 }
                 else
                 {
@@ -340,12 +336,10 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
                         send_result = 0;
                     }
 
-                    LogError("Start to add pending IO\n");
                     /* queue data */
                     if (add_pending_io(socket_io_instance, (unsigned char*)buffer + send_result, size - send_result, on_send_complete, callback_context) != 0)
                     {
-                    	LogError("unable to add socket IO\n");
-                        result = __LINE__;
+                        result = __FAILURE__;
                     }
                     else
                     {
@@ -358,6 +352,7 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
                     {
                         on_send_complete(callback_context, IO_SEND_OK);
                     }
+
                     result = 0;
                 }
             }
@@ -375,6 +370,7 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
         if (socket_io_instance->io_state == IO_STATE_OPEN)
         {
             int received = 1;
+
             LIST_ITEM_HANDLE first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
             while (first_pending_io != NULL)
             {
@@ -393,7 +389,6 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
                     {
                         if (send_result < UNABLE_TO_COMPLETE)
                         {
-                        	LogError("Socketio_Failure: Unable to complete sending");
                             // Bad error.  Indicate as much.
                             socket_io_instance->io_state = IO_STATE_ERROR;
                             indicate_error(socket_io_instance);
@@ -454,7 +449,7 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, const void* value)
 {
     /* Not implementing any options */
-    return __LINE__;
+    return __FAILURE__;
 }
 
 const IO_INTERFACE_DESCRIPTION* socketio_get_interface_description(void)
