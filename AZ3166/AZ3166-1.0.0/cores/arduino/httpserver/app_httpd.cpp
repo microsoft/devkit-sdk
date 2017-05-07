@@ -57,7 +57,8 @@ int write_eeprom(char* string, int idxZone)
     
   // Write data to EEPROM
   result = eeprom.write((uint8_t*)string, len, idxZone);
-  if (result) {
+  if (result)
+  {
     app_httpd_log("ERROR: Failed to write EEPROM");
     return -1;
   }
@@ -74,7 +75,8 @@ int write_eeprom(char* string, int idxZone)
   return 0;
 }
 
-bool connect_wifi(char *value_ssid, char *value_pass) {
+bool connect_wifi(char *value_ssid, char *value_pass)
+{
   int len = strlen(value_ssid);
   if (len == 0 || len > WIFI_SSID_MAX_LEN) return false;
   
@@ -116,7 +118,8 @@ int web_send_wifisetting_page(httpd_request_t *req)
   int ssidLen = 0;
 
   setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + 1;
-  for (int i = 0; i < wifiCount; ++i) {
+  for (int i = 0; i < wifiCount; ++i) 
+  {
     ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
     if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) setting_page_len += 26 + 2 * ssidLen;
   }
@@ -125,7 +128,8 @@ int web_send_wifisetting_page(httpd_request_t *req)
 
   snprintf(p, strlen(page_head) + strlen(wifi_setting_a) + 1, "%s%s", page_head, wifi_setting_a);
   p += strlen(page_head) + strlen(wifi_setting_a);
-  for(int i = 0; i < wifiCount; ++i){
+  for(int i = 0; i < wifiCount; ++i) 
+  {
     ssid = (char *)wifiScanResult[i].get_ssid();
     ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
     if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) snprintf(p, 27 + 2 * ssidLen, "<option value=\"%s\">%s</option>", ssid, ssid);
@@ -149,11 +153,13 @@ int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
   int result_page_len = 0;
   char *result_page = NULL;
   OSStatus err = kNoErr;
-  if (is_success) {
+  if (is_success)
+  {
     result_page_len = strlen(page_head) + strlen(success_result) + strlen(value_ssid) + strlen(network->get_ip_address()) - 5;
     result_page = (char *)malloc(result_page_len);
     snprintf(result_page, result_page_len, success_result, page_head, value_ssid, network->get_ip_address());
-  } else {
+  } else 
+  {
     result_page_len = strlen(page_head) + strlen(failed_result) + strlen(value_ssid) - 3;
     result_page = (char *)malloc(result_page_len);
     snprintf(result_page, result_page_len, failed_result, page_head, value_ssid);
@@ -167,7 +173,8 @@ int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
 
 exit:
   if (result_page) free(result_page);
-  if (err == 0 && is_success) {
+  if (err == 0 && is_success) 
+  {
     wait_ms(3000);
     mico_system_reboot();
   }
@@ -248,7 +255,8 @@ void app_http_register_handlers()
 {
   int rc;
   rc = httpd_register_wsgi_handlers(g_app_handlers, g_app_handlers_no);
-  if (rc) {
+  if (rc) 
+  {
     app_httpd_log("failed to register test web handler");
   }
 }
@@ -259,7 +267,8 @@ int _app_httpd_start()
   app_httpd_log("initializing web-services");
   
   /*Initialize HTTPD*/
-  if(is_http_init == false) {
+  if(is_http_init == false) 
+  {
     err = httpd_init();
     require_noerr_action( err, exit, app_httpd_log("failed to initialize httpd") );
     is_http_init = true;
@@ -267,7 +276,8 @@ int _app_httpd_start()
   
   /*Start http thread*/
   err = httpd_start();
-  if(err != kNoErr) {
+  if(err != kNoErr) 
+  {
     app_httpd_log("failed to start httpd thread");
     httpd_shutdown();
   }
@@ -283,7 +293,8 @@ int httpd_server_start(WiFiAccessPoint *res, unsigned count)
   err = _app_httpd_start();
   require_noerr( err, exit ); 
   
-  if (is_handlers_registered == false) {
+  if (is_handlers_registered == false) 
+  {
     app_http_register_handlers();
     is_handlers_registered = true;
   }
