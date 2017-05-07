@@ -70,7 +70,8 @@ static void CheckConnection()
     {
         return;
     }
-
+    // Here enable the retry policy of the mqtt client should be the right / better solution.
+    // But I didn't get it work currently ... so take this solution as a short cut.
     iothub_client_sample_mqtt_close();
     iothub_client_sample_mqtt_init();
 
@@ -158,7 +159,7 @@ void iothub_client_sample_send_event(const unsigned char *text)
         (void)Serial.printf("ERROR: IoTHubClient_LL_SendEventAsync..........FAILED!\r\n");
         return;
     }
-    (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted messagefor transmission to IoT Hub.\r\n");
+    (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.\r\n");
 }
 
 void iothub_client_sample_mqtt_loop(void)
