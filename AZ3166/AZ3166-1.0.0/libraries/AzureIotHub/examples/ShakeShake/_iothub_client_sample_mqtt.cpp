@@ -51,7 +51,7 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     IoTHubMessage_Destroy(eventInstance->messageHandle);
     free(eventInstance);
     
-    SendConfirmationCallback();
+    MessageSendConfirmationCallback(result);
 }
 
 

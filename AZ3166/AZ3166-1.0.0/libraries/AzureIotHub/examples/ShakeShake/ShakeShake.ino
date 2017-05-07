@@ -42,9 +42,13 @@ static time_t time_sending_timeout;
 
 static int restart_iot_client = 0;
 
-void SendConfirmationCallback(void)
+void MessageSendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
 {
   eventSent = true;
+  if (result == IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT)
+  {
+    restart_iot_client = RECONNECT_THRESHOLD;
+  }
 }
 
 static char printable_char(char c)
@@ -296,7 +300,7 @@ static void DoReceived()
 
 static void CheckConnection()
 {
-  if (restart_iot_client > RECONNECT_THRESHOLD)
+  if (restart_iot_client >= RECONNECT_THRESHOLD)
   {
     iothub_client_sample_mqtt_close();
     iothub_client_sample_mqtt_init();
