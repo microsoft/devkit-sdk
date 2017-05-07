@@ -10,5 +10,5 @@ void iothub_client_sample_mqtt_loop(void);
 void iothub_client_sample_mqtt_close(void);
 
 void TwitterMessageCallback(const char* tweet, int lenTweet);
-void SendConfirmationCallback(void);
+void MessageSendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result);
 #endif /* IOTHUB_CLIENT_SAMPLE_MQTT_H */
