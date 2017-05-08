@@ -116,16 +116,6 @@ static void EnterAPMode()
         Serial.println("Set wifi AP Mode failed");
         return;
     }
-    
-    // scan network
-    WiFiAccessPoint aps[15];
-    unsigned count = 15; // only get at Max 15 Aps
-    int resultCount = ((EMW10xxInterface*)WiFiAPInterface())->scan(aps, count);
-    if(resultCount <= 0)
-    {
-        Serial.println("Unable to find networks to connect");
-        //Shall we continue at this time? 
-    }
 
     char ap_name[24] = "AZ-";
     ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
@@ -137,7 +127,7 @@ static void EnterAPMode()
         return ;
     }
 
-    httpd_server_start(aps, resultCount);
+    httpd_server_start();
     
     Screen.print(1, ap_name);
     Screen.print(2, "Soft AP started");

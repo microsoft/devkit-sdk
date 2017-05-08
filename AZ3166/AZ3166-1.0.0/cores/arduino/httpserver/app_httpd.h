@@ -48,7 +48,7 @@ extern const char *success_result;
 
 extern const char *failed_result;
 
-int httpd_server_start(WiFiAccessPoint *res, unsigned count);
+int httpd_server_start();
 
 int app_httpd_stop();
 
