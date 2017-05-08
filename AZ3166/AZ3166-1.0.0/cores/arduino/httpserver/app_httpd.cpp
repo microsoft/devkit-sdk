@@ -219,6 +219,8 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
   char *buf;
   char value_ssid[WIFI_SSID_MAX_LEN + 1];
   char value_pass[WIFI_PWD_MAX_LEN + 1];
+  value_ssid[0] = '\0';
+  value_pass[0] = '\0';
   char *boundary = NULL;
   // mico_Context_t* context = NULL;
 
