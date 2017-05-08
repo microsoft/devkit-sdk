@@ -205,7 +205,7 @@ exit:
   }
   if (err == 0 && is_success) 
   {
-    wait_ms(3000);
+    wait_ms(5000);
     mico_system_reboot();
   }
   return err; 
