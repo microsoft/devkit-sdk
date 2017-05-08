@@ -2,7 +2,7 @@
 #include "OLEDDisplay.h"
 
 AudioClass Audio;
-const int AUDIO_SIZE = 32000*2 + 45;
+const int AUDIO_SIZE = 32000*3 + 45;
 
 int lastButtonState;
 int buttonState;
@@ -46,7 +46,7 @@ void record() {
   Screen.print(0, "Start recording   ");
 
   // Start to record audio data
-  Audio.startRecord(waveFile, AUDIO_SIZE, 2);
+  Audio.startRecord(waveFile, AUDIO_SIZE, 3);
   
   while (1) {
     // Check whether the audio record is completed.
