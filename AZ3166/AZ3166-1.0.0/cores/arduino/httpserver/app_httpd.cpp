@@ -46,8 +46,6 @@ extern NetworkInterface *network;
 
 bool is_http_init;
 bool is_handlers_registered;
-WiFiAccessPoint* wifiScanResult;
-unsigned wifiCount; 
 
 int write_eeprom(char* string, int idxZone)
 {
@@ -132,6 +130,10 @@ int web_send_wifisetting_page(httpd_request_t *req)
   int err = kNoErr;
   char *ssid = "";
   int ssidLen = 0;
+  
+  // scan network
+  WiFiAccessPoint wifiScanResult[15];
+  int wifiCount = ((EMW10xxInterface*)network)->scan(wifiScanResult, 15);
 
   setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + 1;
   for (int i = 0; i < wifiCount; ++i) 
@@ -217,6 +219,8 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
   char *buf;
   char value_ssid[WIFI_SSID_MAX_LEN + 1];
   char value_pass[WIFI_PWD_MAX_LEN + 1];
+  value_ssid[0] = '\0';
+  value_pass[0] = '\0';
   char *boundary = NULL;
   // mico_Context_t* context = NULL;
 
@@ -322,10 +326,8 @@ exit:
   return err;
 }
 
-int httpd_server_start(WiFiAccessPoint *res, unsigned count)
+int httpd_server_start()
 {
-  wifiScanResult = res;
-  wifiCount = count;
   int err = kNoErr;
   err = _app_httpd_start();
   require_noerr( err, exit ); 
