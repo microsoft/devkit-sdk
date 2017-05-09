@@ -21,7 +21,7 @@
 
 
 #include <stdio.h>
-#include "version.h"
+#include "SystemVersion.h"
 
 #define DEVKIT_MAJOR_VERSION 0
 #define DEVKIT_MINOR_VERSION 8
