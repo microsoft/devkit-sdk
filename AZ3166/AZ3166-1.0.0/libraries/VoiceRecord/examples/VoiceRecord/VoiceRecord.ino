@@ -11,9 +11,9 @@ char * waveFile;
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
- 
-  Serial.println("Helloworld in AzureDevKits!");
-  
+
+  Serial.println("Helloworld in Azure IoT DevKits!");
+
   // initialize the button pin as a input
   pinMode(USER_BUTTON_A, INPUT);
   lastButtonState = digitalRead(USER_BUTTON_A);
@@ -24,10 +24,10 @@ void setup(void) {
 }
 
 void loop(void) {
-  Serial.println("Press button A to start record 3 sec audio");
+  Serial.println("Press button A to start record 3 secs audio");
   Screen.clean();
   Screen.print(0, "AZ3166 Audio:  ");
-  Screen.print(1, "Press button A  to start record 3 sec audio", true);
+  Screen.print(1, "Press button A  to start record 3 secs audio", true);
 
   while (1) {
     buttonState = digitalRead(USER_BUTTON_A);
@@ -63,17 +63,17 @@ void record() {
       Screen.print(1, "Finish recording");
       int totalSize;
       Audio.getWav(&totalSize);
-      Serial.print("Total size: ");
+      Serial.print("Recorded size: ");
       Serial.println(totalSize);
 
       int monoSize = Audio.convertToMono(waveFile, totalSize, 16);
-      Serial.print("Mono size:" );
+      Serial.print("To Mono size: " );
       Serial.println(monoSize);
       delay(500);
 
       Screen.clean();
       Screen.print(0, "AZ3166 Audio:  ");
-      Screen.print(1, "Press button A  to start record 3 sec audio", true);
+      Screen.print(1, "Press button A  to start record 3 secs audio", true);
       break;
     }
   }
