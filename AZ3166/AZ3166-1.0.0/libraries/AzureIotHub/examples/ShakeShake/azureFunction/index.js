@@ -11,12 +11,24 @@ function truncateByDot(text, limit){
 }
 
 module.exports = function (context, myEventHubMessage) {
+<<<<<<< HEAD:AZ3166/AZ3166-1.0.0/libraries/AzureIotHub/examples/ShakeShake/azureFunction/index.js
+=======
+    // The right way to retrieve the device id is to get it from Azure Function proerpy bag
+    // But seems the property bag cannot be stably retrieved from Azure so we choose to hard code the device id here for stability.
+    /*
+>>>>>>> pre-release:AZ3166/AZ3166-1.0.0/libraries/AzureIotHub/examples/ShakeShake/azureFunction/index.js
     if (!context.bindingData || !context.bindingData.systemProperties || !context.bindingData.systemProperties['iothub-connection-device-id']) {
         context.log('no device id');
         context.done();
         return;
     }
     var deviceId = context.bindingData.systemProperties['iothub-connection-device-id'];
+<<<<<<< HEAD:AZ3166/AZ3166-1.0.0/libraries/AzureIotHub/examples/ShakeShake/azureFunction/index.js
+=======
+    */
+
+    var deviceId = "AZ3166";
+>>>>>>> pre-release:AZ3166/AZ3166-1.0.0/libraries/AzureIotHub/examples/ShakeShake/azureFunction/index.js
     if (deviceId && myEventHubMessage.topic) {
         cloudClient.open(function (err) {
             if (err) {

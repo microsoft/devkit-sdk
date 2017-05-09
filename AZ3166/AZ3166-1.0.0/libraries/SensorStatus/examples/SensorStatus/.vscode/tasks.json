@@ -13,7 +13,11 @@
     "showOutput": "always",
     "tasks": [
         {
+<<<<<<< HEAD
             "taskName": "build",
+=======
+            "taskName": "device-upload",
+>>>>>>> pre-release
             "command": "./.bin/build",
             "windows": {
                 "command": ".bin\\build.cmd"

@@ -26,6 +26,8 @@
 #include "console_cli.h"
 #include "mico.h"
 #include "SystemWiFi.h"
+#include "SystemVersion.h"
+#include "version.h"
 
 struct console_command 
 {
@@ -69,7 +71,7 @@ static const struct console_command cmds[] = {
   {"scan",          "Scan Wi-Fi AP",                                            false, wifi_scan},
   {"set_wifissid",  "Set Wi-Fi SSID",                                           false, wifi_ssid_command},
   {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
-  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     true,  az_iothub_command},
+  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     false, az_iothub_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -94,14 +96,13 @@ static void help_command(int argc, char **argv)
 static void get_version_command(int argc, char **argv)
 {
     char ver[128];
-    uint8_t major, minor, revision;
     int ret;
     
-    mico_sdk_version( &major, &minor, &revision );
-    
-    Serial.printf( "Kernel version: %s\r\n", MicoGetVer() );
-    Serial.printf( "SDK version: %d.%d.%d\r\n", major, minor, revision );
-    
+    Serial.printf( "DevKitSDK version: %s\r\n", getDevkitVersion() );
+    Serial.printf( "Mico version: %s\r\n", MicoGetVer() );
+    Serial.printf( "mbed-os version: %d.%d.%d\r\n", MBED_MAJOR_VERSION, MBED_MINOR_VERSION, MBED_PATCH_VERSION );
+    Serial.printf( "mbed TLS version: %d.%d.%d\r\n", MBEDTLS_VERSION_MAJOR, MBEDTLS_VERSION_MINOR, MBEDTLS_VERSION_PATCH);
+        
     memset(ver, 0, sizeof(ver));
     ret = MicoGetRfVer(ver, sizeof(ver));
     if (ret == 0)

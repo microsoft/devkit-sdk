@@ -25,6 +25,7 @@
 #include "SystemWiFi.h"
 #include "mbed_stats.h"
 #include "SystemLock.h"
+#include "EMW10xxInterface.h"
 
 static bool Initialization(void)
 {
@@ -112,17 +113,12 @@ static void EnterAPMode()
    
     if (!InitSystemWiFi())
     {
-        return;
-    }
-    
-    char ap_name[24] = "AZ-";
-    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
-    
-    if (!InitSystemWiFiAP())
-    {
         Serial.println("Set wifi AP Mode failed");
         return;
     }
+
+    char ap_name[24] = "AZ-";
+    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
 
     int ret = SystemWiFiAPStart(ap_name, "");
     if ( ret == false) 
@@ -130,7 +126,7 @@ static void EnterAPMode()
         Serial.println("Soft ap creation failed");
         return ;
     }
-    
+
     httpd_server_start();
     
     Screen.print(1, ap_name);

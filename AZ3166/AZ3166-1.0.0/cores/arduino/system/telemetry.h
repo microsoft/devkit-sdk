@@ -4,15 +4,15 @@
 #ifndef TELEMERTY_H
 #define TELEMERTY_H
 
-#ifdef _cplusplus
-extern "C"
-{
-#endif
+#ifdef __cplusplus
+extern "C"{
+#endif  // __cplusplus
+
 
     void telemetry_init();
     void send_telemetry_data(const char *iothub, const char *event, const char *message);
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 }
 #endif
 

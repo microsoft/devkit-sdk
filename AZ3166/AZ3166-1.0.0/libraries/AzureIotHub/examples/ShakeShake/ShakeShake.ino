@@ -5,11 +5,21 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 
+<<<<<<< HEAD
 #define RGB_LED_BRIGHTNESS  16
 #define LOOP_DELAY          100
 
 #define HEARTBEAT_INTERVAL  300.0
 #define PULL_TIMEOUT        120.0
+=======
+#define RGB_LED_BRIGHTNESS  32
+#define LOOP_DELAY          100
+
+#define HEARTBEAT_INTERVAL  120.0
+#define PULL_TIMEOUT        15.0
+
+#define RECONNECT_THRESHOLD 3
+>>>>>>> pre-release
 
 // 0 - idle
 // 1 - shaking
@@ -36,11 +46,31 @@ bool hasWifi = false;
 static const char* iot_event = "{\"topic\":\"iot\"}";
 
 static time_t time_hb;
+<<<<<<< HEAD
 static time_t time_sending;
 
 void _SendConfirmationCallback(void)
 {
   eventSent = true;
+=======
+static time_t time_sending_timeout;
+
+static int restart_iot_client = 0;
+
+void MessageSendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
+{
+  eventSent = true;
+  if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
+  {
+    // If get back the send confirmation msg clear the re-connect count
+    restart_iot_client = 0;
+  }
+  else if (result == IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT)
+  {
+    // This should be a connection issue, re-connect
+    restart_iot_client = RECONNECT_THRESHOLD;
+  }
+>>>>>>> pre-release
 }
 
 static char printable_char(char c)
@@ -49,7 +79,11 @@ static char printable_char(char c)
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
 
+<<<<<<< HEAD
 void _showMessage(const char *tweet, int lenTweet)
+=======
+void TwitterMessageCallback(const char *tweet, int lenTweet)
+>>>>>>> pre-release
 {
   if (status < 2 || lenTweet == NULL)
   {
@@ -84,6 +118,10 @@ void _showMessage(const char *tweet, int lenTweet)
   
   status = 3;
   msgStart = 0;
+<<<<<<< HEAD
+=======
+  restart_iot_client = 0;
+>>>>>>> pre-release
 }
 
 static void ScrollTweet(void)
@@ -123,12 +161,35 @@ void InitWiFi()
   }
 }
 
+<<<<<<< HEAD
 static void DoHeartBeat(void)
 {
   time_t cur;
   time(&cur);
 
   if (difftime(cur, time_hb) < HEARTBEAT_INTERVAL)
+=======
+static void SendEventToIoTHub(const char* msg)
+{
+  // Check connection first
+  if (restart_iot_client >= RECONNECT_THRESHOLD)
+  {
+    iothub_client_sample_mqtt_close();
+    iothub_client_sample_mqtt_init();
+    restart_iot_client = 0;
+  }
+  // Then send
+  iothub_client_sample_send_event((const unsigned char *)msg);
+}
+
+static void DoHeartBeat(void)
+{
+  time_t start;
+  time_t cur;
+  
+  time(&start);
+  if (difftime(start, time_hb) < HEARTBEAT_INTERVAL)
+>>>>>>> pre-release
   {
     return;
   }
@@ -136,7 +197,11 @@ static void DoHeartBeat(void)
   eventSent = false;
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println(">>Heartbeat<<");
+<<<<<<< HEAD
   iothub_client_sample_send_event((const unsigned char *)iot_event);
+=======
+  SendEventToIoTHub(iot_event);
+>>>>>>> pre-release
   for (;;)
   {
     iothub_client_sample_mqtt_loop();
@@ -144,6 +209,18 @@ static void DoHeartBeat(void)
     {
       break;
     }
+<<<<<<< HEAD
+=======
+    time(&cur);
+    double diff = difftime(cur, start);
+    if (diff >= PULL_TIMEOUT)
+    {
+      // Not get back the send confirmation msg, increase the restart count by 1
+      Serial.println(">>Failed to retrieve the sending confirmation message: timeout.");
+      restart_iot_client++;
+      break;
+    }
+>>>>>>> pre-release
   }
   time(&time_hb);
   digitalWrite(LED_BUILTIN, LOW);
@@ -155,6 +232,10 @@ void setup()
   msgBody = (char*) malloc(200);
   msgBody[0] = 0;
   status = 0;
+<<<<<<< HEAD
+=======
+  restart_iot_client = 0;
+>>>>>>> pre-release
   
   Screen.init();
   Screen.print(0, "Azure IoT DevKit");
@@ -167,6 +248,13 @@ void setup()
   Screen.print(3, " > WiFi");
   hasWifi = false;
   InitWiFi();
+<<<<<<< HEAD
+=======
+  if (!hasWifi)
+  {
+    return;
+  }
+>>>>>>> pre-release
   
   // Initialize LEDs
   Screen.print(3, " > LEDs");
@@ -187,7 +275,11 @@ void setup()
   acc_gyro->enable_g();
   acc_gyro->enable_pedometer();
   acc_gyro->set_pedometer_threshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_LOW);
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> pre-release
   Screen.print(3, " > IoT Hub");
   
   iothub_client_sample_mqtt_init();
@@ -222,11 +314,21 @@ static void DoShake()
   acc_gyro->get_step_counter(&steps);
   if (steps > 2)
   {
+<<<<<<< HEAD
     // Trigger the twitter
     iothub_client_sample_send_event((const unsigned char *)iot_event);
     status = 2;
     time(&time_sending);
     time(&time_hb);
+=======
+    time(&time_hb); // Reset the heartbeat clock
+
+    // Trigger the twitter
+    eventSent = false;
+    SendEventToIoTHub(iot_event);
+    status = 2;
+    time(&time_sending_timeout);  // Start sending timeout clock
+>>>>>>> pre-release
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
     Screen.print(1, " ");
     Screen.print(2, " Processing...");
@@ -236,6 +338,7 @@ static void DoShake()
 
 static void DoWork()
 {
+<<<<<<< HEAD
   iothub_client_sample_mqtt_loop();
   time_t cur;
   time(&cur);
@@ -247,6 +350,33 @@ static void DoWork()
     Screen.print(3, "Press A to Shake!");
     rgbLed.setColor(0, 0, 0);
     status = 0;
+=======
+  time(&time_hb); // Reset the heartbeat clock
+
+  iothub_client_sample_mqtt_loop();
+
+  if (status != 3)
+  {
+    // Not get the tweet, check the sending timeout
+    time_t cur;
+    time(&cur);
+    double diff = difftime(cur, time_sending_timeout);
+    if (diff >= PULL_TIMEOUT)
+    {
+      if (!eventSent)
+      {
+        // If not get back the send confirmation msg then increase the restart count by 1
+        restart_iot_client ++;
+      }
+      
+      // Switch back to status 0
+      Screen.print(1, "No tweets...");
+      Screen.print(2, "Press A to Shake!");
+      Screen.print(3, " ");
+      rgbLed.setColor(0, 0, 0);
+      status = 0;
+    }
+>>>>>>> pre-release
   }
 
   time(&time_hb);
@@ -254,18 +384,27 @@ static void DoWork()
 
 static void DoReceived()
 {
+<<<<<<< HEAD
+=======
+  time(&time_hb); // Reset the heartbeat clock
+
+>>>>>>> pre-release
   Screen.clean();
   Screen.print(0, msgHeader);
   Screen.print(1, msgBody, true);
   
   rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
   status = 0;
+<<<<<<< HEAD
   
   time(&time_hb);
+=======
+>>>>>>> pre-release
 }
       
 void loop()
 {
+<<<<<<< HEAD
   switch(status)
   {
     case 0:
@@ -289,5 +428,33 @@ void loop()
   
   DoHeartBeat();
   
+=======
+  if (hasWifi)
+  {
+    switch(status)
+    {
+      case 0:
+        DoIdle();
+        break;
+      
+      case 1:
+        DoShake();
+        break;
+        
+      case 2:
+        DoWork();
+        break;
+        
+      case 3:
+        DoReceived();
+        break;
+    }
+    
+    ScrollTweet();
+    
+    DoHeartBeat();
+  }
+    
+>>>>>>> pre-release
   delay(LOOP_DELAY);
 }
