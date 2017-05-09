@@ -19,45 +19,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-#include <stdio.h>
-#include "version.h"
-
-#define DEVKIT_MAJOR_VERSION 0
-#define DEVKIT_MINOR_VERSION 8
-#define DEVKIT_PATCH_VERSION 1
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-char version[10] = { "\0" };
-
-const char* getDevkitVersion()
-{
-    snprintf(version, sizeof(version), "%d.%d.%d", DEVKIT_MAJOR_VERSION, DEVKIT_MINOR_VERSION, DEVKIT_PATCH_VERSION);
-    return version;
-}
-
-
-uint32_t getMajorVersion()
-{
-    return DEVKIT_MAJOR_VERSION;
-}
-
-
-uint32_t getMinorVersion()
-{
-    return DEVKIT_MINOR_VERSION;
-}
-
-
-uint32_t getPatchVersion()
-{
-    return DEVKIT_PATCH_VERSION;
-}
-
-#ifdef __cplusplus
-}
-#endif
+#include "Arduino.h"
+#include "OLEDDisplay.h"

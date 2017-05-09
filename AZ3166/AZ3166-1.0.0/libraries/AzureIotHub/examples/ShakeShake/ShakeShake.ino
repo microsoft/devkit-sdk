@@ -45,8 +45,14 @@ static int restart_iot_client = 0;
 void MessageSendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
 {
   eventSent = true;
-  if (result == IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT)
+  if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
   {
+    // If get back the send confirmation msg clear the re-connect count
+    restart_iot_client = 0;
+  }
+  else if (result == IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT)
+  {
+    // This should be a connection issue, re-connect
     restart_iot_client = RECONNECT_THRESHOLD;
   }
 }
@@ -92,6 +98,7 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
   
   status = 3;
   msgStart = 0;
+  restart_iot_client = 0;
 }
 
 static void ScrollTweet(void)
@@ -131,6 +138,19 @@ void InitWiFi()
   }
 }
 
+static void SendEventToIoTHub(const char* msg)
+{
+  // Check connection first
+  if (restart_iot_client >= RECONNECT_THRESHOLD)
+  {
+    iothub_client_sample_mqtt_close();
+    iothub_client_sample_mqtt_init();
+    restart_iot_client = 0;
+  }
+  // Then send
+  iothub_client_sample_send_event((const unsigned char *)msg);
+}
+
 static void DoHeartBeat(void)
 {
   time_t start;
@@ -145,7 +165,7 @@ static void DoHeartBeat(void)
   eventSent = false;
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println(">>Heartbeat<<");
-  iothub_client_sample_send_event((const unsigned char *)iot_event);
+  SendEventToIoTHub(iot_event);
   for (;;)
   {
     iothub_client_sample_mqtt_loop();
@@ -186,6 +206,10 @@ void setup()
   Screen.print(3, " > WiFi");
   hasWifi = false;
   InitWiFi();
+  if (!hasWifi)
+  {
+    return;
+  }
   
   // Initialize LEDs
   Screen.print(3, " > LEDs");
@@ -206,7 +230,7 @@ void setup()
   acc_gyro->enable_g();
   acc_gyro->enable_pedometer();
   acc_gyro->set_pedometer_threshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_LOW);
-    
+
   Screen.print(3, " > IoT Hub");
   
   iothub_client_sample_mqtt_init();
@@ -245,7 +269,7 @@ static void DoShake()
 
     // Trigger the twitter
     eventSent = false;
-    iothub_client_sample_send_event((const unsigned char *)iot_event);
+    SendEventToIoTHub(iot_event);
     status = 2;
     time(&time_sending_timeout);  // Start sending timeout clock
     rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
@@ -269,8 +293,11 @@ static void DoWork()
     double diff = difftime(cur, time_sending_timeout);
     if (diff >= PULL_TIMEOUT)
     {
-      // If not get back the send confirmation msg then increase the restart count by 1, else clear it
-      restart_iot_client = eventSent ? 0 : (restart_iot_client + 1);
+      if (!eventSent)
+      {
+        // If not get back the send confirmation msg then increase the restart count by 1
+        restart_iot_client ++;
+      }
       
       // Switch back to status 0
       Screen.print(1, "No tweets...");
@@ -295,43 +322,34 @@ static void DoReceived()
   rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
   status = 0;
 }
-
-static void CheckConnection()
-{
-  if (restart_iot_client >= RECONNECT_THRESHOLD)
-  {
-    iothub_client_sample_mqtt_close();
-    iothub_client_sample_mqtt_init();
-    restart_iot_client = 0;
-  }
-}
       
 void loop()
 {
-  switch(status)
+  if (hasWifi)
   {
-    case 0:
-      DoIdle();
-      break;
+    switch(status)
+    {
+      case 0:
+        DoIdle();
+        break;
+      
+      case 1:
+        DoShake();
+        break;
+        
+      case 2:
+        DoWork();
+        break;
+        
+      case 3:
+        DoReceived();
+        break;
+    }
     
-    case 1:
-      DoShake();
-      break;
-      
-    case 2:
-      DoWork();
-      break;
-      
-    case 3:
-      DoReceived();
-      break;
+    ScrollTweet();
+    
+    DoHeartBeat();
   }
-  
-  ScrollTweet();
-  
-  DoHeartBeat();
-
-  CheckConnection();
-  
+    
   delay(LOOP_DELAY);
 }
