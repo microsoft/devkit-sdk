@@ -15,8 +15,8 @@
 #include <AZ3166WiFiUdp.h>
 
 int status = WL_IDLE_STATUS;
-char ssid[] = "mynetwork";  //  your network SSID (name)
-char pass[] = "mypassword";       // your network password
+char ssid[] = "yournetworkssid";  //  your network SSID (name)
+char pass[] = "yourpassword";       // your network password
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
 
 unsigned int localPort = 2390;      // local port to listen on
@@ -61,8 +61,8 @@ void setup() {
 void loop() {
 
   // if there's data available, read a packet
-  int packetSize = Udp.parsePacket();
-  if (packetSize) {
+  int packetSize = Udp.read(packetBuffer, 255);
+  if (packetSize > 0) {
     Serial.print("Received packet of size ");
     Serial.println(packetSize);
     Serial.print("From ");
@@ -71,11 +71,6 @@ void loop() {
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
-    int len = Udp.read(packetBuffer, 255);
-    if (len > 0) {
-      packetBuffer[len] = 0;
-    }
     Serial.println("Contents:");
     Serial.println(packetBuffer);
 
