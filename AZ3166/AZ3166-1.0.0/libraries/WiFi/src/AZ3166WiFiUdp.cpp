@@ -48,6 +48,7 @@ uint8_t WiFiUDP::begin(uint16_t port) {
     if ( is_initialized )
     {
         _localPort = port;
+        _pUdpSocket->bind(port);
         return 1;
     }
     else
@@ -128,24 +129,19 @@ int WiFiUDP::read()
     int n;
     char b;
 
-    if (_address == NULL)
-        return -1;
-
-    SocketAddress recvAddress;
-    recvAddress.set_ip_address(_address->get_ip_address());
-    recvAddress.set_port(_address->get_port());
-    n =  _pUdpSocket->recvfrom(&recvAddress,  &b, 1);
+    if (_address == NULL){
+        _address = new SocketAddress();
+    }
+    n =  _pUdpSocket->recvfrom(_address,  &b, 1);
     return ( n != 1 )? (-1) : (int)(b);
 }
 
 int WiFiUDP::read(unsigned char* buffer, size_t len)
 {
-    if (_address == NULL)
-        return -1;
-    SocketAddress recvAddress;
-    recvAddress.set_ip_address(_address->get_ip_address());
-    recvAddress.set_port(_address->get_port());
-    return _pUdpSocket->recvfrom(&recvAddress, (char*)buffer, len);
+    if (_address == NULL){
+        _address = new SocketAddress();
+    }
+    return _pUdpSocket->recvfrom(_address, (char*)buffer, len);
 }
 
 void WiFiUDP::flush()
@@ -159,7 +155,8 @@ IPAddress WiFiUDP::remoteIP()
     {
         return INADDR_NONE;
     }
-    IPAddress ip((uint8_t*)_address->get_ip_address());
+    IPAddress ip;
+    ip.fromString(_address->get_ip_address());
     return ip;
 }
 
