@@ -1,10 +1,8 @@
 #include <AZ3166WiFi.h>
-#include "SystemWifi.h"
-
 #include "MQTTClient.h"
 #include "MQTTNetwork.h"
 
-char ssid[] = "yourssid";      // your network SSID (name)
+char ssid[] = "yourssid";            // your network SSID (name)
 char pass[] = "yourpassword";        // your network password
 int status = WL_IDLE_STATUS;
 int arrivedcount = 0;
@@ -15,6 +13,8 @@ int port = 1883;
 
 void initWifi() {
   Screen.print(0, "Wi-Fi Connecting");
+  Screen.print(1, "SSID:");
+  Screen.print(2, ssid);
   Serial.print("Attempting to connect to Wi-Fi, SSID: ");
   Serial.println(ssid);
   
@@ -46,7 +46,8 @@ int runMqttExample() {
   char* topic = "mqtt-sample";
   MQTTNetwork mqttNetwork;
   MQTT::Client<MQTTNetwork, Countdown> client = MQTT::Client<MQTTNetwork, Countdown>(mqttNetwork);
-
+  arrivedcount = 0;
+  
   char msgBuf[100];
   sprintf(msgBuf, "Connecting to MQTT server %s:%d", mqttServer, port);
   Serial.println(msgBuf);
@@ -76,7 +77,7 @@ int runMqttExample() {
 
   // QoS 0
   char buf[100];
-  sprintf(buf, "Hello World!  QoS 0 message");
+  sprintf(buf, "QoS 0 message from AZ3166!");
   message.qos = MQTT::QOS0;
   message.retained = false;
   message.dup = false;
@@ -88,7 +89,7 @@ int runMqttExample() {
   }
  
   // QoS 1
-  sprintf(buf, "Hello World!  QoS 1 message");
+  sprintf(buf, "QoS 1 message from AZ3166!");
   message.qos = MQTT::QOS1;
   message.payloadlen = strlen(buf)+1;
   rc = client.publish(topic, message);
@@ -96,16 +97,7 @@ int runMqttExample() {
   while (arrivedcount < 2) {
       client.yield(100);
   }
-
-  // QoS 2
-  sprintf(buf, "Hello World!  QoS 2 message");
-  message.qos = MQTT::QOS2;
-  message.payloadlen = strlen(buf)+1;
-  rc = client.publish(topic, message);
-  while (arrivedcount < 3) {
-      client.yield(100);
-  }
- 
+  
   if ((rc = client.unsubscribe(topic)) != 0) {
       Serial.println("MQTT client unsubscribe from server failed");
   }
