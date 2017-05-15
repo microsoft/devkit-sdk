@@ -96,6 +96,7 @@ extern const PinDescription g_APinDescription[] ;
 #include "RGB_LED.h"
 #include "LSM6DSLSensor.h"
 #include "lps22hb.h"
-#include "SystemVersion.h"
+#include "IRDA_class.h"
+#include "version.h"
 
 #endif
