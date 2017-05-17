@@ -4,6 +4,7 @@
 #include "NetworkInterface.h"
 #include "MQTTmbed.h"
 #include "SystemWiFi.h"
+#include "telemetry.h"
 
 class MQTTNetwork {
 public:
@@ -28,7 +29,11 @@ public:
         if ( (ret = socket->open(WiFiInterface())) != 0) {
             return ret;
         }
-        return socket->connect(hostname, port);
+        ret = socket->connect(hostname, port);
+        char telemetry[128];
+        snprintf(telemetry, 128, "ret: %d, host: %s", ret, hostname);
+        send_telemetry_data("", "mqtt connection", telemetry);
+        return ret;
     }
 
     void disconnect() {
