@@ -1,6 +1,5 @@
 #include "RGB_LED.h"
 #include "AZ3166WiFi.h"
-#include "lps22hb.h"
 
 #define NUMSENSORS 4  // 4 sensors to display
 
@@ -12,7 +11,7 @@ static int status;
 static bool showWiFi;
 static bool isConnected;
 static bool buttonClicked;
-static int counter;
+static uint8_t counter;
 
 static struct _tagRGB
 {
@@ -34,6 +33,7 @@ DevI2C *ext_i2c;
 LSM6DSLSensor *acc_gyro;
 HTS221Sensor *ht_sensor;
 LIS2MDL *magnetometer;
+IRDASensor *IrdaSensor;
 
 int32_t axes[3];
 char wifiBuff[128];
@@ -201,6 +201,9 @@ void setup() {
 
   magnetometer = new LIS2MDL(*ext_i2c);
   magnetometer->init(NULL);
+
+  IrdaSensor = new IRDASensor();
+  IrdaSensor->init();
   
   //Scan networks and print them into console
   int numSsid = WiFi.scanNetworks();
@@ -227,6 +230,12 @@ void loop() {
 
   /*Blink around every 0.5 sec*/
   counter++;
+  uint8_t irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
+  if(irda_status != 0)
+  {
+    Serial.println("Unable to transmit through IRDA");
+  }
+
   if(counter > 5)
   {
       digitalWrite(LED_WIFI, led);
