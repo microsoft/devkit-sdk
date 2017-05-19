@@ -230,8 +230,8 @@ void loop() {
 
   /*Blink around every 0.5 sec*/
   counter++;
-  uint8_t status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
-  if(status != 0)
+  uint8_t irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
+  if(irda_status != 0)
   {
     Serial.println("Unable to trasmit through IRDA");
   }
