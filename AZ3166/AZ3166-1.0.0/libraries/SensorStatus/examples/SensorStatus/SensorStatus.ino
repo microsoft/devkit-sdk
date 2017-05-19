@@ -233,7 +233,7 @@ void loop() {
   uint8_t irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
   if(irda_status != 0)
   {
-    Serial.println("Unable to trasmit through IRDA");
+    Serial.println("Unable to transmit through IRDA");
   }
 
   if(counter > 5)
