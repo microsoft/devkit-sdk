@@ -30,10 +30,11 @@ module.exports = function (context, myEventHubMessage) {
             } else {
                 context.log('Client connected');
                 let tweet = '';
+                // TODO: Need to replace {twitter bearer token} with your Twitter bearer token
                 let options = {
-                    url: process.env['twitterAPI'] + '?count=3&q=%23' + myEventHubMessage.topic,
+                    url: 'https://api.twitter.com/1.1/search/tweets.json?count=3&q=%23' + myEventHubMessage.topic,
                     headers: {
-                        'Authorization': "Bearer " + process.env['twitterBearerKey']
+                        'Authorization': 'Bearer ' + '{twitter bearer token}'
                     }
                 };
                 request(options, (error, response, body) => {
