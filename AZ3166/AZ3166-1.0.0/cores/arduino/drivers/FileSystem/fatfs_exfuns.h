@@ -29,8 +29,12 @@
 ******************************************************************************
 */
 
-#ifndef __FATTESTER_H
-#define __FATTESTER_H 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef __FATFS_EXFUNS_H
+#define __FATFS_EXFUNS_H 
 
 #include "ff.h"
 #include "stdint.h"
@@ -38,9 +42,13 @@
 typedef struct _filesystem_info_t {
   int total_space;
   int free_space;
+  char unit;
 } filesystem_info;
 
-filesystem_info fatfs_get_info(uint8_t *drv);
-uint8_t fatfs_scan_files (char* path);
+filesystem_info fatfs_get_info();
 
+#endif
+
+#ifdef __cplusplus
+} /*extern "C" */
 #endif
