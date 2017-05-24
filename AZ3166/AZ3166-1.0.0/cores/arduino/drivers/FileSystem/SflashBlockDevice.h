@@ -6,32 +6,15 @@
 #include "diskio.h"
 #include "mico.h"
 
-/** 
- * Useful for simulating a block device and tests
- *
- * @code
- * #include "mbed.h"
- * #include "SflashBlockDevice.h"
- *
- * SflashBlockDevice bd(); // 2048 bytes with a block size of 512 bytes
- * uint8_t block[512] = "Hello World!\n";
- *
- * int main() {
- *     bd.init();
- *     bd.program(block, 0);
- *     bd.read(block, 0);
- *     printf("%s", block);
- *     bd.deinit();
- * }
- */
-class SflashBlockDevice : public BlockDevice
+/* SFlash : supervisor flash */
+class SFlashBlockDevice : public BlockDevice
 {
 public:
 
     /** Lifetime of the memory block device
      */
-    SflashBlockDevice();
-    virtual ~SflashBlockDevice();
+    SFlashBlockDevice();
+    virtual ~SFlashBlockDevice();
 
     /** Initialize a block device
      *

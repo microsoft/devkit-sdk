@@ -1,48 +1,48 @@
-#include "SflashBlockDevice.h"
+#include "SFlashBlockDevice.h"
 
 #define BLOCK_SIZE                8
 #define SECTOR_SIZE               512
 //#define SECTOR_COUNT              2048
 #define FLASH_SECTOR              4096
 
-SflashBlockDevice::SflashBlockDevice(){
+SFlashBlockDevice::SFlashBlockDevice(){
 }
 
-SflashBlockDevice::~SflashBlockDevice(){
+SFlashBlockDevice::~SFlashBlockDevice(){
 }
 
-int SflashBlockDevice::init()
+int SFlashBlockDevice::init()
 {
   fatfs_partition = MicoFlashGetInfo((mico_partition_t)MICO_PARTITION_FILESYS);
   return RES_OK;
 }
 
-int SflashBlockDevice::deinit()
+int SFlashBlockDevice::deinit()
 {
     return BD_ERROR_OK;
 }
 
-bd_size_t SflashBlockDevice::get_read_size() const
+bd_size_t SFlashBlockDevice::get_read_size() const
 {
     return SECTOR_SIZE;
 }
 
-bd_size_t SflashBlockDevice::get_program_size() const
+bd_size_t SFlashBlockDevice::get_program_size() const
 {
     return SECTOR_SIZE;
 }
 
-bd_size_t SflashBlockDevice::get_erase_size() const
+bd_size_t SFlashBlockDevice::get_erase_size() const
 {
     return SECTOR_SIZE;
 }
 
-bd_size_t SflashBlockDevice::size() const
+bd_size_t SFlashBlockDevice::size() const
 {
     return fatfs_partition->partition_length;
 }
 
-int SflashBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
+int SFlashBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     DWORD sector = addr / SECTOR_SIZE;
     BYTE count = size / SECTOR_SIZE;
@@ -50,7 +50,7 @@ int SflashBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-int SflashBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
+int SFlashBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
     DWORD sector = addr / SECTOR_SIZE;
     BYTE count = size / SECTOR_SIZE;
@@ -58,7 +58,7 @@ int SflashBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
-int SflashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int SFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
     // TODO assert on programming unerased blocks
@@ -74,7 +74,7 @@ int SflashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
   * @param  count: Number of sectors to read (1..128)
   * @retval DRESULT: Operation result
   */
-DRESULT SflashBlockDevice::SFLASHDISK_read(BYTE *buff, DWORD sector, BYTE count)
+DRESULT SFlashBlockDevice::SFLASHDISK_read(BYTE *buff, DWORD sector, BYTE count)
 {
   DRESULT res = RES_OK;
   uint32_t offset;
@@ -89,7 +89,7 @@ DRESULT SflashBlockDevice::SFLASHDISK_read(BYTE *buff, DWORD sector, BYTE count)
   return res;
 }
 
-void SflashBlockDevice::MicoFlashEraseWrite( mico_partition_t partition, volatile uint32_t* off_set, uint8_t* data_addr ,uint32_t size )
+void SFlashBlockDevice::MicoFlashEraseWrite( mico_partition_t partition, volatile uint32_t* off_set, uint8_t* data_addr ,uint32_t size )
 {
   uint32_t f_sector;
   uint32_t f_addr;
@@ -137,7 +137,7 @@ void SflashBlockDevice::MicoFlashEraseWrite( mico_partition_t partition, volatil
   * @retval DRESULT: Operation result
   */
 #if _USE_WRITE == 1
-DRESULT SflashBlockDevice::SFLASHDISK_write(const BYTE *buff, DWORD sector, BYTE count)
+DRESULT SFlashBlockDevice::SFLASHDISK_write(const BYTE *buff, DWORD sector, BYTE count)
 { 
   DRESULT res = RES_OK;
   uint32_t offset;
