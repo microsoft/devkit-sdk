@@ -8,7 +8,8 @@
 #include "iothub_client_ll.h"
 #include "iothubtransportmqtt.h"
 #include "iothub_client_diag_wrapper.h"
-#include "jsmn.h"
+#include "json.h"
+#include "StringUtils.h"
 
 #define MAX_TOKENS_LEN 100
 #define BASE_36 36
@@ -75,39 +76,36 @@ static void AddDiagnosticsPropertiesIfNecessary(IOTHUB_MESSAGE_HANDLE eventMessa
 
 static void DiagnosticsDeviceTwinCallBack(DEVICE_TWIN_UPDATE_STATE update_state, const unsigned char* deviceTwinJson, size_t size, void* userContextCallback)
 {
-	jsmn_parser parser;
-	jsmntok_t tokens[MAX_TOKENS_LEN];
-	bool foundDiagEnableProperty;
-	bool foundDiagSampleRateProperty;
-	int parsedTokenCount;
-	const char* payLoad;
+	const char *payLoad, *enableString, *rateString;
+	json_object *twinObject, *desiredObject, *diagEnableObject, *rateObject;
 
 	payLoad = (const char*)deviceTwinJson;;
-	foundDiagEnableProperty = false;
-	foundDiagSampleRateProperty = false;
-	jsmn_init(&parser);
-	parsedTokenCount = jsmn_parse(&parser, payLoad, size, tokens, MAX_TOKENS_LEN);
-	for (int index = 0; index < parsedTokenCount; ++index)
+	if(payLoad != NULL && (twinObject = json_tokener_parse(payLoad)) != NULL)
 	{
-		if (tokens[index].type == JSMN_STRING && index + 1 < parsedTokenCount &&
-			strncmp(payLoad+tokens[index].start, diagEnableProperty, strlen(diagEnableProperty)) == 0)
+		if((desiredObject = json_object_object_get(twinObject, "desired")) != NULL)
 		{
-			isServerDiagnosticEnabled = tokens[index+1].type == JSMN_STRING && strnicmp(payLoad + tokens[index+1].start, "true", 4) == 0;
-			foundDiagEnableProperty = true;
-		}
-		else if (tokens[index].type == JSMN_STRING && index + 1 < parsedTokenCount &&
-			strncmp(payLoad + tokens[index].start, diagSampleRateProperty, strlen(diagSampleRateProperty)) == 0)
-		{
-			int sampleRate = atoi(payLoad + tokens[index + 1].start);
-			if (sampleRate < 0 || sampleRate > 100)
+			if((diagEnableObject = json_object_object_get(desiredObject, diagEnableProperty)) != NULL)
 			{
-				sampleRate = 0;
+				enableString = json_object_get_string(diagEnableObject);
+				if(enableString != NULL && strnicmp(enableString, "true", 4) == 0)
+				{
+					isServerDiagnosticEnabled = true;
+				}
 			}
-			diagSamplingRate = sampleRate;
-			foundDiagSampleRateProperty = true;
+
+			if((rateObject = json_object_object_get(desiredObject, diagSampleRateProperty)) != NULL)
+			{
+				if((rateString = json_object_get_string(rateObject)) != NULL)
+				{
+					int sampleRate = atoi(rateString);
+					if (sampleRate < 0 || sampleRate > 100)
+					{
+						sampleRate = 0;
+					}
+					diagSamplingRate = sampleRate;
+				}
+			}
 		}
-		if (foundDiagEnableProperty && foundDiagSampleRateProperty)
-			break;
 	}
 	
 	if (userDeviceTwinCallback != NULL)
