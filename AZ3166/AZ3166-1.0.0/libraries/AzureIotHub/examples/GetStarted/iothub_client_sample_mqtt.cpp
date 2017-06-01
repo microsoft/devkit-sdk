@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include "config.h"
 #include "utility.h"
+#include "EEPROMInterface.h"
 #include "iothub_client_sample_mqtt.h"
 #include <ArduinoJson.h>
 
@@ -98,13 +99,28 @@ void iothubInit()
 {
     srand((unsigned int)time(NULL));
 
+    // Load connection from EEPROM
+    EEPROMInterface eeprom;
+    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
+    if (ret < 0)
+    { 
+        LogInfo("ERROR: Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
+        return;
+    }
+    else if (ret == 0)
+    {
+        LogInfo("INFO: The connection string is empty. Please set the value in configuration mode.");
+        return;
+    }
+
     if (platform_init() != 0)
     {
         LogInfo("Failed to initialize the platform.");
         return;
     }
 
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(DEVICE_CONNECTION_STRING, MQTT_Protocol)) == NULL)
+    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
         LogInfo("iotHubClientHandle is NULL!");
         return;

@@ -34,7 +34,7 @@ void setup()
         return;
     }
 
-    Serial.begin(9600);
+    Serial.begin(115200);
     sensorInit();
     iothubInit();
 }

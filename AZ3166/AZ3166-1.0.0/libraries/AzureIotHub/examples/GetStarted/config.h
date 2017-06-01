@@ -6,8 +6,6 @@
 
 #define MESSAGE_MAX_LEN 256
 
-#define DEVICE_CONNECTION_STRING ""
-
 #define DEVICE_ID "AZ3166"
 
 #define MESSAGE_MAX_LEN 256
