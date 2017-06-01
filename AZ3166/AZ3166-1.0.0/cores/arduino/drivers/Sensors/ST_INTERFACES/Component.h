@@ -68,7 +68,7 @@ public:
      * @param[out] id pointer to an allocated variable to store the ID into.
      * @retval     "0" in case of success, an error code otherwise.
      */
-    virtual int readId(uint8_t *id) = 0;
+    virtual int readId(char *id) = 0;
 
     /**
      * @brief Destructor.

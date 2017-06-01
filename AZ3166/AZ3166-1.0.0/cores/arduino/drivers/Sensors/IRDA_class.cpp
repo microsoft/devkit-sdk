@@ -73,7 +73,7 @@ uint8_t IRDASensor::init()
 }
 
 
-uint8_t IRDASensor::IRDA_Transmit( uint8_t *pData, uint16_t size, uint32_t timeout)
+unsigned char IRDASensor::IRDA_Transmit( unsigned char *pData, int size, int timeout)
 {
-    return HAL_IRDA_Transmit(&IrdaHandle, pData, size, timeout);
+    return HAL_IRDA_Transmit(&IrdaHandle, (uint8_t *)pData, (uint16_t)size, (uint32_t)timeout);
 }

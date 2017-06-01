@@ -54,7 +54,7 @@ AudioClass::AudioClass()
 /* 
  * @brief Configure the audio data format
 */
-void AudioClass::format(uint32_t sampleRate, uint8_t sampleBitLength)
+void AudioClass::format(int sampleRate, int sampleBitLength)
 {
     m_sample_rate = sampleRate;
     m_channels = STEREO;
@@ -79,7 +79,7 @@ void AudioClass::format(uint32_t sampleRate, uint8_t sampleBitLength)
 }
 
 
-void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size)
+void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, int size)
 {
     if (transmitBuf == NULL || readBuf == NULL) {
         return;
@@ -92,7 +92,7 @@ void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size
 /*
 ** @brief Start recording audio data usine underlying codec
 */
-void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInSeconds)
+void AudioClass::startRecord(char * audioFile, int fileSize, int durationInSeconds)
 {
     if (audioFile == NULL) return;
 
@@ -119,7 +119,6 @@ void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInS
 */
 void AudioClass::stop()
 {
-    //printf("Stop recording.\r\n");
     BSP_AUDIO_STOP();
     record_finish = true;
 }
@@ -176,7 +175,7 @@ char * AudioClass::getWav(int *file_size)
     return m_wavFile;
 }
 
-int AudioClass::convertToMono(char * audioFile, int size, uint8_t sampleBitLength)
+int AudioClass::convertToMono(char * audioFile, int size, int sampleBitLength)
 {
     if (sampleBitLength != 16 && sampleBitLength != 24 && sampleBitLength != 32) {
         // TODO: log error

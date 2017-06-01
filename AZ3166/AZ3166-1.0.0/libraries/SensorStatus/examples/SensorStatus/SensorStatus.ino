@@ -15,9 +15,9 @@ static uint8_t counter;
 
 static struct _tagRGB
 {
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
+  int red;
+  int green;
+  int blue;
 } _rgb[] =
 {
   { 255,   0,   0 },
@@ -35,7 +35,7 @@ HTS221Sensor *ht_sensor;
 LIS2MDL *magnetometer;
 IRDASensor *IrdaSensor;
 
-int32_t axes[3];
+int axes[3];
 char wifiBuff[128];
 
 void InitWiFi()
