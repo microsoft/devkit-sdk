@@ -53,25 +53,6 @@ void parseTwinMessage(const char *message)
     }
 }
 
-#if SIMULATED_DATA
-
-void sensorInit()
-{
-    // use SIMULATED_DATA, no sensor need to be inited
-}
-
-float readTemperature()
-{
-    return random(20, 30);
-}
-
-float readHumidity()
-{
-    return random(30, 40);
-}
-
-#else
-
 void sensorInit()
 {
     i2c = new DevI2C(D14, D15);
@@ -98,8 +79,6 @@ float readHumidity()
 
     return humidity;
 }
-
-#endif
 
 bool readMessage(int messageId, char *payload)
 {
