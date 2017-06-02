@@ -146,7 +146,7 @@ int WiFiClass::disconnectAP()
 	return WL_SUCCESS;
 }
 
-uint8_t* WiFiClass::macAddress(uint8_t* mac)
+unsigned char* WiFiClass::macAddress(unsigned char* mac)
 {
 	if (!is_station_inited)
 	{
@@ -199,12 +199,12 @@ const char* WiFiClass::SSID()
 	return this->ssid;
 }
 
-uint8_t* WiFiClass::BSSID(uint8_t* bssid)
+unsigned char* WiFiClass::BSSID(unsigned char* bssid)
 {
 	return macAddress(bssid);
 }
 
-int32_t WiFiClass::RSSI()
+int WiFiClass::RSSI()
 {
 	if (is_station_inited)
 	{
@@ -212,12 +212,12 @@ int32_t WiFiClass::RSSI()
 	}
 }
 
-uint8_t WiFiClass::encryptionType()
+unsigned char WiFiClass::encryptionType()
 {
     return ENC_TYPE_CCMP;
 }
 
-int8_t WiFiClass::scanNetworks()
+int WiFiClass::scanNetworks()
 {
 	if (!is_station_inited)
 	{
@@ -225,7 +225,7 @@ int8_t WiFiClass::scanNetworks()
 	}
 
 	memset(aps, 0, sizeof(aps));
-	uint8_t attempts = sizeof(aps) / sizeof(aps[0]);
+	int attempts = sizeof(aps) / sizeof(aps[0]);
 
  	ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
 	if(ap_number > 0)
@@ -236,7 +236,7 @@ int8_t WiFiClass::scanNetworks()
 }
 
 
-const char* WiFiClass::SSID(uint8_t networkItem)
+const char* WiFiClass::SSID(unsigned char networkItem)
 {
 	if (networkItem >= ap_number)
 	{
@@ -246,7 +246,7 @@ const char* WiFiClass::SSID(uint8_t networkItem)
 	return aps[networkItem].get_ssid();
 }
 
-int32_t WiFiClass::RSSI(uint8_t networkItem)
+int WiFiClass::RSSI(unsigned char networkItem)
 {
 	if (networkItem >= ap_number)
 	{
@@ -257,7 +257,7 @@ int32_t WiFiClass::RSSI(uint8_t networkItem)
 }
 
 
-uint8_t WiFiClass::encryptionType(uint8_t networkItem)
+int WiFiClass::encryptionType(unsigned char networkItem)
 {
 	if (networkItem >= ap_number)
 	{
@@ -285,7 +285,7 @@ uint8_t WiFiClass::encryptionType(uint8_t networkItem)
 }
 
 
-uint8_t WiFiClass::status()
+unsigned char WiFiClass::status()
 {
     return current_status;
 }

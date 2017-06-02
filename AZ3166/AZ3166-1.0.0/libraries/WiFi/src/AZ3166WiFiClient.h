@@ -27,16 +27,16 @@ public:
   WiFiClient();
   ~WiFiClient();
 
-  virtual int connect(IPAddress ip, uint16_t port);
-  virtual int connect(const char *host, uint16_t port);
-  virtual size_t write(uint8_t);
-  virtual size_t write(const uint8_t *buf, size_t size);
+  virtual int connect(IPAddress ip, unsigned short port);
+  virtual int connect(const char *host, unsigned short port);
+  virtual unsigned int write(unsigned char);
+  virtual unsigned int write(const unsigned char *buf, unsigned int size);
   virtual int available();
   virtual int read();
-  virtual int read(uint8_t *buf, size_t size);
+  virtual int read(unsigned char *buf, unsigned int size);
   virtual void flush();
   virtual void stop();
-  virtual uint8_t connected();
+  virtual int connected();
   virtual operator bool();
   virtual int peek();
   

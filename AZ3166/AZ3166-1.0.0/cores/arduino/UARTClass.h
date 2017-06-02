@@ -40,8 +40,8 @@ class UARTClass : public HardwareSerial
     int peek(void);
     void flush(void);
 
-    size_t write(const uint8_t c);
-    size_t write(const uint8_t *buffer, size_t size);
+    size_t write(const unsigned char c);
+    size_t write(const unsigned char *buffer, size_t size);
     
     using Print::write; // pull in write(str) and write(buf, size) from Print
 
