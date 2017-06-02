@@ -34,7 +34,7 @@ public:
     void clean();
     
     virtual int print(const char *s, bool wrap = false);
-    virtual int print(int line, const char *s, bool wrap = false);
+    virtual int print(unsigned int line, const char *s, bool wrap = false);
         
 private:
     int println(unsigned int line, const char *s, int len, bool wrap);

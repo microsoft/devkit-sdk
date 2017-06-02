@@ -53,7 +53,7 @@ typedef struct
 class AudioClass {
     public:
         AudioClass();
-        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, int sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
+        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
         void startRecord(char * audioFile, int fileSize, int durationInSeconds);
         bool recordComplete();
         char* getWav(int *fileSize);
@@ -63,8 +63,8 @@ class AudioClass {
         int convertToMono(char * audioFile, int size, int sampleBitLength);
 
     private:
-        void start(uint16_t * recordBuf, uint16_t * playBuf, int size);
-        void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels);
+        void start(uint16_t * recordBuf, uint16_t * playBuf, unsigned int size);
+        void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, uint16_t sampleBitDepth, uint8_t channels);
 };
 
 #endif

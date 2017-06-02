@@ -48,14 +48,14 @@ int OLEDDisplay::print(const char *s, bool wrap)
     return print(0, s, wrap);
 }
 
-int OLEDDisplay::print(int line, const char *s, bool wrap)
+int OLEDDisplay::print(unsigned int line, const char *s, bool wrap)
 {
     if (s == NULL)
     {
         return 0;
     }
-    
-    int ln = line;
+
+    unsigned int ln = line;
     int start = 0;
     int offset = 0;
     
