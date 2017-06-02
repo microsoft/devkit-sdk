@@ -54,7 +54,7 @@ AudioClass::AudioClass()
 /* 
  * @brief Configure the audio data format
 */
-void AudioClass::format(int sampleRate, int sampleBitLength)
+void AudioClass::format(unsigned int sampleRate, int sampleBitLength)
 {
     m_sample_rate = sampleRate;
     m_channels = STEREO;

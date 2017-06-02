@@ -37,7 +37,7 @@ public:
     virtual int print(int line, const char *s, bool wrap = false);
         
 private:
-    int println(int line, const char *s, int len, bool wrap);
+    int println(unsigned int line, const char *s, int len, bool wrap);
 };
 
 #endif  // __cplusplus

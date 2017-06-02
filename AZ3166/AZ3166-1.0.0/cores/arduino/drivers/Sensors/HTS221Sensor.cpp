@@ -127,7 +127,7 @@ int HTS221Sensor::disable(void)
  * @param  id the pointer where the ID of the device is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::readId(char *id)
+int HTS221Sensor::readId(unsigned char *id)
 {
   if(!id)
   { 

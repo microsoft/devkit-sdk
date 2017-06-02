@@ -62,7 +62,7 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
     HTS221Sensor(DevI2C &i2c);
     HTS221Sensor(DevI2C &i2c, unsigned char address);
     virtual int init(void *init);
-    virtual int readId(char *id);
+    virtual int readId(unsigned char *id);
     virtual int getHumidity(float *pfData);
     virtual int getTemperature(float *pfData);
     int enable(void);

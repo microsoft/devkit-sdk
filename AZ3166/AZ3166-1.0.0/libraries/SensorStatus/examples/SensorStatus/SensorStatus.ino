@@ -11,7 +11,7 @@ static int status;
 static bool showWiFi;
 static bool isConnected;
 static bool buttonClicked;
-static uint8_t counter;
+static unsigned char counter;
 
 static struct _tagRGB
 {
@@ -96,7 +96,7 @@ void showMagneticSensor()
   Screen.print(buff);
 }
 
-bool IsButtonClicked(uint32_t ulPin)
+bool IsButtonClicked(unsigned char ulPin)
 {
     pinMode(ulPin, INPUT);
     int buttonState = digitalRead(ulPin);
@@ -155,7 +155,7 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
     }
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    for(uint8_t i = 0; i < prec; ++i)
+    for(int i = 0; i < prec; ++i)
         rounding /= 10.0;
     number += rounding;
 
@@ -230,7 +230,7 @@ void loop() {
 
   /*Blink around every 0.5 sec*/
   counter++;
-  uint8_t irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
+  int irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
   if(irda_status != 0)
   {
     Serial.println("Unable to transmit through IRDA");

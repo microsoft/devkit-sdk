@@ -235,7 +235,7 @@ int LSM6DSLSensor::disable_g(void)
  * @param  id the pointer where the ID of the device is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::readId(char *id)
+int LSM6DSLSensor::readId(unsigned char *id)
 {
   if(!id)
   { 

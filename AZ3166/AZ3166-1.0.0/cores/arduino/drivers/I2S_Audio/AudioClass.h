@@ -53,7 +53,7 @@ typedef struct
 class AudioClass {
     public:
         AudioClass();
-        void format(int sampleRate = DEFAULT_SAMPLE_RATE, int sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
+        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, int sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
         void startRecord(char * audioFile, int fileSize, int durationInSeconds);
         bool recordComplete();
         char* getWav(int *fileSize);

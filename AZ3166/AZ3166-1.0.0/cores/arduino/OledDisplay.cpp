@@ -89,7 +89,7 @@ int OLEDDisplay::print(int line, const char *s, bool wrap)
     return ln;
 }
 
-int OLEDDisplay::println(int line, const char *s, int len, bool wrap)
+int OLEDDisplay::println(unsigned int line, const char *s, int len, bool wrap)
 {
     if (line > 3 || len == 0)
     {
