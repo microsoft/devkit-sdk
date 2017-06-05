@@ -8,9 +8,9 @@
 
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
+static IOTHUB_CLIENT_STATUS sendStatusContext;
 static int receiveContext = 0;
 static int statusContext = 0;
-static int sendStatusContext = 0;
 static int trackingId = 0;
 
 static int reconnect = false;
