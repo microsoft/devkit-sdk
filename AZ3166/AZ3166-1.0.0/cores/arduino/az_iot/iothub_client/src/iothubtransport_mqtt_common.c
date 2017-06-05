@@ -1689,6 +1689,7 @@ static int SendMqttConnectMsg(PMQTTTRANSPORT_HANDLE_DATA transport_data)
     {
         void* product_info;
         STRING_HANDLE clone;
+        STRING_HANDLE userName;
         if ((IoTHubClient_LL_GetOption(transport_data->llClientHandle, OPTION_PRODUCT_INFO, &product_info) == IOTHUB_CLIENT_ERROR) || (product_info == NULL))
         {
             clone = STRING_construct_sprintf("%s%%2F%s", CLIENT_DEVICE_TYPE_PREFIX, IOTHUB_SDK_VERSION);
@@ -1699,14 +1700,16 @@ static int SendMqttConnectMsg(PMQTTTRANSPORT_HANDLE_DATA transport_data)
         }
         if (clone != NULL)
         {
-            (void)STRING_concat_with_STRING(transport_data->configPassedThroughUsername, clone);
+            userName = STRING_construct_sprintf("%s%s", (char*)STRING_c_str(transport_data->configPassedThroughUsername), (char*)STRING_c_str(clone));
             STRING_delete(clone);
         }
 
         MQTT_CLIENT_OPTIONS options = { 0 };
         options.clientId = (char*)STRING_c_str(transport_data->device_id);
         options.willMessage = NULL;
-        options.username = (char*)STRING_c_str(transport_data->configPassedThroughUsername);
+        mallocAndStrcpy_s(&options.username, (char*)STRING_c_str(userName));
+        
+        STRING_delete(userName);
         if (sasToken != NULL)
         {
             options.password = sasToken;
