@@ -10,6 +10,7 @@ static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 static int receiveContext = 0;
 static int statusContext = 0;
+static int sendStatusContext = 0;
 static int trackingId = 0;
 
 static int reconnect = false;
@@ -165,8 +166,11 @@ void iothub_client_sample_send_event(const unsigned char *text)
 void iothub_client_sample_mqtt_loop(void)
 {
     CheckConnection();
-    IoTHubClient_LL_DoWork(iotHubClientHandle);
-    ThreadAPI_Sleep(1);
+    do
+    {
+        IoTHubClient_LL_DoWork(iotHubClientHandle);
+        ThreadAPI_Sleep(1);
+    } while ((IoTHubClient_LL_GetSendStatus(iotHubClientHandle, &sendStatusContext) == IOTHUB_CLIENT_OK) && (sendStatusContext == IOTHUB_CLIENT_SEND_STATUS_BUSY));
 }
 
 void iothub_client_sample_mqtt_close(void)
