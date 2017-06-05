@@ -70,23 +70,11 @@ void readMessage(int messageId, char *payload)
     root["deviceId"] = DEVICE_ID;
     root["messageId"] = messageId;
 
-    if (temperature != temperature || temperature > 86)
+    if (temperature <= TEMPERATURE_F_MAX)
     {
-        root["temperature"] = NULL;
+       root["temperature"] = temperature;
     }
-    else
-    {
-        root["temperature"] = temperature;
-    }
-
-    if (humidity != humidity)
-    {
-        root["humidity"] = NULL;
-    }
-    else
-    {
-        root["humidity"] = humidity;
-    }
+    root["humidity"] = humidity;
     root.printTo(payload, MESSAGE_MAX_LEN);
 }
 

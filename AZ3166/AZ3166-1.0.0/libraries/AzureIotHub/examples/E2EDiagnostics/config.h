@@ -6,4 +6,6 @@
 
 #define DEVICE_ID "AZ3166"
 
-#define CONNECTION_STRING "HostName=qisun-iothub.azure-devices.net;DeviceId=AZ3166;SharedAccessKey=1rGgCbEVO/+H/Igg41EvYGuSRXiSKRua7mg+pEqJfcM="
+#define TEMPERATURE_F_MAX 86
+
+#define CONNECTION_STRING ""
