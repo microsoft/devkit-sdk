@@ -1,24 +1,103 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#include <time.h>
+
 #include "AzureIotHub.h"
 #include "Arduino.h"
 #include "config.h"
 #include "iothub_client_sample_mqtt.h"
-#include <ArduinoJson.h>
-#include <time.h>
+#include "json.h"
 
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 static bool messagePending = false;
 static bool messageSending = true;
 static DevI2C *ext_i2c;
 static HTS221Sensor *ht_sensor;
-static RGB_LED rgbLed;
 static int interval = INTERVAL;
 
 int getInterval()
 {
     return interval;
+}
+
+/*
+ * As there is a problem of sprintf %f in Arduino,
+   follow https://github.com/blynkkk/blynk-library/issues/14 to implement dtostrf
+ */
+char *dtostrf(double number, signed char width, unsigned char prec, char *s)
+{
+    if (isnan(number))
+    {
+        strcpy(s, "nan");
+        return s;
+    }
+    if (isinf(number))
+    {
+        strcpy(s, "inf");
+        return s;
+    }
+
+    if (number > 4294967040.0 || number < -4294967040.0)
+    {
+        strcpy(s, "ovf");
+        return s;
+    }
+    char *out = s;
+    // Handle negative numbers
+    if (number < 0.0)
+    {
+        *out = '-';
+        ++out;
+        number = -number;
+    }
+    // Round correctly so that print(1.999, 2) prints as "2.00"
+    double rounding = 0.5;
+    for (uint8_t i = 0; i < prec; ++i)
+        rounding /= 10.0;
+    number += rounding;
+
+    // Extract the integer part of the number and print it
+    unsigned long int_part = (unsigned long)number;
+    double remainder = number - (double)int_part;
+    out += sprintf(out, "%d", int_part);
+
+    // Print the decimal point, but only if there are digits beyond
+    if (prec > 0)
+    {
+        *out = '.';
+        ++out;
+    }
+
+    while (prec-- > 0)
+    {
+        remainder *= 10.0;
+        if ((int)remainder == 0)
+        {
+            *out = '0';
+            ++out;
+        }
+    }
+    sprintf(out, "%d", (int)remainder);
+    return s;
+}
+
+char *f2s(float f, int p)
+{
+    char *pBuff;
+    const int iSize = 10;
+    static char sBuff[iSize][20];
+    static int iCount = 0;
+    pBuff = sBuff[iCount];
+    if (iCount >= iSize - 1)
+    {
+        iCount = 0;
+    }
+    else
+    {
+        iCount++;
+    }
+    return dtostrf(f, 0, p, pBuff);
 }
 
 static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
@@ -36,13 +115,13 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE
         char *temp = (char *)malloc(size + 1);
         if (temp == NULL)
         {
-            LogInfo("Failed to malloc for command");
+            LogError("Failed to malloc for command");
             return IOTHUBMESSAGE_REJECTED;
         }
         memcpy(temp, buffer, size);
         temp[size] = '\0';
         LogInfo("Receive C2D message: %s", temp);
-        blinkLED();
+        showC2DMessageReceived();
         free(temp);
         return IOTHUBMESSAGE_ACCEPTED;
     }
@@ -60,60 +139,62 @@ void readMessage(int messageId, char *payload)
     ht_sensor->reset();
     float temperature = 0;
     ht_sensor->getTemperature(&temperature);
-    //convert from C to F
     temperature = temperature * 1.8 + 32;
     float humidity = 0;
     ht_sensor->getHumidity(&humidity);
-
-    StaticJsonBuffer<MESSAGE_MAX_LEN> jsonBuffer;
-    JsonObject &root = jsonBuffer.createObject();
-    root["deviceId"] = DEVICE_ID;
-    root["messageId"] = messageId;
-
     if (temperature <= TEMPERATURE_F_MAX)
     {
-       root["temperature"] = temperature;
+        char *root = "{"
+                     "\"deviceId\": \"%s\","
+                     "\"messageId\": \"%d\","
+                     "\"humidity\": \"%s\","
+                     "\"temperature\": \"%s\""
+                     "}";
+        snprintf(payload, MESSAGE_MAX_LEN, root, DEVICE_ID, messageId, f2s(humidity, 1), f2s(temperature, 1));
     }
-    root["humidity"] = humidity;
-    root.printTo(payload, MESSAGE_MAX_LEN);
+    else
+    {
+        char *root = "{"
+                     "\"deviceId\": \"%s\","
+                     "\"messageId\": \"%d\","
+                     "\"humidity\": \"%s\""
+                     "}";
+        sprintf(payload, root, DEVICE_ID, messageId, f2s(humidity, 1));
+    }
 }
 
-void blinkLED()
+void showC2DMessageReceived()
 {
-    rgbLed.turnOff();
-    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-    delay(500);
-    rgbLed.turnOff();
+    Screen.print(2, "C2D msg received");
 }
 
-void blinkSendConfirmation()
+void showSendConfirmation()
 {
-    rgbLed.turnOff();
-    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
-    delay(500);
-    rgbLed.turnOff();
+    Screen.print(2, "Msg sent ok");
 }
 
 void parseTwinMessage(const char *message)
 {
-    StaticJsonBuffer<MESSAGE_MAX_LEN> jsonBuffer;
-    JsonObject &root = jsonBuffer.parseObject(message);
-    if (!root.success())
+    json_object *rootObject;
+    json_object *desiredObject;
+    json_object *intervalObject;
+    if (message == NULL || (rootObject = json_tokener_parse(message)) == NULL)
     {
         LogError("parse %s failed", message);
         return;
     }
-
-    if (root["desired"]["interval"].success())
+    if ((desiredObject = json_object_object_get(rootObject, "desired")) != NULL)
     {
-        interval = root["desired"]["interval"];
-    }
-    else if (root.containsKey("interval"))
-    {
-        interval = root["interval"];
+        if ((intervalObject = json_object_object_get(desiredObject, "interval")) != NULL || (intervalObject = json_object_object_get(rootObject, "interval")) != NULL)
+        {
+            const char *intervalString;
+            if ((intervalString = json_object_get_string(intervalObject)) != NULL)
+            {
+                interval = atoi(intervalString);
+            }
+        }
     }
 }
-
 static void twinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, size_t size, void *userContextCallback)
 {
     char *temp = (char *)malloc(size + 1);
@@ -153,6 +234,7 @@ void iothubInit()
         LogInfo("IoTHubClient_LL_SetMessageCallback FAILED!");
         return;
     }
+
     if (IoTHubClient_LL_SetDeviceTwinCallback_WithDiagnostics(iotHubClientHandle, twinCallback, NULL) != IOTHUB_CLIENT_OK)
     {
         LogInfo("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
@@ -165,7 +247,7 @@ static void sendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     if (IOTHUB_CLIENT_CONFIRMATION_OK == result)
     {
         LogInfo("Message sent to Azure IoT Hub");
-        blinkSendConfirmation();
+        showSendConfirmation();
     }
     else
     {

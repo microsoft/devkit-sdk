@@ -8,9 +8,9 @@
 
 void iothubInit(void);
 void sensorInit(void);
-void blinkLED(void);
+void showC2DMessageReceived(void);
 void parseTwinMessage(const char *);
-void blinkSendConfirmation(void);
+void showSendConfirmation(void);
 void readMessage(int, char *);
 void iothubSendMessage(const unsigned char *text);
 void iothubLoop(void);

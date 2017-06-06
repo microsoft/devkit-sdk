@@ -2,8 +2,6 @@
 
 #define MESSAGE_MAX_LEN 256
 
-#define RGB_LED_BRIGHTNESS 32
-
 #define DEVICE_ID "AZ3166"
 
 #define TEMPERATURE_F_MAX 86
