@@ -66,7 +66,7 @@ static void AddDiagnosticsPropertiesIfNecessary(IOTHUB_MESSAGE_HANDLE eventMessa
 		if(!(UniqueId_Generate(randomId, 37) == UNIQUEID_OK &&
 			Map_Add(propMap, "x-correlation-id", randomId) == MAP_OK))
 		{
-				LogInfo("Fail to add diagnostic property: x-correlation-id");
+			LogInfo("Fail to add diagnostic property: x-correlation-id");
 		}
 		if (Map_Add(propMap, "x-before-send-request", GetCurrentTimeUtc(timeBuffer, 21, "%Y-%m-%dT%H:%M:%SZ")) != MAP_OK)
 		{
