@@ -21,85 +21,6 @@ int getInterval()
     return interval;
 }
 
-/*
- * As there is a problem of sprintf %f in Arduino,
-   follow https://github.com/blynkkk/blynk-library/issues/14 to implement dtostrf
- */
-char *dtostrf(double number, signed char width, unsigned char prec, char *s)
-{
-    if (isnan(number))
-    {
-        strcpy(s, "nan");
-        return s;
-    }
-    if (isinf(number))
-    {
-        strcpy(s, "inf");
-        return s;
-    }
-
-    if (number > 4294967040.0 || number < -4294967040.0)
-    {
-        strcpy(s, "ovf");
-        return s;
-    }
-    char *out = s;
-    // Handle negative numbers
-    if (number < 0.0)
-    {
-        *out = '-';
-        ++out;
-        number = -number;
-    }
-    // Round correctly so that print(1.999, 2) prints as "2.00"
-    double rounding = 0.5;
-    for (uint8_t i = 0; i < prec; ++i)
-        rounding /= 10.0;
-    number += rounding;
-
-    // Extract the integer part of the number and print it
-    unsigned long int_part = (unsigned long)number;
-    double remainder = number - (double)int_part;
-    out += sprintf(out, "%d", int_part);
-
-    // Print the decimal point, but only if there are digits beyond
-    if (prec > 0)
-    {
-        *out = '.';
-        ++out;
-    }
-
-    while (prec-- > 0)
-    {
-        remainder *= 10.0;
-        if ((int)remainder == 0)
-        {
-            *out = '0';
-            ++out;
-        }
-    }
-    sprintf(out, "%d", (int)remainder);
-    return s;
-}
-
-char *f2s(float f, int p)
-{
-    char *pBuff;
-    const int iSize = 10;
-    static char sBuff[iSize][20];
-    static int iCount = 0;
-    pBuff = sBuff[iCount];
-    if (iCount >= iSize - 1)
-    {
-        iCount = 0;
-    }
-    else
-    {
-        iCount++;
-    }
-    return dtostrf(f, 0, p, pBuff);
-}
-
 static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
 {
     const char *buffer;
@@ -107,7 +28,7 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE
 
     if (IoTHubMessage_GetByteArray(message, (const unsigned char **)&buffer, &size) != IOTHUB_MESSAGE_OK)
     {
-        LogInfo("unable to IoTHubMessage_GetByteArray");
+        LogError("IoTHubMessage_GetByteArray Failed");
         return IOTHUBMESSAGE_REJECTED;
     }
     else
@@ -147,19 +68,19 @@ void readMessage(int messageId, char *payload)
         char *root = "{"
                      "\"deviceId\": \"%s\","
                      "\"messageId\": \"%d\","
-                     "\"humidity\": \"%s\","
-                     "\"temperature\": \"%s\""
+                     "\"humidity\": \"%d\","
+                     "\"temperature\": \"%d\""
                      "}";
-        snprintf(payload, MESSAGE_MAX_LEN, root, DEVICE_ID, messageId, f2s(humidity, 1), f2s(temperature, 1));
+        sprintf(payload, root, DEVICE_ID, messageId, (int)humidity, (int)temperature);
     }
     else
     {
         char *root = "{"
                      "\"deviceId\": \"%s\","
                      "\"messageId\": \"%d\","
-                     "\"humidity\": \"%s\""
+                     "\"humidity\": \"%d\""
                      "}";
-        sprintf(payload, root, DEVICE_ID, messageId, f2s(humidity, 1));
+        sprintf(payload, root, DEVICE_ID, messageId, (int)humidity);
     }
 }
 
@@ -180,7 +101,7 @@ void parseTwinMessage(const char *message)
     json_object *intervalObject;
     if (message == NULL || (rootObject = json_tokener_parse(message)) == NULL)
     {
-        LogError("parse %s failed", message);
+        LogError("Parse %s failed", message);
         return;
     }
     if ((desiredObject = json_object_object_get(rootObject, "desired")) != NULL)
@@ -213,31 +134,31 @@ void iothubInit()
 
     if (platform_init() != 0)
     {
-        LogInfo("Failed to initialize the platform.");
+        LogError("Failed to initialize the platform.");
         return;
     }
 
     if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString_WithDiagnostics(SAMPLING_SERVER, 0, CONNECTION_STRING, MQTT_Protocol)) == NULL)
     {
-        LogInfo("iotHubClientHandle is NULL!");
+        LogError("Error: iotHubClientHandle is NULL!");
         return;
     }
 
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
-        LogInfo("failure to set option \"TrustedCerts\"");
+        LogError("Failed to set option \"TrustedCerts\"");
         return;
     }
 
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, c2dMessageCallback, NULL) != IOTHUB_CLIENT_OK)
     {
-        LogInfo("IoTHubClient_LL_SetMessageCallback FAILED!");
+        LogError("IoTHubClient_LL_SetMessageCallback FAILED!");
         return;
     }
 
     if (IoTHubClient_LL_SetDeviceTwinCallback_WithDiagnostics(iotHubClientHandle, twinCallback, NULL) != IOTHUB_CLIENT_OK)
     {
-        LogInfo("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
+        LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
         return;
     }
 }
@@ -263,14 +184,14 @@ void iothubSendMessage(const unsigned char *text)
         IOTHUB_MESSAGE_HANDLE messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char *)text));
         if (messageHandle == NULL)
         {
-            LogInfo("unable to create a new IoTHubMessage");
+            LogError("Failed to create a new IoTHubMessage");
             return;
         }
 
         LogInfo("Sending message: %s", text);
         if (IoTHubClient_LL_SendEventAsync_WithDiagnostics(iotHubClientHandle, messageHandle, sendConfirmationCallback, NULL) != IOTHUB_CLIENT_OK)
         {
-            LogInfo("Failed to hand over the message to IoTHubClient");
+            LogError("Failed to hand over the message to IoTHubClient");
             return;
         }
         LogInfo("IoTHubClient accepted the message for delivery");

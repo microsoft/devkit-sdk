@@ -1,4 +1,4 @@
-#define INTERVAL 2000
+#define INTERVAL 3000
 
 #define MESSAGE_MAX_LEN 256
 
