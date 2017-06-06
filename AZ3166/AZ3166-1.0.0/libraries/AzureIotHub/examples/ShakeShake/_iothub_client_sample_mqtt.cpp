@@ -165,8 +165,13 @@ void iothub_client_sample_send_event(const unsigned char *text)
 void iothub_client_sample_mqtt_loop(void)
 {
     CheckConnection();
-    IoTHubClient_LL_DoWork(iotHubClientHandle);
-    ThreadAPI_Sleep(1);
+    
+    IOTHUB_CLIENT_STATUS sendStatusContext;
+    do
+    {
+        IoTHubClient_LL_DoWork(iotHubClientHandle);
+        ThreadAPI_Sleep(1);
+    } while ((IoTHubClient_LL_GetSendStatus(iotHubClientHandle, &sendStatusContext) == IOTHUB_CLIENT_OK) && (sendStatusContext == IOTHUB_CLIENT_SEND_STATUS_BUSY));
 }
 
 void iothub_client_sample_mqtt_close(void)
