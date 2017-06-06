@@ -56,34 +56,34 @@
 class MagneticSensor : public Component {
 public:
 
-	/**
-	 * @brief       Get current magnetometer magnetic X/Y/Z-axes values 
-	 *              in standard data units [mgauss]
-	 * @param[out]  p_data Pointer to where to store magnetic values to.
-	 *              p_data must point to an array of (at least) three elements, where:
-	 *              p_data[0] corresponds to X-axis,
-	 *              p_data[1] corresponds to Y-axis, and
-	 *              p_data[2] corresponds to Z-axis.
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_m_axes(int32_t *p_data) = 0;
+    /**
+     * @brief       Get current magnetometer magnetic X/Y/Z-axes values 
+     *              in standard data units [mgauss]
+     * @param[out]  p_data Pointer to where to store magnetic values to.
+     *              p_data must point to an array of (at least) three elements, where:
+     *              p_data[0] corresponds to X-axis,
+     *              p_data[1] corresponds to Y-axis, and
+     *              p_data[2] corresponds to Z-axis.
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int get_m_axes(int *p_data) = 0;
 
-	/**
-	 * @brief       Get current magnetometer raw data X/Y/Z-axes values 
-	 *              in device sepcific LSB units
-	 * @param[out]  p_data Pointer to where to store magnetometer raw data to.
-	 *              p_data must point to an array of (at least) three elements, where:
-	 *              p_data[0] corresponds to X-axis,
-	 *              p_data[1] corresponds to Y-axis, and
-	 *              p_data[2] corresponds to Z-axis.
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_m_axes_raw(int16_t *p_data) = 0;
+    /**
+     * @brief       Get current magnetometer raw data X/Y/Z-axes values 
+     *              in device sepcific LSB units
+     * @param[out]  p_data Pointer to where to store magnetometer raw data to.
+     *              p_data must point to an array of (at least) three elements, where:
+     *              p_data[0] corresponds to X-axis,
+     *              p_data[1] corresponds to Y-axis, and
+     *              p_data[2] corresponds to Z-axis.
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int get_m_axes_raw(int16_t *p_data) = 0;
 
     /**
      * @brief Destructor.
      */
-	virtual ~MagneticSensor() {};
+    virtual ~MagneticSensor() {};
 };
 
 #endif /* __MAGNETIC_SENSOR_CLASS_H */

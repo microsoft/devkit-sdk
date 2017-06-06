@@ -261,7 +261,7 @@ static void DoIdle()
 
 static void DoShake()
 {
-  uint16_t steps = 0;
+  int steps = 0;
   acc_gyro->get_step_counter(&steps);
   if (steps > 2)
   {

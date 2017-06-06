@@ -32,7 +32,7 @@ WiFiUDP::WiFiUDP()
 }
 
 /* Start WiFiUDP socket, listening at local port PORT */
-uint8_t WiFiUDP::begin(uint16_t port) {
+int WiFiUDP::begin(unsigned short port) {
 
     if ( !is_initialized ) 
     {
@@ -68,7 +68,7 @@ void WiFiUDP::stop()
     is_initialized = false;
 }
 
-int WiFiUDP::beginPacket(const char *host, uint16_t port)
+int WiFiUDP::beginPacket(const char *host, unsigned short port)
 {
     // Look up the host first
     SocketAddress outEndPoint(host, port);
@@ -81,7 +81,7 @@ int WiFiUDP::beginPacket(const char *host, uint16_t port)
     return beginPacket(remote_addr, port);
 }
 
-int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
+int WiFiUDP::beginPacket(IPAddress ip, unsigned short port)
 {
     int ret;
     
@@ -110,12 +110,12 @@ int WiFiUDP::endPacket()
     return true;
 }
 
-size_t WiFiUDP::write(uint8_t byte)
+size_t WiFiUDP::write(unsigned char data)
 {
-    return write(&byte, 1);
+    return write(&data, 1);
 }
 
-size_t WiFiUDP::write(const uint8_t *buffer, size_t size)
+size_t WiFiUDP::write(const unsigned char *buffer, size_t size)
 {
     if ( !is_initialized ) 
         return 0;
@@ -160,7 +160,7 @@ IPAddress WiFiUDP::remoteIP()
     return ip;
 }
 
-uint16_t  WiFiUDP::remotePort()
+unsigned short  WiFiUDP::remotePort()
 {
     if(_address == NULL)
         return NULL;

@@ -43,19 +43,19 @@ void OLEDDisplay::clean()
     OLED_Clear();
 }
 
-uint8_t OLEDDisplay::print(const char *s, bool wrap)
+int OLEDDisplay::print(const char *s, bool wrap)
 {
     return print(0, s, wrap);
 }
 
-uint8_t OLEDDisplay::print(uint8_t line, const char *s, bool wrap)
+int OLEDDisplay::print(unsigned int line, const char *s, bool wrap)
 {
     if (s == NULL)
     {
         return 0;
     }
-    
-    uint8_t ln = line;
+
+    unsigned int ln = line;
     int start = 0;
     int offset = 0;
     
@@ -89,7 +89,7 @@ uint8_t OLEDDisplay::print(uint8_t line, const char *s, bool wrap)
     return ln;
 }
 
-uint8_t OLEDDisplay::println(uint8_t line, const char *s, uint8_t len, bool wrap)
+int OLEDDisplay::println(unsigned int line, const char *s, int len, bool wrap)
 {
     if (line > 3 || len == 0)
     {

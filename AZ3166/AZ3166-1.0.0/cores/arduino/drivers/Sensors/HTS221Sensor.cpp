@@ -60,7 +60,7 @@ HTS221Sensor::HTS221Sensor(DevI2C &i2c) : _dev_i2c(i2c)
  * @param i2c object of an helper class which handles the I2C peripheral
  * @param address the address of the component's instance
  */
-HTS221Sensor::HTS221Sensor(DevI2C &i2c, uint8_t address) : _dev_i2c(i2c), _address(address)
+HTS221Sensor::HTS221Sensor(DevI2C &i2c, unsigned char address) : _dev_i2c(i2c), _address(address)
 {
 
 };
@@ -127,7 +127,7 @@ int HTS221Sensor::disable(void)
  * @param  id the pointer where the ID of the device is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::readId(uint8_t *id)
+int HTS221Sensor::readId(unsigned char *id)
 {
   if(!id)
   { 
@@ -135,7 +135,7 @@ int HTS221Sensor::readId(uint8_t *id)
   }
   
   /* Read WHO AM I register */
-  if ( HTS221_Get_DeviceID( (void *)this, id ) == HTS221_ERROR )
+  if ( HTS221_Get_DeviceID( (void *)this, (uint8_t*)id ) == HTS221_ERROR )
   {
     return 1;
   }
@@ -275,7 +275,7 @@ int HTS221Sensor::set_odr(float odr)
  * @retval 0 in case of success
  * @retval 1 in case of failure
  */
-int HTS221Sensor::read_reg( uint8_t reg, uint8_t *data )
+int HTS221Sensor::read_reg( unsigned char reg, unsigned char *data )
 {
 
   if ( HTS221_read_reg( (void *)this, reg, 1, data ) == HTS221_ERROR )
@@ -293,7 +293,7 @@ int HTS221Sensor::read_reg( uint8_t reg, uint8_t *data )
  * @retval 0 in case of success
  * @retval 1 in case of failure
  */
-int HTS221Sensor::write_reg( uint8_t reg, uint8_t data )
+int HTS221Sensor::write_reg( unsigned char reg, unsigned char data )
 {
 
   if ( HTS221_write_reg( (void *)this, reg, 1, &data ) == HTS221_ERROR )
@@ -304,12 +304,12 @@ int HTS221Sensor::write_reg( uint8_t reg, uint8_t data )
   return 0;
 }
 
-uint8_t HTS221_io_write( void *handle, uint8_t WriteAddr, uint8_t *pBuffer, uint16_t nBytesToWrite )
+unsigned char HTS221_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite )
 {
   return ((HTS221Sensor *)handle)->io_write(pBuffer, WriteAddr, nBytesToWrite);
 }
 
-uint8_t HTS221_io_read( void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint16_t nBytesToRead )
+unsigned char HTS221_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead )
 {
   return ((HTS221Sensor *)handle)->io_read(pBuffer, ReadAddr, nBytesToRead);
 }

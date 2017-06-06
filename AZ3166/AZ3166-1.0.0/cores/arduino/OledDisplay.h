@@ -33,11 +33,11 @@ public:
     void init();
     void clean();
     
-    virtual uint8_t print(const char *s, bool wrap = false);
-    virtual uint8_t print(uint8_t line, const char *s, bool wrap = false);
+    virtual int print(const char *s, bool wrap = false);
+    virtual int print(unsigned int line, const char *s, bool wrap = false);
         
 private:
-    uint8_t println(uint8_t line, const char *s, uint8_t len, bool wrap);
+    int println(unsigned int line, const char *s, int len, bool wrap);
 };
 
 #endif  // __cplusplus
