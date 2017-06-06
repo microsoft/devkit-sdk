@@ -1689,7 +1689,7 @@ static int SendMqttConnectMsg(PMQTTTRANSPORT_HANDLE_DATA transport_data)
     {
         void* product_info;
         STRING_HANDLE clone;
-        STRING_HANDLE userName;
+        STRING_HANDLE userName = transport_data->configPassedThroughUsername;
         if ((IoTHubClient_LL_GetOption(transport_data->llClientHandle, OPTION_PRODUCT_INFO, &product_info) == IOTHUB_CLIENT_ERROR) || (product_info == NULL))
         {
             clone = STRING_construct_sprintf("%s%%2F%s", CLIENT_DEVICE_TYPE_PREFIX, IOTHUB_SDK_VERSION);
