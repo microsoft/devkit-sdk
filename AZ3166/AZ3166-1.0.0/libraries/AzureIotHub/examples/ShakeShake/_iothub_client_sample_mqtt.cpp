@@ -8,7 +8,6 @@
 
 static int callbackCounter;
 IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
-static IOTHUB_CLIENT_STATUS sendStatusContext;
 static int receiveContext = 0;
 static int statusContext = 0;
 static int trackingId = 0;
@@ -166,6 +165,8 @@ void iothub_client_sample_send_event(const unsigned char *text)
 void iothub_client_sample_mqtt_loop(void)
 {
     CheckConnection();
+    
+    IOTHUB_CLIENT_STATUS sendStatusContext;
     do
     {
         IoTHubClient_LL_DoWork(iotHubClientHandle);
