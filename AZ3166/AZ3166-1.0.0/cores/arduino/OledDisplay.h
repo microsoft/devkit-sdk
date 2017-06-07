@@ -35,6 +35,7 @@ public:
     
     virtual int print(const char *s, bool wrap = false);
     virtual int print(unsigned int line, const char *s, bool wrap = false);
+    virtual int draw(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1, unsigned char BMP[]);
         
 private:
     int println(unsigned int line, const char *s, int len, bool wrap);

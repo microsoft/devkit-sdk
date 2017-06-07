@@ -89,6 +89,11 @@ int OLEDDisplay::print(unsigned int line, const char *s, bool wrap)
     return ln;
 }
 
+void OLEDDisplay::draw(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1, unsigned char BMP[])
+{
+    OLED_DrawBMP(x0, y0, x1, y1, BMP);
+}
+
 int OLEDDisplay::println(unsigned int line, const char *s, int len, bool wrap)
 {
     if (line > 3 || len == 0)
