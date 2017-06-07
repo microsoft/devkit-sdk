@@ -32,7 +32,7 @@ public:
         ret = socket->connect(hostname, port);
         char telemetry[128];
         snprintf(telemetry, 128, "ret: %d, host: %s", ret, hostname);
-        send_telemetry_data("", "mqtt connection", telemetry);
+        //send_telemetry_data("", "mqtt connection", telemetry);
         return ret;
     }
 

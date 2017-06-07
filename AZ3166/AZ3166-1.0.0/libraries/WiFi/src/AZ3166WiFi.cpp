@@ -27,261 +27,261 @@ int16_t WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STA
 
 WiFiClass::WiFiClass()
 {
-	firmware_version[0] = 0;
-	ssid[0] = 0;
-	ap_number = 0;
-	is_station_inited = InitSystemWiFi();
-	is_ap_inited = false;
-	current_status = WL_IDLE_STATUS;
+    firmware_version[0] = 0;
+    ssid[0] = 0;
+    ap_number = 0;
+    is_station_inited = InitSystemWiFi();
+    is_ap_inited = false;
+    current_status = WL_IDLE_STATUS;
 }
 
 const char* WiFiClass::firmwareVersion()
 {
-	if (!is_station_inited) 
-	{
-		return NULL;
-	}
-	
-	if (firmware_version[0] == 0)
-	{
-		// Initialize Wi-Fi driver befor get the version
-		WiFiInterface()->get_mac_address();
-		// Get version of the Wi-Fi firmware
-		memset(firmware_version, 0, sizeof(firmware_version));
-		int ret = MicoGetRfVer(firmware_version, sizeof(firmware_version));
-		if (ret != 0)
-		{
-			firmware_version[0] = 0;
-			return NULL;
-		}
-	}
+    if (!is_station_inited) 
+    {
+        return NULL;
+    }
+    
+    if (firmware_version[0] == 0)
+    {
+        // Initialize Wi-Fi driver befor get the version
+        WiFiInterface()->get_mac_address();
+        // Get version of the Wi-Fi firmware
+        memset(firmware_version, 0, sizeof(firmware_version));
+        int ret = MicoGetRfVer(firmware_version, sizeof(firmware_version));
+        if (ret != 0)
+        {
+            firmware_version[0] = 0;
+            return NULL;
+        }
+    }
     return firmware_version;
 }
 
 int WiFiClass::begin(void)
 {
-	if (!is_station_inited) 
-	{
-		return WL_CONNECT_FAILED;
-	}
+    if (!is_station_inited) 
+    {
+        return WL_CONNECT_FAILED;
+    }
 
-	if (SystemWiFiConnect())
-	{
-		strcpy(this->ssid, SystemWiFiSSID());
-		current_status = WL_CONNECTED;
-		return WL_CONNECTED;
-	}
+    if (SystemWiFiConnect())
+    {
+        strcpy(this->ssid, SystemWiFiSSID());
+        current_status = WL_CONNECTED;
+        return WL_CONNECTED;
+    }
 
-	current_status = WL_DISCONNECTED;
-	return WL_CONNECT_FAILED;
+    current_status = WL_DISCONNECTED;
+    return WL_CONNECT_FAILED;
 }
 
 int WiFiClass::begin(char* ssid)
 {
-	this->begin(ssid, NULL);
+    this->begin(ssid, NULL);
 }
 
 int WiFiClass::begin(char* ssid, const char *passphrase)
 {
-	if (!is_station_inited)
-	{
-		return WL_CONNECT_FAILED;
-	}
+    if (!is_station_inited)
+    {
+        return WL_CONNECT_FAILED;
+    }
     
-	((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
-	if (((EMW10xxInterface*)WiFiInterface())->connect(ssid, passphrase, NSAPI_SECURITY_WPA_WPA2, 0) == 0)
-	{
-		strcpy(this->ssid, ssid);
-		current_status = WL_CONNECTED;
-		return WL_CONNECTED;
-	}
+    ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
+    if (((EMW10xxInterface*)WiFiInterface())->connect(ssid, passphrase, NSAPI_SECURITY_WPA_WPA2, 0) == 0)
+    {
+        strcpy(this->ssid, ssid);
+        current_status = WL_CONNECTED;
+        return WL_CONNECTED;
+    }
 
-	current_status = WL_DISCONNECTED;
-	return WL_CONNECT_FAILED;
+    current_status = WL_DISCONNECTED;
+    return WL_CONNECT_FAILED;
 }
 
 int WiFiClass::disconnect()
 {
-	if (is_station_inited)
-	{
-		((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
-		WiFiInterface()->disconnect();
-		is_station_inited = false;
-	}
+    if (is_station_inited)
+    {
+        ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
+        WiFiInterface()->disconnect();
+        is_station_inited = false;
+    }
     disconnectAP();
-	current_status = WL_DISCONNECTED;
-	return WL_SUCCESS;
+    current_status = WL_DISCONNECTED;
+    return WL_SUCCESS;
 }
 
 int WiFiClass::beginAP(char* ssid, const char *passphrase)
 {
-	if(is_ap_inited)
-	{
-		return WL_CONNECTED;
-	}
-	if (InitSystemWiFi())
-	{
-		is_ap_inited = SystemWiFiAPStart(ssid, passphrase);
-		if (is_ap_inited)
-		{
-			strcpy(this->ssid, ssid);
-			current_status = WL_CONNECTED;
-			return WL_CONNECTED;
-		}
-	}
-	current_status = WL_DISCONNECTED;
+    if(is_ap_inited)
+    {
+        return WL_CONNECTED;
+    }
+    if (InitSystemWiFi())
+    {
+        is_ap_inited = SystemWiFiAPStart(ssid, passphrase);
+        if (is_ap_inited)
+        {
+            strcpy(this->ssid, ssid);
+            current_status = WL_CONNECTED;
+            return WL_CONNECTED;
+        }
+    }
+    current_status = WL_DISCONNECTED;
     return WL_CONNECT_FAILED;
 }
 
 int WiFiClass::disconnectAP()
 {
-	if (is_ap_inited)
-	{
-		Serial.println("disconnect AP");
-		((EMW10xxInterface*)WiFiInterface())->set_interface(Soft_AP);
-    	WiFiAPInterface()->disconnect();
-		is_ap_inited = false;
-	}
-	current_status = WL_DISCONNECTED;
-	return WL_SUCCESS;
+    if (is_ap_inited)
+    {
+        Serial.println("disconnect AP");
+        ((EMW10xxInterface*)WiFiInterface())->set_interface(Soft_AP);
+        WiFiAPInterface()->disconnect();
+        is_ap_inited = false;
+    }
+    current_status = WL_DISCONNECTED;
+    return WL_SUCCESS;
 }
 
 unsigned char* WiFiClass::macAddress(unsigned char* mac)
 {
-	if (!is_station_inited)
-	{
-		return NULL;
-	}
-	// Initialize Wi-Fi driver first
-	WiFiInterface()->get_mac_address();
+    if (!is_station_inited)
+    {
+        return NULL;
+    }
+    // Initialize Wi-Fi driver first
+    WiFiInterface()->get_mac_address();
 
-	mico_wlan_get_mac_address(mac);
-	return mac;
+    mico_wlan_get_mac_address(mac);
+    return mac;
 }
 
 IPAddress WiFiClass::localIP()
 {
-	IPAddress ret;
+    IPAddress ret;
 
-	if (is_station_inited)
-	{
-		const char* ip = WiFiInterface()->get_ip_address();
-		ret.fromString(ip);
-	}
-	return ret;
+    if (is_station_inited)
+    {
+        const char* ip = WiFiInterface()->get_ip_address();
+        ret.fromString(ip);
+    }
+    return ret;
 }
 
 IPAddress WiFiClass::subnetMask()
 {
-	IPAddress ret;
+    IPAddress ret;
 
-	if (is_station_inited)
-	{
-		const char* mask = WiFiInterface()->get_netmask();
-		ret.fromString(mask);
-	}
-	return ret;
+    if (is_station_inited)
+    {
+        const char* mask = WiFiInterface()->get_netmask();
+        ret.fromString(mask);
+    }
+    return ret;
 }
 
 IPAddress WiFiClass::gatewayIP()
 {
-	IPAddress ret;
-	if (is_station_inited)
-	{
-		const char* ipgw = WiFiInterface()->get_gateway();
-		ret.fromString(ipgw);
-	}
-	return ret;
+    IPAddress ret;
+    if (is_station_inited)
+    {
+        const char* ipgw = WiFiInterface()->get_gateway();
+        ret.fromString(ipgw);
+    }
+    return ret;
 }
 
 const char* WiFiClass::SSID()
 {
-	return this->ssid;
+    return this->ssid;
 }
 
 unsigned char* WiFiClass::BSSID(unsigned char* bssid)
 {
-	return macAddress(bssid);
+    return macAddress(bssid);
 }
 
 int WiFiClass::RSSI()
 {
-	if (is_station_inited)
-	{
-    	return ((EMW10xxInterface*)WiFiInterface())->get_rssi();
-	}
+    if (is_station_inited)
+    {
+        return ((EMW10xxInterface*)WiFiInterface())->get_rssi();
+    }
 }
 
-unsigned char WiFiClass::encryptionType()
+int WiFiClass::encryptionType()
 {
     return ENC_TYPE_CCMP;
 }
 
 int WiFiClass::scanNetworks()
 {
-	if (!is_station_inited)
-	{
-		return WL_FAILURE;
-	}
+    if (!is_station_inited)
+    {
+        return WL_FAILURE;
+    }
 
-	memset(aps, 0, sizeof(aps));
-	int attempts = sizeof(aps) / sizeof(aps[0]);
+    memset(aps, 0, sizeof(aps));
+    int attempts = sizeof(aps) / sizeof(aps[0]);
 
- 	ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
-	if(ap_number > 0)
-	{
-		current_status = WL_SCAN_COMPLETED;
-	}
-	return ap_number;
+     ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
+    if(ap_number > 0)
+    {
+        current_status = WL_SCAN_COMPLETED;
+    }
+    return ap_number;
 }
 
 
 const char* WiFiClass::SSID(unsigned char networkItem)
 {
-	if (networkItem >= ap_number)
-	{
-		return NULL;
-	}
-	
-	return aps[networkItem].get_ssid();
+    if (networkItem >= ap_number)
+    {
+        return NULL;
+    }
+    
+    return aps[networkItem].get_ssid();
 }
 
 int WiFiClass::RSSI(unsigned char networkItem)
 {
-	if (networkItem >= ap_number)
-	{
-		return NULL;
-	}
-	
-	return aps[networkItem].get_rssi();
+    if (networkItem >= ap_number)
+    {
+        return NULL;
+    }
+    
+    return aps[networkItem].get_rssi();
 }
 
 
 int WiFiClass::encryptionType(unsigned char networkItem)
 {
-	if (networkItem >= ap_number)
-	{
-		return ENC_TYPE_NONE;
-	}
+    if (networkItem >= ap_number)
+    {
+        return ENC_TYPE_NONE;
+    }
 
-	nsapi_security_t ret = aps[networkItem].get_security();
-	switch(ret)
-	{
-	case NSAPI_SECURITY_WEP:
-		return ENC_TYPE_WEP;
+    nsapi_security_t ret = aps[networkItem].get_security();
+    switch(ret)
+    {
+    case NSAPI_SECURITY_WEP:
+        return ENC_TYPE_WEP;
 
-	case NSAPI_SECURITY_WPA:
-		return ENC_TYPE_TKIP;
+    case NSAPI_SECURITY_WPA:
+        return ENC_TYPE_TKIP;
 
-	case NSAPI_SECURITY_WPA2:
-		return ENC_TYPE_CCMP;
+    case NSAPI_SECURITY_WPA2:
+        return ENC_TYPE_CCMP;
 
-	case NSAPI_SECURITY_WPA_WPA2:
-		return ENC_TYPE_AUTO;
+    case NSAPI_SECURITY_WPA_WPA2:
+        return ENC_TYPE_AUTO;
 
-	default:
-		return ENC_TYPE_NONE;
-	}
+    default:
+        return ENC_TYPE_NONE;
+    }
 }
 
 

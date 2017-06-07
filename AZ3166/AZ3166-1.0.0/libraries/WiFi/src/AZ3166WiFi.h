@@ -138,7 +138,7 @@ public:
      *
      * return: one value of wl_enc_type enum
      */
-    unsigned char encryptionType();
+    int encryptionType();
      
     /*
      * Start scan WiFi networks available
@@ -192,10 +192,10 @@ private:
     bool is_ap_inited;
     char ssid[33];
 
-	unsigned char current_status;
+    unsigned char current_status;
 
     WiFiAccessPoint aps[10];
-	int ap_number;
+    int ap_number;
 };
 
 extern WiFiClass WiFi;

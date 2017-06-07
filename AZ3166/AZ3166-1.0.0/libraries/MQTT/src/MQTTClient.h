@@ -20,6 +20,8 @@
 #include "FP/FP.h"
 #include "MQTTPacket/MQTTPacket.h"
 #include "stdio.h"
+#include "Arduino.h"
+#include "MQTTNetwork.h"
 
 #if !defined(MQTTCLIENT_QOS1)
     #define MQTTCLIENT_QOS1 1
