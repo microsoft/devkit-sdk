@@ -10,6 +10,7 @@
 #include "iothub_client_diag_wrapper.h"
 #include "json.h"
 #include "StringUtils.h"
+#include "azure_c_shared_utility/uniqueid.h"
 
 #define MAX_TOKENS_LEN 100
 #define BASE_36 36
@@ -58,17 +59,18 @@ static void AddDiagnosticsPropertiesIfNecessary(IOTHUB_MESSAGE_HANDLE eventMessa
 
 	if (floor((sequenceNumberOfMessage - 2) * diagSamplingRate / 100.0) < floor((sequenceNumberOfMessage - 1) * diagSamplingRate / 100.0))
 	{
-		char randomId[9];
+		char randomId[37];
 		char timeBuffer[21];
 		MAP_HANDLE propMap = IoTHubMessage_Properties(eventMessageHandle);
 
-		if (Map_Add(propMap, "xdiag-id", GenerateRandomEightCharacters(randomId)) != MAP_OK)
+		if(!(UniqueId_Generate(randomId, 37) == UNIQUEID_OK &&
+			Map_Add(propMap, "x-correlation-id", randomId) == MAP_OK))
 		{
-			LogInfo("Fail to add diagnostic property: xdiag-id");
+			LogInfo("Fail to add diagnostic property: x-correlation-id");
 		}
-		if (Map_Add(propMap, "CreationTimeUtc", GetCurrentTimeUtc(timeBuffer, 21, "%Y-%m-%dT%H:%M:%SZ")) != MAP_OK)
+		if (Map_Add(propMap, "x-before-send-request", GetCurrentTimeUtc(timeBuffer, 21, "%Y-%m-%dT%H:%M:%SZ")) != MAP_OK)
 		{
-			LogInfo("Fail to add diagnostic property: CreationTimeUtc");
+			LogInfo("Fail to add diagnostic property: x-before-send-request");
 		}
 	}
 	++sequenceNumberOfMessage;
@@ -76,33 +78,36 @@ static void AddDiagnosticsPropertiesIfNecessary(IOTHUB_MESSAGE_HANDLE eventMessa
 
 static void DiagnosticsDeviceTwinCallBack(DEVICE_TWIN_UPDATE_STATE update_state, const unsigned char* deviceTwinJson, size_t size, void* userContextCallback)
 {
-	const char *payLoad, *enableString, *rateString;
-	json_object *twinObject, *desiredObject, *diagEnableObject, *rateObject;
-
-	payLoad = (const char*)deviceTwinJson;;
-	if(payLoad != NULL && (twinObject = json_tokener_parse(payLoad)) != NULL)
+	if(samplingRateSource == SAMPLING_SERVER)
 	{
-		if((desiredObject = json_object_object_get(twinObject, "desired")) != NULL)
-		{
-			if((diagEnableObject = json_object_object_get(desiredObject, diagEnableProperty)) != NULL)
-			{
-				enableString = json_object_get_string(diagEnableObject);
-				if(enableString != NULL && strnicmp(enableString, "true", 4) == 0)
-				{
-					isServerDiagnosticEnabled = true;
-				}
-			}
+		const char *payLoad, *enableString, *rateString;
+		json_object *twinObject, *desiredObject, *diagEnableObject, *rateObject;
 
-			if((rateObject = json_object_object_get(desiredObject, diagSampleRateProperty)) != NULL)
+		payLoad = (const char*)deviceTwinJson;
+		if(payLoad != NULL && (twinObject = json_tokener_parse(payLoad)) != NULL)
+		{
+			if((desiredObject = json_object_object_get(twinObject, "desired")) != NULL)
 			{
-				if((rateString = json_object_get_string(rateObject)) != NULL)
+				if((diagEnableObject = json_object_object_get(desiredObject, diagEnableProperty)) != NULL)
 				{
-					int sampleRate = atoi(rateString);
-					if (sampleRate < 0 || sampleRate > 100)
+					enableString = json_object_get_string(diagEnableObject);
+					if(enableString != NULL && strnicmp(enableString, "true", 4) == 0)
 					{
-						sampleRate = 0;
+						isServerDiagnosticEnabled = true;
 					}
-					diagSamplingRate = sampleRate;
+				}
+
+				if((rateObject = json_object_object_get(desiredObject, diagSampleRateProperty)) != NULL)
+				{
+					if((rateString = json_object_get_string(rateObject)) != NULL)
+					{
+						int sampleRate = atoi(rateString);
+						if (sampleRate < 0 || sampleRate > 100)
+						{
+							sampleRate = 0;
+						}
+						diagSamplingRate = sampleRate;
+					}
 				}
 			}
 		}
