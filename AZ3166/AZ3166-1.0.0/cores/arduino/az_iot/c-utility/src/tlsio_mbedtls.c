@@ -249,6 +249,10 @@ static int on_io_recv(void *context,unsigned char *buf, size_t sz)
         {
             break;
         }
+        else if(tls_io_instance->tlsio_state == TLSIO_STATE_NOT_OPEN)
+        {
+            return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
+        }
     }
 
     result = tls_io_instance->socket_io_read_byte_count;
@@ -347,6 +351,23 @@ static void mbedtls_init(void *instance,const char *host)
 #endif
 
     mbedtls_ssl_setup(&result->ssl,&result->config);
+}
+
+static void mbedtls_restart(void *instance)
+{
+    TLS_IO_INSTANCE *result = (TLS_IO_INSTANCE *)instance;
+    char *host = (char *) malloc(strlen(result->ssl.hostname) + 1);
+    memcpy(host, result->ssl.hostname, strlen(result->ssl.hostname) + 1);
+
+    // mbedTLS initialize...
+    mbedtls_ssl_free(&result->ssl);
+    mbedtls_ssl_init(&result->ssl);
+    mbedtls_ssl_set_bio(&result->ssl,instance,on_io_send,on_io_recv,NULL);
+    mbedtls_ssl_set_hostname(&result->ssl,host);
+    mbedtls_ssl_set_session(&result->ssl,&result->ssn);
+
+    mbedtls_ssl_setup(&result->ssl,&result->config);
+    free(host);
 }
 
 OPTIONHANDLER_HANDLE tlsio_mbedtls_retrieveoptions(CONCRETE_IO_HANDLE handle)
@@ -475,6 +496,7 @@ int tlsio_mbedtls_open(CONCRETE_IO_HANDLE tls_io, ON_IO_OPEN_COMPLETE on_io_open
 
             tls_io_instance->tlsio_state = TLSIO_STATE_OPENING_UNDERLYING_IO;
 
+            mbedtls_restart((void *)tls_io_instance);
             if (xio_open(tls_io_instance->socket_io, on_underlying_io_open_complete, tls_io_instance, on_underlying_io_bytes_received, tls_io_instance, on_underlying_io_error, tls_io_instance) != 0)
             {
                 LogError("Underlying IO open failed\n");
