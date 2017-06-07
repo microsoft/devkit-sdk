@@ -23,7 +23,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "stlogo.h"
 #include "nau88c10.h"
 #include "stm32f4xx_hal.h"
 #include "stm32412g_discovery.h"
