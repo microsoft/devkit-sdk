@@ -1,0 +1,5 @@
+{
+  "sketch": "../RemoteMonitoring.ino",
+  "config": "deviceConnectionString",
+  "provision_iot_hub": true
+}
