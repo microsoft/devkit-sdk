@@ -78,7 +78,7 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
      * @param  NumByteToRead: number of bytes to be read.
      * @retval 0 if ok, an error code otherwise.
      */
-    unsigned char ioRead(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToRead)
+    unsigned char readIO(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToRead)
     {
         return (unsigned char) _dev_i2c.i2c_read(pBuffer, _address, RegisterAddr, (uint16_t)NumByteToRead);
     }
@@ -90,7 +90,7 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
      * @param  NumByteToWrite: number of bytes to write.
      * @retval 0 if ok, an error code otherwise.
      */
-    unsigned char ioWrite(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToWrite)
+    unsigned char writeIO(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToWrite)
     {
         return (unsigned char) _dev_i2c.i2c_write(pBuffer, _address, RegisterAddr, (uint16_t)NumByteToWrite);
     }

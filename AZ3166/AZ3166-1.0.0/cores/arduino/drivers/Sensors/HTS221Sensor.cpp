@@ -306,10 +306,10 @@ int HTS221Sensor::writeReg( unsigned char reg, unsigned char data )
 
 unsigned char HTS221_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite )
 {
-  return ((HTS221Sensor *)handle)->ioWrite(pBuffer, WriteAddr, nBytesToWrite);
+  return ((HTS221Sensor *)handle)->writeIO(pBuffer, WriteAddr, nBytesToWrite);
 }
 
 unsigned char HTS221_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead )
 {
-  return ((HTS221Sensor *)handle)->ioRead(pBuffer, ReadAddr, nBytesToRead);
+  return ((HTS221Sensor *)handle)->readIO(pBuffer, ReadAddr, nBytesToRead);
 }
