@@ -246,7 +246,6 @@ const char* WiFiClass::SSID(unsigned char networkItem)
     {
         return NULL;
     }
-	
 
     return aps[networkItem].get_ssid();
 }
