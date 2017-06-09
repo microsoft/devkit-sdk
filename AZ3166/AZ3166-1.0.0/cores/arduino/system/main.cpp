@@ -26,7 +26,6 @@
 #include "mbed_stats.h"
 #include "SystemLock.h"
 #include "EMW10xxInterface.h"
-#include "telemetry.h"
 
 static bool Initialization(void)
 {
@@ -45,9 +44,6 @@ static bool Initialization(void)
     
     // Initialize the OLED screen
     Screen.init();
-
-    // Initialize the telemetry only after Wi-Fi established
-    telemetry_init();
 
     return true;
 }

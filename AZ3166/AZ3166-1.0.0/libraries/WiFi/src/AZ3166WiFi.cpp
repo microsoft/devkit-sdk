@@ -22,6 +22,7 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "mico.h"
+#include "telemetry.h"
 
 int16_t WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
 
@@ -91,6 +92,9 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
 	((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
 	if (((EMW10xxInterface*)WiFiInterface())->connect(ssid, passphrase, NSAPI_SECURITY_WPA_WPA2, 0) == 0)
 	{
+        // Initialize the telemetry only after Wi-Fi established
+        telemetry_init();
+        send_telemetry_data("", "wifi", "Wi-Fi connected");
 		strcpy(this->ssid, ssid);
 		current_status = WL_CONNECTED;
 		return WL_CONNECTED;
