@@ -1,15 +1,35 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
+
 void setup() {
-  Serial.begin(115200);
+  Serial.println(">> Start");
+  Serial.println(__FILE__);
+
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
-    Serial.println("[Digital I/O]: Test pinMode()");    
-    
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000); //wait for a second
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);  //wait for a second
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
 
-    Serial.println("[Digital I/O]: Done");
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(LOOP_DELAY);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(LOOP_DELAY);
 }

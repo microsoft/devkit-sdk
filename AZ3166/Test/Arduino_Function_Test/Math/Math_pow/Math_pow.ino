@@ -1,19 +1,39 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
+
 void setup(){
-    Serial.begin(115200);
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
 }
 
-void loop(){
-    Serial.println("[Math]: Test pow()");
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase(){
     if(pow(2,3) != 8)
     {
-      Serial.println("[Math]: Error: Math.pow(): Failed to get the result of 2^3");
+      Serial.println("Error: Math.pow(): Failed to get the result of 2^3");
     }
 
     if(pow(9,0.5) != 3)
     {
-      Serial.println("[Math]: Error: Math.pow(): Failed to get the result of 9^0.5");
+      Serial.println("Error: Math.pow(): Failed to get the result of 9^0.5");
     }
 
-    Serial.println("[Math]: Done");  
-    delay(1000);       
+    delay(LOOP_DELAY);       
 }
