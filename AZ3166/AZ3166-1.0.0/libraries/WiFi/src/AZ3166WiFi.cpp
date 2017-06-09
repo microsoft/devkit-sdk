@@ -22,6 +22,7 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "mico.h"
+#include "telemetry.h"
 
 int16_t WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
 
@@ -41,7 +42,7 @@ const char* WiFiClass::firmwareVersion()
     {
         return NULL;
     }
-    
+
     if (firmware_version[0] == 0)
     {
         // Initialize Wi-Fi driver befor get the version
@@ -87,10 +88,14 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
     {
         return WL_CONNECT_FAILED;
     }
-    
+
     ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
     if (((EMW10xxInterface*)WiFiInterface())->connect(ssid, passphrase, NSAPI_SECURITY_WPA_WPA2, 0) == 0)
     {
+        // Initialize the telemetry only after Wi-Fi established
+        telemetry_init();
+        send_telemetry_data("", "wifi", "Wi-Fi connected");
+
         strcpy(this->ssid, ssid);
         current_status = WL_CONNECTED;
         return WL_CONNECTED;
@@ -227,7 +232,7 @@ int WiFiClass::scanNetworks()
     memset(aps, 0, sizeof(aps));
     int attempts = sizeof(aps) / sizeof(aps[0]);
 
-     ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
+    ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
     if(ap_number > 0)
     {
         current_status = WL_SCAN_COMPLETED;
@@ -235,14 +240,13 @@ int WiFiClass::scanNetworks()
     return ap_number;
 }
 
-
 const char* WiFiClass::SSID(unsigned char networkItem)
 {
     if (networkItem >= ap_number)
     {
         return NULL;
     }
-    
+
     return aps[networkItem].get_ssid();
 }
 
@@ -252,7 +256,7 @@ int WiFiClass::RSSI(unsigned char networkItem)
     {
         return NULL;
     }
-    
+
     return aps[networkItem].get_rssi();
 }
 
