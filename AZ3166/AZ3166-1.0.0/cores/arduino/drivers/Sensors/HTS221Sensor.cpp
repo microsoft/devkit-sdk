@@ -84,7 +84,7 @@ int HTS221Sensor::init(void *init)
     return 1;
   }
   
-  if(set_odr(1.0f) == 1)
+  if(setOdr(1.0f) == 1)
   {
     return 1;
   }
@@ -153,7 +153,7 @@ int HTS221Sensor::reset(void)
     uint8_t tmpreg;
 
     /* Read CTRL_REG2 register */
-    if (read_reg(HTS221_CTRL_REG2, &tmpreg) != 0)
+    if (readReg(HTS221_CTRL_REG2, &tmpreg) != 0)
     {
       return 1;
     }
@@ -162,7 +162,7 @@ int HTS221Sensor::reset(void)
     tmpreg |= (0x01 << HTS221_BOOT_BIT);
 
     /* Write value to MEMS CTRL_REG2 regsister */
-    if (write_reg(HTS221_CTRL_REG2, tmpreg) != 0)
+    if (writeReg(HTS221_CTRL_REG2, tmpreg) != 0)
     {
       return 1;
     }
@@ -215,7 +215,7 @@ int HTS221Sensor::getTemperature(float* pfData)
  * @param  odr the pointer to the output data rate
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::get_odr(float* odr)
+int HTS221Sensor::getOdr(float* odr)
 {
   HTS221_Odr_et odr_low_level;
 
@@ -251,7 +251,7 @@ int HTS221Sensor::get_odr(float* odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int HTS221Sensor::set_odr(float odr)
+int HTS221Sensor::setOdr(float odr)
 {
   HTS221_Odr_et new_odr;
 
@@ -275,7 +275,7 @@ int HTS221Sensor::set_odr(float odr)
  * @retval 0 in case of success
  * @retval 1 in case of failure
  */
-int HTS221Sensor::read_reg( unsigned char reg, unsigned char *data )
+int HTS221Sensor::readReg( unsigned char reg, unsigned char *data )
 {
 
   if ( HTS221_read_reg( (void *)this, reg, 1, data ) == HTS221_ERROR )
@@ -293,7 +293,7 @@ int HTS221Sensor::read_reg( unsigned char reg, unsigned char *data )
  * @retval 0 in case of success
  * @retval 1 in case of failure
  */
-int HTS221Sensor::write_reg( unsigned char reg, unsigned char data )
+int HTS221Sensor::writeReg( unsigned char reg, unsigned char data )
 {
 
   if ( HTS221_write_reg( (void *)this, reg, 1, &data ) == HTS221_ERROR )
@@ -306,10 +306,10 @@ int HTS221Sensor::write_reg( unsigned char reg, unsigned char data )
 
 unsigned char HTS221_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite )
 {
-  return ((HTS221Sensor *)handle)->io_write(pBuffer, WriteAddr, nBytesToWrite);
+  return ((HTS221Sensor *)handle)->ioWrite(pBuffer, WriteAddr, nBytesToWrite);
 }
 
 unsigned char HTS221_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead )
 {
-  return ((HTS221Sensor *)handle)->io_read(pBuffer, ReadAddr, nBytesToRead);
+  return ((HTS221Sensor *)handle)->ioRead(pBuffer, ReadAddr, nBytesToRead);
 }

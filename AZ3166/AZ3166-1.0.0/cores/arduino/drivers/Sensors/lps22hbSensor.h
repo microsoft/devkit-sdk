@@ -15,8 +15,8 @@
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __LPS22HB_H
-#define __LPS22HB_H
+#ifndef __LPS22HB_SENSOR_H
+#define __LPS22HB_SENSOR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,13 +36,13 @@ extern "C" {
   * @{
   */
 
-/** @defgroup MiCO_lps25hb_Driver MiCO lps25hb Driver
-  * @brief Provide driver interface for lps25hb sensor
+/** @defgroup MiCO_lps22hb_Driver MiCO lps22hb Driver
+  * @brief Provide driver interface for lps22hb sensor
   * @{
   */
 
-#ifndef LPS25HB_I2C_PORT
-#define LPS25HB_I2C_PORT      MICO_I2C_NONE
+#ifndef LPS22HB_I2C_PORT
+#define LPS22HB_I2C_PORT      MICO_I2C_NONE
 #endif
   
 
@@ -82,8 +82,8 @@ typedef enum {
  */
 typedef enum {
     PRESSURE_NONE_COMPONENT = 0,
-    PRESSURE_LPS25H_COMPONENT = 1,
-    PRESSURE_LPS25HB_DIL24_COMPONENT = 2
+    PRESSURE_LPS22HB_COMPONENT = 1,
+    PRESSURE_LPS22HB_DIL24_COMPONENT = 2
 } PRESSURE_ComponentTypeDef;
 
 /**
@@ -123,7 +123,7 @@ typedef struct
  *      is sum to the sensor output pressure.
  * \endcode
  */
-#define LPS25HB_REF_P_XL_ADDR         0x15
+#define LPS22HB_REF_P_XL_ADDR         0x15
 
 /**
  * @brief Reference pressure (middle part)
@@ -134,7 +134,7 @@ typedef struct
  *      is sum to the sensor output pressure.
  * \endcode
  */
-#define LPS25HB_REF_P_L_ADDR          0x16
+#define LPS22HB_REF_P_L_ADDR          0x16
 
 /**
  * @brief Reference pressure (MSB part)
@@ -145,7 +145,7 @@ typedef struct
  *      is sum to the sensor output pressure.
  * \endcode
  */
-#define LPS25HB_REF_P_H_ADDR          0x17
+#define LPS22HB_REF_P_H_ADDR          0x17
 
 /**
  * @brief Device identifier register.
@@ -153,10 +153,10 @@ typedef struct
  * Read
  * Default value: 0xBD
  * 7:0 This read-only register contains the device identifier that,
- for LPS25HB, is set to 0xCA.
+ for LPS22HB, is set to 0xCA.
  * \endcode
  */
-#define LPS25HB_WHO_AM_I_ADDR                             0x0F
+#define LPS22HB_WHO_AM_I_ADDR                             0x0F
 
 /**
  * @brief Pressure and temperature resolution mode register.
@@ -168,7 +168,7 @@ typedef struct
  * [1:0] AVGT1-0: select the temperature internal average.
  * \endcode
  */
-#define LPS25HB_RES_CONF_ADDR                             0x1A
+#define LPS22HB_RES_CONF_ADDR                             0x1A
 
 /**
  * @brief Pressure sensor control register 1
@@ -195,7 +195,7 @@ typedef struct
  * 0 SIM: SPI Serial Interface Mode selection. 0 - SPI 4-wire; 1 - SPI 3-wire ///////ALE REVIEW
  * \endcode
  */
-#define LPS25HB_CTRL_REG1_ADDR                    0x10
+#define LPS22HB_CTRL_REG1_ADDR                    0x10
 
 /**
  * @brief Pressure sensor control register 2
@@ -211,7 +211,7 @@ typedef struct
  * 0 ONE_SHOT: One shot enable. 0: waiting for start of conversion; 1: start for a new dataset
  * \endcode
  */
-#define LPS25HB_CTRL_REG2_ADDR                      0x11
+#define LPS22HB_CTRL_REG2_ADDR                      0x11
 
 /**
  * @brief Pressure sensor control register 3
@@ -233,7 +233,7 @@ typedef struct
 
  * \endcode
  */
-#define LPS25HB_CTRL_REG3_ADDR                    0x12
+#define LPS22HB_CTRL_REG3_ADDR                    0x12
 
 /**
  * @brief Pressure sensor control register 4
@@ -250,7 +250,7 @@ typedef struct
  * 0 P1_DRDY: Data Ready Signal on INT1 pin.
  * \endcode
  */
-//#define LPS25HB_CTRL_REG4_ADDR                    0x13
+//#define LPS22HB_CTRL_REG4_ADDR                    0x13
 
 /**
  * @brief Interrupt configuration Register
@@ -263,7 +263,7 @@ typedef struct
  * 0 PH_E: Enable interrupt generation on differential pressure high event. 0 - disable; 1 - enable
  * \endcode
  */
-//#define LPS25HB_INT_CFG_REG_ADDR                  0x24
+//#define LPS22HB_INT_CFG_REG_ADDR                  0x24
 
 /**
  * @brief Interrupt source Register
@@ -276,7 +276,7 @@ typedef struct
  * 0 PH: Differential pressure High. 0: no interrupt has been generated; 1: High differential pressure event has occurred.
  * \endcode
  */
-#define LPS25HB_INT_SOURCE_REG_ADDR               0x25
+#define LPS22HB_INT_SOURCE_REG_ADDR               0x25
 
 /**
  * @brief Threshold pressure (LSB)
@@ -288,7 +288,7 @@ typedef struct
  * expressed as unsigned number. P_ths(mbar)=(THS_P_H & THS_P_L)[dec]/16.
  * \endcode
  */
-#define LPS25HB_THS_P_LOW_REG_ADDR                0x16
+#define LPS22HB_THS_P_LOW_REG_ADDR                0x16
 
 /**
  * @brief Threshold pressure (MSB)
@@ -300,7 +300,7 @@ typedef struct
  * expressed as unsigned number. P_ths(mbar)=(THS_P_H & THS_P_L)[dec]/16.
  * \endcode
  */
-#define LPS25HB_THS_P_HIGH_REG_ADDR              0x17
+#define LPS22HB_THS_P_HIGH_REG_ADDR              0x17
 
 /**
  * @brief  Status Register
@@ -315,7 +315,7 @@ typedef struct
  * 0 T_DA: Temperature data available. 0: new data for temperature is not yet available; 1: new data for temperature is available.
  * \endcode
  */
-#define LPS25HB_STATUS_REG_ADDR                 0x27
+#define LPS22HB_STATUS_REG_ADDR                 0x27
 
 /**
  * @brief  Pressure data (LSB).
@@ -327,7 +327,7 @@ typedef struct
  * PRESS_OUT_XL)[dec]/4096.
  * \endcode
  */
-#define LPS25HB_PRESS_POUT_XL_ADDR              0x28
+#define LPS22HB_PRESS_POUT_XL_ADDR              0x28
 
 /**
  * @brief  Pressure data (Middle part).
@@ -339,7 +339,7 @@ typedef struct
  * PRESS_OUT_XL)[dec]/4096.
  * \endcode
  */
-#define LPS25HB_PRESS_OUT_L_ADDR                0x29
+#define LPS22HB_PRESS_OUT_L_ADDR                0x29
 
 /**
  * @brief  Pressure data (MSB).
@@ -351,7 +351,7 @@ typedef struct
  * PRESS_OUT_XL)[dec]/4096.
  * \endcode
  */
-#define LPS25HB_PRESS_OUT_H_ADDR                0x2A
+#define LPS22HB_PRESS_OUT_H_ADDR                0x2A
 
 /**
  * @brief  Temperature data (LSB).
@@ -362,7 +362,7 @@ typedef struct
  * T(degC) = 42.5 + (Temp_OUTH & TEMP_OUT_L)[dec]/480.
  * \endcode
  */
-#define LPS25HB_TEMP_OUT_L_ADDR                 0x2B
+#define LPS22HB_TEMP_OUT_L_ADDR                 0x2B
 
 /**
  * @brief  Temperature data (MSB).
@@ -373,7 +373,7 @@ typedef struct
  * T(degC) = 42.5 + (Temp_OUTH & TEMP_OUT_L)[dec]/480.
  * \endcode
  */
-#define LPS25HB_TEMP_OUT_H_ADDR                 0x2C
+#define LPS22HB_TEMP_OUT_H_ADDR                 0x2C
 
 /**
  * @brief FIFO control register
@@ -403,7 +403,7 @@ typedef struct
  * other values operation not guaranteed
  * \endcode
  */
-#define LPS25HB_CTRL_FIFO_ADDR                    0x14
+#define LPS22HB_CTRL_FIFO_ADDR                    0x14
 
 /**
  * @brief FIFO Status register
@@ -416,7 +416,7 @@ typedef struct
  * 4:0 DIFF_POINT4...0: FIFOsStored data level.
  * \endcode
  */
-#define LPS25HB_STATUS_FIFO_ADDR                    0x26
+#define LPS22HB_STATUS_FIFO_ADDR                    0x26
 
 /**
  * @brief Pressure offset register
@@ -426,7 +426,7 @@ typedef struct
  * 7:0 RPDS15...8:Pressure Offset for 1 point calibration after soldering.
  * \endcode
  */
-#define LPS25HB_RPDS_TRIM_L_ADDR                    0x18
+#define LPS22HB_RPDS_TRIM_L_ADDR                    0x18
 
 /**
  * @brief Pressure offset register
@@ -436,7 +436,7 @@ typedef struct
  * 7:0 RPDS23...16:Pressure Offset for 1 point calibration after soldering.
  * \endcode
  */
-#define LPS25HB_RPDS_TRIM_H_ADDR                    0x19
+#define LPS22HB_RPDS_TRIM_H_ADDR                    0x19
 
 /******************************************************************************/
 /**************************** END REGISTER MAPPING  ***************************/
@@ -445,120 +445,120 @@ typedef struct
 /**
  * @brief Multiple Byte. Mask for enabling multiple byte read/write command.
  */   
-#define LPS25HB_I2C_MULTIPLEBYTE_CMD                      ((uint8_t)0x80)  
+#define LPS22HB_I2C_MULTIPLEBYTE_CMD                      ((uint8_t)0x80)  
   
 /**
  * @brief Device Address
  */
-#define LPS25HB_ADDRESS_LOW           0xB8
-#define LPS25HB_ADDRESS_HIGH          0xBA
+#define LPS22HB_ADDRESS_LOW           0xB8
+#define LPS22HB_ADDRESS_HIGH          0xBA
 
 
 /**
  * @brief Device Identifier. Default value of the WHO_AM_I register.
  */
-#define I_AM_LPS25HB                 ((uint8_t)0xBD)
+#define I_AM_LPS22HB                 ((uint8_t)0xBD)
 
 
-#define LPS25HB_MODE_POWERDOWN            ((uint8_t)0x00)
-#define LPS25HB_MODE_ACTIVE               ((uint8_t)0x80)
+#define LPS22HB_MODE_POWERDOWN            ((uint8_t)0x00)
+#define LPS22HB_MODE_ACTIVE               ((uint8_t)0x80)
 
-#define LPS25HB_MODE_MASK                 ((uint8_t)0x80)
+#define LPS22HB_MODE_MASK                 ((uint8_t)0x80)
 
-#define LPS25HB_ODR_ONE_SHOT             ((uint8_t)0x00) /*!< Output Data Rate: P - one shot, T - one shot */
-#define LPS25HB_ODR_1Hz                  ((uint8_t)0x10) /*!< Output Data Rate: P - 1Hz, T - 1Hz */
-#define LPS25HB_ODR_7Hz                  ((uint8_t)0x20) /*!< Output Data Rate: P - 7Hz, T - 7Hz */
-#define LPS25HB_ODR_12_5Hz               ((uint8_t)0x30) /*!< Output Data Rate: P - 12.5Hz, T - 12.5Hz */
-#define LPS25HB_ODR_25Hz                 ((uint8_t)0x40) /*!< Output Data Rate: P - 25Hz, T - 25Hz */
+#define LPS22HB_ODR_ONE_SHOT             ((uint8_t)0x00) /*!< Output Data Rate: P - one shot, T - one shot */
+#define LPS22HB_ODR_1Hz                  ((uint8_t)0x10) /*!< Output Data Rate: P - 1Hz, T - 1Hz */
+#define LPS22HB_ODR_7Hz                  ((uint8_t)0x20) /*!< Output Data Rate: P - 7Hz, T - 7Hz */
+#define LPS22HB_ODR_12_5Hz               ((uint8_t)0x30) /*!< Output Data Rate: P - 12.5Hz, T - 12.5Hz */
+#define LPS22HB_ODR_25Hz                 ((uint8_t)0x40) /*!< Output Data Rate: P - 25Hz, T - 25Hz */
 
-#define LPS25HB_ODR_MASK                 ((uint8_t)0x70)
-
-
-#define LPS25HB_DIFF_DISABLE             ((uint8_t)0x00) /*!< interrupt circuit enabled */
-#define LPS25HB_DIFF_ENABLE              ((uint8_t)0x08) /*!< interrupt generation disabled */
-
-#define LPS25HB_DIFF_EN_MASK             ((uint8_t)0x08)
+#define LPS22HB_ODR_MASK                 ((uint8_t)0x70)
 
 
-#define LPS25HB_BDU_CONT              ((uint8_t)0x00) /*!< continuous update */
-#define LPS25HB_BDU_READ              ((uint8_t)0x04) /*!< output registers not updated until MSB and LSB reading */
+#define LPS22HB_DIFF_DISABLE             ((uint8_t)0x00) /*!< interrupt circuit enabled */
+#define LPS22HB_DIFF_ENABLE              ((uint8_t)0x08) /*!< interrupt generation disabled */
 
-#define LPS25HB_BDU_MASK          ((uint8_t)0x04)
-
-#define LPS25HB_SPI_SIM_4W            ((uint8_t)0x00) /*!< 4-wire interface */
-#define LPS25HB_SPI_SIM_3W            ((uint8_t)0x01) /*!< 3-wire interface */
-
-#define LPS25HB_SPI_SIM_MASK          ((uint8_t)0x01)
-
-#define LPS25HB_NORMAL_MODE           ((uint8_t)0x00)
-#define LPS25HB_RESET_MEMORY          ((uint8_t)0x80)
-
-#define LPS25HB_RESET_MEMORY_MASK     ((uint8_t)0x80)
-
-#define LPS25HB_P_RES_AVG_8              ((uint8_t)0x00)
-#define LPS25HB_P_RES_AVG_32             ((uint8_t)0x01)
-#define LPS25HB_P_RES_AVG_128            ((uint8_t)0x02)
-#define LPS25HB_P_RES_AVG_512            ((uint8_t)0x03)
-
-#define LPS25HB_P_RES_MASK               ((uint8_t)0x03)
-
-#define LPS25HB_ONE_SHOT_START               ((uint8_t)0x01)
-
-#define LPS25HB_ONE_SHOT_MASK                ((uint8_t)0x01)
+#define LPS22HB_DIFF_EN_MASK             ((uint8_t)0x08)
 
 
-#define LPS25HB_T_RES_AVG_8              ((uint8_t)0x00)
-#define LPS25HB_T_RES_AVG_16             ((uint8_t)0x04)
-#define LPS25HB_T_RES_AVG_32             ((uint8_t)0x08)
-#define LPS25HB_T_RES_AVG_64             ((uint8_t)0x0C)
+#define LPS22HB_BDU_CONT              ((uint8_t)0x00) /*!< continuous update */
+#define LPS22HB_BDU_READ              ((uint8_t)0x04) /*!< output registers not updated until MSB and LSB reading */
 
-#define LPS25HB_T_RES_MASK               ((uint8_t)0x0C)
+#define LPS22HB_BDU_MASK          ((uint8_t)0x04)
 
-#define LPS25HB_SA0_LOW                  ((uint8_t)0x00)
-#define LPS25HB_SA0_HIGH                 ((uint8_t)0x01)
+#define LPS22HB_SPI_SIM_4W            ((uint8_t)0x00) /*!< 4-wire interface */
+#define LPS22HB_SPI_SIM_3W            ((uint8_t)0x01) /*!< 3-wire interface */
+
+#define LPS22HB_SPI_SIM_MASK          ((uint8_t)0x01)
+
+#define LPS22HB_NORMAL_MODE           ((uint8_t)0x00)
+#define LPS22HB_RESET_MEMORY          ((uint8_t)0x80)
+
+#define LPS22HB_RESET_MEMORY_MASK     ((uint8_t)0x80)
+
+#define LPS22HB_P_RES_AVG_8              ((uint8_t)0x00)
+#define LPS22HB_P_RES_AVG_32             ((uint8_t)0x01)
+#define LPS22HB_P_RES_AVG_128            ((uint8_t)0x02)
+#define LPS22HB_P_RES_AVG_512            ((uint8_t)0x03)
+
+#define LPS22HB_P_RES_MASK               ((uint8_t)0x03)
+
+#define LPS22HB_ONE_SHOT_START               ((uint8_t)0x01)
+
+#define LPS22HB_ONE_SHOT_MASK                ((uint8_t)0x01)
+
+
+#define LPS22HB_T_RES_AVG_8              ((uint8_t)0x00)
+#define LPS22HB_T_RES_AVG_16             ((uint8_t)0x04)
+#define LPS22HB_T_RES_AVG_32             ((uint8_t)0x08)
+#define LPS22HB_T_RES_AVG_64             ((uint8_t)0x0C)
+
+#define LPS22HB_T_RES_MASK               ((uint8_t)0x0C)
+
+#define LPS22HB_SA0_LOW                  ((uint8_t)0x00)
+#define LPS22HB_SA0_HIGH                 ((uint8_t)0x01)
 
 
 /* ------------------------------------------------------- */ 
 /* Here you should declare the internal struct of          */
-/* extended features of LPS25HB. See the example of        */
+/* extended features of LPS22HB. See the example of        */
 /* LSM6DS3 in lsm6ds3.h                                    */
 /* ------------------------------------------------------- */
 
 
 /* Pressure sensor driver structure */
-extern PRESSURE_DrvTypeDef LPS25HBDrv;
-extern PRESSURE_DrvExtTypeDef LPS25HBDrv_ext;
+extern PRESSURE_DrvTypeDef LPS22HBDrv;
+extern PRESSURE_DrvExtTypeDef LPS22HBDrv_ext;
 
 
 /**
- * @brief Initialize lps25hb sensor device
+ * @brief Initialize lps22hb sensor device
  *
  * @return   kNoErr        : on success.
  * @return   kGeneralErr   : if an error occurred
  */
-OSStatus lps25hb_sensor_init(void);
+OSStatus lps22hb_sensor_init(void);
 
 
 
 /**
- * @brief  Read data from lps25hb sensor device  .
+ * @brief  Read data from lps22hb sensor device  .
  *
- * @param  temperature:  temperature value of lps25hb
- * @param     pressure:  pressure value of lps25hb
+ * @param  temperature:  temperature value of lps22hb
+ * @param     pressure:  pressure value of lps22hb
  * 
  * @return   kNoErr        : on success.
  * @return   kGeneralErr   : if an error occurred
  */
-OSStatus lps25hb_Read_Data(float *temperature,float *pressure);
+OSStatus lps22hb_Read_Data(float *temperature,float *pressure);
 
 
 /**
- * @brief   Deinitialize lps25hb sensor device  .
+ * @brief   Deinitialize lps22hb sensor device.
  * 
  * @return   kNoErr        : on success.
  * @return   kGeneralErr   : if an error occurred
  */
-OSStatus lps25hb_sensor_deinit(void);
+OSStatus lps22hb_sensor_deinit(void);
 
 
 /**
@@ -577,6 +577,6 @@ OSStatus lps25hb_sensor_deinit(void);
 }
 #endif
 
-#endif /* __LPS25HB_H */
+#endif /* __LPS22HB_SENSOR_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -98,7 +98,7 @@ int LSM6DSLSensor::init(void *init)
   }
   
   /* Full scale selection. */
-  if ( set_x_fs( 2.0f ) == 1 )
+  if ( setXFullScale( 2.0f ) == 1 )
   {
     return 1;
   }
@@ -110,11 +110,11 @@ int LSM6DSLSensor::init(void *init)
   }
 
   /* Full scale selection. */
-  if ( set_g_fs( 2000.0f ) == 1 )
+  if ( setGFullScale( 2000.0f ) == 1 )
   {
     return 1;
   }
-  
+
   _x_last_odr = 104.0f;
 
   _x_is_enabled = 0;
@@ -122,7 +122,7 @@ int LSM6DSLSensor::init(void *init)
   _g_last_odr = 104.0f;
 
   _g_is_enabled = 0;
-  
+
   return 0;
 }
 
@@ -130,7 +130,7 @@ int LSM6DSLSensor::init(void *init)
  * @brief  Enable LSM6DSL Accelerator
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_x(void)
+int LSM6DSLSensor::enableAccelerator(void)
 { 
   /* Check if the component is already enabled */
   if ( _x_is_enabled == 1 )
@@ -139,7 +139,7 @@ int LSM6DSLSensor::enable_x(void)
   }
   
   /* Output data rate selection. */
-  if ( set_x_odr_when_enabled( _x_last_odr ) == 1 )
+  if ( setXOdrWhenEnabled( _x_last_odr ) == 1 )
   {
     return 1;
   }
@@ -153,7 +153,7 @@ int LSM6DSLSensor::enable_x(void)
  * @brief  Enable LSM6DSL Gyroscope
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_g(void)
+int LSM6DSLSensor::enableGyroscope(void)
 { 
   /* Check if the component is already enabled */
   if ( _g_is_enabled == 1 )
@@ -162,7 +162,7 @@ int LSM6DSLSensor::enable_g(void)
   }
   
   /* Output data rate selection. */
-  if ( set_g_odr_when_enabled( _g_last_odr ) == 1 )
+  if ( setGOdrWhenEnabled( _g_last_odr ) == 1 )
   {
     return 1;
   }
@@ -176,7 +176,7 @@ int LSM6DSLSensor::enable_g(void)
  * @brief  Disable LSM6DSL Accelerator
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_x(void)
+int LSM6DSLSensor::disableAccelerator(void)
 { 
   /* Check if the component is already disabled */
   if ( _x_is_enabled == 0 )
@@ -185,7 +185,7 @@ int LSM6DSLSensor::disable_x(void)
   }
   
   /* Store actual output data rate. */
-  if ( get_x_odr( &_x_last_odr ) == 1 )
+  if ( getXOdr( &_x_last_odr ) == 1 )
   {
     return 1;
   }
@@ -205,7 +205,7 @@ int LSM6DSLSensor::disable_x(void)
  * @brief  Disable LSM6DSL Gyroscope
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_g(void)
+int LSM6DSLSensor::disableGyroscope(void)
 { 
   /* Check if the component is already disabled */
   if ( _g_is_enabled == 0 )
@@ -214,7 +214,7 @@ int LSM6DSLSensor::disable_g(void)
   }
   
   /* Store actual output data rate. */
-  if ( get_g_odr( &_g_last_odr ) == 1 )
+  if ( getGOdr( &_g_last_odr ) == 1 )
   {
     return 1;
   }
@@ -256,19 +256,19 @@ int LSM6DSLSensor::readId(unsigned char *id)
  * @param  pData the pointer where the accelerometer data are stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_x_axes(int *pData)
+int LSM6DSLSensor::getXAxes(int *pData)
 {
   int16_t dataRaw[3];
   float sensitivity = 0;
   
   /* Read raw data from LSM6DSL output register. */
-  if ( get_x_axes_raw( dataRaw ) == 1 )
+  if ( getXAxesRaw( dataRaw ) == 1 )
   {
     return 1;
   }
   
   /* Get LSM6DSL actual sensitivity. */
-  if ( get_x_sensitivity( &sensitivity ) == 1 )
+  if ( getXSensitivity( &sensitivity ) == 1 )
   {
     return 1;
   }
@@ -286,19 +286,19 @@ int LSM6DSLSensor::get_x_axes(int *pData)
  * @param  pData the pointer where the gyroscope data are stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_g_axes(int *pData)
+int LSM6DSLSensor::getGAxes(int *pData)
 {
   int16_t dataRaw[3];
   float sensitivity = 0;
   
   /* Read raw data from LSM6DSL output register. */
-  if ( get_g_axes_raw( dataRaw ) == 1 )
+  if ( getGAxesRaw( dataRaw ) == 1 )
   {
     return 1;
   }
   
   /* Get LSM6DSL actual sensitivity. */
-  if ( get_g_sensitivity( &sensitivity ) == 1 )
+  if ( getGSensitivity( &sensitivity ) == 1 )
   {
     return 1;
   }
@@ -316,7 +316,7 @@ int LSM6DSLSensor::get_g_axes(int *pData)
  * @param  pfData the pointer where the accelerometer sensitivity is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_x_sensitivity(float *pfData)
+int LSM6DSLSensor::getXSensitivity(float *pfData)
 {
   LSM6DSL_ACC_GYRO_FS_XL_t fullScale;
   
@@ -354,7 +354,7 @@ int LSM6DSLSensor::get_x_sensitivity(float *pfData)
  * @param  pfData the pointer where the gyroscope sensitivity is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_g_sensitivity(float *pfData)
+int LSM6DSLSensor::getGSensitivity(float *pfData)
 {
   LSM6DSL_ACC_GYRO_FS_125_t fullScale125;
   LSM6DSL_ACC_GYRO_FS_G_t   fullScale;
@@ -408,7 +408,7 @@ int LSM6DSLSensor::get_g_sensitivity(float *pfData)
  * @param  pData the pointer where the accelerometer raw data are stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_x_axes_raw(int16_t *pData)
+int LSM6DSLSensor::getXAxesRaw(int16_t *pData)
 {
   uint8_t regValue[6] = {0, 0, 0, 0, 0, 0};
   
@@ -431,7 +431,7 @@ int LSM6DSLSensor::get_x_axes_raw(int16_t *pData)
  * @param  pData the pointer where the gyroscope raw data are stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_g_axes_raw(int16_t *pData)
+int LSM6DSLSensor::getGAxesRaw(int16_t *pData)
 {
   uint8_t regValue[6] = {0, 0, 0, 0, 0, 0};
   
@@ -454,7 +454,7 @@ int LSM6DSLSensor::get_g_axes_raw(int16_t *pData)
  * @param  odr the pointer to the output data rate
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_x_odr(float* odr)
+int LSM6DSLSensor::getXOdr(float* odr)
 {
   LSM6DSL_ACC_GYRO_ODR_XL_t odr_low_level;
   
@@ -511,7 +511,7 @@ int LSM6DSLSensor::get_x_odr(float* odr)
  * @param  odr the pointer to the output data rate
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_g_odr(float* odr)
+int LSM6DSLSensor::getGOdr(float* odr)
 {
   LSM6DSL_ACC_GYRO_ODR_G_t odr_low_level;
   
@@ -568,18 +568,18 @@ int LSM6DSLSensor::get_g_odr(float* odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_x_odr(float odr)
+int LSM6DSLSensor::setXOdr(float odr)
 {
   if(_x_is_enabled == 1)
   {
-    if(set_x_odr_when_enabled(odr) == 1)
+    if(setXOdrWhenEnabled(odr) == 1)
     {
       return 1;
     }
   }
   else
   {
-    if(set_x_odr_when_disabled(odr) == 1)
+    if(setXOdrWhenDisabled(odr) == 1)
     {
       return 1;
     }
@@ -593,7 +593,7 @@ int LSM6DSLSensor::set_x_odr(float odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_x_odr_when_enabled(float odr)
+int LSM6DSLSensor::setXOdrWhenEnabled(float odr)
 {
   LSM6DSL_ACC_GYRO_ODR_XL_t new_odr;
   
@@ -621,7 +621,7 @@ int LSM6DSLSensor::set_x_odr_when_enabled(float odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_x_odr_when_disabled(float odr)
+int LSM6DSLSensor::setXOdrWhenDisabled(float odr)
 { 
   _x_last_odr = ( odr <=   13.0f ) ? 13.0f
              : ( odr <=   26.0f ) ? 26.0f
@@ -642,18 +642,18 @@ int LSM6DSLSensor::set_x_odr_when_disabled(float odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_g_odr(float odr)
+int LSM6DSLSensor::setGOdr(float odr)
 {
   if(_g_is_enabled == 1)
   {
-    if(set_g_odr_when_enabled(odr) == 1)
+    if(setGOdrWhenEnabled(odr) == 1)
     {
       return 1;
     }
   }
   else
   {
-    if(set_g_odr_when_disabled(odr) == 1)
+    if(setGOdrWhenDisabled(odr) == 1)
     {
       return 1;
     }
@@ -667,7 +667,7 @@ int LSM6DSLSensor::set_g_odr(float odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_g_odr_when_enabled(float odr)
+int LSM6DSLSensor::setGOdrWhenEnabled(float odr)
 {
   LSM6DSL_ACC_GYRO_ODR_G_t new_odr;
   
@@ -695,7 +695,7 @@ int LSM6DSLSensor::set_g_odr_when_enabled(float odr)
  * @param  odr the output data rate to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_g_odr_when_disabled(float odr)
+int LSM6DSLSensor::setGOdrWhenDisabled(float odr)
 {
   _g_last_odr = ( odr <=  13.0f )  ? 13.0f
              : ( odr <=  26.0f )  ? 26.0f
@@ -716,7 +716,7 @@ int LSM6DSLSensor::set_g_odr_when_disabled(float odr)
  * @param  fullScale the pointer to the full scale
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_x_fs(float* fullScale)
+int LSM6DSLSensor::getXFullScale(float* fullScale)
 {
   LSM6DSL_ACC_GYRO_FS_XL_t fs_low_level;
   
@@ -752,7 +752,7 @@ int LSM6DSLSensor::get_x_fs(float* fullScale)
  * @param  fullScale the pointer to the full scale
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_g_fs(float* fullScale)
+int LSM6DSLSensor::getGFullScale(float* fullScale)
 {
   LSM6DSL_ACC_GYRO_FS_G_t fs_low_level;
   LSM6DSL_ACC_GYRO_FS_125_t fs_125;
@@ -801,7 +801,7 @@ int LSM6DSLSensor::get_g_fs(float* fullScale)
  * @param  fullScale the full scale to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_x_fs(float fullScale)
+int LSM6DSLSensor::setXFullScale(float fullScale)
 {
   LSM6DSL_ACC_GYRO_FS_XL_t new_fs;
   
@@ -823,7 +823,7 @@ int LSM6DSLSensor::set_x_fs(float fullScale)
  * @param  fullScale the full scale to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_g_fs(float fullScale)
+int LSM6DSLSensor::setGFullScale(float fullScale)
 {
   LSM6DSL_ACC_GYRO_FS_G_t new_fs;
   
@@ -860,10 +860,10 @@ int LSM6DSLSensor::set_g_fs(float fullScale)
  * @note  This function sets the LSM6DSL accelerometer ODR to 416Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
 */
-int LSM6DSLSensor::enable_free_fall_detection(LSM6DSL_Interrupt_Pin_t pin)
+int LSM6DSLSensor::enableFreeFallDetection(LSM6DSL_Interrupt_Pin_t pin)
 {
   /* Output Data Rate selection */
-  if(set_x_odr(416.0f) == 1)
+  if(setXOdr(416.0f) == 1)
   {
     return 1;
   }
@@ -939,7 +939,7 @@ int LSM6DSLSensor::enable_free_fall_detection(LSM6DSL_Interrupt_Pin_t pin)
  * @param  None
  * @retval 0 in case of success, an error code otherwise
 */
-int LSM6DSLSensor::disable_free_fall_detection(void)
+int LSM6DSLSensor::disableFreeFallDetection(void)
 {
   /* Disable free fall event on INT1 pin */
   if ( LSM6DSL_ACC_GYRO_W_FFEvOnInt1( (void *)this, LSM6DSL_ACC_GYRO_INT1_FF_DISABLED ) == MEMS_ERROR )
@@ -979,7 +979,7 @@ int LSM6DSLSensor::disable_free_fall_detection(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_free_fall_threshold(int thr)
+int LSM6DSLSensor::setFreeFallThreshold(int thr)
 {
 
   if ( LSM6DSL_ACC_GYRO_W_FF_THS( (void *)this, (LSM6DSL_ACC_GYRO_FF_THS_t)thr ) == MEMS_ERROR )
@@ -995,22 +995,22 @@ int LSM6DSLSensor::set_free_fall_threshold(int thr)
  * @note  This function sets the LSM6DSL accelerometer ODR to 26Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_pedometer(void)
+int LSM6DSLSensor::enablePedometer(void)
 {
   /* Output Data Rate selection */
-  if( set_x_odr(26.0f) == 1 )
+  if( setXOdr(26.0f) == 1 )
   {
     return 1;
   }
   
   /* Full scale selection. */
-  if( set_x_fs(2.0f) == 1 )
+  if( setXFullScale(2.0f) == 1 )
   {
     return 1;
   }
   
   /* Set pedometer threshold. */
-  if ( set_pedometer_threshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_HIGH) == 1 )
+  if ( setPedometerThreshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_HIGH) == 1 )
   {
     return 1;
   }
@@ -1040,7 +1040,7 @@ int LSM6DSLSensor::enable_pedometer(void)
  * @brief Disable the pedometer feature for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_pedometer(void)
+int LSM6DSLSensor::disablePedometer(void)
 {
   /* Disable pedometer on INT1. */
   if ( LSM6DSL_ACC_GYRO_W_STEP_DET_on_INT1( (void *)this, LSM6DSL_ACC_GYRO_INT1_PEDO_DISABLED ) == MEMS_ERROR )
@@ -1061,7 +1061,7 @@ int LSM6DSLSensor::disable_pedometer(void)
   }
   
   /* Reset pedometer threshold. */
-  if ( set_pedometer_threshold(0x0) == 1 )
+  if ( setPedometerThreshold(0x0) == 1 )
   {
     return 1;
   }
@@ -1074,7 +1074,7 @@ int LSM6DSLSensor::disable_pedometer(void)
  * @param step_count the pointer to the step counter
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_step_counter(int *step_count)
+int LSM6DSLSensor::getStepCounter(int *step_count)
 {
   if ( LSM6DSL_ACC_GYRO_Get_GetStepCounter( (void *)this, ( uint8_t* )step_count ) == MEMS_ERROR )
   {
@@ -1088,7 +1088,7 @@ int LSM6DSLSensor::get_step_counter(int *step_count)
  * @brief Reset of the step counter for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::reset_step_counter(void)
+int LSM6DSLSensor::resetStepCounter(void)
 {
   if ( LSM6DSL_ACC_GYRO_W_PedoStepReset( (void *)this, LSM6DSL_ACC_GYRO_PEDO_RST_STEP_ENABLED ) == MEMS_ERROR )
   {
@@ -1110,7 +1110,7 @@ int LSM6DSLSensor::reset_step_counter(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_pedometer_threshold(unsigned char thr)
+int LSM6DSLSensor::setPedometerThreshold(unsigned char thr)
 {
   if ( LSM6DSL_ACC_GYRO_W_PedoThreshold( (void *)this, thr ) == MEMS_ERROR )
   {
@@ -1126,16 +1126,16 @@ int LSM6DSLSensor::set_pedometer_threshold(unsigned char thr)
  * @note  This function sets the LSM6DSL accelerometer ODR to 26Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_tilt_detection(LSM6DSL_Interrupt_Pin_t pin)
+int LSM6DSLSensor::enableTiltDetection(LSM6DSL_Interrupt_Pin_t pin)
 {
   /* Output Data Rate selection */
-  if( set_x_odr(26.0f) == 1 )
+  if( setXOdr(26.0f) == 1 )
   {
     return 1;
   }
   
   /* Full scale selection. */
-  if( set_x_fs(2.0f) == 1 )
+  if( setXFullScale(2.0f) == 1 )
   {
     return 1;
   }
@@ -1180,7 +1180,7 @@ int LSM6DSLSensor::enable_tilt_detection(LSM6DSL_Interrupt_Pin_t pin)
  * @brief Disable the tilt detection for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_tilt_detection(void)
+int LSM6DSLSensor::disableTiltDetection(void)
 {
   /* Disable tilt event on INT1. */
   if ( LSM6DSL_ACC_GYRO_W_TiltEvOnInt1( (void *)this, LSM6DSL_ACC_GYRO_INT1_TILT_DISABLED ) == MEMS_ERROR )
@@ -1215,16 +1215,16 @@ int LSM6DSLSensor::disable_tilt_detection(void)
  * @note  This function sets the LSM6DSL accelerometer ODR to 416Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_wake_up_detection(LSM6DSL_Interrupt_Pin_t pin)
+int LSM6DSLSensor::enableWakeUpDetection(LSM6DSL_Interrupt_Pin_t pin)
 {
   /* Output Data Rate selection */
-  if( set_x_odr(416.0f) == 1 )
+  if( setXOdr(416.0f) == 1 )
   {
     return 1;
   }
   
   /* Full scale selection. */
-  if( set_x_fs(2.0f) == 1 )
+  if( setXFullScale(2.0f) == 1 )
   {
     return 1;
   }
@@ -1275,7 +1275,7 @@ int LSM6DSLSensor::enable_wake_up_detection(LSM6DSL_Interrupt_Pin_t pin)
  * @brief Disable the wake up detection for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_wake_up_detection(void)
+int LSM6DSLSensor::disableWakeUpDetection(void)
 {
   /* Disable wake up event on INT1 */
   if ( LSM6DSL_ACC_GYRO_W_WUEvOnInt1( (void *)this, LSM6DSL_ACC_GYRO_INT1_WU_DISABLED ) == MEMS_ERROR )
@@ -1315,7 +1315,7 @@ int LSM6DSLSensor::disable_wake_up_detection(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_wake_up_threshold(unsigned char thr)
+int LSM6DSLSensor::setWakeUpThreshold(unsigned char thr)
 {
   if ( LSM6DSL_ACC_GYRO_W_WK_THS( (void *)this, (uint8_t)thr ) == MEMS_ERROR )
   {
@@ -1331,16 +1331,16 @@ int LSM6DSLSensor::set_wake_up_threshold(unsigned char thr)
  * @note  This function sets the LSM6DSL accelerometer ODR to 416Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_single_tap_detection(LSM6DSL_Interrupt_Pin_t pin)
+int LSM6DSLSensor::enableSingleTapDetection(LSM6DSL_Interrupt_Pin_t pin)
 {
   /* Output Data Rate selection */
-  if( set_x_odr(416.0f) == 1 )
+  if( setXOdr(416.0f) == 1 )
   {
     return 1;
   }
   
   /* Full scale selection. */
-  if( set_x_fs(2.0f) == 1 )
+  if( setXFullScale(2.0f) == 1 )
   {
     return 1;
   }
@@ -1364,19 +1364,19 @@ int LSM6DSLSensor::enable_single_tap_detection(LSM6DSL_Interrupt_Pin_t pin)
   }
   
   /* Set tap threshold. */
-  if ( set_tap_threshold( LSM6DSL_TAP_THRESHOLD_MID_LOW ) == 1 )
+  if ( setTapThreshold( LSM6DSL_TAP_THRESHOLD_MID_LOW ) == 1 )
   {
     return 1;
   }
   
   /* Set tap shock time window. */
-  if ( set_tap_shock_time( LSM6DSL_TAP_SHOCK_TIME_MID_HIGH ) == 1 )
+  if ( setTapShockTime( LSM6DSL_TAP_SHOCK_TIME_MID_HIGH ) == 1 )
   {
     return 1;
   }
   
   /* Set tap quiet time window. */
-  if ( set_tap_quiet_time( LSM6DSL_TAP_QUIET_TIME_MID_LOW ) == 1 )
+  if ( setTapQuietTime( LSM6DSL_TAP_QUIET_TIME_MID_LOW ) == 1 )
   {
     return 1;
   }
@@ -1419,7 +1419,7 @@ int LSM6DSLSensor::enable_single_tap_detection(LSM6DSL_Interrupt_Pin_t pin)
  * @brief Disable the single tap detection for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_single_tap_detection(void)
+int LSM6DSLSensor::disableSingleTapDetection(void)
 {
   /* Disable single tap interrupt on INT1 pin. */
   if ( LSM6DSL_ACC_GYRO_W_SingleTapOnInt1( (void *)this, LSM6DSL_ACC_GYRO_INT1_SINGLE_TAP_DISABLED ) == MEMS_ERROR )
@@ -1440,19 +1440,19 @@ int LSM6DSLSensor::disable_single_tap_detection(void)
   }
   
   /* Reset tap threshold. */
-  if ( set_tap_threshold( 0x0 ) == 1 )
+  if ( setTapThreshold( 0x0 ) == 1 )
   {
     return 1;
   }
   
   /* Reset tap shock time window. */
-  if ( set_tap_shock_time( 0x0 ) == 1 )
+  if ( setTapShockTime( 0x0 ) == 1 )
   {
     return 1;
   }
   
   /* Reset tap quiet time window. */
-  if ( set_tap_quiet_time( 0x0 ) == 1 )
+  if ( setTapQuietTime( 0x0 ) == 1 )
   {
     return 1;
   }
@@ -1488,16 +1488,16 @@ int LSM6DSLSensor::disable_single_tap_detection(void)
  * @note  This function sets the LSM6DSL accelerometer ODR to 416Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_double_tap_detection(LSM6DSL_Interrupt_Pin_t pin)
+int LSM6DSLSensor::enableDoubleTapDetection(LSM6DSL_Interrupt_Pin_t pin)
 {
   /* Output Data Rate selection */
-  if( set_x_odr(416.0f) == 1 )
+  if( setXOdr(416.0f) == 1 )
   {
     return 1;
   }
   
   /* Full scale selection. */
-  if( set_x_fs(2.0f) == 1 )
+  if( setXFullScale(2.0f) == 1 )
   {
     return 1;
   }
@@ -1521,25 +1521,25 @@ int LSM6DSLSensor::enable_double_tap_detection(LSM6DSL_Interrupt_Pin_t pin)
   }
   
   /* Set tap threshold. */
-  if ( set_tap_threshold( LSM6DSL_TAP_THRESHOLD_MID_LOW ) == 1 )
+  if ( setTapThreshold( LSM6DSL_TAP_THRESHOLD_MID_LOW ) == 1 )
   {
     return 1;
   }
   
   /* Set tap shock time window. */
-  if ( set_tap_shock_time( LSM6DSL_TAP_SHOCK_TIME_HIGH ) == 1 )
+  if ( setTapShockTime( LSM6DSL_TAP_SHOCK_TIME_HIGH ) == 1 )
   {
     return 1;
   }
   
   /* Set tap quiet time window. */
-  if ( set_tap_quiet_time( LSM6DSL_TAP_QUIET_TIME_HIGH ) == 1 )
+  if ( setTapQuietTime( LSM6DSL_TAP_QUIET_TIME_HIGH ) == 1 )
   {
     return 1;
   }
   
   /* Set tap duration time window. */
-  if ( set_tap_duration_time( LSM6DSL_TAP_DURATION_TIME_MID ) == 1 )
+  if ( setTapDurationTime( LSM6DSL_TAP_DURATION_TIME_MID ) == 1 )
   {
     return 1;
   }
@@ -1584,7 +1584,7 @@ int LSM6DSLSensor::enable_double_tap_detection(LSM6DSL_Interrupt_Pin_t pin)
  * @brief Disable the double tap detection for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_double_tap_detection(void)
+int LSM6DSLSensor::disableDoubleTapDetection(void)
 {
   /* Disable double tap interrupt on INT1 pin. */
   if ( LSM6DSL_ACC_GYRO_W_TapEvOnInt1( (void *)this, LSM6DSL_ACC_GYRO_INT1_TAP_DISABLED ) == MEMS_ERROR )
@@ -1605,25 +1605,25 @@ int LSM6DSLSensor::disable_double_tap_detection(void)
   }
   
   /* Reset tap threshold. */
-  if ( set_tap_threshold( 0x0 ) == 1 )
+  if ( setTapThreshold( 0x0 ) == 1 )
   {
     return 1;
   }
   
   /* Reset tap shock time window. */
-  if ( set_tap_shock_time( 0x0 ) == 1 )
+  if ( setTapShockTime( 0x0 ) == 1 )
   {
     return 1;
   }
   
   /* Reset tap quiet time window. */
-  if ( set_tap_quiet_time( 0x0 ) == 1 )
+  if ( setTapQuietTime( 0x0 ) == 1 )
   {
     return 1;
   }
   
   /* Reset tap duration time window. */
-  if ( set_tap_duration_time( 0x0 ) == 1 )
+  if ( setTapDurationTime( 0x0 ) == 1 )
   {
     return 1;
   }
@@ -1660,7 +1660,7 @@ int LSM6DSLSensor::disable_double_tap_detection(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_tap_threshold(unsigned char thr)
+int LSM6DSLSensor::setTapThreshold(unsigned char thr)
 {
   if ( LSM6DSL_ACC_GYRO_W_TAP_THS( (void *)this, (u8_t)thr ) == MEMS_ERROR )
   {
@@ -1675,7 +1675,7 @@ int LSM6DSLSensor::set_tap_threshold(unsigned char thr)
  * @param time the shock time window to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_tap_shock_time(uint8_t time)
+int LSM6DSLSensor::setTapShockTime(uint8_t time)
 {
   if ( LSM6DSL_ACC_GYRO_W_SHOCK_Duration( (void *)this, time ) == MEMS_ERROR )
   {
@@ -1690,7 +1690,7 @@ int LSM6DSLSensor::set_tap_shock_time(uint8_t time)
  * @param time the quiet time window to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_tap_quiet_time(uint8_t time)
+int LSM6DSLSensor::setTapQuietTime(uint8_t time)
 {
   if ( LSM6DSL_ACC_GYRO_W_QUIET_Duration( (void *)this, time ) == MEMS_ERROR )
   {
@@ -1705,7 +1705,7 @@ int LSM6DSLSensor::set_tap_quiet_time(uint8_t time)
  * @param time the duration of the time window to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_tap_duration_time(uint8_t time)
+int LSM6DSLSensor::setTapDurationTime(uint8_t time)
 {
   if ( LSM6DSL_ACC_GYRO_W_DUR( (void *)this, time ) == MEMS_ERROR )
   {
@@ -1721,16 +1721,16 @@ int LSM6DSLSensor::set_tap_duration_time(uint8_t time)
  * @note  This function sets the LSM6DSL accelerometer ODR to 416Hz and the LSM6DSL accelerometer full scale to 2g
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::enable_6d_orientation(LSM6DSL_Interrupt_Pin_t pin)
+int LSM6DSLSensor::enable6dOrientation(LSM6DSL_Interrupt_Pin_t pin)
 {
   /* Output Data Rate selection */
-  if( set_x_odr(416.0f) == 1 )
+  if( setXOdr(416.0f) == 1 )
   {
     return 1;
   }
   
   /* Full scale selection. */
-  if( set_x_fs(2.0f) == 1 )
+  if( setXFullScale(2.0f) == 1 )
   {
     return 1;
   }
@@ -1775,7 +1775,7 @@ int LSM6DSLSensor::enable_6d_orientation(LSM6DSL_Interrupt_Pin_t pin)
  * @brief Disable the 6D orientation detection for LSM6DSL accelerometer sensor
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::disable_6d_orientation(void)
+int LSM6DSLSensor::disable6dOrientation(void)
 {
   /* Disable 6D orientation interrupt on INT1 pin. */
   if ( LSM6DSL_ACC_GYRO_W_6DEvOnInt1( (void *)this, LSM6DSL_ACC_GYRO_INT1_6D_DISABLED ) == MEMS_ERROR )
@@ -1809,7 +1809,7 @@ int LSM6DSLSensor::disable_6d_orientation(void)
  * @param xl the pointer to the 6D orientation XL axis
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_6d_orientation_xl(uint8_t *xl)
+int LSM6DSLSensor::get6dOrientationXL(uint8_t *xl)
 {
   LSM6DSL_ACC_GYRO_DSD_XL_t xl_raw;
   
@@ -1838,7 +1838,7 @@ int LSM6DSLSensor::get_6d_orientation_xl(uint8_t *xl)
  * @param xh the pointer to the 6D orientation XH axis
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_6d_orientation_xh(uint8_t *xh)
+int LSM6DSLSensor::get6dOrientationXH(uint8_t *xh)
 {
   LSM6DSL_ACC_GYRO_DSD_XH_t xh_raw;
   
@@ -1867,7 +1867,7 @@ int LSM6DSLSensor::get_6d_orientation_xh(uint8_t *xh)
  * @param yl the pointer to the 6D orientation YL axis
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_6d_orientation_yl(uint8_t *yl)
+int LSM6DSLSensor::get6dOrientationYL(uint8_t *yl)
 {
   LSM6DSL_ACC_GYRO_DSD_YL_t yl_raw;
   
@@ -1896,7 +1896,7 @@ int LSM6DSLSensor::get_6d_orientation_yl(uint8_t *yl)
  * @param yh the pointer to the 6D orientation YH axis
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_6d_orientation_yh(uint8_t *yh)
+int LSM6DSLSensor::get6dOrientationYH(uint8_t *yh)
 {
   LSM6DSL_ACC_GYRO_DSD_YH_t yh_raw;
   
@@ -1925,7 +1925,7 @@ int LSM6DSLSensor::get_6d_orientation_yh(uint8_t *yh)
  * @param zl the pointer to the 6D orientation ZL axis
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_6d_orientation_zl(uint8_t *zl)
+int LSM6DSLSensor::get6dOrientationZL(uint8_t *zl)
 {
   LSM6DSL_ACC_GYRO_DSD_ZL_t zl_raw;
   
@@ -1954,7 +1954,7 @@ int LSM6DSLSensor::get_6d_orientation_zl(uint8_t *zl)
  * @param zh the pointer to the 6D orientation ZH axis
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_6d_orientation_zh(uint8_t *zh)
+int LSM6DSLSensor::get6dOrientationZH(uint8_t *zh)
 {
   LSM6DSL_ACC_GYRO_DSD_ZH_t zh_raw;
   
@@ -1983,43 +1983,43 @@ int LSM6DSLSensor::get_6d_orientation_zh(uint8_t *zh)
  * @param status the pointer to the status of all hardware events
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_event_status(LSM6DSL_Event_Status_t *status)
+int LSM6DSLSensor::getEventStatus(LSM6DSL_Event_Status_t *status)
 {
   uint8_t Wake_Up_Src = 0, Tap_Src = 0, D6D_Src = 0, Func_Src = 0, Md1_Cfg = 0, Md2_Cfg = 0, Int1_Ctrl = 0;
 
   memset((void *)status, 0x0, sizeof(LSM6DSL_Event_Status_t));
 
-  if(read_reg(LSM6DSL_ACC_GYRO_WAKE_UP_SRC, &Wake_Up_Src) != 0)
+  if(readReg(LSM6DSL_ACC_GYRO_WAKE_UP_SRC, &Wake_Up_Src) != 0)
   {
     return 1;
   }
 
-  if(read_reg(LSM6DSL_ACC_GYRO_TAP_SRC, &Tap_Src) != 0)
+  if(readReg(LSM6DSL_ACC_GYRO_TAP_SRC, &Tap_Src) != 0)
   {
     return 1;
   }
 
-  if(read_reg(LSM6DSL_ACC_GYRO_D6D_SRC, &D6D_Src) != 0)
+  if(readReg(LSM6DSL_ACC_GYRO_D6D_SRC, &D6D_Src) != 0)
   {
     return 1;
   }
 
-  if(read_reg(LSM6DSL_ACC_GYRO_FUNC_SRC, &Func_Src) != 0)
+  if(readReg(LSM6DSL_ACC_GYRO_FUNC_SRC, &Func_Src) != 0)
   {
     return 1;
   }
 
-  if(read_reg(LSM6DSL_ACC_GYRO_MD1_CFG, &Md1_Cfg ) != 0 )
+  if(readReg(LSM6DSL_ACC_GYRO_MD1_CFG, &Md1_Cfg ) != 0 )
   {
     return 1;
   }
 
-  if(read_reg(LSM6DSL_ACC_GYRO_MD2_CFG, &Md2_Cfg ) != 0)
+  if(readReg(LSM6DSL_ACC_GYRO_MD2_CFG, &Md2_Cfg ) != 0)
   {
     return 1;
   }
 
-  if(read_reg(LSM6DSL_ACC_GYRO_INT1_CTRL, &Int1_Ctrl ) != 0)
+  if(readReg(LSM6DSL_ACC_GYRO_INT1_CTRL, &Int1_Ctrl ) != 0)
   {
     return 1;
   }
@@ -2089,7 +2089,7 @@ int LSM6DSLSensor::get_event_status(LSM6DSL_Event_Status_t *status)
  * @param data register data
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::read_reg( uint8_t reg, uint8_t *data )
+int LSM6DSLSensor::readReg( uint8_t reg, uint8_t *data )
 {
 
   if ( LSM6DSL_ACC_GYRO_read_reg( (void *)this, reg, data, 1 ) == MEMS_ERROR )
@@ -2106,7 +2106,7 @@ int LSM6DSLSensor::read_reg( uint8_t reg, uint8_t *data )
  * @param data register data
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::write_reg( uint8_t reg, uint8_t data )
+int LSM6DSLSensor::writeReg( uint8_t reg, uint8_t data )
 {
 
   if ( LSM6DSL_ACC_GYRO_write_reg( (void *)this, reg, &data, 1 ) == MEMS_ERROR )
@@ -2120,10 +2120,10 @@ int LSM6DSLSensor::write_reg( uint8_t reg, uint8_t data )
 
 unsigned char LSM6DSL_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite )
 {
-  return ((LSM6DSLSensor *)handle)->io_write(pBuffer, WriteAddr, nBytesToWrite);
+  return ((LSM6DSLSensor *)handle)->writeIO(pBuffer, WriteAddr, nBytesToWrite);
 }
 
 unsigned char LSM6DSL_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead )
 {
-  return ((LSM6DSLSensor *)handle)->io_read(pBuffer, ReadAddr, nBytesToRead);
+  return ((LSM6DSLSensor *)handle)->readIO(pBuffer, ReadAddr, nBytesToRead);
 }

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "IRDA_class.h"
+#include "IrDASensor.h"
 #include "pinNames.h"
 #include "PeripheralPins.h"
 
@@ -40,9 +40,7 @@ IRDASensor::~IRDASensor()
 }
 
 
-
-
-uint8_t IRDASensor::init()
+int IRDASensor::init()
 {
     OSStatus err = kNoErr;
 
@@ -69,11 +67,11 @@ uint8_t IRDASensor::init()
     HAL_NVIC_EnableIRQ( USART3_IRQn );
 
     err = HAL_IRDA_Init( &IrdaHandle );
-    return err;    
+    return err;
 }
 
 
-unsigned char IRDASensor::IRDA_Transmit( unsigned char *pData, int size, int timeout)
+unsigned char IRDASensor::IRDATransmit( unsigned char *pData, int size, int timeout)
 {
     return HAL_IRDA_Transmit(&IrdaHandle, (uint8_t *)pData, (uint16_t)size, (uint32_t)timeout);
 }
