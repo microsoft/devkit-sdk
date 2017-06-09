@@ -13,6 +13,7 @@
 
 #define UNABLE_TO_COMPLETE -2
 #define MBED_RECEIVE_BYTES_VALUE    128
+#define UNABLE_TO_COMPLETE_FOR_RECEIVE -3004
 
 typedef enum IO_STATE_TAG
 {
@@ -449,7 +450,12 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
                 else
                 {
                     received = tcpsocketconnection_receive(socket_io_instance->tcp_socket_connection, (char*)recv_bytes, MBED_RECEIVE_BYTES_VALUE);
-                    if (received > 0)
+                    if(received == UNABLE_TO_COMPLETE_FOR_RECEIVE)
+                    {
+                        socket_io_instance->io_state = IO_STATE_ERROR;
+                        indicate_error(socket_io_instance);
+                    }
+                    else if (received > 0)
                     {
                         if (socket_io_instance->on_bytes_received != NULL)
                         {
