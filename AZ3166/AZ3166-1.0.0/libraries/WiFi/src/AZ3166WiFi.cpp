@@ -1,4 +1,4 @@
- /* 
+/* 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -221,6 +221,7 @@ int WiFiClass::encryptionType()
 {
     return ENC_TYPE_CCMP;
 }
+
 int WiFiClass::scanNetworks()
 {
     if (!is_station_inited)
@@ -229,7 +230,7 @@ int WiFiClass::scanNetworks()
     }
 
     memset(aps, 0, sizeof(aps));
-    uint8_t attempts = sizeof(aps) / sizeof(aps[0]);
+    int attempts = sizeof(aps) / sizeof(aps[0]);
 
     ap_number = ((EMW10xxInterface*)WiFiInterface())->scan(aps, attempts);
     if(ap_number > 0)
@@ -238,7 +239,6 @@ int WiFiClass::scanNetworks()
     }
     return ap_number;
 }
-
 
 const char* WiFiClass::SSID(unsigned char networkItem)
 {
