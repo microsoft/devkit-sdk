@@ -226,10 +226,10 @@ void setup()
   ext_i2c = new DevI2C(D14, D15);
   acc_gyro = new LSM6DSLSensor(*ext_i2c, D4, D5);
   acc_gyro->init(NULL);
-  acc_gyro->enable_x();
-  acc_gyro->enable_g();
-  acc_gyro->enable_pedometer();
-  acc_gyro->set_pedometer_threshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_LOW);
+  acc_gyro->enableAccelerator();
+  acc_gyro->enableGyroscope();
+  acc_gyro->enablePedometer();
+  acc_gyro->setPedometerThreshold(LSM6DSL_PEDOMETER_THRESHOLD_MID_LOW);
 
   Screen.print(3, " > IoT Hub");
   
@@ -255,14 +255,14 @@ static void DoIdle()
       status = 1;
       msgBody[0] = 0;
       rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
-      acc_gyro->reset_step_counter();
+      acc_gyro->resetStepCounter();
     }
 }
 
 static void DoShake()
 {
-  uint16_t steps = 0;
-  acc_gyro->get_step_counter(&steps);
+  int steps = 0;
+  acc_gyro->getStepCounter(&steps);
   if (steps > 2)
   {
     time(&time_hb); // Reset the heartbeat clock

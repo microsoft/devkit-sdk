@@ -32,24 +32,24 @@ private:
 public:
   WiFiUDP();  // Constructor
   virtual ~WiFiUDP(); //destructor
-  virtual uint8_t begin(uint16_t);	// initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
+  virtual int begin(unsigned short);	// initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
   virtual void stop();  // Finish with the UDP socket
 
   // Sending UDP packets
   
   // Start building up a packet to send to the remote host specific in ip and port
   // Returns 1 if successful, 0 if there was a problem with the supplied IP address or port
-  virtual int beginPacket(IPAddress ip, uint16_t port);
+  virtual int beginPacket(IPAddress ip, unsigned short port);
   // Start building up a packet to send to the remote host specific in host and port
   // Returns 1 if successful, 0 if there was a problem resolving the hostname or port
-  virtual int beginPacket(const char *host, uint16_t port);
+  virtual int beginPacket(const char *host, unsigned short port);
   // Finish off this packet and send it
   // Returns 1 if the packet was sent successfully, 0 if there was an error
   virtual int endPacket();
   // Write a single byte into the packet
-  virtual size_t write(uint8_t);
+  virtual size_t write(unsigned char);
   // Write size bytes from buffer into the packet
-  virtual size_t write(const uint8_t *buffer, size_t size);
+  virtual size_t write(const unsigned char *buffer, size_t size);
 
   // Read a single byte from the current packet
   virtual int read();
@@ -65,7 +65,7 @@ public:
   // Return the IP address of the host who sent the current incoming packet
   virtual IPAddress remoteIP();
   // Return the port of the host who sent the current incoming packet
-  virtual uint16_t remotePort();
+  virtual unsigned short remotePort();
 };
 
 #endif

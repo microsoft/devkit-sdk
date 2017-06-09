@@ -60,18 +60,17 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
   public:
 
     HTS221Sensor(DevI2C &i2c);
-    HTS221Sensor(DevI2C &i2c, uint8_t address);
+    HTS221Sensor(DevI2C &i2c, unsigned char address);
     virtual int init(void *init);
-    virtual int readId(uint8_t *id);
+    virtual int readId(unsigned char *id);
     virtual int getHumidity(float *pfData);
     virtual int getTemperature(float *pfData);
     int enable(void);
     int disable(void);
     int reset(void);
-    int get_odr(float *odr);
-    int set_odr(float odr);
-    int read_reg(uint8_t reg, uint8_t *data);
-    int write_reg(uint8_t reg, uint8_t data);
+    int getOdr(float *odr);
+    int setOdr(float odr);
+
     /**
      * @brief Utility function to read data.
      * @param  pBuffer: pointer to data to be read.
@@ -79,9 +78,9 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
      * @param  NumByteToRead: number of bytes to be read.
      * @retval 0 if ok, an error code otherwise.
      */
-    uint8_t io_read(uint8_t* pBuffer, uint8_t RegisterAddr, uint16_t NumByteToRead)
+    unsigned char readIO(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToRead)
     {
-        return (uint8_t) _dev_i2c.i2c_read(pBuffer, _address, RegisterAddr, NumByteToRead);
+        return (unsigned char) _dev_i2c.i2c_read(pBuffer, _address, RegisterAddr, (uint16_t)NumByteToRead);
     }
     
     /**
@@ -91,12 +90,14 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
      * @param  NumByteToWrite: number of bytes to write.
      * @retval 0 if ok, an error code otherwise.
      */
-    uint8_t io_write(uint8_t* pBuffer, uint8_t RegisterAddr, uint16_t NumByteToWrite)
+    unsigned char writeIO(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToWrite)
     {
-        return (uint8_t) _dev_i2c.i2c_write(pBuffer, _address, RegisterAddr, NumByteToWrite);
+        return (unsigned char) _dev_i2c.i2c_write(pBuffer, _address, RegisterAddr, (uint16_t)NumByteToWrite);
     }
 
   private:
+    int readReg(unsigned char reg, unsigned char *data);
+    int writeReg(unsigned char reg, unsigned char data);
 
     /* Helper classes. */
     DevI2C &_dev_i2c;
@@ -109,8 +110,8 @@ class HTS221Sensor : public HumiditySensor, public TempSensor
 #ifdef __cplusplus
  extern "C" {
 #endif
-uint8_t HTS221_io_write( void *handle, uint8_t WriteAddr, uint8_t *pBuffer, uint16_t nBytesToWrite );
-uint8_t HTS221_io_read( void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint16_t nBytesToRead );
+unsigned char HTS221_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite );
+unsigned char HTS221_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead );
 #ifdef __cplusplus
   }
 #endif

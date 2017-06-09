@@ -85,9 +85,9 @@ public:
     /*
      * Get the interface MAC address.
      *
-     * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
+     * return: pointer to unsigned char array with length WL_MAC_ADDR_LENGTH
      */
-    uint8_t* macAddress(uint8_t* mac);
+    unsigned char* macAddress(unsigned char* mac);
      
     /*
      * Get the interface IP address.
@@ -123,7 +123,7 @@ public:
      *
      * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
      */
-    uint8_t* BSSID(uint8_t* bssid);
+    unsigned char* BSSID(unsigned char* bssid);
      
     /*
      * Return the current RSSI /Received Signal Strength in dBm)
@@ -131,21 +131,21 @@ public:
      *
      * return: signed value
      */
-    int32_t RSSI();
+    int RSSI();
      
     /*
      * Return the Encryption Type associated with the network
      *
      * return: one value of wl_enc_type enum
      */
-    uint8_t encryptionType();
+    int encryptionType();
      
     /*
      * Start scan WiFi networks available
      *
      * return: Number of discovered networks
      */
-    int8_t scanNetworks();
+    int scanNetworks();
      
     /*
      * Return the SSID discovered during the network scan.
@@ -154,7 +154,7 @@ public:
      *
      * return: ssid string of the specified item on the networks scanned list
      */
-    const char* SSID(uint8_t networkItem);
+    const char* SSID(unsigned char networkItem);
      
     /*
      * Return the encryption type of the networks discovered during the scanNetworks
@@ -163,7 +163,7 @@ public:
      *
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
      */
-    uint8_t encryptionType(uint8_t networkItem);
+    int encryptionType(unsigned char networkItem);
      
     /*
      * Return the RSSI of the networks discovered during the scanNetworks
@@ -172,30 +172,30 @@ public:
      *
      * return: signed value of RSSI of the specified item on the networks scanned list
      */
-    int32_t RSSI(uint8_t networkItem);
+    int RSSI(unsigned char networkItem);
      
     /*
      * Return Connection status.
      *
      * return: one of the value defined in wl_status_t
      */
-    uint8_t status();
+    unsigned char status();
 
     friend class WiFiClient;
     //friend class WiFiServer;
 
 private:
-    void MacStringToBin(const char* macString, uint8_t* macBin);
+    void MacStringToBin(const char* macString, unsigned char* macBin);
 
     char firmware_version[128];
     bool is_station_inited;
     bool is_ap_inited;
     char ssid[33];
 
-	uint8_t current_status;
+    unsigned char current_status;
 
     WiFiAccessPoint aps[10];
-	uint8_t ap_number;
+    int ap_number;
 };
 
 extern WiFiClass WiFi;

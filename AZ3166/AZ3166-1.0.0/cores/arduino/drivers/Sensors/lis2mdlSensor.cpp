@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    lis2mdl_class.cpp
+ * @file    lis2mdlSensor.cpp
  * @author  AST / EST
  * @version V0.0.1
  * @date    14-April-2015
@@ -36,15 +36,14 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "lis2mdl_class.h"
+#include "lis2mdlSensor.h"
 #include "utility/lis2mdl.h"
 
 /**
  * @brief  Set LIS2MDL Initialization
- * @param  LIS2MDL_Init the configuration setting for the LIS2MDL
  * @retval MAGNETO_OK in case of success, an error code otherwise
  */
-MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_Init()
+MAGNETO_StatusTypeDef LIS2MDLSensor::LIS2MDLInit()
 {
   uint8_t tmp1 = 0x00;
   MAGNETO_StatusTypeDef ret;
@@ -70,7 +69,7 @@ MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_Init()
  * @param  m_id the pointer where the ID of the device is stored
  * @retval MAGNETO_OK in case of success, an error code otherwise
  */
-MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_Read_M_ID(uint8_t *m_id)
+MAGNETO_StatusTypeDef LIS2MDLSensor::LIS2MDL_Read_M_ID(uint8_t *m_id)
 {
   if(!m_id)
   {
@@ -86,7 +85,7 @@ MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_Read_M_ID(uint8_t *m_id)
  * @param  pData the pointer where the magnetometer raw data are stored
  * @retval MAGNETO_OK in case of success, an error code otherwise
  */
-MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_M_GetAxesRaw(int16_t *pData)
+MAGNETO_StatusTypeDef LIS2MDLSensor::LIS2MDL_M_GetAxesRaw(int16_t *pData)
 {
   uint8_t tempReg[2] = {0, 0};
   MAGNETO_StatusTypeDef ret;
@@ -118,7 +117,7 @@ MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_M_GetAxesRaw(int16_t *pData)
  * @param pData the pointer where the magnetometer data are stored
  * @retval MAGNETO_OK in case of success, an error code otherwise
  */
-MAGNETO_StatusTypeDef LIS2MDL::LIS2MDL_M_GetAxes(int32_t *pData)
+MAGNETO_StatusTypeDef LIS2MDLSensor::LIS2MDL_M_GetAxes(int32_t *pData)
 {
   uint8_t tempReg = 0x00;
   int16_t pDataRaw[3];

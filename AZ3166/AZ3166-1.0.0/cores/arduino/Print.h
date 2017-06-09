@@ -52,15 +52,15 @@ class Print {
             setWriteError(0);
         }
 
-        virtual size_t write(uint8_t) = 0;
-        virtual size_t write(const uint8_t *buffer, size_t size);
+        virtual size_t write(unsigned char) = 0;
+        virtual size_t write(const unsigned char *buffer, size_t size);
         size_t write(const char *str) {
             if(str == NULL)
                 return 0;
-            return write((const uint8_t *) str, strlen(str));
+            return write((const unsigned char *) str, strlen(str));
         }
         size_t write(const char *buffer, size_t size) {
-            return write((const uint8_t *) buffer, size);
+            return write((const unsigned char *) buffer, size);
         }
 
         size_t printf(const char * format, ...)  __attribute__ ((format (printf, 2, 3)));

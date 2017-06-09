@@ -56,71 +56,71 @@
 class GyroSensor : public Component {
 public:
 
-	/**
-	 * @brief       Get current gyroscope angular rate X/Y/Z-axes values 
-	 *              in standard data units [mdps]
-	 * @param[out]  p_data Pointer to where to store angular rates to.
-	 *              p_data must point to an array of (at least) three elements, where:
-	 *              p_data[0] corresponds to X-axis,
-	 *              p_data[1] corresponds to Y-axis, and
-	 *              p_data[2] corresponds to Z-axis.
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_g_axes(int32_t *p_data) = 0;
+    /**
+     * @brief       Get current gyroscope angular rate X/Y/Z-axes values 
+     *              in standard data units [mdps]
+     * @param[out]  p_data Pointer to where to store angular rates to.
+     *              p_data must point to an array of (at least) three elements, where:
+     *              p_data[0] corresponds to X-axis,
+     *              p_data[1] corresponds to Y-axis, and
+     *              p_data[2] corresponds to Z-axis.
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getGAxes(int *p_data) = 0;
 
-	/**
-	 * @brief       Get current gyroscope raw data X/Y/Z-axes values 
-	 *              in device sepcific LSB units
-	 * @param[out]  p_data Pointer to where to store gyroscope raw data to.
-	 *              p_data must point to an array of (at least) three elements, where:
-	 *              p_data[0] corresponds to X-axis,
-	 *              p_data[1] corresponds to Y-axis, and
-	 *              p_data[2] corresponds to Z-axis.
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_g_axes_raw(int16_t *p_data) = 0;
+    /**
+     * @brief       Get current gyroscope raw data X/Y/Z-axes values 
+     *              in device sepcific LSB units
+     * @param[out]  p_data Pointer to where to store gyroscope raw data to.
+     *              p_data must point to an array of (at least) three elements, where:
+     *              p_data[0] corresponds to X-axis,
+     *              p_data[1] corresponds to Y-axis, and
+     *              p_data[2] corresponds to Z-axis.
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getGAxesRaw(int16_t *p_data) = 0;
 
-	/**
-	 * @brief       Get gyroscope's current sensitivity [mdps/LSB]
-	 * @param[out]  pf_data Pointer to where the gyroscope's sensitivity is stored to
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_g_sensitivity(float *pf_data) = 0;
-	
-	/**
-	 * @brief       Get gyroscope's current output data rate [Hz]
-	 * @param[out]  pf_data Pointer to where the gyroscope output data rate is stored to
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_g_odr(float *pf_data) = 0;
+    /**
+     * @brief       Get gyroscope's current sensitivity [mdps/LSB]
+     * @param[out]  pf_data Pointer to where the gyroscope's sensitivity is stored to
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getGSensitivity(float *pf_data) = 0;
+    
+    /**
+     * @brief       Get gyroscope's current output data rate [Hz]
+     * @param[out]  pf_data Pointer to where the gyroscope output data rate is stored to
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getGOdr(float *pf_data) = 0;
 
-	/**
-	 * @brief      Set gyroscope's output data rate
-	 * @param[in]  odr New value for gyroscope's output data rate in [Hz]
-	 * @return     0 in case of success, an error code otherwise
-	 */
-	virtual int set_g_odr(float odr) = 0;
-	
-	/**
-	 * @brief       Get gyroscope's full scale value
-	 *              i.e.\ min/max measurable value [dps]
-	 * @param[out]  pf_data Pointer to where the gyroscope full scale value is stored to
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_g_fs(float *pf_data) = 0;
-	
-	/**
-	 * @brief      Set gyroscope's full scale value
-	 *             i.e.\ min/max measurable value
-	 * @param[in]  fs New full scale value for gyroscope in [dps]
-	 * @return     0 in case of success, an error code otherwise
-	 */
-	virtual int set_g_fs(float fs) = 0;
+    /**
+     * @brief      Set gyroscope's output data rate
+     * @param[in]  odr New value for gyroscope's output data rate in [Hz]
+     * @return     0 in case of success, an error code otherwise
+     */
+    virtual int setGOdr(float odr) = 0;
+    
+    /**
+     * @brief       Get gyroscope's full scale value
+     *              i.e.\ min/max measurable value [dps]
+     * @param[out]  pf_data Pointer to where the gyroscope full scale value is stored to
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getGFullScale(float *pf_data) = 0;
+    
+    /**
+     * @brief      Set gyroscope's full scale value
+     *             i.e.\ min/max measurable value
+     * @param[in]  fs New full scale value for gyroscope in [dps]
+     * @return     0 in case of success, an error code otherwise
+     */
+    virtual int setGFullScale(float fs) = 0;
 
     /**
      * @brief Destructor.
      */
-	virtual ~GyroSensor() {};
+    virtual ~GyroSensor() {};
 };
 
 #endif /* __GYRO_SENSOR_CLASS_H */

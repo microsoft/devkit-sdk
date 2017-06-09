@@ -23,18 +23,18 @@
 class WiFiServer : public Print
 {
 public:
-    WiFiServer(uint16_t port);
+    WiFiServer(unsigned short port);
     ~WiFiServer();
 
-    WiFiClient available(uint8_t *status = NULL);
+    WiFiClient available();
     void begin();
-    virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *buf, size_t size);
     void close();
     void send(int code, char *content_type, const String &content);
+    virtual size_t write(unsigned char);
+    virtual size_t write(const unsigned char *buf, size_t size);
   
 private:
-	uint16_t _port;
+	unsigned short _port;
     TCPServer *_pTcpServer;
     TCPSocket _clientTcpSocket;
 };

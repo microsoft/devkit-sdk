@@ -11,13 +11,13 @@ static int status;
 static bool showWiFi;
 static bool isConnected;
 static bool buttonClicked;
-static uint8_t counter;
+static unsigned char counter;
 
 static struct _tagRGB
 {
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
+  int red;
+  int green;
+  int blue;
 } _rgb[] =
 {
   { 255,   0,   0 },
@@ -32,10 +32,10 @@ static int led = 0;
 DevI2C *ext_i2c;
 LSM6DSLSensor *acc_gyro;
 HTS221Sensor *ht_sensor;
-LIS2MDL *magnetometer;
+LIS2MDLSensor *magnetometer;
 IRDASensor *IrdaSensor;
 
-int32_t axes[3];
+int axes[3];
 char wifiBuff[128];
 
 void InitWiFi()
@@ -57,7 +57,7 @@ void InitWiFi()
 
 void showMotionGyroSensor()
 {
-  acc_gyro->get_x_axes(axes);
+  acc_gyro->getXAxes(axes);
   char buff[128];
   sprintf(buff, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
@@ -67,7 +67,7 @@ void showPressureSensor()
 {
   float pressure = 0;
   float temperature = 0;
-  lps25hb_Read_Data(&temperature, &pressure);
+  lps22hb_Read_Data(&temperature, &pressure);
   char buff[128];
   sprintf(buff, "Pressure\r\n    %shPa  \r\n                 \r\n             \r\n",f2s(pressure, 2));
   Screen.print(buff);
@@ -96,7 +96,7 @@ void showMagneticSensor()
   Screen.print(buff);
 }
 
-bool IsButtonClicked(uint32_t ulPin)
+bool IsButtonClicked(unsigned char ulPin)
 {
     pinMode(ulPin, INPUT);
     int buttonState = digitalRead(ulPin);
@@ -155,7 +155,7 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
     }
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    for(uint8_t i = 0; i < prec; ++i)
+    for(int i = 0; i < prec; ++i)
         rounding /= 10.0;
     number += rounding;
 
@@ -192,14 +192,14 @@ void setup() {
   ext_i2c = new DevI2C(D14, D15);
   acc_gyro = new LSM6DSLSensor(*ext_i2c, D4, D5);
   acc_gyro->init(NULL);
-  acc_gyro->enable_x();
-  acc_gyro->enable_g();
-  lps25hb_sensor_init( );
+  acc_gyro->enableAccelerator();
+  acc_gyro->enableGyroscope();
+  lps22hb_sensor_init( );
   
   ht_sensor = new HTS221Sensor(*ext_i2c);
   ht_sensor->init(NULL);
 
-  magnetometer = new LIS2MDL(*ext_i2c);
+  magnetometer = new LIS2MDLSensor(*ext_i2c);
   magnetometer->init(NULL);
 
   IrdaSensor = new IRDASensor();
@@ -230,7 +230,7 @@ void loop() {
 
   /*Blink around every 0.5 sec*/
   counter++;
-  uint8_t irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
+  int irda_status = IrdaSensor->IRDATransmit(&counter, 1, 100 );
   if(irda_status != 0)
   {
     Serial.println("Unable to transmit through IRDA");

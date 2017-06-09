@@ -56,71 +56,71 @@
 class MotionSensor : public Component {
 public:
 
-	/**
-	 * @brief       Get current accelerometer linear acceleration X/Y/Z-axes values 
-	 *              in standard data units [mg]
-	 * @param[out]  p_data Pointer to where to store linear accelerations to.
-	 *              p_data must point to an array of (at least) three elements, where:
-	 *              p_data[0] corresponds to X-axis,
-	 *              p_data[1] corresponds to Y-axis, and
-	 *              p_data[2] corresponds to Z-axis.
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_x_axes(int32_t *p_data) = 0;
+    /**
+     * @brief       Get current accelerometer linear acceleration X/Y/Z-axes values 
+     *              in standard data units [mg]
+     * @param[out]  p_data Pointer to where to store linear accelerations to.
+     *              p_data must point to an array of (at least) three elements, where:
+     *              p_data[0] corresponds to X-axis,
+     *              p_data[1] corresponds to Y-axis, and
+     *              p_data[2] corresponds to Z-axis.
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getXAxes(int *p_data) = 0;
 
-	/**
-	 * @brief       Get current accelerometer raw data X/Y/Z-axes values 
-	 *              in device sepcific LSB units
-	 * @param[out]  p_data Pointer to where to store accelerometer raw data to.
-	 *              p_data must point to an array of (at least) three elements, where:
-	 *              p_data[0] corresponds to X-axis,
-	 *              p_data[1] corresponds to Y-axis, and
-	 *              p_data[2] corresponds to Z-axis.
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_x_axes_raw(int16_t *p_data) = 0;
+    /**
+     * @brief       Get current accelerometer raw data X/Y/Z-axes values 
+     *              in device sepcific LSB units
+     * @param[out]  p_data Pointer to where to store accelerometer raw data to.
+     *              p_data must point to an array of (at least) three elements, where:
+     *              p_data[0] corresponds to X-axis,
+     *              p_data[1] corresponds to Y-axis, and
+     *              p_data[2] corresponds to Z-axis.
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getXAxesRaw(int16_t *p_data) = 0;
 
-	/**
-	 * @brief       Get accelerometer's current sensitivity [mg/LSB]
-	 * @param[out]  pf_data Pointer to where the accelerometer's sensitivity is stored to
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_x_sensitivity(float *pf_data) = 0;
+    /**
+     * @brief       Get accelerometer's current sensitivity [mg/LSB]
+     * @param[out]  pf_data Pointer to where the accelerometer's sensitivity is stored to
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getXSensitivity(float *pf_data) = 0;
 
-	/**
-	 * @brief       Get accelerometer's current output data rate [Hz]
-	 * @param[out]  pf_data Pointer to where the accelerometer output data rate is stored to
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_x_odr(float *pf_data) = 0;
+    /**
+     * @brief       Get accelerometer's current output data rate [Hz]
+     * @param[out]  pf_data Pointer to where the accelerometer output data rate is stored to
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getXOdr(float *pf_data) = 0;
 
-	/**
-	 * @brief      Set accelerometer's output data rate
-	 * @param[in]  odr New value for accelerometer's output data rate in [Hz]
-	 * @return     0 in case of success, an error code otherwise
-	 */
-	virtual int set_x_odr(float odr) = 0;
+    /**
+     * @brief      Set accelerometer's output data rate
+     * @param[in]  odr New value for accelerometer's output data rate in [Hz]
+     * @return     0 in case of success, an error code otherwise
+     */
+    virtual int setXOdr(float odr) = 0;
 
-	/**
-	 * @brief       Get accelerometer's full scale value
-	 *              i.e.\ min/max measurable value [g]
-	 * @param[out]  pf_data Pointer to where the accelerometer full scale value is stored to
-	 * @return      0 in case of success, an error code otherwise
-	 */
-	virtual int get_x_fs(float *pf_data) = 0;
-	
-	/**
-	 * @brief      Set accelerometer's full scale value
-	 *             i.e.\ min/max measurable value
-	 * @param[in]  fs New full scale value for accelerometer in [g]
-	 * @return     0 in case of success, an error code otherwise
-	 */
-	virtual int set_x_fs(float fs) = 0;
+    /**
+     * @brief       Get accelerometer's full scale value
+     *              i.e.\ min/max measurable value [g]
+     * @param[out]  pf_data Pointer to where the accelerometer full scale value is stored to
+     * @return      0 in case of success, an error code otherwise
+     */
+    virtual int getXFullScale(float *pf_data) = 0;
+    
+    /**
+     * @brief      Set accelerometer's full scale value
+     *             i.e.\ min/max measurable value
+     * @param[in]  fs New full scale value for accelerometer in [g]
+     * @return     0 in case of success, an error code otherwise
+     */
+    virtual int setXFullScale(float fs) = 0;
 
     /**
      * @brief Destructor.
      */
-	virtual ~MotionSensor() {};
+    virtual ~MotionSensor() {};
 };
 
 #endif /* __MOTION_SENSOR_CLASS_H */

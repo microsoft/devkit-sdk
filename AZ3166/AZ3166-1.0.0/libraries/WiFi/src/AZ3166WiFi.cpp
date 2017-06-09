@@ -1,4 +1,4 @@
-/* 
+ /* 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,6 +95,7 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
         send_telemetry_data("", "wifi", "Wi-Fi connected");
+
         strcpy(this->ssid, ssid);
         current_status = WL_CONNECTED;
         return WL_CONNECTED;
@@ -150,7 +151,7 @@ int WiFiClass::disconnectAP()
     return WL_SUCCESS;
 }
 
-uint8_t* WiFiClass::macAddress(uint8_t* mac)
+unsigned char* WiFiClass::macAddress(unsigned char* mac)
 {
     if (!is_station_inited)
     {
@@ -203,12 +204,12 @@ const char* WiFiClass::SSID()
     return this->ssid;
 }
 
-uint8_t* WiFiClass::BSSID(uint8_t* bssid)
+unsigned char* WiFiClass::BSSID(unsigned char* bssid)
 {
     return macAddress(bssid);
 }
 
-int32_t WiFiClass::RSSI()
+int WiFiClass::RSSI()
 {
     if (is_station_inited)
     {
@@ -216,12 +217,11 @@ int32_t WiFiClass::RSSI()
     }
 }
 
-uint8_t WiFiClass::encryptionType()
+int WiFiClass::encryptionType()
 {
     return ENC_TYPE_CCMP;
 }
-
-int8_t WiFiClass::scanNetworks()
+int WiFiClass::scanNetworks()
 {
     if (!is_station_inited)
     {
@@ -240,17 +240,18 @@ int8_t WiFiClass::scanNetworks()
 }
 
 
-const char* WiFiClass::SSID(uint8_t networkItem)
+const char* WiFiClass::SSID(unsigned char networkItem)
 {
     if (networkItem >= ap_number)
     {
         return NULL;
     }
 	
+
     return aps[networkItem].get_ssid();
 }
 
-int32_t WiFiClass::RSSI(uint8_t networkItem)
+int WiFiClass::RSSI(unsigned char networkItem)
 {
     if (networkItem >= ap_number)
     {
@@ -261,7 +262,7 @@ int32_t WiFiClass::RSSI(uint8_t networkItem)
 }
 
 
-uint8_t WiFiClass::encryptionType(uint8_t networkItem)
+int WiFiClass::encryptionType(unsigned char networkItem)
 {
     if (networkItem >= ap_number)
     {
@@ -289,7 +290,7 @@ uint8_t WiFiClass::encryptionType(uint8_t networkItem)
 }
 
 
-uint8_t WiFiClass::status()
+unsigned char WiFiClass::status()
 {
     return current_status;
 }

@@ -38,7 +38,7 @@ int WiFiClient::peek()
     return 0;
 }
 
-int WiFiClient::connect(const char* host, uint16_t port) 
+int WiFiClient::connect(const char* host, unsigned short port) 
 {
     if (_pTcpSocket != NULL)
     {
@@ -51,7 +51,7 @@ int WiFiClient::connect(const char* host, uint16_t port)
     {
         return 0;
     }
-    if (_pTcpSocket->open(WiFiInterface()) != 0 || _pTcpSocket->connect(host, port) != 0)
+    if (_pTcpSocket->open(WiFiInterface()) != 0 || _pTcpSocket->connect(host, (uint16_t)port) != 0)
     {
         delete _pTcpSocket;
         _pTcpSocket = NULL;
@@ -63,9 +63,9 @@ int WiFiClient::connect(const char* host, uint16_t port)
     return 1;
 }
 
-int WiFiClient::connect(IPAddress ip, uint16_t port) 
+int WiFiClient::connect(IPAddress ip, unsigned short port) 
 {
-    return connect(ip.get_address(), port);
+    return connect(ip.get_address(), (uint16_t)port);
 }
 
 int WiFiClient::available() 
@@ -73,12 +73,12 @@ int WiFiClient::available()
     return connected();
 }
 
-size_t WiFiClient::write(uint8_t b) 
+unsigned int WiFiClient::write(unsigned char b) 
 {
     return write(&b, 1);
 }
 
-size_t WiFiClient::write(const uint8_t *buf, size_t size) 
+unsigned int WiFiClient::write(const unsigned char *buf, unsigned int size) 
 {
     if (_pTcpSocket != NULL)
     {
@@ -103,7 +103,7 @@ int WiFiClient::read()
         return (int)ch;
 }
 
-int WiFiClient::read(uint8_t* buf, size_t size) 
+int WiFiClient::read(unsigned char* buf, unsigned int size) 
 {
     if (_pTcpSocket != NULL)
     {
@@ -130,7 +130,7 @@ void WiFiClient::stop()
     }
 }
 
-uint8_t WiFiClient::connected()
+int WiFiClient::connected()
 {
     return ( _pTcpSocket == NULL ) ? 0 : 1;
 }

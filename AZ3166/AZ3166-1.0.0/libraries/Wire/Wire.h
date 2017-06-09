@@ -38,18 +38,18 @@
 class TwoWire
 {
   private:
-    uint8_t rxBuffer[BUFFER_LENGTH];
-    uint8_t rxBufferIndex;
-    uint8_t rxBufferLength;
+    unsigned char rxBuffer[BUFFER_LENGTH];
+    unsigned char rxBufferIndex;
+    unsigned char rxBufferLength;
 
-    uint8_t txAddress;
-    uint8_t txBuffer[BUFFER_LENGTH];
-    uint8_t txBufferIndex;
-    uint8_t txBufferLength;
+    unsigned char txAddress;
+    unsigned char txBuffer[BUFFER_LENGTH];
+    unsigned char txBufferIndex;
+    unsigned char txBufferLength;
     
-    uint8_t transmitting;
+    unsigned char transmitting;
     
-    uint8_t ownAddress;
+    unsigned char ownAddress;
     bool master;
     I2CName p_i2c_instance; 
     
@@ -57,26 +57,26 @@ class TwoWire
     void (*user_onReceive)(int);
     i2c_t obj;
     //static void onRequestService(I2CName);
-    //static void onReceiveService(I2CName, uint8_t*, int);
+    //static void onReceiveService(I2CName, unsigned char*, int);
 
   public:
     TwoWire(I2CName i2c_instance);
     void begin();
-    void begin(uint8_t);
+    void begin(unsigned char);
     void begin(int);
     void end();
     void setClock(uint32_t);
-    void beginTransmission(uint8_t);
+    void beginTransmission(unsigned char);
     void beginTransmission(int);
-    uint8_t endTransmission(void);
-    uint8_t endTransmission(uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
-	  uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
-    uint8_t requestFrom(int, int);
-    uint8_t requestFrom(int, int, int);
-    virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *, size_t);
+    unsigned char endTransmission(void);
+    unsigned char endTransmission(unsigned char);
+    unsigned char requestFrom(unsigned char, unsigned char);
+    unsigned char requestFrom(unsigned char, unsigned char, unsigned char);
+	  unsigned char requestFrom(unsigned char, unsigned char, unsigned int, unsigned char, unsigned char);
+    unsigned char requestFrom(int, int);
+    unsigned char requestFrom(int, int, int);
+    virtual size_t write(unsigned char);
+    virtual size_t write(const unsigned char *, size_t);
     virtual int available(void);
     virtual int read(void);
     virtual int peek(void);
@@ -84,10 +84,10 @@ class TwoWire
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
 
-    inline size_t write(unsigned long n) { return write((uint8_t)n); }
-    inline size_t write(long n) { return write((uint8_t)n); }
-    inline size_t write(unsigned int n) { return write((uint8_t)n); }
-    inline size_t write(int n) { return write((uint8_t)n); }
+    inline size_t write(unsigned long n) { return write((unsigned char)n); }
+    inline size_t write(long n) { return write((unsigned char)n); }
+    inline size_t write(unsigned int n) { return write((unsigned char)n); }
+    inline size_t write(int n) { return write((unsigned char)n); }
 };
 
 extern TwoWire Wire;
