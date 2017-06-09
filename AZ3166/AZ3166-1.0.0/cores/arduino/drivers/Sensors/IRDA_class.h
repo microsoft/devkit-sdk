@@ -35,7 +35,7 @@ public:
     
     uint8_t init();
 
-    uint8_t IRDA_Transmit( uint8_t *pData, uint16_t size, uint32_t timeout);
+    unsigned char IRDA_Transmit( unsigned char *pData, int size, int timeout);
 };
 
 #endif  // __cplusplus

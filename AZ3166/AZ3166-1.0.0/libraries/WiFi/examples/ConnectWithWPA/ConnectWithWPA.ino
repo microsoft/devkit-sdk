@@ -93,7 +93,7 @@ void printCurrentNet() {
   Serial.println(rssi);
 
   // print the encryption type:
-  byte encryption = WiFi.encryptionType();
+  int encryption = WiFi.encryptionType();
   Serial.print("Encryption Type:");
   Serial.println(encryption, HEX);
   Serial.println();

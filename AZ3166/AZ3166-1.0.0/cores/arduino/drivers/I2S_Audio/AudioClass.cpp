@@ -23,14 +23,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "stlogo.h"
 #include "nau88c10.h"
 #include "stm32f4xx_hal.h"
 #include "stm32412g_discovery.h"
 #include "stm32412g_discovery_audio.h"
 
 static uint32_t m_sample_rate;
-static uint8_t m_bit_depth;
+static uint16_t m_bit_depth;
 static uint8_t m_channels;
 static uint8_t m_duration;
 
@@ -54,14 +53,14 @@ AudioClass::AudioClass()
 /* 
  * @brief Configure the audio data format
 */
-void AudioClass::format(uint32_t sampleRate, uint8_t sampleBitLength)
+void AudioClass::format(unsigned int sampleRate, unsigned short sampleBitLength)
 {
     m_sample_rate = sampleRate;
-    m_channels = STEREO;
     m_bit_depth = sampleBitLength;
+    m_channels = STEREO;
 
     // Currently we ONLY support 16 bit depth audio sample
-    uint32_t sample_bit_depth;
+    unsigned short sample_bit_depth;
     if (m_bit_depth == 16) {
         sample_bit_depth = I2S_DATAFORMAT_16B;
     } else if (m_bit_depth == 24){
@@ -79,7 +78,7 @@ void AudioClass::format(uint32_t sampleRate, uint8_t sampleBitLength)
 }
 
 
-void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size)
+void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, unsigned int size)
 {
     if (transmitBuf == NULL || readBuf == NULL) {
         return;
@@ -92,11 +91,13 @@ void AudioClass::start(uint16_t * transmitBuf, uint16_t * readBuf, uint32_t size
 /*
 ** @brief Start recording audio data usine underlying codec
 */
-void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInSeconds)
+void AudioClass::startRecord(char * audioFile, int fileSize, int durationInSeconds)
 {
     if (audioFile == NULL) return;
 
     if (fileSize < WAVE_HEADER_SIZE) return;
+
+    if (durationInSeconds <= 0) return;
 
     record_finish = false;
     m_wavFile = audioFile;
@@ -119,7 +120,6 @@ void AudioClass::startRecord(char * audioFile, int fileSize, uint8_t durationInS
 */
 void AudioClass::stop()
 {
-    //printf("Stop recording.\r\n");
     BSP_AUDIO_STOP();
     record_finish = true;
 }
@@ -135,7 +135,7 @@ bool AudioClass::recordComplete()
 /*
  * @brief compose the WAVE header according to the raw data size
  */
-void AudioClass::genericWAVHeader(WaveHeader* hdr, int pcmDataSize, uint32_t sampleRate, int sampleBitDepth, uint8_t channels)
+void AudioClass::genericWAVHeader(WaveHeader* hdr, int pcmDataSize, uint32_t sampleRate, uint16_t sampleBitDepth, uint8_t channels)
 {
     if (hdr == NULL) {
         return;
@@ -176,7 +176,7 @@ char * AudioClass::getWav(int *file_size)
     return m_wavFile;
 }
 
-int AudioClass::convertToMono(char * audioFile, int size, uint8_t sampleBitLength)
+int AudioClass::convertToMono(char * audioFile, int size, int sampleBitLength)
 {
     if (sampleBitLength != 16 && sampleBitLength != 24 && sampleBitLength != 32) {
         // TODO: log error

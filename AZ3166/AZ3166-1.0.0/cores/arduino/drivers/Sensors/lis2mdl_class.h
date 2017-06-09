@@ -49,85 +49,85 @@
  */
 class LIS2MDL : public MagneticSensor {
  public:
-	/** Constructor
-	 * @param[in] i2c device I2C to be used for communication
-	 */
+    /** Constructor
+     * @param[in] i2c device I2C to be used for communication
+     */
         LIS2MDL(DevI2C &i2c) : MagneticSensor(), dev_i2c(i2c) {
-	}
-	
-	/** Destructor
-	 */
+    }
+    
+    /** Destructor
+     */
         virtual ~LIS2MDL() {}
-	
-	/*** Interface Methods ***/
-	virtual int init(void *) {
-		return LIS2MDL_Init();
-	}
+    
+    /*** Interface Methods ***/
+    virtual int init(void *) {
+        return LIS2MDL_Init();
+    }
 
-	virtual int readId(uint8_t *m_id) {
-		return LIS2MDL_Read_M_ID(m_id);
-	}
+    virtual int readId(unsigned char *m_id) {
+        return LIS2MDL_Read_M_ID((uint8_t*)m_id);
+    }
 
-	virtual int get_m_axes(int32_t *pData) {
-		return LIS2MDL_M_GetAxes(pData);
-	}
-
-	virtual int get_m_axes_raw(int16_t *pData) {
-		return LIS2MDL_M_GetAxesRaw(pData);
-	}
+    virtual int get_m_axes(int *pData) {
+        return LIS2MDL_M_GetAxes((int32_t*)pData);
+    }
 
  protected:
-	/*** Methods ***/
-	MAGNETO_StatusTypeDef LIS2MDL_Init();
-	MAGNETO_StatusTypeDef LIS2MDL_Read_M_ID(uint8_t *m_id);
-	MAGNETO_StatusTypeDef LIS2MDL_M_GetAxes(int32_t *pData);
-	MAGNETO_StatusTypeDef LIS2MDL_M_GetAxesRaw(int16_t *pData);
+    /*** Methods ***/
+    MAGNETO_StatusTypeDef LIS2MDL_Init();
+    MAGNETO_StatusTypeDef LIS2MDL_Read_M_ID(uint8_t *m_id);
+    MAGNETO_StatusTypeDef LIS2MDL_M_GetAxes(int32_t *pData);
+    MAGNETO_StatusTypeDef LIS2MDL_M_GetAxesRaw(int16_t *pData);
 
-	/**
-	 * @brief      Utility function to read data from LIS2MDL
-	 * @param[out] pBuffer pointer to the byte-array to read data in to
-	 * @param[in]  RegisterAddr specifies internal address register to read from.
-	 * @param[in]  NumByteToRead number of bytes to be read.
-	 * @retval     MAGNETO_OK if ok, 
-	 * @retval     MAGNETO_ERROR if an I2C error has occured
-	 */
-	MAGNETO_StatusTypeDef LIS2MDL_IO_Read(uint8_t* pBuffer, 
-					      uint8_t RegisterAddr, uint16_t NumByteToRead)
-	{
-		int ret = dev_i2c.i2c_read(pBuffer,
-					   LIS2MDL_M_MEMS_ADDRESS,
-					   RegisterAddr,
-					   NumByteToRead);
-		if(ret != 0) {
-			return MAGNETO_ERROR;
-		}
-		return MAGNETO_OK;
-	}
-	
-	/**
-	 * @brief      Utility function to write data to LIS2MDL
-	 * @param[in]  pBuffer pointer to the byte-array data to send
-	 * @param[in]  RegisterAddr specifies internal address register to read from.
-	 * @param[in]  NumByteToWrite number of bytes to write.
-	 * @retval     MAGNETO_OK if ok, 
-	 * @retval     MAGNETO_ERROR if an I2C error has occured
-	 */
-	MAGNETO_StatusTypeDef LIS2MDL_IO_Write(uint8_t* pBuffer, 
-					       uint8_t RegisterAddr, uint16_t NumByteToWrite)
-	{
-		int ret = dev_i2c.i2c_write(pBuffer,
-					    LIS2MDL_M_MEMS_ADDRESS,
-					    RegisterAddr,
-					    NumByteToWrite);
-		if(ret != 0) {
-			return MAGNETO_ERROR;
-		}
-		return MAGNETO_OK;
-	}
-	
-	/*** Instance Variables ***/
-	/* IO Device */
-	DevI2C &dev_i2c;
+    /**
+     * @brief      Utility function to read data from LIS2MDL
+     * @param[out] pBuffer pointer to the byte-array to read data in to
+     * @param[in]  RegisterAddr specifies internal address register to read from.
+     * @param[in]  NumByteToRead number of bytes to be read.
+     * @retval     MAGNETO_OK if ok, 
+     * @retval     MAGNETO_ERROR if an I2C error has occured
+     */
+    MAGNETO_StatusTypeDef LIS2MDL_IO_Read(uint8_t* pBuffer, 
+                          uint8_t RegisterAddr, uint16_t NumByteToRead)
+    {
+        int ret = dev_i2c.i2c_read(pBuffer,
+                       LIS2MDL_M_MEMS_ADDRESS,
+                       RegisterAddr,
+                       NumByteToRead);
+        if(ret != 0) {
+            return MAGNETO_ERROR;
+        }
+        return MAGNETO_OK;
+    }
+    
+    /**
+     * @brief      Utility function to write data to LIS2MDL
+     * @param[in]  pBuffer pointer to the byte-array data to send
+     * @param[in]  RegisterAddr specifies internal address register to read from.
+     * @param[in]  NumByteToWrite number of bytes to write.
+     * @retval     MAGNETO_OK if ok, 
+     * @retval     MAGNETO_ERROR if an I2C error has occured
+     */
+    MAGNETO_StatusTypeDef LIS2MDL_IO_Write(uint8_t* pBuffer, 
+                           uint8_t RegisterAddr, uint16_t NumByteToWrite)
+    {
+        int ret = dev_i2c.i2c_write(pBuffer,
+                        LIS2MDL_M_MEMS_ADDRESS,
+                        RegisterAddr,
+                        NumByteToWrite);
+        if(ret != 0) {
+            return MAGNETO_ERROR;
+        }
+        return MAGNETO_OK;
+    }
+
+    virtual int get_m_axes_raw(int16_t *pData) {
+        return LIS2MDL_M_GetAxesRaw(pData);
+    }
+
+    /*** Instance Variables ***/
+    /* IO Device */
+    DevI2C &dev_i2c;
 };
 
 #endif // __LIS2MDL_CLASS_H

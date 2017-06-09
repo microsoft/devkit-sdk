@@ -17,7 +17,7 @@
 #include "SystemWiFi.h"
 #include "IPAddress.h"
 
-WiFiServer::WiFiServer(uint16_t port)
+WiFiServer::WiFiServer(unsigned short port)
 {
     _port = port;
     _pTcpServer = NULL;
@@ -58,7 +58,7 @@ void WiFiServer::begin()
     }
 }
 
-WiFiClient WiFiServer::available(byte *status)
+WiFiClient WiFiServer::available()
 {
     if (_pTcpServer == NULL )
     {
@@ -76,12 +76,12 @@ WiFiClient WiFiServer::available(byte *status)
     }
 }
 
-size_t WiFiServer::write(uint8_t b)
+size_t WiFiServer::write(unsigned char b)
 {
     return write(&b, 1);
 }
 
-size_t WiFiServer::write(const uint8_t *buffer, size_t size)
+size_t WiFiServer::write(const unsigned char *buffer, size_t size)
 {
     this->_clientTcpSocket.send((void*)buffer, size);
 }

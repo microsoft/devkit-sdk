@@ -232,10 +232,10 @@ int LSM6DSLSensor::disable_g(void)
 
 /**
  * @brief  Read ID of LSM6DSL Accelerometer and Gyroscope
- * @param  p_id the pointer where the ID of the device is stored
+ * @param  id the pointer where the ID of the device is stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::readId(uint8_t *id)
+int LSM6DSLSensor::readId(unsigned char *id)
 {
   if(!id)
   { 
@@ -243,11 +243,11 @@ int LSM6DSLSensor::readId(uint8_t *id)
   }
 
   /* Read WHO AM I register */
-  if ( LSM6DSL_ACC_GYRO_R_WHO_AM_I( (void *)this, id ) == MEMS_ERROR )
+  if ( LSM6DSL_ACC_GYRO_R_WHO_AM_I( (void *)this, (u8_t *)id) == MEMS_ERROR )
   {
     return 1;
   }
-  
+
   return 0;
 }
 
@@ -256,7 +256,7 @@ int LSM6DSLSensor::readId(uint8_t *id)
  * @param  pData the pointer where the accelerometer data are stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_x_axes(int32_t *pData)
+int LSM6DSLSensor::get_x_axes(int *pData)
 {
   int16_t dataRaw[3];
   float sensitivity = 0;
@@ -274,9 +274,9 @@ int LSM6DSLSensor::get_x_axes(int32_t *pData)
   }
   
   /* Calculate the data. */
-  pData[0] = ( int32_t )( dataRaw[0] * sensitivity );
-  pData[1] = ( int32_t )( dataRaw[1] * sensitivity );
-  pData[2] = ( int32_t )( dataRaw[2] * sensitivity );
+  pData[0] = ( int )( dataRaw[0] * sensitivity );
+  pData[1] = ( int )( dataRaw[1] * sensitivity );
+  pData[2] = ( int )( dataRaw[2] * sensitivity );
   
   return 0;
 }
@@ -286,7 +286,7 @@ int LSM6DSLSensor::get_x_axes(int32_t *pData)
  * @param  pData the pointer where the gyroscope data are stored
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_g_axes(int32_t *pData)
+int LSM6DSLSensor::get_g_axes(int *pData)
 {
   int16_t dataRaw[3];
   float sensitivity = 0;
@@ -979,7 +979,7 @@ int LSM6DSLSensor::disable_free_fall_detection(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_free_fall_threshold(uint8_t thr)
+int LSM6DSLSensor::set_free_fall_threshold(int thr)
 {
 
   if ( LSM6DSL_ACC_GYRO_W_FF_THS( (void *)this, (LSM6DSL_ACC_GYRO_FF_THS_t)thr ) == MEMS_ERROR )
@@ -1074,7 +1074,7 @@ int LSM6DSLSensor::disable_pedometer(void)
  * @param step_count the pointer to the step counter
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::get_step_counter(uint16_t *step_count)
+int LSM6DSLSensor::get_step_counter(int *step_count)
 {
   if ( LSM6DSL_ACC_GYRO_Get_GetStepCounter( (void *)this, ( uint8_t* )step_count ) == MEMS_ERROR )
   {
@@ -1110,7 +1110,7 @@ int LSM6DSLSensor::reset_step_counter(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_pedometer_threshold(uint8_t thr)
+int LSM6DSLSensor::set_pedometer_threshold(unsigned char thr)
 {
   if ( LSM6DSL_ACC_GYRO_W_PedoThreshold( (void *)this, thr ) == MEMS_ERROR )
   {
@@ -1315,9 +1315,9 @@ int LSM6DSLSensor::disable_wake_up_detection(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_wake_up_threshold(uint8_t thr)
+int LSM6DSLSensor::set_wake_up_threshold(unsigned char thr)
 {
-  if ( LSM6DSL_ACC_GYRO_W_WK_THS( (void *)this, thr ) == MEMS_ERROR )
+  if ( LSM6DSL_ACC_GYRO_W_WK_THS( (void *)this, (uint8_t)thr ) == MEMS_ERROR )
   {
     return 1;
   }
@@ -1660,9 +1660,9 @@ int LSM6DSLSensor::disable_double_tap_detection(void)
  * @param thr the threshold to be set
  * @retval 0 in case of success, an error code otherwise
  */
-int LSM6DSLSensor::set_tap_threshold(uint8_t thr)
+int LSM6DSLSensor::set_tap_threshold(unsigned char thr)
 {
-  if ( LSM6DSL_ACC_GYRO_W_TAP_THS( (void *)this, thr ) == MEMS_ERROR )
+  if ( LSM6DSL_ACC_GYRO_W_TAP_THS( (void *)this, (u8_t)thr ) == MEMS_ERROR )
   {
     return 1;
   }
@@ -2118,12 +2118,12 @@ int LSM6DSLSensor::write_reg( uint8_t reg, uint8_t data )
 }
 
 
-uint8_t LSM6DSL_io_write( void *handle, uint8_t WriteAddr, uint8_t *pBuffer, uint16_t nBytesToWrite )
+unsigned char LSM6DSL_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite )
 {
   return ((LSM6DSLSensor *)handle)->io_write(pBuffer, WriteAddr, nBytesToWrite);
 }
 
-uint8_t LSM6DSL_io_read( void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint16_t nBytesToRead )
+unsigned char LSM6DSL_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead )
 {
   return ((LSM6DSLSensor *)handle)->io_read(pBuffer, ReadAddr, nBytesToRead);
 }

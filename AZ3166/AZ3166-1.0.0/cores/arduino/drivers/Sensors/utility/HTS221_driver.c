@@ -60,8 +60,8 @@
 * @{
 */
 
-extern uint8_t HTS221_io_write( void *handle, uint8_t WriteAddr, uint8_t *pBuffer, uint16_t nBytesToWrite );
-extern uint8_t HTS221_io_read( void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint16_t nBytesToRead );
+extern unsigned char HTS221_io_write( void *handle, unsigned char WriteAddr, unsigned char *pBuffer, int nBytesToWrite );
+extern unsigned char HTS221_io_read( void *handle, unsigned char ReadAddr, unsigned char *pBuffer, int nBytesToRead );
 
 /**
 * @}
@@ -100,7 +100,7 @@ HTS221_Error_et HTS221_read_reg( void *handle, uint8_t RegAddr, uint16_t NumByte
 
   if ( NumByteToRead > 1 ) RegAddr |= 0x80;
 
-  if ( HTS221_io_read( handle, RegAddr, Data, NumByteToRead ) )
+  if ( HTS221_io_read( handle, (unsigned char)RegAddr, (unsigned char *)Data, (int)NumByteToRead ) )
     return HTS221_ERROR;
   else
     return HTS221_OK;

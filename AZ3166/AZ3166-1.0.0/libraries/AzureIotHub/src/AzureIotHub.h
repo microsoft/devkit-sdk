@@ -26,5 +26,6 @@
 #include "azure_c_shared_utility/platform.h"
 #include "iothubtransportmqtt.h"
 #include "azureiotcerts.h"
+#include "iothub_client_diag_wrapper.h"
 
 
