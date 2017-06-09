@@ -5,8 +5,7 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 
-static bool showWiFi;
-static bool isConnected;
+static bool isConnected = false;
 
 DevI2C *ext_i2c;
 HTS221Sensor *ht_sensor;
@@ -39,7 +38,7 @@ void InitWiFi()
     digitalWrite(LED_WIFI, 1);
     iothub_client_sample_mqtt_init();
     sendDeviceInfo();
-    showWiFi = false;
+    isConnected = true;
   }
   else
   {
@@ -114,8 +113,9 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
     }
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    for(uint8_t i = 0; i < prec; ++i)
-        rounding /= 10.0;
+    for(uint8_t i = 0; i < prec; ++i) {
+      rounding /= 10.0;
+    }
     number += rounding;
 
     // Extract the integer part of the number and print it
@@ -163,26 +163,13 @@ void setup() {
      Serial.println(WiFi.encryptionType(thisNet));
   }   
 
-  showWiFi = true;
-  isConnected = false;
+  InitWiFi();
 }
 
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(showWiFi)
-  {
-    if(!isConnected)
-    {
-      InitWiFi();
-      isConnected = true;
-    }
-    else
-    {
-      Screen.print(wifiBuff);
-    }
-  }
-  else
+  if(isConnected)
   {
     showHumidTempSensor();
     digitalWrite(LED_AZURE, 1);
