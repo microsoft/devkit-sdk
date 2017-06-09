@@ -76,8 +76,6 @@ bool SystemWiFiConnect(void)
     else
     {
         Serial.printf("Wi-Fi %s connected.\r\n", ssid);
-        // Initialize the telemetry only after Wi-Fi established
-        telemetry_init();
         
         send_telemetry_data("", "wifi", "Wi-Fi connected");
 
