@@ -92,11 +92,11 @@ extern const PinDescription g_APinDescription[] ;
 
 #include "app_httpd.h"
 #include "HTS221Sensor.h"
-#include "lis2mdl_class.h"
+#include "lis2mdlSensor.h"
 #include "RGB_LED.h"
 #include "LSM6DSLSensor.h"
-#include "lps22hb.h"
-#include "IRDA_class.h"
+#include "lps22hbSensor.h"
+#include "IrDASensor.h"
 #include "version.h"
 
 #endif

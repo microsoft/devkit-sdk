@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    lis2mdl_class.h
+ * @file    lis2mdlSensor.h
  * @author  AST / EST
  * @version V0.0.1
  * @date    14-April-2015
@@ -35,8 +35,8 @@
  ******************************************************************************
 */
 
-#ifndef __LIS2MDL_CLASS_H
-#define __LIS2MDL_CLASS_H
+#ifndef __LIS2MDL_SENSOR_H
+#define __LIS2MDL_SENSOR_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "mbed.h"
@@ -47,21 +47,21 @@
 /* Classes -------------------------------------------------------------------*/
 /** Class representing a LIS2MDL sensor component
  */
-class LIS2MDL : public MagneticSensor {
+class LIS2MDLSensor : public MagneticSensor {
  public:
     /** Constructor
      * @param[in] i2c device I2C to be used for communication
      */
-        LIS2MDL(DevI2C &i2c) : MagneticSensor(), dev_i2c(i2c) {
+        LIS2MDLSensor(DevI2C &i2c) : MagneticSensor(), dev_i2c(i2c) {
     }
     
     /** Destructor
      */
-        virtual ~LIS2MDL() {}
+        virtual ~LIS2MDLSensor() {}
     
     /*** Interface Methods ***/
     virtual int init(void *) {
-        return LIS2MDL_Init();
+        return LIS2MDLInit();
     }
 
     virtual int readId(unsigned char *m_id) {
@@ -74,7 +74,7 @@ class LIS2MDL : public MagneticSensor {
 
  protected:
     /*** Methods ***/
-    MAGNETO_StatusTypeDef LIS2MDL_Init();
+    MAGNETO_StatusTypeDef LIS2MDLInit();
     MAGNETO_StatusTypeDef LIS2MDL_Read_M_ID(uint8_t *m_id);
     MAGNETO_StatusTypeDef LIS2MDL_M_GetAxes(int32_t *pData);
     MAGNETO_StatusTypeDef LIS2MDL_M_GetAxesRaw(int16_t *pData);
@@ -130,4 +130,4 @@ class LIS2MDL : public MagneticSensor {
     DevI2C &dev_i2c;
 };
 
-#endif // __LIS2MDL_CLASS_H
+#endif // __LIS2MDL_SENSOR_H

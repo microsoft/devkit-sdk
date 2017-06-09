@@ -66,7 +66,7 @@ public:
      *              p_data[2] corresponds to Z-axis.
      * @return      0 in case of success, an error code otherwise
      */
-    virtual int get_g_axes(int *p_data) = 0;
+    virtual int getGAxes(int *p_data) = 0;
 
     /**
      * @brief       Get current gyroscope raw data X/Y/Z-axes values 
@@ -78,28 +78,28 @@ public:
      *              p_data[2] corresponds to Z-axis.
      * @return      0 in case of success, an error code otherwise
      */
-    virtual int get_g_axes_raw(int16_t *p_data) = 0;
+    virtual int getGAxesRaw(int16_t *p_data) = 0;
 
     /**
      * @brief       Get gyroscope's current sensitivity [mdps/LSB]
      * @param[out]  pf_data Pointer to where the gyroscope's sensitivity is stored to
      * @return      0 in case of success, an error code otherwise
      */
-    virtual int get_g_sensitivity(float *pf_data) = 0;
+    virtual int getGSensitivity(float *pf_data) = 0;
     
     /**
      * @brief       Get gyroscope's current output data rate [Hz]
      * @param[out]  pf_data Pointer to where the gyroscope output data rate is stored to
      * @return      0 in case of success, an error code otherwise
      */
-    virtual int get_g_odr(float *pf_data) = 0;
+    virtual int getGOdr(float *pf_data) = 0;
 
     /**
      * @brief      Set gyroscope's output data rate
      * @param[in]  odr New value for gyroscope's output data rate in [Hz]
      * @return     0 in case of success, an error code otherwise
      */
-    virtual int set_g_odr(float odr) = 0;
+    virtual int setGOdr(float odr) = 0;
     
     /**
      * @brief       Get gyroscope's full scale value
@@ -107,7 +107,7 @@ public:
      * @param[out]  pf_data Pointer to where the gyroscope full scale value is stored to
      * @return      0 in case of success, an error code otherwise
      */
-    virtual int get_g_fs(float *pf_data) = 0;
+    virtual int getGFullScale(float *pf_data) = 0;
     
     /**
      * @brief      Set gyroscope's full scale value
@@ -115,7 +115,7 @@ public:
      * @param[in]  fs New full scale value for gyroscope in [dps]
      * @return     0 in case of success, an error code otherwise
      */
-    virtual int set_g_fs(float fs) = 0;
+    virtual int setGFullScale(float fs) = 0;
 
     /**
      * @brief Destructor.

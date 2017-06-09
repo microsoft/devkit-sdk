@@ -22,8 +22,8 @@
 #include "stm32f4xx_hal.h"
 #include "mico_common.h"
 
-#ifndef __IRDA_CLASS_H__
-#define __IRDA_CLASS_H__
+#ifndef __IRDA_SENSOR_H__
+#define __IRDA_SENSOR_H__
 
 #ifdef __cplusplus
 
@@ -33,10 +33,10 @@ public:
     IRDASensor();
     ~IRDASensor();
     
-    uint8_t init();
+    int init();
 
-    unsigned char IRDA_Transmit( unsigned char *pData, int size, int timeout);
+    unsigned char IRDATransmit( unsigned char *pData, int size, int timeout);
 };
 
 #endif  // __cplusplus
-#endif  // __IRDA_CLASS_H__
+#endif  // __IRDA_SENSOR_H__

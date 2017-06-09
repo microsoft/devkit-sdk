@@ -127,61 +127,63 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
   public:
     LSM6DSLSensor(DevI2C &i2c, PinName INT1_pin, PinName INT2_pin);
     LSM6DSLSensor(DevI2C &i2c, PinName INT1_pin, PinName INT2_pin, uint8_t address);
+
     virtual int init(void *init);
     virtual int readId(unsigned char *id);
-    virtual int get_x_axes(int *pData);
-    virtual int get_g_axes(int *pData);
-    virtual int get_x_sensitivity(float *pfData);
-    virtual int get_g_sensitivity(float *pfData);
-    virtual int get_x_odr(float *odr);
-    virtual int get_g_odr(float *odr);
-    virtual int set_x_odr(float odr);
-    virtual int set_g_odr(float odr);
-    virtual int get_x_fs(float *fullScale);
-    virtual int get_g_fs(float *fullScale);
-    virtual int set_x_fs(float fullScale);
-    virtual int set_g_fs(float fullScale);
-    int enable_x(void);
-    int enable_g(void);
-    int disable_x(void);
-    int disable_g(void);
-    int enable_free_fall_detection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
-    int disable_free_fall_detection(void);
-    int set_free_fall_threshold(int thr);
-    int enable_pedometer(void);
-    int disable_pedometer(void);
-    int get_step_counter(int *step_count);
-    int reset_step_counter(void);
-    int set_pedometer_threshold(unsigned char thr);
-    int enable_tilt_detection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
-    int disable_tilt_detection(void);
-    int enable_wake_up_detection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT2_PIN);
-    int disable_wake_up_detection(void);
-    int set_wake_up_threshold(unsigned char thr);
-    int enable_single_tap_detection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
-    int disable_single_tap_detection(void);
-    int enable_double_tap_detection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
-    int disable_double_tap_detection(void);
-    int set_tap_threshold(unsigned char thr);
-    int set_tap_shock_time(unsigned char time);
-    int set_tap_quiet_time(unsigned char time);
-    int set_tap_duration_time(unsigned char time);
-    int enable_6d_orientation(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
-    int disable_6d_orientation(void);
-    int get_6d_orientation_xl(unsigned char *xl);
-    int get_6d_orientation_xh(unsigned char *xh);
-    int get_6d_orientation_yl(unsigned char *yl);
-    int get_6d_orientation_yh(unsigned char *yh);
-    int get_6d_orientation_zl(unsigned char *zl);
-    int get_6d_orientation_zh(unsigned char *zh);
-    int get_event_status(LSM6DSL_Event_Status_t *status);
+    virtual int getXAxes(int *pData);
+    virtual int getGAxes(int *pData);
+    virtual int getXSensitivity(float *pfData);
+    virtual int getGSensitivity(float *pfData);
+    virtual int getXOdr(float *odr);
+    virtual int getGOdr(float *odr);
+    virtual int setXOdr(float odr);
+    virtual int setGOdr(float odr);
+    virtual int getXFullScale(float *fullScale);
+    virtual int getGFullScale(float *fullScale);
+    virtual int setXFullScale(float fullScale);
+    virtual int setGFullScale(float fullScale);
+
+    int enableAccelerator(void);
+    int enableGyroscope(void);
+    int disableAccelerator(void);
+    int disableGyroscope(void);
+    int enableFreeFallDetection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
+    int disableFreeFallDetection(void);
+    int setFreeFallThreshold(int thr);
+    int enablePedometer(void);
+    int disablePedometer(void);
+    int getStepCounter(int *step_count);
+    int resetStepCounter(void);
+    int setPedometerThreshold(unsigned char thr);
+    int enableTiltDetection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
+    int disableTiltDetection(void);
+    int enableWakeUpDetection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT2_PIN);
+    int disableWakeUpDetection(void);
+    int setWakeUpThreshold(unsigned char thr);
+    int enableSingleTapDetection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
+    int disableSingleTapDetection(void);
+    int enableDoubleTapDetection(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
+    int disableDoubleTapDetection(void);
+    int setTapThreshold(unsigned char thr);
+    int setTapShockTime(unsigned char time);
+    int setTapQuietTime(unsigned char time);
+    int setTapDurationTime(unsigned char time);
+    int enable6dOrientation(LSM6DSL_Interrupt_Pin_t pin = LSM6DSL_INT1_PIN);
+    int disable6dOrientation(void);
+    int get6dOrientationXL(unsigned char *xl);
+    int get6dOrientationXH(unsigned char *xh);
+    int get6dOrientationYL(unsigned char *yl);
+    int get6dOrientationYH(unsigned char *yh);
+    int get6dOrientationZL(unsigned char *zl);
+    int get6dOrientationZH(unsigned char *zh);
+    int getEventStatus(LSM6DSL_Event_Status_t *status);
 
     /**
      * @brief  Attaching an interrupt handler to the INT1 interrupt.
      * @param  fptr An interrupt handler.
      * @retval None.
      */
-    void attach_int1_irq(void (*fptr)(void))
+    void attachInt1Irq(void (*fptr)(void))
     {
         _int1_irq.rise(fptr);
     }
@@ -191,7 +193,7 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  None.
      * @retval None.
      */
-    void enable_int1_irq(void)
+    void enableInt1Irq(void)
     {
         _int1_irq.enable_irq();
     }
@@ -201,7 +203,7 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  None.
      * @retval None.
      */
-    void disable_int1_irq(void)
+    void disableInt1Irq(void)
     {
         _int1_irq.disable_irq();
     }
@@ -211,7 +213,7 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  fptr An interrupt handler.
      * @retval None.
      */
-    void attach_int2_irq(void (*fptr)(void))
+    void attachInt2Irq(void (*fptr)(void))
     {
         _int2_irq.rise(fptr);
     }
@@ -221,7 +223,7 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  None.
      * @retval None.
      */
-    void enable_int2_irq(void)
+    void enableInt2Irq(void)
     {
         _int2_irq.enable_irq();
     }
@@ -231,7 +233,7 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  None.
      * @retval None.
      */
-    void disable_int2_irq(void)
+    void disableInt2Irq(void)
     {
         _int2_irq.disable_irq();
     }
@@ -243,7 +245,7 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  NumByteToRead: number of bytes to be read.
      * @retval 0 if ok, an error code otherwise.
      */
-    unsigned char io_read(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToRead)
+    unsigned char readIO(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToRead)
     {
         return (unsigned char) _dev_i2c.i2c_read(pBuffer, _address, RegisterAddr, (uint16_t)NumByteToRead);
     }
@@ -255,21 +257,21 @@ class LSM6DSLSensor : public MotionSensor, public GyroSensor
      * @param  NumByteToWrite: number of bytes to write.
      * @retval 0 if ok, an error code otherwise.
      */
-    unsigned char io_write(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToWrite)
+    unsigned char writeIO(unsigned char* pBuffer, unsigned char RegisterAddr, int NumByteToWrite)
     {
         return (unsigned char) _dev_i2c.i2c_write(pBuffer, _address, RegisterAddr, (uint16_t)NumByteToWrite);
     }
 
   private:
-    int set_x_odr_when_enabled(float odr);
-    int set_g_odr_when_enabled(float odr);
-    int set_x_odr_when_disabled(float odr);
-    int set_g_odr_when_disabled(float odr);
-    int read_reg(uint8_t reg, uint8_t *data);
-    int write_reg(uint8_t reg, uint8_t data);
+    int setXOdrWhenEnabled(float odr);
+    int setGOdrWhenEnabled(float odr);
+    int setXOdrWhenDisabled(float odr);
+    int setGOdrWhenDisabled(float odr);
+    int readReg(uint8_t reg, uint8_t *data);
+    int writeReg(uint8_t reg, uint8_t data);
 
-    virtual int get_x_axes_raw(int16_t *pData);
-    virtual int get_g_axes_raw(int16_t *pData);
+    virtual int getXAxesRaw(int16_t *pData);
+    virtual int getGAxesRaw(int16_t *pData);
 
     /* Helper classes. */
     DevI2C &_dev_i2c;

@@ -32,7 +32,7 @@ static int led = 0;
 DevI2C *ext_i2c;
 LSM6DSLSensor *acc_gyro;
 HTS221Sensor *ht_sensor;
-LIS2MDL *magnetometer;
+LIS2MDLSensor *magnetometer;
 IRDASensor *IrdaSensor;
 
 int axes[3];
@@ -57,7 +57,7 @@ void InitWiFi()
 
 void showMotionGyroSensor()
 {
-  acc_gyro->get_x_axes(axes);
+  acc_gyro->getXAxes(axes);
   char buff[128];
   sprintf(buff, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
@@ -67,7 +67,7 @@ void showPressureSensor()
 {
   float pressure = 0;
   float temperature = 0;
-  lps25hb_Read_Data(&temperature, &pressure);
+  lps22hb_Read_Data(&temperature, &pressure);
   char buff[128];
   sprintf(buff, "Pressure\r\n    %shPa  \r\n                 \r\n             \r\n",f2s(pressure, 2));
   Screen.print(buff);
@@ -192,14 +192,14 @@ void setup() {
   ext_i2c = new DevI2C(D14, D15);
   acc_gyro = new LSM6DSLSensor(*ext_i2c, D4, D5);
   acc_gyro->init(NULL);
-  acc_gyro->enable_x();
-  acc_gyro->enable_g();
-  lps25hb_sensor_init( );
+  acc_gyro->enableAccelerator();
+  acc_gyro->enableGyroscope();
+  lps22hb_sensor_init( );
   
   ht_sensor = new HTS221Sensor(*ext_i2c);
   ht_sensor->init(NULL);
 
-  magnetometer = new LIS2MDL(*ext_i2c);
+  magnetometer = new LIS2MDLSensor(*ext_i2c);
   magnetometer->init(NULL);
 
   IrdaSensor = new IRDASensor();
@@ -230,7 +230,7 @@ void loop() {
 
   /*Blink around every 0.5 sec*/
   counter++;
-  int irda_status = IrdaSensor->IRDA_Transmit(&counter, 1, 100 );
+  int irda_status = IrdaSensor->IRDATransmit(&counter, 1, 100 );
   if(irda_status != 0)
   {
     Serial.println("Unable to transmit through IRDA");
