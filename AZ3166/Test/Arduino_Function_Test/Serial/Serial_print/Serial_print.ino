@@ -1,13 +1,33 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
 int x =0;
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
 }
 
-void loop()
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
 {
-    Serial.println("[Serial]: Test print() and println()");
     Serial.print("No Format");
     Serial.print("\t");
 
@@ -40,7 +60,7 @@ void loop()
         Serial.print(x, BIN);
         Serial.println();
         
-        delay(500);
+        delay(LOOP_DELAY);
     }
 
     Serial.println(x, 1);
@@ -62,6 +82,5 @@ void loop()
     Serial.print(11.2233,2);
     Serial.println();
     
-    Serial.println("[Serial]: Done");
-    delay(1000);
+    delay(LOOP_DELAY);
 }

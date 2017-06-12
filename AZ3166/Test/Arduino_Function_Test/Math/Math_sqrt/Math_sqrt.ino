@@ -1,19 +1,39 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
+
 void setup(){
-    Serial.begin(115200);
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
 }
 
-void loop(){
-    Serial.println("[Math]: Test sqrt()");
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase(){
     if(sqrt(9) != 3)
     {
-      Serial.println("[Math]: Error: Math.sqrt(): Failed to get the square root of 9");
+      Serial.println("Error: Math.sqrt(): Failed to get the square root of 9");
     }
 
     if(sqrt(1.0) != 1)
     {
-      Serial.println("[Math]: Error: Math.sqrt(): Failed to get the square root of 1");
+      Serial.println("Error: Math.sqrt(): Failed to get the square root of 1");
     }
     
-    Serial.println("[Math]: Done");
-    delay(1000);       
+    delay(LOOP_DELAY);       
 }

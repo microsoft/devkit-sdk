@@ -1,14 +1,19 @@
 #include "LSM6DSLSensor.h"
 
-#define RetVal_OK 0
+#define RetVal_OK           0
+#define LOOP_DELAY          100
 
 DevI2C *i2c; 
 LSM6DSLSensor *sensor;
-int32_t axes[3];
+int axes[3];
 int16_t raws[3];
 float data;
+int counter = 1;
 
 void setup(){
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
+
     i2c = new DevI2C(D14, D15);
     sensor = new LSM6DSLSensor(*i2c, D4, D5);
     
@@ -20,17 +25,31 @@ void setup(){
     }
 }
 
-void loop(){
-    Serial.println("[LSM6DSL Sensor]: Test LSM6DSL library");
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
 
-    // Accelerometer test
+    if(counter == 5)
+    {
+        Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
+  // Accelerometer test
     accelerometer_test();
     
     // Gyroscope test
     gyroscope_test();
 
-    Serial.println("[LSM6DSL Sensor]: Done");
-    delay(1000);
+    delay(LOOP_DELAY);
 }
 
 void accelerometer_test(){
@@ -60,17 +79,7 @@ void accelerometer_test(){
     {
         Serial.print("Sensitivity: ");
         Serial.println(data);
-    }
-     
-    // get_x_axes_raw
-    if(sensor->get_x_axes_raw(raws) != RetVal_OK)
-    {
-        Serial.println("[LSM6DSL Sensor]: Error: Failed to get x axes raw");
-    }
-    else
-    {
-        Serial.printf("Raw: x: %d, y: %d, z: %d\n", raws[0], raws[1], raws[2]);
-    }    
+    }  
 }
 
 void gyroscope_test(){
@@ -101,14 +110,4 @@ void gyroscope_test(){
         Serial.print("Sensitivity: ");
         Serial.println(data);
     }
-    
-    // get_g_axes_raw
-    if(sensor->get_g_axes_raw(raws) != RetVal_OK)
-    {
-        Serial.println("[LSM6DSL Sensor]: Error: Failed to get g axes raw");
-    }
-    else
-    {
-        Serial.printf("Raw: x: %d, y: %d, z: %d\n", raws[0], raws[1], raws[2]);
-    }    
 }

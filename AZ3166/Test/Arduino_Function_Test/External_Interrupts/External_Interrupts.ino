@@ -1,7 +1,13 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
 volatile byte state=LOW;
 
 void setup()
 {
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
+
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(USER_BUTTON_A, INPUT);
     
@@ -10,13 +16,29 @@ void setup()
     //attachInterrupt(digitalPinToInterrupt(USER_BUTTON_A),blink,CHANGE);
 }
 
-void loop()
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
 {
-    Serial.println("[External Interrupt]: Test attachInterrupt()");
+    Serial.println("Test attachInterrupt()");
     digitalWrite(LED_BUILTIN, state);
 
-    Serial.println("[External Interrupt]: Done");
-    delay(1000);
+    delay(LOOP_DELAY);
 }
 
 void blink()

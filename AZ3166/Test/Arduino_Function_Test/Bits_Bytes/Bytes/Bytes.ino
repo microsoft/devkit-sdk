@@ -1,5 +1,10 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
+
 void setup(){
-  Serial.begin(115200);
+  Serial.println(">> Start");
+  Serial.println(__FILE__);
 }
 
 typedef struct BytesData{
@@ -8,8 +13,25 @@ typedef struct BytesData{
     byte hb;
   }BytesData;
 
-void loop(){
-    Serial.println("[Bytes]: Test Bytes related functions");
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
     BytesData bytes[3]= {
       {1022, 254, 3}, 
       {1, 1, 0},  
@@ -23,7 +45,7 @@ void loop(){
       lb= lowByte(bytes[i].test_data);
       if(lb != bytes[i].lb)
       {
-        Serial.printf("[Bytes]: Error: lowByte(): For %d, the low byte should be %d", bytes[i].test_data, bytes[i].lb);
+        Serial.printf("Error: lowByte(): For %d, the low byte should be %d", bytes[i].test_data, bytes[i].lb);
         Serial.println();
       }
 
@@ -31,11 +53,10 @@ void loop(){
       hb= highByte(bytes[i].test_data);
       if(hb != bytes[i].hb)
       {
-        Serial.printf("[Bytes]: Error: highByte(): For %d, the high byte should be %d", bytes[i].test_data, bytes[i].hb);
+        Serial.printf("Error: highByte(): For %d, the high byte should be %d", bytes[i].test_data, bytes[i].hb);
         Serial.println();
       }
     }
 
-    Serial.println("[Bytes]: Done");
-    delay(1000);
+    delay(LOOP_DELAY);
 }

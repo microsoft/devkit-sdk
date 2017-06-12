@@ -1,14 +1,19 @@
 #include "HTS221Sensor.h"
 
-#define RetVal_OK 0
+#define RetVal_OK           0
+#define LOOP_DELAY          100
 
 DevI2C *i2c;
 HTS221Sensor *sensor;
 float humidity = 0;
 float temperature = 0;
 uint8_t id;
+int counter = 1;
 
 void setup() {
+  Serial.println(">> Start");
+    Serial.println(__FILE__);
+  
   i2c = new DevI2C(D14, D15);
   sensor = new HTS221Sensor(*i2c); 
 
@@ -17,12 +22,27 @@ void setup() {
   {
     Serial.println("[HTS221Sensor]: Error: Failed to init the sensor");
     return;
-  }
+  }  
 }
 
 void loop() {
-  Serial.println("[HTS221Sensor]: Test HTS221 Sensor library");
-  
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+        Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
   // enable
   if(sensor -> enable() != RetVal_OK)
   {
@@ -87,6 +107,6 @@ void loop() {
     return;
   }
   
-  Serial.println("[HTS221Sensor]: Done");
-  delay(1000);
+  delay(LOOP_DELAY);
 }
+

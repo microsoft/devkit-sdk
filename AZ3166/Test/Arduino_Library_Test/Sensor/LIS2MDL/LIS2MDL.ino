@@ -1,13 +1,19 @@
 #include "lis2mdl_class.h"
-#define RetVal_OK 0
+
+#define RetVal_OK           0
+#define LOOP_DELAY          100
 
 DevI2C *i2c; 
 LIS2MDL *lis2mdl;
-int32_t axes[3];
+int axes[3];
 int16_t raw[3];
 uint8_t id;
+int counter  = 1;
 
 void setup(){
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
+
     i2c = new DevI2C(D14, D15);
     lis2mdl = new LIS2MDL(*i2c);
 
@@ -19,10 +25,25 @@ void setup(){
     }
 }
 
-void loop(){
-    Serial.println("[LIS2MDL]: Test LIS2MDL library");
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
 
-    // read id
+    if(counter == 5)
+    {
+        Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
+  // read id
     if(lis2mdl->readId(&id) != RetVal_OK)
     {
         Serial.println("[LIS2MDL]: Error: Failed to read id");
@@ -42,16 +63,6 @@ void loop(){
         Serial.printf("Axes: x - %d, y - %d, z - %d\n", axes[0], axes[1], axes[2]);
     }
 
-    // get_m_axes_raw
-    if(lis2mdl->get_m_axes_raw(raw) != RetVal_OK)
-    {
-        Serial.println("[LIS2MDL]: Error: Failed to get m axes raw");
-    }
-    else
-    {
-        Serial.printf("Raw: x - %d, y - %d, z - %d\n", raw[0], raw[1], raw[2]);
-    }
-
-    Serial.println("[LIS2MDL]: Done");
-    delay(2000);
+    delay(LOOP_DELAY);
 }
+

@@ -1,16 +1,36 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
 unsigned long T_time;
 
 void setup() {
-  Serial.begin(115200);
+    Serial.println(">> Start");
+    Serial.println(__FILE__);
 }
 
 void loop() {
-  Serial.println("[Time]: Test millis()");
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
   Serial.print("Time:");
   T_time = millis();
   
   //print time
   Serial.println(T_time);
-  Serial.println("[Time]: Done");
-  delay(1000);  
+  delay(LOOP_DELAY);
 }

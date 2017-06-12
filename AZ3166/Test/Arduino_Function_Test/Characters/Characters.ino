@@ -1,17 +1,31 @@
-#include "../Test/TestData.h"
+#define LOOP_DELAY          500
+
+int counter = 1;
 
 void setup(){
-    Serial.begin(115200);    
+  Serial.println(">> Start");
+  Serial.println(__FILE__);
 }
 
-void loop(){
-  test();
+void loop() {
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
+
+    if(counter == 5)
+    {
+      Serial.println();
+      Serial.println(">> End");
+    }
+    
+    counter++;
+  }
 }
 
-void test()
+void runCase()
 {
-  Serial.println("[Characters]: Test characters related functions");
-
   for(int i=0; i<128; ++i)
   {
     TestIsAscii(i, true);
@@ -112,8 +126,7 @@ void test()
 
   TestIsAscii(128, false);
   
-  Serial.println("[Characters]: Done");
-  delay(1000);    
+  delay(LOOP_DELAY);    
 }
 
 void TestIsAlphaNumeric(int c, bool expected)
@@ -121,7 +134,7 @@ void TestIsAlphaNumeric(int c, bool expected)
   bool actual= isAlphaNumeric(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isAlphaNumeric(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);   
+      Serial.printf("Error: characters.isAlphaNumeric(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);   
       Serial.println();   
   }
 }
@@ -131,7 +144,7 @@ void TestIsAlpha(int c, bool expected)
   bool actual= isAlpha(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isAlpha(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);     
+      Serial.printf("Error: characters.isAlpha(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);     
       Serial.println();  
   }
 }
@@ -141,7 +154,7 @@ void TestIsAscii(int c, bool expected)
   bool actual= isAscii(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isAscii(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
+      Serial.printf("Error: characters.isAscii(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
       Serial.println();      
   }
 }
@@ -151,7 +164,7 @@ void TestIsWhiteSpace(int c, bool expected)
   bool actual= isWhitespace(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isWhitespace(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);  
+      Serial.printf("Error: characters.isWhitespace(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);  
       Serial.println();     
   }
 }
@@ -161,7 +174,7 @@ void TestIsControl(int c, bool expected)
   bool actual= isControl(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isControl(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
+      Serial.printf("Error: characters.isControl(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
       Serial.println();      
   }
 }
@@ -171,7 +184,7 @@ void TestIsDigit(int c, bool expected)
   bool actual= isDigit(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isDigit(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
+      Serial.printf("Error: characters.isDigit(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
       Serial.println();      
   }
 }
@@ -181,7 +194,7 @@ void TestIsGraph(int c, bool expected)
   bool actual= isGraph(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isGraph(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);     
+      Serial.printf("Error: characters.isGraph(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);     
       Serial.println();  
   }
 }
@@ -191,7 +204,7 @@ void TestIsLowerCase(int c, bool expected)
   bool actual= isLowerCase(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isLowerCase(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);   
+      Serial.printf("Error: characters.isLowerCase(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);   
       Serial.println();    
   }
 }
@@ -201,7 +214,7 @@ void TestIsPrintable(int c, bool expected)
   bool actual= isPrintable(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isPrintable(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);      
+      Serial.printf("Error: characters.isPrintable(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);      
       Serial.println(); 
   }
 }
@@ -211,7 +224,7 @@ void TestIsPunct(int c, bool expected)
   bool actual= isPunct(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isPunct(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
+      Serial.printf("Error: characters.isPunct(): for char - %d, expected: %d, actual: %d", c ,expected ,actual); 
       Serial.println();      
   }
 }
@@ -221,7 +234,7 @@ void TestIsSpace(int c, bool expected)
   bool actual= isSpace(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isSpace(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);  
+      Serial.printf("Error: characters.isSpace(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);  
       Serial.println();     
   }
 }
@@ -231,7 +244,7 @@ void TestIsUpperCase(int c, bool expected)
   bool actual= isUpperCase(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isUpperCase(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);    
+      Serial.printf("Error: characters.isUpperCase(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);    
       Serial.println();   
   }
 }
@@ -241,7 +254,7 @@ void TestIsHexadecimalDigit(int c, bool expected)
   bool actual= isHexadecimalDigit(c);
   if(actual != expected)
   {
-      Serial.printf("[Characters]:Error: characters.isHexadecimalDigit(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);     
+      Serial.printf("Error: characters.isHexadecimalDigit(): for char - %d, expected: %d, actual: %d", c ,expected ,actual);     
       Serial.println();  
   }
 }

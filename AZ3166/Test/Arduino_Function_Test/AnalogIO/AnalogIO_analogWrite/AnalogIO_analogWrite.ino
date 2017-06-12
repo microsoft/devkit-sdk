@@ -1,16 +1,36 @@
+#define LOOP_DELAY          500
+
+int counter = 1;
+int val = 0;
+
 void setup() {
+  Serial.println(">> Start");
+  Serial.println(__FILE__);
+
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
-int val = 0;
+void loop() {  
+  while(counter <= 5)
+  {
+    Serial.printf(">> Start (%d)\r\n", counter);
+    runCase();
+    Serial.printf(">> End (%d)\r\n", counter); 
 
-void loop() 
-{  
-  Serial.println("[Analog I/0]: Test analyWrite()");
+    if(counter == 5)
+    {
+        Serial.println(">> End");
+    }
+    
+    counter++;
+  }
+}
+
+void runCase()
+{
   val= analogRead(ARDUINO_PIN_A2);
   analogWrite(LED_BUILTIN, val/4);
 
-  Serial.println("[Analog I/0]: Done");
-  delay(1000);
+  delay(LOOP_DELAY);
 }
