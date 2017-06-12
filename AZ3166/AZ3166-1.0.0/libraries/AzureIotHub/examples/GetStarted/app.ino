@@ -3,6 +3,7 @@
 #include "config.h"
 #include "utility.h"
 #include "iothub_client_sample_mqtt.h"
+#include "telemetry.h"
 
 static bool hasWifi = false;
 int messageCount = 1;
@@ -33,6 +34,7 @@ void setup()
         LogInfo("Please make sure the wifi connected!");
         return;
     }
+    send_telemetry_data("", "HappyPathSetup", "");
 
     Serial.begin(115200);
     sensorInit();
