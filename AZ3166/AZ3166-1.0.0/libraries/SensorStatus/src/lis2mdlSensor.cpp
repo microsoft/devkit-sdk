@@ -36,8 +36,7 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "lis2mdlSensor.h"
-#include "utility/lis2mdl.h"
+#include "LIS2MDLSensor.h"
 
 /**
  * @brief  Set LIS2MDL Initialization

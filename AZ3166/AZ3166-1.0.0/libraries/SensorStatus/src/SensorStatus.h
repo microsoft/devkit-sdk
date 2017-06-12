@@ -20,7 +20,8 @@
  */
 
 #include "HTS221Sensor.h"
-#include "lis2mdlSensor.h"
+#include "LIS2MDLSensor.h"
 #include "RGB_LED.h"
 #include "LSM6DSLSensor.h"
-#include "lps22hbSensor.h"
+#include "LPS22HBSensor.h"
+#include "IrDASensor.h"

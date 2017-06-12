@@ -1,11 +1,11 @@
 /**
  ******************************************************************************
- * @file    MagneticSensor.h
+ * @file    RangeSensor.h
  * @author  AST / EST
  * @version V0.0.1
  * @date    13-April-2015
  * @brief   This file contains the abstract class describing in general
- *          the interfaces of a magnetometer
+ *          the interfaces of a range sensor
  ******************************************************************************
  * @attention
  *
@@ -39,8 +39,8 @@
 
 /* Define to prevent from recursive inclusion --------------------------------*/
 
-#ifndef __MAGNETIC_SENSOR_CLASS_H
-#define __MAGNETIC_SENSOR_CLASS_H
+#ifndef __RANGE_SENSOR_CLASS_H
+#define __RANGE_SENSOR_CLASS_H
 
 
 /* Includes ------------------------------------------------------------------*/
@@ -51,39 +51,22 @@
 /* Classes  ------------------------------------------------------------------*/
 
 /**
- * An abstract class for a magnetometer
+ * An abstract class for range sensors
  */
-class MagneticSensor : public Component {
+class RangeSensor : public Component {
 public:
 
     /**
-     * @brief       Get current magnetometer magnetic X/Y/Z-axes values 
-     *              in standard data units [mgauss]
-     * @param[out]  p_data Pointer to where to store magnetic values to.
-     *              p_data must point to an array of (at least) three elements, where:
-     *              p_data[0] corresponds to X-axis,
-     *              p_data[1] corresponds to Y-axis, and
-     *              p_data[2] corresponds to Z-axis.
+     * @brief       Get current range [mm]
+     * @param[out]  pi_data Pointer to where to store range to
      * @return      0 in case of success, an error code otherwise
      */
-    virtual int get_m_axes(int *p_data) = 0;
-
-    /**
-     * @brief       Get current magnetometer raw data X/Y/Z-axes values 
-     *              in device sepcific LSB units
-     * @param[out]  p_data Pointer to where to store magnetometer raw data to.
-     *              p_data must point to an array of (at least) three elements, where:
-     *              p_data[0] corresponds to X-axis,
-     *              p_data[1] corresponds to Y-axis, and
-     *              p_data[2] corresponds to Z-axis.
-     * @return      0 in case of success, an error code otherwise
-     */
-    virtual int get_m_axes_raw(int16_t *p_data) = 0;
+    virtual int get_distance(uint32_t *pi_data) = 0;
 
     /**
      * @brief Destructor.
      */
-    virtual ~MagneticSensor() {};
+	virtual ~RangeSensor() {};
 };
 
-#endif /* __MAGNETIC_SENSOR_CLASS_H */
+#endif /* __RANGE_SENSOR_CLASS_H */

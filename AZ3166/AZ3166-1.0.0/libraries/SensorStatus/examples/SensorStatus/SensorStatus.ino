@@ -1,5 +1,5 @@
-#include "RGB_LED.h"
 #include "AZ3166WiFi.h"
+#include "SensorStatus.h"
 
 #define NUMSENSORS 4  // 4 sensors to display
 
@@ -34,6 +34,7 @@ LSM6DSLSensor *acc_gyro;
 HTS221Sensor *ht_sensor;
 LIS2MDLSensor *magnetometer;
 IRDASensor *IrdaSensor;
+LPS22HBSensor *pressureSensor;
 
 int axes[3];
 char wifiBuff[128];
@@ -67,9 +68,10 @@ void showPressureSensor()
 {
   float pressure = 0;
   float temperature = 0;
-  lps22hb_Read_Data(&temperature, &pressure);
+  pressureSensor -> getPressure(&pressure);
+  pressureSensor -> getTemperature(&temperature);
   char buff[128];
-  sprintf(buff, "Pressure\r\n    %shPa  \r\n                 \r\n             \r\n",f2s(pressure, 2));
+  sprintf(buff, "Environment\r\nPressure: \r\n    %shPa\r\nTemp: %sC \r\n",f2s(pressure, 2), f2s(temperature, 1));
   Screen.print(buff);
 }
 
@@ -90,7 +92,7 @@ void showHumidTempSensor()
 
 void showMagneticSensor()
 {
-  magnetometer->get_m_axes(axes);
+  magnetometer->getMAxes(axes);
   char buff[128];
   sprintf(buff, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
@@ -194,7 +196,6 @@ void setup() {
   acc_gyro->init(NULL);
   acc_gyro->enableAccelerator();
   acc_gyro->enableGyroscope();
-  lps22hb_sensor_init( );
   
   ht_sensor = new HTS221Sensor(*ext_i2c);
   ht_sensor->init(NULL);
@@ -204,6 +205,9 @@ void setup() {
 
   IrdaSensor = new IRDASensor();
   IrdaSensor->init();
+
+  pressureSensor = new LPS22HBSensor(*ext_i2c);
+  pressureSensor -> init(NULL);
   
   //Scan networks and print them into console
   int numSsid = WiFi.scanNetworks();

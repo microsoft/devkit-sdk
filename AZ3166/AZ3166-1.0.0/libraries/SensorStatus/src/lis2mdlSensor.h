@@ -41,7 +41,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "mbed.h"
 #include "ST_INTERFACES/DevI2C.h"
-#include "utility/lis2mdl.h"
+#include "utility/lis2mdl_driver.h"
 #include "ST_INTERFACES/MagneticSensor.h"
 
 /* Classes -------------------------------------------------------------------*/
@@ -68,7 +68,7 @@ class LIS2MDLSensor : public MagneticSensor {
         return LIS2MDL_Read_M_ID((uint8_t*)m_id);
     }
 
-    virtual int get_m_axes(int *pData) {
+    virtual int getMAxes(int *pData) {
         return LIS2MDL_M_GetAxes((int32_t*)pData);
     }
 
