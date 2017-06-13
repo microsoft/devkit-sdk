@@ -1,12 +1,14 @@
 #define LOOP_DELAY          500
 
 int counter = 1;
+int val = 0;
 
 void setup() {
   Serial.println(">> Start");
   Serial.println(__FILE__);
 
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(USER_BUTTON_A, INPUT);
 }
 
 void loop() {
@@ -28,6 +30,14 @@ void loop() {
 
 void runCase()
 {
+    Serial.println("You can press button A to check the LED status");
+    val = digitalRead(USER_BUTTON_A);
+    
+    digitalWrite(LED_BUILTIN, val);
+    
+    Serial.println(val);
+    delay(LOOP_DELAY); 
+
     digitalWrite(LED_BUILTIN, HIGH);
     delay(LOOP_DELAY);
     digitalWrite(LED_BUILTIN, LOW);

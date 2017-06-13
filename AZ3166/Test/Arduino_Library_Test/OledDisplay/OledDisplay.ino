@@ -1,4 +1,4 @@
-#define LOOP_DELAY          100
+#define LOOP_DELAY          500
 
 int counter = 1;
 
@@ -47,6 +47,5 @@ void runCase()
     Serial.println("Clean up");
     Screen.clean();
 
-    delay(LOOP_DELAY);
-      
+    delay(LOOP_DELAY);      
 }
