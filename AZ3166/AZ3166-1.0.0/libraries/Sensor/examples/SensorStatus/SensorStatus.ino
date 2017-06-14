@@ -1,5 +1,5 @@
 #include "AZ3166WiFi.h"
-#include "SensorStatus.h"
+#include "Sensor.h"
 
 #define NUMSENSORS 4  // 4 sensors to display
 
