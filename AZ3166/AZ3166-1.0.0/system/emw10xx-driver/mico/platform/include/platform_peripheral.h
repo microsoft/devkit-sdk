@@ -246,10 +246,18 @@ typedef struct
 
 typedef struct
 {
+    uint32_t                        reserve;
+    gpio_t                          gpio;
     gpio_irq_t                      gpio_irq;
-    platform_gpio_irq_callback_t    fun;
-    void*                           arg;
+    platform_gpio_irq_callback_t    _rise;
+    void*                           arg_rise;
+    uint32_t                        reserve_gpio1;
+    uint32_t                        reserve_gpio2;
+    platform_gpio_irq_callback_t    _fall;
+    void*                           arg_fall;
 } platform_gpio_irq_driver_t;
+
+
 
 typedef struct
 {
