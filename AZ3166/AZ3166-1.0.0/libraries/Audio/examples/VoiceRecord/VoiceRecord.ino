@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "OLEDDisplay.h"
+#include "AudioClass.h"
 
 AudioClass Audio;
 const int AUDIO_SIZE = 32000*3 + 45;
