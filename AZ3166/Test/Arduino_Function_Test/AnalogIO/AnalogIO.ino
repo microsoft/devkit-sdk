@@ -38,7 +38,7 @@ void runCase()
 void check_analogread()
 {
     analogReadResolution(10);    
-    int result  = analogRead(ARDUINO_PIN_A2);
+    int result  = analogRead(ARDUINO_PIN_A0);
     Serial.printf("ADC 10-bit(default): %d\n", result);
     if(result < 0 || result > 1023)
     {
@@ -47,7 +47,7 @@ void check_analogread()
     Serial.println();
     
     analogReadResolution(12);
-    result  = analogRead(ARDUINO_PIN_A2);
+    result  = analogRead(ARDUINO_PIN_A0);
     Serial.printf("ADC 12-bit: %d\n", result);
     if(result < 0 || result > 4095)
     {
@@ -56,7 +56,7 @@ void check_analogread()
     Serial.println();
 
     analogReadResolution(16);
-    result  = analogRead(ARDUINO_PIN_A2);
+    result  = analogRead(ARDUINO_PIN_A0);
     Serial.printf("ADC 16-bit: %d\n", result);
     if(result < 0 || result > 65535)
     {
@@ -65,7 +65,7 @@ void check_analogread()
     Serial.println();
     
     analogReadResolution(8);
-    result  = analogRead(ARDUINO_PIN_A2);
+    result  = analogRead(ARDUINO_PIN_A0);
     Serial.printf("ADC 8-bit: %d\n", result);
     if(result < 0 || result > 256)
     {
@@ -74,7 +74,7 @@ void check_analogread()
     Serial.println();
 
     analogReadResolution(20);
-    result  = analogRead(ARDUINO_PIN_A2);
+    result  = analogRead(ARDUINO_PIN_A0);
     Serial.printf("ADC 20-bit: %d\n", result);
     if(result < 0 || result > 1048576)
     {
@@ -85,22 +85,22 @@ void check_analogread()
 
 void check_analogwrite()
 {
-    val= analogRead(ARDUINO_PIN_A2);
+    val= analogRead(ARDUINO_PIN_A0);
     Serial.print("Analog Read:");
     Serial.println(val);
 
     analogWriteResolution(8);
-    analogWrite(ARDUINO_PIN_A3, map(val,0,1023, 0, 255));
+    analogWrite(ARDUINO_PIN_A1, map(val,0,1023, 0, 255));
     Serial.print("8-bit PWM value:");
     Serial.println(map(val,0,1023, 0, 255));
 
     analogWriteResolution(12);
-    analogWrite(ARDUINO_PIN_A3, map(val,0,1023, 0, 4095));
+    analogWrite(ARDUINO_PIN_A1, map(val,0,1023, 0, 4095));
     Serial.print("12-bit PWM value:");
     Serial.println(map(val,0,1023, 0, 4095));
 
     analogWriteResolution(4);
-    analogWrite(ARDUINO_PIN_A3, map(val,0,1023, 0, 15));
+    analogWrite(ARDUINO_PIN_A1, map(val,0,1023, 0, 15));
     Serial.print("4-bit PWM value:");
     Serial.println(map(val,0,1023, 0, 15));
 }
