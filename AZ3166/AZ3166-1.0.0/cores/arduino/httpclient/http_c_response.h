@@ -42,6 +42,10 @@ public:
 
     const char* get_body();
 
+    void set_message_complete();
+
+    bool is_message_complete();
+
 private:
     int status_code;
     char* status_message;
@@ -50,6 +54,7 @@ private:
         
     bool concat_header_field;
     bool concat_header_value;
+    bool is_message_completed;
 
     char* body;
 };

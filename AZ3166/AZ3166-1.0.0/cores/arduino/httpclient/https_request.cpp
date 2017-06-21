@@ -162,9 +162,8 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
             delete [] recv_buffer;
             return NULL;
         }
-        // No more chunks? break out of this loop
-        if (_bpos < HTTP_RECEIVE_BUFFER_SIZE) 
-        {
+        // break out of this loop
+        if (_response->is_message_complete()) {
             break;
         }
     }

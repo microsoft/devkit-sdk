@@ -161,6 +161,7 @@ int HttpResponseParser::on_body(http_parser* parser, const char *at, size_t leng
 
 int HttpResponseParser::on_message_complete(http_parser* parser)
 {
+    response->set_message_complete();
     return 0;
 }
 

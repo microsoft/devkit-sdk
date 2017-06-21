@@ -25,6 +25,7 @@ HttpResponse::HttpResponse()
     headers = NULL;
     concat_header_field = false;
     concat_header_value = false;
+    is_message_completed = false;
 }
 
 HttpResponse::~HttpResponse()
@@ -173,4 +174,12 @@ void HttpResponse::set_body(const char* at, size_t length)
 const char* HttpResponse::get_body()
 {
     return body;
+}
+
+void HttpResponse::set_message_complete() {
+    is_message_completed = true;
+}
+
+bool HttpResponse::is_message_complete() {
+    return is_message_completed;
 }
