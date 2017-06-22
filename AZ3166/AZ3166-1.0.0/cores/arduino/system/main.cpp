@@ -85,7 +85,7 @@ static int GetMACWithoutColon(char* buff)
     return j;
 }
 
-static void EnterConfigurationiMode()
+static void EnterConfigurationMode()
 {
     pinMode(USER_BUTTON_A, INPUT);
 
@@ -158,7 +158,7 @@ int main( void )
 
     if (IsConfigurationMode())
     {
-        EnterConfigurationiMode();
+        EnterConfigurationMode();
     }
     else if (IsAPMode())
     {
