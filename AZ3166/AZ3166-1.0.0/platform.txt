@@ -93,7 +93,9 @@ recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
 #Upload to Nucleo via openocd
 tools.openocd.path.windows={runtime.tools.openocd.path}
 tools.openocd.path.macosx={runtime.tools.openocd.path}/macosx
+tools.openocd.path.linux={runtime.tools.openocd.path}/linux
 tools.openocd.cmd.macosx=bin/openocd
+tools.openocd.cmd.linux=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
