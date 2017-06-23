@@ -1,46 +1,20 @@
+#include <ArduinoUnit.h>
 #define LOOP_DELAY          500
 
-int counter = 1;
 int incomingByte = 0;
 int x =0;
 char readVal[3];
 
 void setup()
 {
-    Serial.println(">> Start");
     Serial.println(__FILE__);    
 }
 
 void loop() {
-  while(counter <= 5)
-  {
-    Serial.printf(">> Start (%d)\r\n", counter);
-    runCase();
-    Serial.printf(">> End (%d)\r\n", counter); 
-
-    if(counter == 5)
-    {
-      Serial.println();
-      Serial.println(">> End");
-    }
-    
-    counter++;
-  }
+    Test::run();
 }
 
-void runCase()
-{
-    Serial.println("Verify print()");
-    check_serialprint();
-
-    // Serial.println("Verify read()");
-    // check_serialread();
-
-    // Serial.println("Verify other methods");
-    // check_serialothers();
-}
-
-void check_serialprint()
+test(check_serialprint)
 {
     Serial.print("No Format");
     Serial.print("\t");
@@ -80,7 +54,7 @@ void check_serialprint()
     Serial.println(x, 1);
     Serial.println(12.3456, 2);
 
-    int analogValue = analogRead(ARDUINO_PIN_A2);
+    int analogValue = analogRead(ARDUINO_PIN_A0);
     Serial.println(analogValue);
     Serial.println(analogValue, DEC);
     Serial.println(analogValue, HEX);
@@ -99,6 +73,7 @@ void check_serialprint()
     delay(LOOP_DELAY);
 }
 
+//due to need to input some string to the serial port manually, skipped it
 void check_serialread()
 {
     Serial.println("Testing read(), please enter some char");
@@ -130,6 +105,7 @@ void check_serialread()
     delay(LOOP_DELAY);
 }
 
+//due to need to input some string to the serial port manually, skipped it
 void check_serialothers()
 {
     Serial.println(Serial.available());

@@ -1,10 +1,9 @@
+#include <ArduinoUnit.h>
 #define LOOP_DELAY          500
 
-int counter = 1;
 int val = 0;
 
 void setup() {
-  Serial.println(">> Start");
   Serial.println(__FILE__);
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -12,34 +11,24 @@ void setup() {
 }
 
 void loop() {
-  while(counter <= 5)
-  {
-    Serial.printf(">> Start (%d)\r\n", counter);
-    runCase();
-    Serial.printf(">> End (%d)\r\n", counter); 
-
-    if(counter == 5)
-    {
-      Serial.println();
-      Serial.println(">> End");
-    }
-    
-    counter++;
-  }
+  Test::run();
 }
 
-void runCase()
+test(check_digital_io)
 {
     Serial.println("You can press button A to check the LED status");
     val = digitalRead(USER_BUTTON_A);
+    assertEqual(val, HIGH);
     
     digitalWrite(LED_BUILTIN, val);
-    
-    Serial.println(val);
+    assertEqual(digitalRead(LED_BUILTIN), val);    
     delay(LOOP_DELAY); 
 
     digitalWrite(LED_BUILTIN, HIGH);
+    assertEqual(digitalRead(LED_BUILTIN), HIGH);
     delay(LOOP_DELAY);
+    
     digitalWrite(LED_BUILTIN, LOW);
+    assertEqual(digitalRead(LED_BUILTIN), LOW);
     delay(LOOP_DELAY);
 }

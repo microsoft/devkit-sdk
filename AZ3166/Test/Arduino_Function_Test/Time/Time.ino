@@ -1,42 +1,19 @@
+#include <ArduinoUnit.h>
 #define LOOP_DELAY          500
 
-int counter = 1;
 unsigned long T_time;
 
 void setup() {
-  Serial.println(">> Start");
   Serial.println(__FILE__);
 
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
-  while(counter <= 5)
-  {
-    Serial.printf(">> Start (%d)\r\n", counter);
-    runCase();
-    Serial.printf(">> End (%d)\r\n", counter); 
-
-    if(counter == 5)
-    {
-      Serial.println();
-      Serial.println(">> End");
-    }
-    
-    counter++;
-  }
+  Test::run();
 }
 
-void runCase()
-{
-    Serial.println("Verify delay() and delayMicroseconds()");
-    check_timedelay();
-
-    Serial.println("Verify micros() and millis()");
-    check_timemicros_timemillis();
-}
-
-void check_timedelay()
+test(check_timedelay)
 {
     digitalWrite(LED_BUILTIN, HIGH);
     delay(LOOP_DELAY); 
@@ -49,7 +26,7 @@ void check_timedelay()
     delayMicroseconds(LOOP_DELAY);
 }
 
-void check_timemicros_timemillis()
+test(check_timemicros_timemillis)
 {
     Serial.print("Time:");
     T_time = micros();
