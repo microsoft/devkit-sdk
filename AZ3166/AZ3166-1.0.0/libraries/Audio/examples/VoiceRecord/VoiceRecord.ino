@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include "OLEDDisplay.h"
+#include "OledDisplay.h"
 #include "AudioClass.h"
 
 AudioClass Audio;

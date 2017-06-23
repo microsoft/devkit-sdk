@@ -1,5 +1,5 @@
 #include "AzureIotHub.h"
-#include "OLEDDisplay.h"
+#include "OledDisplay.h"
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 #include "Sensor.h"

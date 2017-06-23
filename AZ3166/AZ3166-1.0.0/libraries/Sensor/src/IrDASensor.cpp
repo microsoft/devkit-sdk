@@ -20,7 +20,7 @@
  */
 
 #include "IrDASensor.h"
-#include "pinNames.h"
+#include "PinNames.h"
 #include "PeripheralPins.h"
 
 

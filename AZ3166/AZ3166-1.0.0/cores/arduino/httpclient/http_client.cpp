@@ -14,7 +14,7 @@
 
  
 #include "http_client.h"
-#include "SystemWifi.h"
+#include "SystemWiFi.h"
 
 const char CERT[] = 
 "-----BEGIN CERTIFICATE-----\r\nMIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\r\n"
