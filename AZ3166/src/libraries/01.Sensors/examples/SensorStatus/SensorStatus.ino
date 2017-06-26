@@ -1,5 +1,6 @@
 #include "AZ3166WiFi.h"
 #include "Sensor.h"
+#include "SystemVersion.h"
 
 #define NUMSENSORS 4  // 4 sensors to display
 
@@ -28,6 +29,7 @@ static struct _tagRGB
 static RGB_LED rgbLed;
 static int color = 0;
 static int led = 0;
+static char title[64];
 
 DevI2C *ext_i2c;
 LSM6DSLSensor *acc_gyro;
@@ -185,7 +187,8 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
 
 
 void setup() {
-  Screen.print("DevKit Status \r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n");
+  sprintf(title, "DevKit %s\r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
+  Screen.print(title);
   pinMode(LED_WIFI, OUTPUT);
   pinMode(LED_AZURE, OUTPUT);
   pinMode(LED_USER, OUTPUT);
@@ -268,7 +271,7 @@ void loop() {
 
   if(!buttonClicked)
   {
-    Screen.print("DevKit Status \r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n");
+    Screen.print(title);
     return;
   }
 
@@ -303,5 +306,3 @@ void loop() {
     }
   }
 }
-
-
