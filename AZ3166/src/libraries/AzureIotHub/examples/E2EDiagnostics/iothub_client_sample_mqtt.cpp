@@ -8,6 +8,7 @@
 #include "config.h"
 #include "iothub_client_sample_mqtt.h"
 #include "json.h"
+#include "Sensor.h"
 
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 static bool messagePending = false;
