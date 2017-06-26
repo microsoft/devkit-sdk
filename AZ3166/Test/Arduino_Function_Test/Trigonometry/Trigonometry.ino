@@ -9,7 +9,7 @@ void loop() {
     Test::run();
 }
 
-test(check_trigonometry)
+test(trigonometry)
 {
     int data[9]={PI, PI/2,PI/3, PI/4, 0, -PI/2,-PI/3, -PI/4, -PI};
 

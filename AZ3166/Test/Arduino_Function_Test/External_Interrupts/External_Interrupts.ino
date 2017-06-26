@@ -19,7 +19,7 @@ void loop() {
   Test::run();
 }
 
-test(check_external_interrupt)
+test(external_interrupt)
 {
     Serial.println("Test attachInterrupt()");
     digitalWrite(LED_BUILTIN, state);

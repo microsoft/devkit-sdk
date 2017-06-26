@@ -13,7 +13,7 @@ void loop() {
     Test::run();
 }
 
-test(check_mathabs)
+test(math_abs)
 {
     assertEqual(abs(Math_PositiveNum), Math_PositiveNum);
     assertEqual(abs(Math_Zero), Math_Zero);
@@ -22,7 +22,7 @@ test(check_mathabs)
     delay(LOOP_DELAY);
 }
 
-test(check_mathconstrain)
+test(math_constrain)
 {
     // If testVal is less than oneNum, oneNum should be return
     assertEqual(constrain(Math_NegativeNum, Math_Zero, Math_PositiveNum), Math_Zero);
@@ -36,7 +36,7 @@ test(check_mathconstrain)
     delay(LOOP_DELAY);
 }
 
-test(check_mathmap)
+test(math_map)
 {
     int val = analogRead(ARDUINO_PIN_A0);
     val = map(val,0,1023,0,255);
@@ -48,21 +48,21 @@ test(check_mathmap)
     delay(LOOP_DELAY);
 }
 
-test(check_mathmax)
+test(math_max)
 {
     assertEqual(max(Math_NegativeNum,Math_PositiveNum), Math_PositiveNum);
     
     delay(LOOP_DELAY); 
 }
 
-test(check_mathmin)
+test(math_min)
 {
     assertEqual(min(Math_NegativeNum,Math_PositiveNum), Math_NegativeNum);
 
     delay(LOOP_DELAY);
 }
 
-test(check_mathpow)
+test(math_pow)
 {
     assertEqual(pow(2,3), 8);
     assertEqual(pow(9,0.5), 3);
@@ -70,7 +70,7 @@ test(check_mathpow)
     delay(LOOP_DELAY); 
 }
 
-test(check_mathsqrt)
+test(math_sqrt)
 {
     assertEqual(sqrt(9), 3);
     assertEqual(sqrt(1.0), 1);

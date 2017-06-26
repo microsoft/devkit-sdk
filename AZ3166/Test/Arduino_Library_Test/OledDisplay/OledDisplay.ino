@@ -11,7 +11,7 @@ void loop() {
   Test::run();
 }
 
-test(check_oled)
+test(oled)
 {
   Serial.println("Print a string with wrapped = false");
   Screen.print("This is OLEDDisplay Testing", false);    

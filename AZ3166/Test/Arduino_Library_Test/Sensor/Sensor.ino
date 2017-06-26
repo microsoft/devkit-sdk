@@ -50,7 +50,7 @@ void loop() {
     Test::run();
 }
 
-test(check_sensorhts221)
+test(sensor_hts221)
 {
     // enable
     assertEqual(hts221 -> enable(), RetVal_OK);
@@ -77,7 +77,7 @@ test(check_sensorhts221)
     delay(LOOP_DELAY);
 }
 
-test(check_sensorlis2mdl)
+test(sensor_lis2mdl)
 {
     // read id
     assertEqual(lis2mdl->readId(&id), RetVal_OK);
@@ -88,7 +88,7 @@ test(check_sensorlis2mdl)
     delay(LOOP_DELAY);
 }
 
-test(check_sensorlsm6dsl)
+test(sensor_lsm6dsl)
 {
     // Accelerometer test
     accelerometer_test();
@@ -118,7 +118,7 @@ void gyroscope_test(){
     assertEqual(lsm6dsl->getGSensitivity(&data), RetVal_OK);
 }
 
-test(check_sensorrgbled)
+test(sensor_rgbled)
 {
     for(int i = 0; i< 8; ++i)
     {

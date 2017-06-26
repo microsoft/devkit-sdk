@@ -7,10 +7,10 @@ void setup()
 }
 
 void loop() {
-  Test::run();
+  Test::run(); // need to update this case
 }
 
-test(check_interrupt)
+test(interrupt)
 {
     noInterrupts();
 

@@ -12,7 +12,7 @@ void loop() {
   Test::run();
 }
 
-test(check_analogread)
+test(analog_read)
 {
     analogReadResolution(10);    
     int result  = analogRead(ARDUINO_PIN_A0);
@@ -25,7 +25,7 @@ test(check_analogread)
     assertLessOrEqual(result, 4095);
 }
 
-test(check_analogwrite)
+test(analog_write)
 {
     analogReadResolution(10);
     val= analogRead(ARDUINO_PIN_A0);
@@ -33,6 +33,6 @@ test(check_analogwrite)
     Serial.println(val);
 
     analogWriteResolution(10);
-    analogWrite(ARDUINO_PIN_A1, val);
-    assertEqual(analogRead(ARDUINO_PIN_A1), val);
+    analogWrite(ARDUINO_PIN_A5, val);
+    assertEqual(analogRead(ARDUINO_PIN_A5), val);
 }

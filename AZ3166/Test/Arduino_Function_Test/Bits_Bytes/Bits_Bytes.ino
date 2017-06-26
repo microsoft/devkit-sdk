@@ -15,7 +15,7 @@ void loop() {
     Test::run();
 }
 
-test(check_bits)
+test(bits)
 {
     int value = 22;
 
@@ -35,7 +35,7 @@ test(check_bits)
     assertEqual(x,4);
 }
 
-test(check_bytes)
+test(bytes)
 {
     BytesData bytes[3]= {
       {1022, 254, 3}, 

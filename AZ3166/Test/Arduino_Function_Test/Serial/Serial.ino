@@ -14,7 +14,7 @@ void loop() {
     Test::run();
 }
 
-test(check_serialprint)
+test(serial_print)
 {
     Serial.print("No Format");
     Serial.print("\t");
@@ -73,71 +73,73 @@ test(check_serialprint)
     delay(LOOP_DELAY);
 }
 
-//due to need to input some string to the serial port manually, skipped it
-void check_serialread()
+//Skip it , due to need to input some string to the serial port manually
+test(serial_read)
 {
-    Serial.println("Testing read(), please enter some char");
-    incomingByte = Serial.read();
-    Serial.println(incomingByte);
+    skip();
+    // Serial.println("Testing read(), please enter some char");
+    // incomingByte = Serial.read();
+    // Serial.println(incomingByte);
 
-    Serial.println("Testing readBytes(), please enter some chars");
-    Serial.readBytes(readVal,3);
-    Serial.println(readVal);
+    // Serial.println("Testing readBytes(), please enter some chars");
+    // Serial.readBytes(readVal,3);
+    // Serial.println(readVal);
 
-    Serial.println("Testing readBytesUntil(), please enter some chars until #");
-    char untilChar = '#';
-    Serial.readBytesUntil(untilChar, readVal,3);
+    // Serial.println("Testing readBytesUntil(), please enter some chars until #");
+    // char untilChar = '#';
+    // Serial.readBytesUntil(untilChar, readVal,3);
 
-    Serial.setTimeout(2000);
-    Serial.println("Testing readstring(), please enter some string");
-    String str = Serial.readString();
-    Serial.println(str);
+    // Serial.setTimeout(2000);
+    // Serial.println("Testing readstring(), please enter some string");
+    // String str = Serial.readString();
+    // Serial.println(str);
 
-    Serial.setTimeout(2000);
-    Serial.println("Testing readstringUntil(), please enter some string until #");
-    str = Serial.readStringUntil(untilChar);
-    Serial.println(str);
+    // Serial.setTimeout(2000);
+    // Serial.println("Testing readstringUntil(), please enter some string until #");
+    // str = Serial.readStringUntil(untilChar);
+    // Serial.println(str);
 
-    Serial.println("Testing write()...");
-    Serial.println(Serial.write(45));  
-    Serial.println(Serial.write("hello"));
+    // Serial.println("Testing write()...");
+    // Serial.println(Serial.write(45));  
+    // Serial.println(Serial.write("hello"));
 
-    delay(LOOP_DELAY);
+    // delay(LOOP_DELAY);
 }
 
-//due to need to input some string to the serial port manually, skipped it
-void check_serialothers()
+//skip it, due to need to input some string to the serial port manually
+test(serial_others)
 {
-    Serial.println(Serial.available());
+    skip();
+    // Serial.println(Serial.available());
 
-    incomingByte = Serial.read();
-    Serial.println(incomingByte);
+    // incomingByte = Serial.read();
+    // Serial.println(incomingByte);
 
-    Serial.end();
-    Serial.println("Test serial.end()");
-    Serial.begin(115200);
-    Serial.println("Test serial.begin()");
+    // Serial.end();
+    // Serial.println("Test serial.end()");
+    // Serial.begin(115200);
+    // Serial.println("Test serial.begin()");
 
-    Serial.println("Please enter some string which contain 'test'");
-    if(!Serial.find("test"))
-    {
-      Serial.println("Error: failed to find the string test");
-    }
+    // Serial.println("Please enter some string which contain 'test'");
+    // if(!Serial.find("test"))
+    // {
+    //   Serial.println("Error: failed to find the string test");
+    // }
 
-    if(!Serial.findUntil("test","#"))
-    {
-      Serial.println("Error: failed to find the string test");
-    }
+    // if(!Serial.findUntil("test","#"))
+    // {
+    //   Serial.println("Error: failed to find the string test");
+    // }
 
-    Serial.flush();
+    // Serial.flush();
 
-    //long result = Serial.parseInt();
-    //Serial.println(result);
+    // //long result = Serial.parseInt();
+    // //Serial.println(result);
 
-    //float resultFloat = Serial.parseFloat();
-    //Serial.println(resultFloat);
+    // //float resultFloat = Serial.parseFloat();
+    // //Serial.println(resultFloat);
 
-    Serial.println(Serial.peek());    
+    // Serial.println(Serial.peek());    
 
-    delay(LOOP_DELAY);
+    // delay(LOOP_DELAY);
 }

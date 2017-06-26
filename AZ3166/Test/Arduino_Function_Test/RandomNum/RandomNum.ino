@@ -13,7 +13,7 @@ void loop() {
     Test::run();
 }
 
-test(check_random)
+test(random)
 {
     randNum = random(300);
     assertLess(randNum, 300);

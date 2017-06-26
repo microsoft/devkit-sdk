@@ -9,7 +9,7 @@ void loop() {
   Test::run();
 }
 
-test(check_chars)
+test(chars)
 {
   for(int i=0; i<128; ++i)
   {

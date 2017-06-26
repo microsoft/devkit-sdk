@@ -14,7 +14,7 @@ void loop() {
   Test::run();
 }
 
-test(check_digital_io)
+test(digital_io)
 {
     Serial.println("You can press button A to check the LED status");
     val = digitalRead(USER_BUTTON_A);

@@ -13,7 +13,7 @@ void loop() {
   Test::run();
 }
 
-test(check_timedelay)
+test(time_delay)
 {
     digitalWrite(LED_BUILTIN, HIGH);
     delay(LOOP_DELAY); 
@@ -26,7 +26,7 @@ test(check_timedelay)
     delayMicroseconds(LOOP_DELAY);
 }
 
-test(check_timemicros_timemillis)
+test(time_micros_millis)
 {
     Serial.print("Time:");
     T_time = micros();
