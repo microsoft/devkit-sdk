@@ -8,7 +8,7 @@ static int messageCount = 1;
 
 void initWifi()
 {
-    Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
+    Screen.print("IoT DevKit\r\n \r\nConnecting...\r\n");
 
     if (WiFi.begin() == WL_CONNECTED)
     {

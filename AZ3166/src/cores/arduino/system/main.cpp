@@ -39,7 +39,7 @@ static bool Initialization(void)
 #endif
     
     Serial.print("\r\n************************************************");
-    Serial.print("\r\n** MXChip - Microsoft Azure IoT Developer Kit **");
+    Serial.print("\r\n** MXChip - Microsoft IoT Developer Kit **");
     Serial.print("\r\n************************************************\r\n");
     
     // Initialize the OLED screen
@@ -89,7 +89,7 @@ static void EnterConfigurationMode()
 {
     pinMode(USER_BUTTON_A, INPUT);
 
-    Screen.print("Azure IoT DevKit\r\n \r\nConfiguration\r\n");
+    Screen.print("IoT DevKit\r\n \r\nConfiguration\r\n");
 
     if (!InitSystemWiFi())
     {
@@ -109,7 +109,7 @@ static void EnterAPMode()
 {
     pinMode(USER_BUTTON_B, INPUT);
 
-    Screen.print("Azure IoT DevKit");
+    Screen.print("IoT DevKit");
    
     if (!InitSystemWiFi())
     {
