@@ -1,6 +1,0 @@
-commit 278e1e4bd8bb82daceae8204a6b9339359f3dd06
-Merge: af2ab19 ac63f2b
-Author: Frederic Pillon <frederic.pillon@st.com>
-
-    Merge pull request #11 from fpistm/tree_rework
-
