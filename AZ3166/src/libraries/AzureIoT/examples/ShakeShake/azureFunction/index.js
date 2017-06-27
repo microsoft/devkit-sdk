@@ -30,7 +30,10 @@ module.exports = function (context, myEventHubMessage) {
             } else {
                 context.log('Client connected');
                 let tweet = '';
-                // TODO: Need to replace {twitter bearer token} with your Twitter bearer token
+                // TODO: 
+                // Please replace this test Twitter bearer token with you own.
+                // To apply for your own Twitter bearer token, go to https://dev.twitter.com/ and register a new Twitter app to get Consumer Key and Secret
+                // Then generate the token using utility like this: https://gearside.com/nebula/utilities/twitter-bearer-token-generator/ 
                 let options = {
                     url: 'https://api.twitter.com/1.1/search/tweets.json?count=3&q=%23' + myEventHubMessage.topic,
                     headers: {
