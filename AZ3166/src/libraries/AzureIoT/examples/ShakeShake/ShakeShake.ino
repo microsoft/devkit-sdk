@@ -122,7 +122,7 @@ static void ScrollTweet(void)
 
 void InitWiFi()
 {
-  Screen.print("Azure IoT DevKit\r\n \r\nConnecting...\r\n");
+  Screen.print("IoT DevKit\r\n \r\nConnecting...\r\n");
 
   if (WiFi.begin() == WL_CONNECTED)
   {
@@ -195,7 +195,7 @@ void setup()
   restart_iot_client = 0;
   
   Screen.init();
-  Screen.print(0, "Azure IoT DevKit");
+  Screen.print(0, "IoT DevKit");
   Screen.print(2, "Initializing...");
   
   Screen.print(3, " > Serial");
@@ -247,7 +247,7 @@ static void DoIdle()
 {
     if (digitalRead(USER_BUTTON_A) == LOW)
     {
-      Screen.print(0, "Azure IoT DevKit");
+      Screen.print(0, "IoT DevKit");
       Screen.print(1, "  Shake!");
       Screen.print(2, "     Shake!");
       Screen.print(3, "        Shake!");

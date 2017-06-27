@@ -187,7 +187,7 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
 
 
 void setup() {
-  sprintf(title, "DevKit %s\r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
+  sprintf(title, "IoT DevKit %s\r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
   Screen.print(title);
   pinMode(LED_WIFI, OUTPUT);
   pinMode(LED_AZURE, OUTPUT);
