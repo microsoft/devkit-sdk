@@ -8,7 +8,7 @@ IF %ERRORLEVEL% NEQ 0 (
   goto error
 )
 
-%userprofile%\.azure-board-cli\azure-board-cli provision %~dp0
+"%userprofile%"\.azure-board-cli\azure-board-cli provision "%~dp0\"
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 goto end
