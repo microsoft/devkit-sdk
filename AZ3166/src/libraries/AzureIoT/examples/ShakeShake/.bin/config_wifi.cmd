@@ -8,7 +8,7 @@ IF %ERRORLEVEL% NEQ 0 (
   goto error
 )
 
-"%userprofile%"\.azure-board-cli\azure-board-cli config_wifi
+"%userprofile%\.azure-board-cli\azure-board-cli" config_wifi
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 goto end
