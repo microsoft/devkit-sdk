@@ -9,6 +9,7 @@
 #include "Thread.h"
 #include "md5.h"
 #include "http_client.h"
+#include "SystemVersion.h"
 
 #define STACK_SIZE 0x1000
 #define IOTHUB_NAME_MAX_LEN 52
@@ -21,7 +22,6 @@ static const char *IKEY = "63d78aab-86a7-49b9-855f-3bdcff5d39d7";
 
 static const char *EVENT = "AIEVENT";
 static const char *KEYWORD = "AZ3166";
-static const char *VERSION = "0.8.0";
 static const char *MCU = "STM32F412";
 static const char *BODY_TEMPLATE = 
 "{"
@@ -95,7 +95,7 @@ static void do_trace_telemetry(const char *iothub, const char *event, const char
     
     // Send
     char* data = new char[size];
-    sprintf(data, BODY_TEMPLATE, KEYWORD, VERSION, MCU, message, hash_mac, hash_iothub_name, event, _ctime, EVENT, IKEY);
+    sprintf(data, BODY_TEMPLATE, KEYWORD, getDevkitVersion(), MCU, message, hash_mac, hash_iothub_name, event, _ctime, EVENT, IKEY);
     send_data_to_ai(data, size);
     delete [] data;
 }
@@ -106,7 +106,7 @@ extern "C"{
 
 void telemetry_init()
 {
-    base_size = strlen(BODY_TEMPLATE) + strlen(KEYWORD) + strlen(VERSION) + strlen(MCU) + strlen(EVENT) + strlen(IKEY) - 20 + sizeof(hash_mac) + sizeof(hash_iothub_name);
+    base_size = strlen(BODY_TEMPLATE) + strlen(KEYWORD) + strlen(getDevkitVersion()) + strlen(MCU) + strlen(EVENT) + strlen(IKEY) - 20 + sizeof(hash_mac) + sizeof(hash_iothub_name);
     // Sync up the date
     SyncTime();
 }

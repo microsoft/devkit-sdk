@@ -1,11 +1,10 @@
+#include <ArduinoUnit.h>
 #define LOOP_DELAY          500
 
-int counter = 1;
 volatile byte state=LOW;
 
 void setup()
 {
-    Serial.println(">> Start");
     Serial.println(__FILE__);
 
     pinMode(LED_BUILTIN, OUTPUT);
@@ -17,23 +16,10 @@ void setup()
 }
 
 void loop() {
-  while(counter <= 5)
-  {
-    Serial.printf(">> Start (%d)\r\n", counter);
-    runCase();
-    Serial.printf(">> End (%d)\r\n", counter); 
-
-    if(counter == 5)
-    {
-      Serial.println();
-      Serial.println(">> End");
-    }
-    
-    counter++;
-  }
+  Test::run();
 }
 
-void runCase()
+test(external_interrupt)
 {
     Serial.println("Test attachInterrupt()");
     digitalWrite(LED_BUILTIN, state);
