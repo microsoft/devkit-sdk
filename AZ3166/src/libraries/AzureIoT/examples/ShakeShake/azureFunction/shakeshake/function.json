@@ -4,7 +4,7 @@
             "type": "eventHubTrigger",
             "name": "myEventHubTrigger",
             "direction": "in",
-            "path": "EVENTHUB_ENDPOINT_PATH",
+            "path": "%eventHubConnectionPath%",
             "connection": "eventHubConnectionString"
         }
     ],
