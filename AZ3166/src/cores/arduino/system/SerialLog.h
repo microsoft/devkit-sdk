@@ -30,7 +30,6 @@ void serial_log(const char* msg);
 
 void serial_xlog(const char *format, ...);
 
-
 #ifdef __cplusplus
 }
 #endif

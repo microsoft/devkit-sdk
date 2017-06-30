@@ -237,7 +237,7 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
             }
             else
             {
-                tcpsocketconnection_set_blocking(socket_io_instance->tcp_socket_connection, false, 50);
+                tcpsocketconnection_set_blocking(socket_io_instance->tcp_socket_connection, false, 0);
 
                 socket_io_instance->on_bytes_received = on_bytes_received;
                 socket_io_instance->on_bytes_received_context = on_bytes_received_context;

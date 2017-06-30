@@ -1106,6 +1106,7 @@ int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
             }
             BUFFER_delete(disconnectPacket);
             clear_mqtt_options(mqtt_client);
+            mqtt_client->xioHandle = NULL;
         }
     }
     return result;
@@ -1114,8 +1115,9 @@ int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
 void mqtt_client_dowork(MQTT_CLIENT_HANDLE handle)
 {
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)handle;
+    /*Codes_SRS_MQTT_CLIENT_18_001: [If the client is disconnected, mqtt_client_dowork shall do nothing.]*/
     /*Codes_SRS_MQTT_CLIENT_07_023: [If the parameter handle is NULL then mqtt_client_dowork shall do nothing.]*/
-    if (mqtt_client != NULL)
+    if (mqtt_client != NULL && mqtt_client->xioHandle != NULL)
     {
         /*Codes_SRS_MQTT_CLIENT_07_024: [mqtt_client_dowork shall call the xio_dowork function to complete operations.]*/
         xio_dowork(mqtt_client->xioHandle);

@@ -2,12 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <stdlib.h>
-#ifdef _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
-
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
+#include <limits.h>
 #include "azure_c_shared_utility/gballoc.h"
 #include "azure_c_shared_utility/httpheaders.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
@@ -17,8 +15,10 @@
 #include "azure_c_shared_utility/tlsio.h"
 #include "azure_c_shared_utility/threadapi.h"
 #include "azure_c_shared_utility/shared_util_options.h"
-#include <string.h>
-#include <limits.h>
+
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
 
 /*Codes_SRS_HTTPAPI_COMPACT_21_001: [ The httpapi_compact shall implement the methods defined by the `httpapi.h`. ]*/
 /*Codes_SRS_HTTPAPI_COMPACT_21_002: [ The httpapi_compact shall support the http requests. ]*/
@@ -222,6 +222,8 @@ HTTP_HANDLE HTTPAPI_CreateConnection(const char* hostName)
         {
             tlsio_config.hostname = hostName;
             tlsio_config.port = 443;
+            tlsio_config.underlying_io_interface = NULL;
+            tlsio_config.underlying_io_parameters = NULL;
 
             http_instance->xio_handle = xio_create(platform_get_default_tlsio(), (void*)&tlsio_config);
 
@@ -396,7 +398,7 @@ static void on_bytes_received(void* context, const unsigned char* buffer, size_t
 {
     unsigned char* new_received_bytes;
     HTTP_HANDLE_DATA* http_instance = (HTTP_HANDLE_DATA*)context;
-    
+
     if (http_instance != NULL)
     {
 
@@ -733,10 +735,11 @@ static HTTPAPI_RESULT OpenXIOConnection(HTTP_HANDLE_DATA* http_instance)
             }
             else
             {
+				int countRetry;
                 /*Codes_SRS_HTTPAPI_COMPACT_21_033: [ If the whole process succeed, the HTTPAPI_ExecuteRequest shall retur HTTPAPI_OK. ]*/
                 result = HTTPAPI_OK;
                 /*Codes_SRS_HTTPAPI_COMPACT_21_077: [ The HTTPAPI_ExecuteRequest shall wait, at least, 10 seconds for the SSL open process. ]*/
-                int countRetry = MAX_OPEN_RETRY;
+                countRetry = MAX_OPEN_RETRY;
                 while ((http_instance->is_connected == 0) &&
                     (http_instance->is_io_error == 0))
                 {
@@ -837,9 +840,10 @@ static HTTPAPI_RESULT SendHeadsToXIO(HTTP_HANDLE_DATA* http_instance, HTTPAPI_RE
         /*Codes_SRS_HTTPAPI_COMPACT_21_028: [ If the HTTPAPI_ExecuteRequest cannot send the request header, it shall return HTTPAPI_HTTP_HEADERS_FAILED. ]*/
     else if ((result = conn_send_all(http_instance, (const unsigned char*)buf, strlen(buf))) == HTTPAPI_OK)
     {
+		size_t i;
         //Send default headers
         /*Codes_SRS_HTTPAPI_COMPACT_21_033: [ If the whole process succeed, the HTTPAPI_ExecuteRequest shall retur HTTPAPI_OK. ]*/
-        for (size_t i = 0; ((i < headersCount) && (result == HTTPAPI_OK)); i++)
+        for (i = 0; ((i < headersCount) && (result == HTTPAPI_OK)); i++)
         {
             char* header;
             if (HTTPHeaders_GetHeader(httpHeadersHandle, i, &header) != HTTP_HEADERS_OK)
@@ -1256,12 +1260,14 @@ HTTPAPI_RESULT HTTPAPI_SetOption(HTTP_HANDLE handle, const char* optionName, con
     }
     else if (strcmp("TrustedCerts", optionName) == 0)
     {
+		int len;
+
         if (http_instance->certificate)
         {
             free(http_instance->certificate);
         }
 
-        int len = (int)strlen((char*)value);
+        len = (int)strlen((char*)value);
         http_instance->certificate = (char*)malloc((len + 1) * sizeof(char));
         if (http_instance->certificate == NULL)
         {
@@ -1278,12 +1284,13 @@ HTTPAPI_RESULT HTTPAPI_SetOption(HTTP_HANDLE handle, const char* optionName, con
     }
     else if (strcmp(SU_OPTION_X509_CERT, optionName) == 0)
     {
+		int len;
         if (http_instance->x509ClientCertificate)
         {
             free(http_instance->x509ClientCertificate);
         }
 
-        int len = (int)strlen((char*)value);
+        len = (int)strlen((char*)value);
         http_instance->x509ClientCertificate = (char*)malloc((len + 1) * sizeof(char));
         if (http_instance->x509ClientCertificate == NULL)
         {
@@ -1300,12 +1307,13 @@ HTTPAPI_RESULT HTTPAPI_SetOption(HTTP_HANDLE handle, const char* optionName, con
     }
     else if (strcmp(SU_OPTION_X509_PRIVATE_KEY, optionName) == 0)
     {
+		int len;
         if (http_instance->x509ClientPrivateKey)
         {
             free(http_instance->x509ClientPrivateKey);
         }
 
-        int len = (int)strlen((char*)value);
+        len = (int)strlen((char*)value);
         http_instance->x509ClientPrivateKey = (char*)malloc((len + 1) * sizeof(char));
         if (http_instance->x509ClientPrivateKey == NULL)
         {
