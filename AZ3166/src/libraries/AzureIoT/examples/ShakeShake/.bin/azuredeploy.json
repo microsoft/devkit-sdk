@@ -5,6 +5,14 @@
         "functionAppName": {
             "type": "string"
         },
+        "functionAppExisted": {
+            "type": "string",
+            "allowedValues": [
+                "",
+                "existed-"
+            ],
+            "defaultValue": ""
+        },
         "iotHubName": {
             "type": "string"
         },
@@ -82,7 +90,7 @@
                 },
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/Sneezry/Azure-ARM-Template/master/functionapp.json#"
+                    "uri": "[concat('https://raw.githubusercontent.com/Sneezry/Azure-ARM-Template/master/', parameters('functionAppExisted'), 'functionapp.json#')]"
                 }
             },
             "dependsOn": [
