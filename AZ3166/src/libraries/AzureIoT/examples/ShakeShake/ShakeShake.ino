@@ -85,7 +85,7 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
       }
       msgHeader[j++] = printable_char(tweet[i]);
   }
-  // The boday
+  // The body
   j = 0;
   for (; i < lenTweet; i++)
   {
