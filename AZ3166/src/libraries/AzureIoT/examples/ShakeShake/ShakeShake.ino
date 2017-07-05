@@ -69,6 +69,10 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
       return;
   }
   
+  if (lenTweet > 220){
+      lenTweet = 220;
+  }
+  
   int i = 0;
   int j = 0;
   // The header
