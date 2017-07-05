@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
+
 #ifndef SFLASH_BLOCK_DEVICE_H
 #define SFLASH_BLOCK_DEVICE_H
 

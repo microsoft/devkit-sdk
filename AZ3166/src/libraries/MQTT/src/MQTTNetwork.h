@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
+
 #ifndef _MQTTNETWORK_H_
 #define _MQTTNETWORK_H_
 
