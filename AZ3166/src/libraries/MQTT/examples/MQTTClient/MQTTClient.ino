@@ -1,6 +1,7 @@
 #include <AZ3166WiFi.h>
 #include "MQTTClient.h"
 #include "MQTTNetwork.h"
+#include "telemetry.h"
 
 char ssid[] = "yourssid";            // your network SSID (name)
 char pass[] = "yourpassword";        // your network password
@@ -117,6 +118,10 @@ void setup() {
   //Initialize serial and Wi-Fi:
   Serial.begin(115200);
   initWifi();
+  if(hasWifi)
+  {
+      send_telemetry_data("", "MQTTClientSetup", "");
+  }
 }
 
 void loop() {

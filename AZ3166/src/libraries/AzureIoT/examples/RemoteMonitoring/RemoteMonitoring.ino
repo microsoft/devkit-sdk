@@ -3,6 +3,7 @@
 #include "AzureIotHub.h"
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
+#include "telemetry.h"
 
 static bool isConnected = false;
 
@@ -163,6 +164,11 @@ void setup() {
   }   
 
   InitWiFi();
+
+  if(isConnected)
+  {
+     send_telemetry_data("", "RemoteMonitoringSetup", "");
+  }
 }
 
 

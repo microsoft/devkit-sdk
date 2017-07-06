@@ -3,6 +3,7 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 #include "Sensor.h"
+#include "telemetry.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
@@ -212,6 +213,10 @@ void setup()
   if (!hasWifi)
   {
     return;
+  }
+  else
+  {
+    send_telemetry_data("", "ShakeShakeSetup", "");
   }
   
   // Initialize LEDs
