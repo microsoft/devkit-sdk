@@ -14,9 +14,15 @@
     "tasks": [
         {
             "taskName": "device-upload",
-            "command": "./.bin/build",
+            "command": "node",
             "windows": {
-                "command": ".bin\\build.cmd"
+                "args": ["${env:USERPROFILE}\\azure-board-cli\\out\\cli.js", "build", ".bin"]
+            },
+            "linux": {
+                "args": ["/HOME/$USER/azure-board-cli/out/cli.js", "build", ".bin"]
+            },
+            "osx": {
+                "args": ["/Users/$USER/azure-board-cli/out/cli.js", "build", ".bin"]
             },
             "isShellCommand": true,
             "isBuildCommand": true
