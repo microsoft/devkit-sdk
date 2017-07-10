@@ -685,6 +685,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                     result = initialize_iothub_client(config, NULL);
                     if (result == NULL)
                     {
+                        send_telemetry_data(config->iotHubName, "Create", "IoT hub establish failed");
                         LogError("IoTHubClient_LL_Create failed");
                     }
                     else
