@@ -10,7 +10,7 @@ bool hasWifi = false;
 const char* mqttServer = "iot.eclipse.org";   //"m2m.eclipse.org";
 int port = 1883;
 
-void InitWiFi()
+void initWifi()
 {
   Screen.print("IoT DevKit\r\n \r\nConnecting...\r\n");
 
