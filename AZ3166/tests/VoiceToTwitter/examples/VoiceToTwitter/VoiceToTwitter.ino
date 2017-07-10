@@ -247,11 +247,11 @@ void loop()
     else if (status == 5)
     {
         char * etag = (char *)malloc(40);
-        const char *p = iot_client_get_c2d_message(etag);
+        const char *p = iot_client_get_c2d_message(&etag);
         if (p == NULL)
         {
           delay(3000);
-          p = iot_client_get_c2d_message(etag);
+          p = iot_client_get_c2d_message(&etag);
         }
         while (p != NULL)
         {
@@ -287,7 +287,7 @@ void loop()
                 }
             }
             free((void *)p);
-            p = iot_client_get_c2d_message(etag);
+            p = iot_client_get_c2d_message(&etag);
         }
 
         free(etag);

@@ -9,7 +9,7 @@ int iot_client_set_connection_string(const char*conn_str);
 int iot_client_blob_upload_step1(const char *blobName);
 int iot_client_blob_upload_step2(const char *content, int length);
 int iot_client_blob_upload_step3(bool isSuccess);
-const char* iot_client_get_c2d_message(char * etag);
+const char* iot_client_get_c2d_message(char ** etag);
 int complete_c2d_message(char *etag);
 int iot_client_send_event(const char*text, int length);
 
