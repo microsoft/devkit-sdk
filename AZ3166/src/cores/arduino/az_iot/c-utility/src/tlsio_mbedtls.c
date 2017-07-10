@@ -68,6 +68,8 @@ typedef struct TLS_IO_INSTANCE_TAG
     mbedtls_ssl_config         config;
     mbedtls_x509_crt           cacert;
     mbedtls_ssl_session        ssn;
+    mbedtls_x509_crt           owncert;
+    mbedtls_pk_context         pKey;
 } TLS_IO_INSTANCE;
 
 static const IO_INTERFACE_DESCRIPTION tlsio_mbedtls_interface_description =
@@ -407,7 +409,8 @@ CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
 
             result->on_io_error = NULL;
             result->on_io_error_context = NULL;
-
+            memset(&result->owncert, 0, sizeof(mbedtls_x509_crt));
+            memset(&result->pKey, 0, sizeof(mbedtls_pk_context));
             const IO_INTERFACE_DESCRIPTION* socket_io_interface = socketio_get_interface_description();
             if (socket_io_interface == NULL)
             {
@@ -635,6 +638,30 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
             else
             {
                 mbedtls_ssl_conf_ca_chain(&tls_io_instance->config,&tls_io_instance->cacert,NULL);
+            }
+        }
+        else if (strcmp("x509certificate", optionName) == 0)
+        {
+            result = mbedtls_x509_crt_parse(&tls_io_instance->owncert, value, (int)(strlen(value)+1));
+            if( result != 0 )
+            {
+                result = __LINE__;
+            }
+            else if (tls_io_instance->pKey.pk_info != NULL)
+            {
+                mbedtls_ssl_conf_own_cert(&tls_io_instance->config, &tls_io_instance->owncert, &tls_io_instance->pKey);
+            }
+        }
+        else if (strcmp("x509privatekey", optionName) == 0)
+        {
+            result = mbedtls_pk_parse_key(&tls_io_instance->pKey, value, (int)(strlen(value)+1), NULL, 0);
+            if( result != 0 )
+            {
+                result = __LINE__;
+            }
+            else if (tls_io_instance->owncert.version > 0)
+            {
+                mbedtls_ssl_conf_own_cert(&tls_io_instance->config, &tls_io_instance->owncert, &tls_io_instance->pKey);
             }
         }
         else if (tls_io_instance->socket_io == NULL)
