@@ -50,7 +50,7 @@
                 },
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat('https://raw.githubusercontent.com/Sneezry/Azure-ARM-Template/master/', parameters('iotHubExisted'), 'iothub.json#')]"
+                    "uri": "[concat('https://raw.githubusercontent.com/VSChina/azureiotdevkit_tools/master/arm-template/', parameters('iotHubExisted'), 'iothub.json#')]"
                 }
             }
         },
@@ -82,7 +82,7 @@
                 },
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/Sneezry/Azure-ARM-Template/master/functionapp.json#"
+                    "uri": "https://raw.githubusercontent.com/VSChina/azureiotdevkit_tools/master/arm-template/functionapp.json#"
                 }
             },
             "dependsOn": [
