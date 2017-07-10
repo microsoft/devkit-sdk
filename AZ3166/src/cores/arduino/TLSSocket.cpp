@@ -258,7 +258,14 @@ nsapi_size_or_error_t TLSSocket::send(const void *data, nsapi_size_t size)
     if (_ssl_ca_pem == NULL)
     {
         // No SSL
-        return _tcp_socket->send(data, size);
+        int result, data_size = size;
+        while((result = ssl_send(_tcp_socket, (const unsigned char *)data, data_size)) > 0)
+        {
+            data += result;
+            data_size -= result;
+            if (data_size == 0) return size;
+        }
+        return result;
     }
 
     return mbedtls_ssl_write(&_ssl, (const unsigned char*)data, size);
