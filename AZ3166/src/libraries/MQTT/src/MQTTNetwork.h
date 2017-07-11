@@ -35,7 +35,11 @@ public:
         ret = socket->connect(hostname, port);
         char telemetry[128];
         snprintf(telemetry, 128, "ret: %d, host: %s", ret, hostname);
+
+        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+        // We collect data about the features you use, how often you use them, and how you use them.
         send_telemetry_data("", "mqtt connection", telemetry);
+        
         return ret;
     }
 
