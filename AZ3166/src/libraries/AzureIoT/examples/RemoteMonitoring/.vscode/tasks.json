@@ -16,7 +16,7 @@
             "taskName": "cloud-provision",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "provision", ".bin"]
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "provision", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "provision", ".bin"]
