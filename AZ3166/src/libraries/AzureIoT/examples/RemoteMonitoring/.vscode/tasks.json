@@ -16,7 +16,7 @@
             "taskName": "cloud-provision",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "provision", ".bin"]
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "provision", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "provision", ".bin"]
@@ -31,7 +31,7 @@
             "taskName": "device-upload",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "build", ".bin"]
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "build", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "build", ".bin"]
