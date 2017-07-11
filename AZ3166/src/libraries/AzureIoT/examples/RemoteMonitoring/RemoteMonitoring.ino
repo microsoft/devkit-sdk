@@ -165,9 +165,11 @@ void setup() {
 
   InitWiFi();
 
-  if(isConnected)
+  if (isConnected)
   {
-     send_telemetry_data("", "RemoteMonitoringSetup", "");
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "RemoteMonitoringSetup", "");
   }
 }
 
