@@ -19,7 +19,7 @@
                 "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "provision", ".bin"]
             },
             "linux": {
-                "args": ["\"/HOME/$USER/azure-board-cli/out/cli.js\"", "provision", ".bin"]
+                "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "provision", ".bin"]
             },
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "provision", ".bin"]
@@ -34,7 +34,7 @@
                 "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "build", ".bin"]
             },
             "linux": {
-                "args": ["\"/HOME/$USER/azure-board-cli/out/cli.js\"", "build", ".bin"]
+                "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "build", ".bin"]
             },
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "build", ".bin"]
@@ -49,7 +49,7 @@
                 "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "deploy", ".bin"]
             },
             "linux": {
-                "args": ["\"/HOME/$USER/azure-board-cli/out/cli.js\"", "deploy", ".bin"]
+                "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "deploy", ".bin"]
             },
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "deploy", ".bin"]
@@ -64,7 +64,7 @@
                 "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "config_wifi"]
             },
             "linux": {
-                "args": ["\"/HOME/$USER/azure-board-cli/out/cli.js\"", "config_wifi"]
+                "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "config_wifi"]
             },
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "config_wifi"]
