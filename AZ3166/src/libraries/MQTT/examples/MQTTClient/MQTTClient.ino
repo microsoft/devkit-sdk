@@ -1,9 +1,8 @@
 #include <AZ3166WiFi.h>
 #include "MQTTClient.h"
 #include "MQTTNetwork.h"
+#include "telemetry.h"
 
-char ssid[] = "yourssid";            // your network SSID (name)
-char pass[] = "yourpassword";        // your network password
 int status = WL_IDLE_STATUS;
 int arrivedcount = 0;
 bool hasWifi = false;
@@ -11,20 +10,19 @@ bool hasWifi = false;
 const char* mqttServer = "iot.eclipse.org";   //"m2m.eclipse.org";
 int port = 1883;
 
-void initWifi() {
-  Screen.print(0, "Wi-Fi Connecting");
-  Screen.print(1, "SSID:");
-  Screen.print(2, ssid);
-  Serial.print("Attempting to connect to Wi-Fi, SSID: ");
-  Serial.println(ssid);
-  
-  if (WiFi.begin(ssid, pass) == WL_CONNECTED) {
+void initWifi()
+{
+  Screen.print("IoT DevKit\r\n \r\nConnecting...\r\n");
+
+  if (WiFi.begin() == WL_CONNECTED)
+  {
     IPAddress ip = WiFi.localIP();
-    Screen.print(0, "Wi-Fi Connected");
     Screen.print(1, ip.get_address());
     hasWifi = true;
     Screen.print(2, "Running... \r\n");
-  } else {
+  }
+  else
+  {
     Screen.print(1, "No Wi-Fi\r\n ");
   }
 }
@@ -117,6 +115,12 @@ void setup() {
   //Initialize serial and Wi-Fi:
   Serial.begin(115200);
   initWifi();
+  if(hasWifi)
+  {
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "MQTTClientSetup", "");
+  }
 }
 
 void loop() {

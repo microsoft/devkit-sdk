@@ -3,6 +3,7 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 #include "Sensor.h"
+#include "telemetry.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
@@ -69,6 +70,10 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
       return;
   }
   
+  if (lenTweet > 220){
+      lenTweet = 220;
+  }
+  
   int i = 0;
   int j = 0;
   // The header
@@ -81,7 +86,7 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
       }
       msgHeader[j++] = printable_char(tweet[i]);
   }
-  // The boday
+  // The body
   j = 0;
   for (; i < lenTweet; i++)
   {
@@ -208,6 +213,12 @@ void setup()
   if (!hasWifi)
   {
     return;
+  }
+  else
+  {
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "ShakeShakeSetup", "");
   }
   
   // Initialize LEDs

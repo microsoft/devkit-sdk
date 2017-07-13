@@ -94,6 +94,9 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
     {
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
+        
+        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+        // We collect data about the features you use, how often you use them, and how you use them.
         send_telemetry_data("", "wifi", "Wi-Fi connected");
 
         strcpy(this->ssid, ssid);
