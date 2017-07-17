@@ -26,6 +26,10 @@ void setup()
         return;
     }
 
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "DoorMonitorSetup", "");
+
     i2c = new DevI2C(D14, D15);
     lis2mdl = new LIS2MDLSensor(*i2c);
     // init
