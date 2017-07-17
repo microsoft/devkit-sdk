@@ -1,0 +1,10 @@
+{
+    "azureCliLocation": "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\wbin\\az.cmd",
+    "iotHubName": "devkit-iothub-ee59",
+    "subscription": "d0ee7790-f4a6-480a-9c7c-9a9d45ce2dfc",
+    "resourceGroup": "devkit-group-ee59",
+    "functionAppName": "devkit-iothub-ee59-shake4d5c",
+    "functionAppResourceGroup": "devkit-group-ee59",
+    "deviceConnectionString": "HostName=devkit-iothub-ee59.azure-devices.net;DeviceId=AZ3166;SharedAccessKey=j+shvRcsndgkBGghU40dCBy3TBaMCKKoucihccDw5UY=",
+    "deviceId": "AZ3166"
+}
