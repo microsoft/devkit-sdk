@@ -1,4 +1,5 @@
 ﻿#r "Newtonsoft.Json"
+#r "System.Web"
 
 using System;
 using Microsoft.Azure.Devices;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Configuration;
 using System.Net;
 using System.IO;
+using System.Web;
 using Newtonsoft.Json.Linq;
 
 public class DeviceObject
@@ -36,7 +38,7 @@ public static void Run(string myEventHubMessage, TraceWriter log)
 
     string tweet = string.Empty;
 
-    string url = "https://api.twitter.com/1.1/search/tweets.json" + "?count=3&q=%23" + deviceObject.topic;
+    string url = "https://api.twitter.com/1.1/search/tweets.json" + "?count=3&q=%23" + HttpUtility.UrlEncode(deviceObject.topic);
 
     string authHeader = "Bearer " + "AAAAAAAAAAAAAAAAAAAAAGVU0AAAAAAAucpxA9aXc2TO6rNMnTcVit1P3YM%3DrQpyFeQ6LOwyvy7cqW5djhLPnFfjEK8H3hA1qfGDh93JRbI1le";
 
