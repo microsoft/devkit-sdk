@@ -2,6 +2,7 @@
 #include "AZ3166WiFi.h"
 #include "iothub_client_sample_mqtt.h"
 #include <stdlib.h>
+#include "telemetry.h"
 
 DevI2C *i2c;
 LIS2MDLSensor *lis2mdl;
