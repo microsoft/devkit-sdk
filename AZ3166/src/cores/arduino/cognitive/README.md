@@ -13,7 +13,7 @@ This library is still being developed, and more cognitive APIs will be supported
 ## Prerequisite
 As we leverage the Microsoft Cognitive Service to perform the speech recognition. In order to use this library, you need to register for [Microsoft Cognitive Service](https://www.microsoft.com/cognitive-services/) and get an subscription key for the Bing Speech API and Speaker Recognition API.
 
-![Cognitive Service Subscription Key](https://doliotstorage.blob.core.windows.net/public-resources/cognitiveSubKey.JPG)
+![Cognitive Service Subscription Key](cognitiveSubKey.JPG)
 
 ## API Definition
 - **recognizeSpeech** API
