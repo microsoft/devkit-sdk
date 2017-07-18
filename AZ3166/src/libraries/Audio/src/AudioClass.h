@@ -32,17 +32,28 @@ typedef struct
     uint32_t data_chunck_size;
 } WaveHeader;
 
+typedef enum 
+{
+  AUDIO_STATE_IDLE = 0,
+  AUDIO_STATE_INIT,
+  AUDIO_STATE_RECORDING,
+  AUDIO_STATE_PLAYING,
+  AUDIO_STATE_RECORDING_FINISH,
+  AUDIO_STATE_PLAYING_FINISH
+} AUDIO_STATE_TypeDef;
+
 class AudioClass {
     public:
         AudioClass();
         void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
         void startRecord(char * audioFile, int fileSize, int durationInSeconds);
-        bool recordComplete();
         char* getWav(int *fileSize);
         double getRecordedDuration();
         int getCurrentSize();
         void stop();
         int convertToMono(char * audioFile, int size, int sampleBitLength);
+        void startPlay(char * audioFile, int size);
+        int getAudioState();
 
     private:
         void start(uint16_t * recordBuf, uint16_t * playBuf, unsigned int size);
