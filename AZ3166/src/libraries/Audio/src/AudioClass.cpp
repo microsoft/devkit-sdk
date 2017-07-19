@@ -104,6 +104,7 @@ void AudioClass::startRecord(char *audioFile, int fileSize, int durationInSecond
     }
 
     _audioState = AUDIO_STATE_RECORDING;
+    memset(_tx_buffer, 0x0, BATCH_TRANSMIT_SIZE*2);
     start(_tx_buffer, _rx_buffer, BATCH_TRANSMIT_SIZE);
 }
 
@@ -323,6 +324,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
             memcpy(_recordCursor, (char *)(_rx_buffer), copySize);
             _recordCursor += copySize;
 
+            memset(_rx_buffer, 0x0, BATCH_TRANSMIT_SIZE * 2);
             BSP_AUDIO_In_Out_Transfer(_rx_buffer, _tx_buffer, BATCH_TRANSMIT_SIZE);
             _flag = 1;
         }
@@ -331,6 +333,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
             memcpy(_recordCursor, (char *)(_tx_buffer), copySize);
             _recordCursor += copySize;
 
+            memset(_tx_buffer, 0x0, BATCH_TRANSMIT_SIZE * 2);
             BSP_AUDIO_In_Out_Transfer(_tx_buffer, _rx_buffer, BATCH_TRANSMIT_SIZE);
             _flag = 0;
         }
