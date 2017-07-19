@@ -26,7 +26,7 @@ static bool Initialization(void)
     
     // Initialize the OLED screen
     Screen.init();
-
+    
     return true;
 }
 

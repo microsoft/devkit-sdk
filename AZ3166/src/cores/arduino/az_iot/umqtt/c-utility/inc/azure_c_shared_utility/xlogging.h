@@ -4,14 +4,23 @@
 #ifndef XLOGGING_H
 #define XLOGGING_H
 
+#include "azure_c_shared_utility/agenttime.h"
+#include "azure_c_shared_utility/optimize_size.h"
+
+#if defined(ESP8266_RTOS)
+#include "c_types.h"
+#endif
+
+#if defined(ARDUINO_ARCH_ESP8266)
+#include "esp8266/azcpgmspace.h"
+#endif
+
 #ifdef __cplusplus
 #include <cstdio>
+extern "C" {
 #else
 #include <stdio.h>
 #endif /* __cplusplus */
-
-#include "azure_c_shared_utility/agenttime.h"
-#include "azure_c_shared_utility/optimize_size.h"
 
 #ifdef TIZENRT
 #undef LOG_INFO
@@ -30,7 +39,8 @@ typedef enum LOG_CATEGORY_TAG
 #define FUNC_NAME __func__
 #endif
 
-typedef void(*LOGGER_LOG)(LOG_CATEGORY log_category, const char* file, const char* func, const int line, unsigned int options, const char* format, ...);
+typedef void(*LOGGER_LOG)(LOG_CATEGORY log_category, const char* file, const char* func, int line, unsigned int options, const char* format, ...);
+typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int line, const char* format, ...);
 
 #define LOG_NONE 0x00
 #define LOG_LINE 0x01
@@ -54,12 +64,11 @@ typedef void(*LOGGER_LOG)(LOG_CATEGORY log_category, const char* file, const cha
 #define UNUSED(x) (void)(x)
 
 #elif defined(ESP8266_RTOS)
-#include "c_types.h"
 #define LogInfo(FORMAT, ...) do {    \
         static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = FORMAT;  \
         printf(flash_str, ##__VA_ARGS__);   \
         printf("\n");\
-    } while(0)
+    } while((void)0,0)
     
 #define LogError LogInfo
 #define LOG(log_category, log_options, FORMAT, ...)  { \
@@ -82,7 +91,6 @@ const char* __localFORMAT = PSTR(FORMAT);
 On the other hand, vsprintf does not support the pinned 'format' and os_printf does not work with va_list,
 so we compacted the log in the macro LogInfo.
 */
-#include "esp8266/azcpgmspace.h"
 #define LOG(log_category, log_options, FORMAT, ...) { \
         const char* __localFORMAT = PSTR(FORMAT); \
         os_printf(__localFORMAT, ##__VA_ARGS__); \
@@ -105,19 +113,26 @@ so we compacted the log in the macro LogInfo.
 #endif
 
 #if defined _MSC_VER
-#define LogInfo(FORMAT, ...) do{LOG(AZ_LOG_INFO, LOG_LINE, FORMAT, __VA_ARGS__); }while(0)
+#define LogInfo(FORMAT, ...) do{LOG(AZ_LOG_INFO, LOG_LINE, FORMAT, __VA_ARGS__); }while((void)0,0)
 #else
-#define LogInfo(FORMAT, ...) do{LOG(AZ_LOG_INFO, LOG_LINE, FORMAT, ##__VA_ARGS__); }while(0)
+#define LogInfo(FORMAT, ...) do{LOG(AZ_LOG_INFO, LOG_LINE, FORMAT, ##__VA_ARGS__); }while((void)0,0)
 #endif
 
 #if defined _MSC_VER
-#define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, __VA_ARGS__); }while(0)
+
+#if !defined(WINCE)
+extern void xlogging_set_log_function_GetLastError(LOGGER_LOG_GETLASTERROR log_function);
+extern LOGGER_LOG_GETLASTERROR xlogging_get_log_function_GetLastError(void);
+#define LogLastError(FORMAT, ...) do{ LOGGER_LOG_GETLASTERROR l = xlogging_get_log_function_GetLastError(); if(l!=NULL) l(__FILE__, FUNC_NAME, __LINE__, FORMAT, __VA_ARGS__); }while((void)0,0)
+#endif
+
+#define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, __VA_ARGS__); }while((void)0,0)
 #define TEMP_BUFFER_SIZE 1024
 #define MESSAGE_BUFFER_SIZE 260
 #define LogErrorWinHTTPWithGetLastErrorAsString(FORMAT, ...) do { \
                 DWORD errorMessageID = GetLastError(); \
+                char messageBuffer[MESSAGE_BUFFER_SIZE]; \
                 LogError(FORMAT, __VA_ARGS__); \
-                CHAR messageBuffer[MESSAGE_BUFFER_SIZE]; \
                 if (errorMessageID == 0) \
                 {\
                     LogError("GetLastError() returned 0. Make sure you are calling this right after the code that failed. "); \
@@ -143,28 +158,16 @@ so we compacted the log in the macro LogInfo.
                         LogError("GetLastError: %s.", messageBuffer); \
                     }\
                 }\
-            } while(0)
+            } while((void)0,0)
 #else
-#define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, ##__VA_ARGS__); }while(0)
+#define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, ##__VA_ARGS__); }while((void)0,0)
 #endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 extern void xlogging_set_log_function(LOGGER_LOG log_function);
 extern LOGGER_LOG xlogging_get_log_function(void);
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
 #endif /* ARDUINO_ARCH_ESP8266 */
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
     /**
      * @brief   Print the memory content byte pre byte in hexadecimal and as a char it the byte correspond to any printable ASCII chars.
@@ -181,7 +184,7 @@ extern "C" {
     extern void xlogging_dump_buffer(const void* buf, size_t size);
 
 #ifdef __cplusplus
-}
+}   // extern "C"
 #endif /* __cplusplus */
 
 #endif /* XLOGGING_H */
