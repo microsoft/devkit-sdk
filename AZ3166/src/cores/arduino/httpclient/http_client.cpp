@@ -91,7 +91,7 @@ void HTTPClient::init(const char* ssl_ca_pem, http_method method, const char* ur
     _response = new Http_Response;
     if (strlen(url) >= 5 && (strncmp("http:", url, 5) == 0))
     {
-        // HTTP request
+        _https_request = new HttpsRequest(WiFiInterface(), NULL, method, url, body_callback);
     }
     else if(strlen(url) >= 6 && (strncmp("https:", url, 6) == 0))
     {

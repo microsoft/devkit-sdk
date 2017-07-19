@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
+
 #include "SpeechInterface.h"
 #include "http_client.h"
 #include <json.h>

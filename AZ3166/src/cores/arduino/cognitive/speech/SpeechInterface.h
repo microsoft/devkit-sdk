@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
+
 #ifndef __SPEECH_INTERFACE_OS5_H__
 #define __SPEECH_INTERFACE_OS5_H__
 

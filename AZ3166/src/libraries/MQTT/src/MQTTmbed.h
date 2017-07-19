@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
+
 #if !defined(MQTT_MBED_H)
 #define MQTT_MBED_H
 

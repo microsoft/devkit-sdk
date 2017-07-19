@@ -67,6 +67,8 @@ typedef struct TLS_IO_INSTANCE_TAG
     mbedtls_ssl_config         config;
     mbedtls_x509_crt           cacert;
     mbedtls_ssl_session        ssn;
+    mbedtls_x509_crt           owncert;
+    mbedtls_pk_context         pKey;
 } TLS_IO_INSTANCE;
 
 static const IO_INTERFACE_DESCRIPTION tlsio_mbedtls_interface_description =
@@ -380,7 +382,7 @@ OPTIONHANDLER_HANDLE tlsio_mbedtls_retrieveoptions(CONCRETE_IO_HANDLE handle)
 
 CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
 {
-    TLSIO_CONFIG* tls_io_config = io_create_parameters;
+    TLSIO_CONFIG* tls_io_config = (TLSIO_CONFIG*) io_create_parameters;
     TLS_IO_INSTANCE* result;
 
     if (tls_io_config == NULL)
@@ -408,11 +410,11 @@ CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
                 socketio_config.hostname = tls_io_config->hostname;
                 socketio_config.port = tls_io_config->port;
                 socketio_config.accepted_socket = NULL;
-
+                
                 underlying_io_interface = socketio_get_interface_description();
                 io_interface_parameters = &socketio_config;
             }
-
+            
             if (underlying_io_interface == NULL)
             {
                 free(result);
@@ -652,6 +654,30 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
             else
             {
                 mbedtls_ssl_conf_ca_chain(&tls_io_instance->config,&tls_io_instance->cacert,NULL);
+            }
+        }
+        else if (strcmp("x509certificate", optionName) == 0)
+        {
+            result = mbedtls_x509_crt_parse(&tls_io_instance->owncert, value, (int)(strlen(value)+1));
+            if( result != 0 )
+            {
+                result = __LINE__;
+            }
+            else if (tls_io_instance->pKey.pk_info != NULL)
+            {
+                mbedtls_ssl_conf_own_cert(&tls_io_instance->config, &tls_io_instance->owncert, &tls_io_instance->pKey);
+            }
+        }
+        else if (strcmp("x509privatekey", optionName) == 0)
+        {
+            result = mbedtls_pk_parse_key(&tls_io_instance->pKey, value, (int)(strlen(value)+1), NULL, 0);
+            if( result != 0 )
+            {
+                result = __LINE__;
+            }
+            else if (tls_io_instance->owncert.version > 0)
+            {
+                mbedtls_ssl_conf_own_cert(&tls_io_instance->config, &tls_io_instance->owncert, &tls_io_instance->pKey);
             }
         }
         else if (tls_io_instance->socket_io == NULL)
