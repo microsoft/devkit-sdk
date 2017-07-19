@@ -361,7 +361,6 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
         }
         else
         {
-            printf("########################STOP");
             _audioState = AUDIO_STATE_PLAYING_FINISH;
             return;
         }

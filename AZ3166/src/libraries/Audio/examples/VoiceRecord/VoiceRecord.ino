@@ -2,7 +2,7 @@
 #include "OledDisplay.h"
 #include "AudioClass.h"
 
-AudioClass Audio;
+AudioClass& Audio = AudioClass::getInstance();
 const int AUDIO_SIZE = 32000 * 3 + 45;
 
 int lastButtonAState;
