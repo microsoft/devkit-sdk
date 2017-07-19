@@ -11,7 +11,7 @@ function truncateByDot(text, limit){
 }
 
 function completeContextWithError(context, errorMessage){
-    context.done('ShakeShakeAzureFuncError: ' + errorMessage);
+    context.done(`ShakeShakeAzureFuncError: ${errorMessage}`);
 }
 
 module.exports = function (context, myEventHubMessage) {
@@ -69,7 +69,13 @@ module.exports = function (context, myEventHubMessage) {
         });
     }
     else{
-        let msgString = JSON.stringify(myEventHubMessage);
-        completeContextWithError(context, `topic must not be null or empty in message ${msgString}`);
+        let msgString;
+        try{
+            msgString = JSON.stringify(myEventHubMessage);
+        }
+        catch(err){
+            msgString = `failed to stringify with error: ${err}`;
+        }
+        completeContextWithError(context, `topic must not be null or empty in message: ${msgString}`);
     }
 };
