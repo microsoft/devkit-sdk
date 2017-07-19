@@ -57,11 +57,9 @@ void loop()
     sprintf(buffer, "x:  %d", axes[0]);
     Screen.print(1, buffer);
 
-    memset(buffer, 0, 50);
     sprintf(buffer, "y:  %d", axes[1]);
     Screen.print(2, buffer);
 
-    memset(buffer, 0, 50);
     sprintf(buffer, "z:  %d", axes[2]);
     Screen.print(3, buffer);
 
