@@ -5,7 +5,8 @@
       "name": "myEventHubMessage",
       "direction": "in",
       "path": "%eventHubConnectionPath%",
-      "connection": "eventHubConnectionString"
+      "connection": "eventHubConnectionString",
+      "cardinality": "one"
     }
   ],
   "disabled": false
