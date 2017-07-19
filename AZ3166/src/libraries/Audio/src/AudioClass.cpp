@@ -68,14 +68,15 @@ void AudioClass::format(unsigned int sampleRate, unsigned short sampleBitLength)
     _audioState = AUDIO_STATE_INIT;
 }
 
-void AudioClass::start(uint16_t *transmitBuf, uint16_t *readBuf, unsigned int size)
+int AudioClass::start(uint16_t *transmitBuf, uint16_t *readBuf, unsigned int size)
 {
     if (transmitBuf == NULL || readBuf == NULL)
     {
-        return;
+        return AUDIO_ERROR;
     }
 
     BSP_AUDIO_In_Out_Transfer(transmitBuf, readBuf, size);
+    return AUDIO_OK;
 }
 
 /*
@@ -83,11 +84,12 @@ void AudioClass::start(uint16_t *transmitBuf, uint16_t *readBuf, unsigned int si
 ** @param Pointer to audio file
 ** @param fileSize Size of audio file
 ** @param durationInSeconds Audio duration to be recorded
+** @retval AUDIO_OK if correct recording, else wrong recording
 */
-void AudioClass::startRecord(char *audioFile, int fileSize, int durationInSeconds)
+int AudioClass::startRecord(char *audioFile, int fileSize, int durationInSeconds)
 {
     if ((audioFile == NULL) || (fileSize < WAVE_HEADER_SIZE) || (durationInSeconds <= 0)) {
-        return;
+        return AUDIO_ERROR;
     }
 
     _flag = 0;
@@ -106,6 +108,8 @@ void AudioClass::startRecord(char *audioFile, int fileSize, int durationInSecond
     _audioState = AUDIO_STATE_RECORDING;
     memset(_tx_buffer, 0x0, BATCH_TRANSMIT_SIZE*2);
     start(_tx_buffer, _rx_buffer, BATCH_TRANSMIT_SIZE);
+
+    return AUDIO_OK;
 }
 
 /*
@@ -113,12 +117,13 @@ void AudioClass::startRecord(char *audioFile, int fileSize, int durationInSecond
 ** @param audioFile Pointer to audio file
 ** @param fileSize Size of audio file
 ** @param channels Number of channels of the audio file
+** @retval AUDIO_OK if correct playing, else wrong playing
 */
-void AudioClass::startPlay(char *audioFile, int fileSize)
+int AudioClass::startPlay(char *audioFile, int fileSize)
 {
     if (audioFile == NULL || fileSize <= WAVE_HEADER_SIZE)
     {
-        return;
+        return AUDIO_ERROR;
     }
 
     _wavFile = audioFile;
@@ -136,6 +141,8 @@ void AudioClass::startPlay(char *audioFile, int fileSize)
 
     _audioRemSize = pcmDataSize - DMA_MAX(pcmDataSize);
     _playCursor += DMA_MAX(pcmDataSize);
+
+    return AUDIO_OK;
 }
 
 /*

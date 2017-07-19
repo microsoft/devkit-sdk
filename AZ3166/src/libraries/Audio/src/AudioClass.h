@@ -44,15 +44,17 @@ typedef enum
 
 class AudioClass {
     public:
-        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);    
-        void startRecord(char * audioFile, int fileSize, int durationInSeconds);
-        char* getWav(int *fileSize);
-        double getRecordedDuration();
-        int getCurrentSize();
+        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);  
+          
+        int startRecord(char * audioFile, int fileSize, int durationInSeconds);
+        int startPlay(char * audioFile, int size);
         void stop();
-        int convertToMono(char * audioFile, int size, int sampleBitLength);
-        void startPlay(char * audioFile, int size);
+
         int getAudioState();
+        int getCurrentSize();
+        double getRecordedDuration();
+        char* getWav(int *fileSize);
+        int convertToMono(char * audioFile, int size, int sampleBitLength);
 
         // Singleton class:
         // This is creation point for static instance variable
@@ -64,7 +66,7 @@ class AudioClass {
         }
 
     private:
-        void start(uint16_t * recordBuf, uint16_t * playBuf, unsigned int size);
+        int start(uint16_t * recordBuf, uint16_t * playBuf, unsigned int size);
         void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, uint16_t sampleBitDepth, uint8_t channels);
 
         /* Private constructor to prevent instancing */

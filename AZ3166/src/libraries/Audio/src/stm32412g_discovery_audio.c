@@ -297,7 +297,6 @@ uint8_t BSP_AUDIO_STOP()
     HAL_I2S_DMAStop( &haudio_i2s );     
 }
 
-
 /**
  * @brief  Starts playing audio stream from a data buffer for a determined size.
  * @param  pBuffer: Pointer to the buffer
