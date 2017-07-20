@@ -3,7 +3,7 @@
   "config": "deviceConnectionString",
   "provision_iot_hub": true,
   "provision_azure_function": true,
-  "functionRelativePath": "azureFunction/shakeshake.zip",
+  "functionRelativePath": "azureFunction",
   "functionName": "shakeshake",
   "tasks": {
     "provision": ["subscription", "iothub", "functionapp", "armtemplatedeployment", "device"],

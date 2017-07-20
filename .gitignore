@@ -250,3 +250,9 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# VS Code
+.vscode/
+
+# Build folder
+.build/
