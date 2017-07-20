@@ -10,6 +10,10 @@ function truncateByDot(text, limit){
     return text.length < limit ? text : text.substr(0, limit - 3) + '...';
 }
 
+function completeContextWithError(context, errorMessage){
+    context.done(`ShakeShakeAzureFuncError: ${errorMessage}`);
+}
+
 module.exports = function (context, myEventHubMessage) {
     // The right way to retrieve the device id is to get it from Azure Function proerpy bag
     // But seems the property bag cannot be stably retrieved from Azure so we choose to hard code the device id here for stability.
@@ -26,7 +30,7 @@ module.exports = function (context, myEventHubMessage) {
     if (deviceId && myEventHubMessage.topic) {
         cloudClient.open(function (err) {
             if (err) {
-                context.log('Could not connect: ' + err.message);
+                completeContextWithError(context, `could not connect: ${err.message}`);
             } else {
                 context.log('Client connected');
                 let tweet = '';
@@ -47,20 +51,31 @@ module.exports = function (context, myEventHubMessage) {
                         context.log(tweet);
                         const message = new Message(tweet);
                         cloudClient.send(deviceId, message, function (err, res) {
+                            cloudClient.close();
                             if (err) {
-                                context.log(`Error in send C2D message: ${err}`);
+                                completeContextWithError(context, `error in send C2D message: ${err}`);
                             } else {
                                 context.log(`send status: ${res.constructor.name}`);
+                                context.done();
                             }
-                            cloudClient.close();
                         });
                     }
                     else {
                         cloudClient.close();
+                        completeContextWithError(context, `fail to call twitter API: ${error}`);
                     }
                 });
             }
         });
     }
-    context.done();
+    else{
+        let msgString;
+        try{
+            msgString = JSON.stringify(myEventHubMessage);
+        }
+        catch(err){
+            msgString = `failed to stringify with error: ${err}`;
+        }
+        completeContextWithError(context, `topic must not be null or empty in message: ${msgString}`);
+    }
 };
