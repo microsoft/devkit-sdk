@@ -72,7 +72,7 @@ typedef struct
   uint8_t Power_Mode;                         /* Power-down/Sleep/Normal Mode */
   uint8_t Data_Update_Mode;                   /* continuous update/output registers not updated until MSB and LSB reading*/
   uint8_t Reboot_Mode;                        /* Normal Mode/Reboot memory content */
-  uint8_t Humidity_Resolutin;                 /* Humidity Resolution */
+  uint8_t Humidity_Resolution;                /* Humidity Resolution */
   uint8_t Temperature_Resolution;             /* Temperature Resolution */
   uint8_t OutputDataRate;                     /* One-shot / 1Hz / 7 Hz / 12.5 Hz */
 } HUM_TEMP_InitTypeDef;

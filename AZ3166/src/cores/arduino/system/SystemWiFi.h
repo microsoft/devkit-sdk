@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 
-#ifndef __SYSTME_WIFI_H__
-#define __SYSTME_WIFI_H__
+#ifndef __SYSTEM_WIFI_H__
+#define __SYSTEM_WIFI_H__
 
 #include "mbed.h"
 
@@ -24,4 +24,4 @@ int WiFiScan(WiFiAccessPoint *res, unsigned count);
 }
 #endif  // __cplusplus
 
-#endif  // __SYSTME_WIFI_H__
+#endif  // __SYSTEM_WIFI_H__

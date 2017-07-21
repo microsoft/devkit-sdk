@@ -80,7 +80,7 @@ int AudioClass::start(uint16_t *transmitBuf, uint16_t *readBuf, unsigned int siz
 }
 
 /*
-** @brief Start recording audio data usine underlying codec
+** @brief Start recording audio data using underlying codec
 ** @param Pointer to audio file
 ** @param fileSize Size of audio file
 ** @param durationInSeconds Audio duration to be recorded
@@ -180,8 +180,8 @@ void AudioClass::genericWAVHeader(WaveHeader *hdr, int pcmDataSize, uint32_t sam
     hdr->bytes_per_frame = channels * sampleBitDepth / 8;
     hdr->bits_per_sample = sampleBitDepth;
     hdr->file_size = pcmDataSize + 36;
-    memcpy(&hdr->data_chunck_id, "data", 4);
-    hdr->data_chunck_size = pcmDataSize;
+    memcpy(&hdr->data_chunk_id, "data", 4);
+    hdr->data_chunk_size = pcmDataSize;
 }
 
 /*

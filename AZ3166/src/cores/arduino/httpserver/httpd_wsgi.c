@@ -352,7 +352,7 @@ int httpd_send_response_301(httpd_request_t *req, char *location, const char
 	return ret;
 }
 
-int httpd_send_all_header(httpd_request_t *req, const char *first_line, int body_lenth, const char *content_type)
+int httpd_send_all_header(httpd_request_t *req, const char *first_line, int body_length, const char *content_type)
 {
   int ret;
 
@@ -382,7 +382,7 @@ int httpd_send_all_header(httpd_request_t *req, const char *first_line, int body
       return ret;
     }
   }
-  /*send Connection heafer*/
+  /*send Connection header*/
   ret = httpd_send(req->sock, http_header_keep_alive_ctrl, strlen(http_header_keep_alive_ctrl));
   if (ret != kNoErr) {
     httpd_d("Error in sending Connection");
@@ -398,7 +398,7 @@ int httpd_send_all_header(httpd_request_t *req, const char *first_line, int body
   /* Send Content-Length*/
   /* 6 should be more than enough */
   char con_len[6];
-  snprintf(con_len, sizeof(con_len), "%d", body_lenth);
+  snprintf(con_len, sizeof(con_len), "%d", body_length);
 
   ret = httpd_send_header(req->sock, "Content-Length", con_len);
   if (ret != kNoErr) {

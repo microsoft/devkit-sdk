@@ -75,10 +75,10 @@ SpeechResponse* SpeechInterface::recognizeSpeech(char * audioFileBinary, int len
     // Generate a new guid for cognitive service API request
     char* guid = generateGuidStr();
 
-    // Generate a JWT token for cognitove service authentication
+    // Generate a JWT token for cognitive service authentication
     char* jwtToken = getJwtToken();
     
-    // Preapre Speech Recognition API request URL
+    // Prepare Speech Recognition API request URL
     sprintf(_requestUri, SPEECH_RECOGNITION_API_REQUEST_URL, _deviceId, guid);
     if (_debug) printf("recognizeSpeech request URL: %s\r\n", _requestUri);
 
@@ -94,7 +94,7 @@ SpeechResponse* SpeechInterface::recognizeSpeech(char * audioFileBinary, int len
     }
     char* bodyStr = (char*)malloc(strlen(_response->body) + 1);
     strcpy(bodyStr, _response->body);
-    if (_debug) printf("congnitive result: %s\r\n", bodyStr);
+    if (_debug) printf("cognitive result: %s\r\n", bodyStr);
     
     SpeechResponse *speechResponse = new SpeechResponse();
     if (speechResponse == NULL) {

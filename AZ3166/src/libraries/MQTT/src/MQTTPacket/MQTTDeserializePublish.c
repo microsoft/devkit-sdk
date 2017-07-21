@@ -21,7 +21,7 @@
 #define min(a, b) ((a < b) ? 1 : 0)
 
 /**
-  * Deserializes the supplied (wire) buffer into publish data
+  * Deserialize the supplied (wire) buffer into publish data
   * @param dup returned integer - the MQTT dup flag
   * @param qos returned integer - the MQTT QoS value
   * @param retained returned integer - the MQTT retained flag
@@ -71,7 +71,7 @@ exit:
 
 
 /**
-  * Deserializes the supplied (wire) buffer into an ack
+  * Deserialize the supplied (wire) buffer into an ack
   * @param packettype returned integer - the MQTT packet type
   * @param dup returned integer - the MQTT dup flag
   * @param packetid returned integer - the MQTT packet identifier

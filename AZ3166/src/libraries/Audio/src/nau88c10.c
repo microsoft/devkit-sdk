@@ -212,7 +212,7 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
 }
 
 /**
-  * @brief  Deinitializes the audio codec.
+  * @brief  Deinitialize the audio codec.
   * @param  None
   * @retval  None
   */

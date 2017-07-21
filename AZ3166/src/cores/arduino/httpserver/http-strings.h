@@ -55,7 +55,7 @@ extern const char http_header_server[];
 extern const char http_header_conn_close[];
 extern const char http_header_conn_keep_alive[];
 extern const char http_header_keep_alive_ctrl[];
-extern const char httpd_authrized[];
+extern const char httpd_authorized[];
 extern const char http_header_type_chunked[];
 extern const char http_header_cache_ctrl[];
 extern const char http_header_cache_ctrl_no_chk[];
