@@ -60,6 +60,7 @@ int EEPROMClass::getData(int idx, char* dataBuff, int buffSize)
             free(outData);
             return result;
         }
+        free(outData);
     }
     
     return 0;

@@ -418,7 +418,7 @@ char* MQTTPacket_toString(char* strbuf, int strbuflen, unsigned char* buf, int b
 		int grantedQoSs[1];
 		if (MQTTDeserialize_suback(&packetid, maxcount, &count, grantedQoSs, buf, buflen) == 1)
 			strindex = snprintf(strbuf, strbuflen,
-				"SUBACK packet id %d count %d topic %.*s granted qos %d",
+				"SUBACK packet id %d count %d granted qos %d",
 				packetid, count, grantedQoSs[0]);
 	}
 	break;
