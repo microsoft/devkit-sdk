@@ -319,10 +319,10 @@ typedef struct
 * \code
 * Read/write
 * Default value: 0x00
-* 7 BOOT:  Reboot memory content. 0: normal mode; 1: reboot memory content. Self-cleared upon completation.
+* 7 BOOT:  Reboot memory content. 0: normal mode; 1: reboot memory content. Self-cleared upon completion.
 * 6:2 Reserved.
 * 1 HEATHER: 0: heater enable; 1: heater disable.
-* 0 ONE_SHOT: 0: waiting for start of conversion; 1: start for a new dataset. Self-cleared upon completation.
+* 0 ONE_SHOT: 0: waiting for start of conversion; 1: start for a new dataset. Self-cleared upon completion.
 * \endcode
 */
 #define HTS221_CTRL_REG2      (uint8_t)0x21

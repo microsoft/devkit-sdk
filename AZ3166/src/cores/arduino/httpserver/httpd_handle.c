@@ -349,7 +349,7 @@ int httpd_handle_message(int conn)
 	 *
 	 * The call bellow will iterate through all the url patterns and
 	 * invoke the handlers that match the request type and pattern.  If
-	 * request type and url patern match, invoke the handler.
+	 * request type and url pattern match, invoke the handler.
 	 */
 	err = httpd_wsgi(&httpd_req);
 

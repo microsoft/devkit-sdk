@@ -111,7 +111,7 @@ const char http_header_cache_ctrl[] =
 const char http_header_cache_ctrl_no_chk[] =
 	"Cache-Control: post-check=0, pre-check=0\r\n";
 const char http_header_pragma_no_cache[] = "Pragma: no-cache\r\n";
-const char httpd_authrized[] = {
+const char httpd_authorized[] = {
 "HTTP/1.1 401 Authorization Required\r\n"
 "Server: MySocket Server\r\n"
 "WWW-Authenticate: Basic realm=\""MODEL"\"\r\n"

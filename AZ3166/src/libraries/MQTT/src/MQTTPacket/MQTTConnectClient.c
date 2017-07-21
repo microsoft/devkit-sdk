@@ -122,7 +122,7 @@ int MQTTSerialize_connect(unsigned char* buf, int buflen, MQTTPacket_connectData
 
 
 /**
-  * Deserializes the supplied (wire) buffer into connack data - return code
+  * Deserialize the supplied (wire) buffer into connack data - return code
   * @param sessionPresent the session present flag returned (only for MQTT 3.1.1)
   * @param connack_rc returned integer value of the connack return code
   * @param buf the raw buffer data, of the correct length determined by the remaining length field

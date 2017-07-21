@@ -28,8 +28,8 @@ typedef struct
     uint32_t bytes_per_second;
     uint16_t bytes_per_frame;
     uint16_t bits_per_sample;
-    char data_chunck_id[4];
-    uint32_t data_chunck_size;
+    char data_chunk_id[4];
+    uint32_t data_chunk_size;
 } WaveHeader;
 
 typedef enum 

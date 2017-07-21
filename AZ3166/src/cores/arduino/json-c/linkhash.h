@@ -218,7 +218,7 @@ extern int lh_table_insert(struct lh_table *t, const void *k, const void *v);
 
 /**
  * Insert a record into the table. This one accepts the key's hash in additon
- * to the key. This is an exension to support functions that need to calculate
+ * to the key. This is an extension to support functions that need to calculate
  * the hash several times and allows them to do it just once and then pass
  * in the hash to all utility functions. Depending on use case, this can be a 
  * very considerate performance improvement.

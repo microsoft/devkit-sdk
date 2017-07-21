@@ -21,7 +21,7 @@
 
 
 /**
-  * Deserializes the supplied (wire) buffer into unsubscribe data
+  * Deserialize the supplied (wire) buffer into unsubscribe data
   * @param dup integer returned - the MQTT dup flag
   * @param packetid integer returned - the MQTT packet identifier
   * @param maxcount - the maximum number of members allowed in the topicFilters and requestedQoSs arrays

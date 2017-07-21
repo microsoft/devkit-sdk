@@ -62,7 +62,7 @@ typedef struct _PinDescription
 
 #define NB_PIN_DESCRIPTIONS (16*3)
 
-/* Pins table to be instanciated into variant.cpp */
+/* Pins table to be instantiated into variant.cpp */
 extern const PinDescription g_APinDescription[] ;
 
 

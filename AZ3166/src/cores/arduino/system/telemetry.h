@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 
-#ifndef TELEMERTY_H
-#define TELEMERTY_H
+#ifndef _TELEMETRY_H_
+#define _TELEMETRY_H_
 
 #ifdef __cplusplus
 extern "C"{
@@ -14,6 +14,6 @@ extern "C"{
 
 #ifdef __cplusplus
 }
-#endif
+#endif  // __cplusplus
 
-#endif
+#endif  // _TELEMETRY_H_

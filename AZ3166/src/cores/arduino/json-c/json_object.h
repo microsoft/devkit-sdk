@@ -258,7 +258,7 @@ extern void* json_object_get_userdata(json_object *jso);
  *
  * Note: Objects created by parsing strings may have custom serializers set
  * which expect the userdata to contain specific data (due to use of
- * json_object_new_double_s()). In this case, json_object_set_serialiser() with
+ * json_object_new_double_s()). In this case, json_object_set_serializer() with
  * NULL as to_string_func should be used instead to set the userdata and reset
  * the serializer to its default value.
  *
@@ -394,7 +394,7 @@ extern int json_object_object_add_ex(struct json_object* obj,
  *
  * This returns NULL if the field is found but its value is null, or if
  *  the field is not found, or if obj is not a json_type_object.  If you
- *  need to distinguis between these cases, use json_object_object_get_ex().
+ *  need to distinguish between these cases, use json_object_object_get_ex().
  *
  * *No* reference counts will be changed.  There is no need to manually adjust
  * reference counts through the json_object_put/json_object_get methods unless
@@ -624,7 +624,7 @@ extern json_bool json_object_get_boolean(const struct json_object *obj);
  * 
  * The type of obj is checked to be a json_type_boolean and 0 is returned 
  * if it is not without any further actions. If type of obj is json_type_boolean
- * the obect value is chaned to new_value
+ * the object value is chaned to new_value
  *
  * @param obj the json_object instance
  * @param new_value the value to be set
@@ -671,7 +671,7 @@ extern int32_t json_object_get_int(const struct json_object *obj);
  * 
  * The type of obj is checked to be a json_type_int and 0 is returned 
  * if it is not without any further actions. If type of obj is json_type_int
- * the obect value is chaned to new_value
+ * the object value is chaned to new_value
  *
  * @param obj the json_object instance
  * @param new_value the value to be set
@@ -700,7 +700,7 @@ extern int64_t json_object_get_int64(const struct json_object *obj);
  * 
  * The type of obj is checked to be a json_type_int and 0 is returned 
  * if it is not without any further actions. If type of obj is json_type_int
- * the obect value is chaned to new_value
+ * the object value is chaned to new_value
  *
  * @param obj the json_object instance
  * @param new_value the value to be set
@@ -803,7 +803,7 @@ extern double json_object_get_double(const struct json_object *obj);
  * 
  * The type of obj is checked to be a json_type_double and 0 is returned 
  * if it is not without any further actions. If type of obj is json_type_double
- * the obect value is chaned to new_value
+ * the object value is chaned to new_value
  *
  * @param obj the json_object instance
  * @param new_value the value to be set
@@ -865,10 +865,10 @@ extern int json_object_set_string(json_object* obj, const char* new_value);
  * 
  * The type of obj is checked to be a json_type_string and 0 is returned 
  * if it is not without any further actions. If type of obj is json_type_string
- * the obect value is chaned to new_value
+ * the object value is chaned to new_value
  *
  * @param obj the json_object instance
- * @param new_value the value to be set; Since string legth is given in len this need not be zero terminated
+ * @param new_value the value to be set; Since string length is given in len this need not be zero terminated
  * @param len the length of new_value
  * @returns 1 if value is set correctly, 0 otherwise
  */
