@@ -108,6 +108,8 @@ void checkMagnetometerStatus()
         if (curOpened != preOpened){
             iothubSendMessage((const unsigned char *)message);
             iothubLoop();
+            
+            send_telemetry_data("", "DoorMonitorSucceed", "");
             preOpened = curOpened;
         }
     }
