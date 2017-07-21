@@ -137,6 +137,7 @@ void iothub_client_sample_send_event(const unsigned char *text)
     currentMessage->messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char*)text));
     if (currentMessage->messageHandle == NULL) {
         (void)Serial.printf("ERROR: iotHubMessageHandle is NULL!\r\n");
+        free(currentMessage);
         return;
     }
     currentMessage->messageTrackingId = trackingId++;
@@ -146,6 +147,8 @@ void iothub_client_sample_send_event(const unsigned char *text)
     if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, currentMessage->messageHandle, SendConfirmationCallback, currentMessage) != IOTHUB_CLIENT_OK)
     {
         (void)Serial.printf("ERROR: IoTHubClient_LL_SendEventAsync..........FAILED!\r\n");
+        IoTHubMessage_Destroy(currentMessage->messageHandle);
+        free(currentMessage);
         return;
     }
     (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.\r\n");

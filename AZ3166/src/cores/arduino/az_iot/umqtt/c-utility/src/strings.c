@@ -522,7 +522,7 @@ int STRING_sprintf(STRING_HANDLE handle, const char* format, ...)
     char buf[512];
 #else
     size_t maxBufSize = 0;
-    char* buf = NULL;
+    char buf[1];
 #endif
     
     if (handle == NULL || format == NULL)

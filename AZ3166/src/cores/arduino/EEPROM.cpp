@@ -45,24 +45,31 @@ uint8_t EEPROMClass::read(int idx)
 int EEPROMClass::getData(int idx, char* dataBuff, int buffSize)
 {
     uint8_t zoneIndex = (idx & 0x7F000000) >> 24;
-
     int maxBuffLength = getMaxLengthInZone(zoneIndex);
-
-    if (buffSize <= maxBuffLength)
+    if (buffSize > maxBuffLength)
     {
-        EEPROMInterface eepromInterface;
-        uint8_t* outData = (uint8_t*)malloc(buffSize);
-        int result = eepromInterface.read(outData, buffSize, 0, zoneIndex);
-
-        if (result == buffSize)
-        {
-            memcpy(dataBuff, outData, buffSize);
-            free(outData);
-            return result;
-        }
+        return 0;
     }
     
-    return 0;
+    uint8_t* outData = (uint8_t*)malloc(buffSize);
+    if (outData == NULL)
+    {
+        return 0;
+    }
+    
+    EEPROMInterface eepromInterface;
+    int result = eepromInterface.read(outData, buffSize, 0, zoneIndex);
+    if (result == buffSize)
+    {
+        memcpy(dataBuff, outData, buffSize);
+    }
+    else
+    {
+        result = 0;
+    }
+    free(outData);
+    
+    return result;
 }
 
 static int getMaxLengthInZone(uint8_t zoneIndex)

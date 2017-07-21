@@ -30,9 +30,9 @@ SpeechInterface::SpeechInterface(const char * subscriptionKey, const char * devi
 
 SpeechInterface::~SpeechInterface(void)
 {  
-    delete _cognitiveSubKey;
-    delete _deviceId;
-    delete _requestUri;
+    free(_cognitiveSubKey);
+    free(_deviceId);
+    free(_requestUri);
 }
 
 char* SpeechInterface::generateGuidStr()
@@ -98,6 +98,7 @@ SpeechResponse* SpeechInterface::recognizeSpeech(char * audioFileBinary, int len
     
     SpeechResponse *speechResponse = new SpeechResponse();
     if (speechResponse == NULL) {
+        free(bodyStr);
         if (_debug) printf("SpeechResponse is null \r\n");
         return NULL;
     }
