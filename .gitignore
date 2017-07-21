@@ -252,7 +252,7 @@ paket-files/
 *.sln.iml
 
 # VS Code
-.vscode/
+/.vscode/
 
 # Build folder
 .build/
