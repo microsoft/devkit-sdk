@@ -8,14 +8,14 @@
 #include "iothub_client_ll.h"
 #include "OLEDDisplay.h"
 
-#define MAX_UPLOAD_SIZE (64 * 1024)
 #define MAX_WORDS 12
 #define LANGUAGES_COUNT 9
+#define MAX_RECORD_DURATION 3
+#define MAX_UPLOAD_SIZE (64 * 1024)
 
-static const int recordedDuration = 3;
-static const int audioSize = ((32000 * recordedDuration) + 44);
+static const int audioSize = ((32000 * MAX_RECORD_DURATION) + 44);
 static int wavFileSize;
-static int curIndex = 1;
+static int curIndex = 0;
 static char *waveFile = NULL;
 static char azureFunctionUri[128];
 static char source[MAX_WORDS] = "Chinese";
@@ -96,29 +96,18 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE
     }
     else
     {
-        char *temp = (char *)malloc(size + 1);
-        if (temp == NULL)
-        {
-            result = IOTHUBMESSAGE_REJECTED;
-        }
-        else
-        {
-            memcpy(temp, buffer, size);
-            temp[size] = '\0';
-            if (status == Uploaded)
-            {
-                Screen.print(1, "Translation: ");
-                Screen.print(2, temp, true);
-            }
-            free(temp);
-            result = IOTHUBMESSAGE_ACCEPTED;
-        }
+        result = IOTHUBMESSAGE_ACCEPTED;
     }
     if (status == Uploaded)
     {
         if (result == IOTHUBMESSAGE_REJECTED)
         {
-            Screen.print(1, "Receive C2D failed", true);
+            Screen.print(1, "Receive C2D message failed", true);
+        }
+        else
+        {
+            Screen.print(1, "Translation: ");
+            Screen.print(2, buffer, true);
         }
         freeWavFile();
         enterIdleState(false);
@@ -130,19 +119,11 @@ static int iothubInit()
 {
     EEPROMInterface eeprom;
     uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = {'\0'};
-    if (eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX) < 0)
-    {
-        return -1;
-    }
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((const char *)connString, MQTT_Protocol)) == NULL)
-    {
-        return -1;
-    }
-    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
-    {
-        return -1;
-    }
-    if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, c2dMessageCallback, NULL) != IOTHUB_CLIENT_OK)
+
+    if (eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX) < 0 ||
+        (iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((const char *)connString, MQTT_Protocol)) == NULL ||
+        IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK ||
+        IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, c2dMessageCallback, NULL) != IOTHUB_CLIENT_OK)
     {
         return -1;
     }
@@ -174,7 +155,7 @@ static void listenVoice()
             }
             memset(waveFile, 0, audioSize + 1);
             Audio.format(8000, 16);
-            Audio.startRecord(waveFile, audioSize, recordedDuration);
+            Audio.startRecord(waveFile, audioSize, MAX_RECORD_DURATION);
             status = Recorded;
             Screen.clean();
             Screen.print(0, "Release to send\r\nMax duraion: 3 sec");
@@ -212,7 +193,7 @@ static void listenVoice()
     case WavReady:
         if (wavFileSize > 0 && waveFile != NULL)
         {
-            if (0 == httpTriggerTranslator(waveFile, wavFileSize))
+            if (httpTriggerTranslator(waveFile, wavFileSize) == 0)
             {
                 status = Uploaded;
                 Screen.print(1, "Receiving...");
@@ -235,7 +216,7 @@ static void listenVoice()
     }
 }
 
-static bool IsButtonClicked(unsigned char ulPin)
+static bool isButtonPressed(unsigned char ulPin)
 {
     pinMode(ulPin, INPUT);
     return digitalRead(ulPin) == LOW;
@@ -266,6 +247,7 @@ void loop()
 {
     if (!ready)
     {
+        delay(3000);
         return;
     }
 
@@ -273,11 +255,11 @@ void loop()
 
     if (setupMode)
     {
-        if (IsButtonClicked(USER_BUTTON_B))
+        if (isButtonPressed(USER_BUTTON_B))
         {
             scrollLanguages(curIndex + 1);
         }
-        if (IsButtonClicked(USER_BUTTON_A))
+        if (isButtonPressed(USER_BUTTON_A))
         {
             strncpy(source, allSource[curIndex], MAX_WORDS);
             setupMode = false;
@@ -286,7 +268,7 @@ void loop()
     }
     else
     {
-        if (IsButtonClicked(USER_BUTTON_A))
+        if (isButtonPressed(USER_BUTTON_A))
         {
             scrollLanguages(0);
             setupMode = true;
