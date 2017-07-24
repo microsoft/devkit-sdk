@@ -3,10 +3,12 @@
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "EEPROMInterface.h"
+#include "OLEDDisplay.h"
+
 #include "azure_config.h"
 #include "http_client.h"
 #include "iothub_client_ll.h"
-#include "OLEDDisplay.h"
+#include "telemetry.h"
 
 #define MAX_WORDS 12
 #define LANGUAGES_COUNT 9
@@ -241,6 +243,7 @@ void setup()
     }
     sprintf(azureFunctionUri, "http://%s.azurewebsites.net/api/devkit-translator", (char *)AZURE_FUNCTION_APP_NAME);
     Screen.print(1, "Hold B to talk  Chinese or Press A choose others", true);
+    send_telemetry_data("", "DevKitTranslatorSucceed", "");
 }
 
 void loop()
