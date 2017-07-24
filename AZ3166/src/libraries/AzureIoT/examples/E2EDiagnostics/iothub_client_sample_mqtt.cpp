@@ -6,9 +6,14 @@
 #include "AzureIotHub.h"
 #include "Arduino.h"
 #include "config.h"
+#include "EEPROMInterface.h"
 #include "iothub_client_sample_mqtt.h"
 #include "json.h"
 #include "Sensor.h"
+
+const int INTERVAL = 3000;
+const int MESSAGE_MAX_LEN = 256;
+const int TEMPERATURE_F_MAX = 86;
 
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 static bool messagePending = false;
@@ -16,11 +21,7 @@ static bool messageSending = true;
 static DevI2C *ext_i2c;
 static HTS221Sensor *ht_sensor;
 static int interval = INTERVAL;
-
-int getInterval()
-{
-    return interval;
-}
+static int messageCount = 0;
 
 static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE message, void *userContextCallback)
 {
@@ -67,21 +68,19 @@ void readMessage(int messageId, char *payload)
     if (temperature <= TEMPERATURE_F_MAX)
     {
         char *root = "{"
-                     "\"deviceId\": \"%s\","
                      "\"messageId\": \"%d\","
                      "\"humidity\": \"%d\","
                      "\"temperature\": \"%d\""
                      "}";
-        sprintf(payload, root, DEVICE_ID, messageId, (int)humidity, (int)temperature);
+        sprintf(payload, root, messageId, (int)humidity, (int)temperature);
     }
     else
     {
         char *root = "{"
-                     "\"deviceId\": \"%s\","
                      "\"messageId\": \"%d\","
                      "\"humidity\": \"%d\""
                      "}";
-        sprintf(payload, root, DEVICE_ID, messageId, (int)humidity);
+        sprintf(payload, root, messageId, (int)humidity);
     }
 }
 
@@ -92,7 +91,9 @@ void showC2DMessageReceived()
 
 void showSendConfirmation()
 {
-    Screen.print(2, "Msg sent ok");
+    char message[25];
+    sprintf(message, "Msg %d sent", messageCount-1);
+    Screen.print(2, message);
 }
 
 void parseTwinMessage(const char *message)
@@ -117,56 +118,74 @@ void parseTwinMessage(const char *message)
         }
     }
 }
+
 static void twinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, size_t size, void *userContextCallback)
 {
     char *temp = (char *)malloc(size + 1);
-    for (int i = 0; i < size; i++)
+    if(temp == NULL)
     {
-        temp[i] = (char)(payLoad[i]);
+        LogError("Failed to malloc for twinCallback.");
+        return;
     }
+    memcpy(temp, payLoad, size);
     temp[size] = '\0';
     parseTwinMessage(temp);
     free(temp);
 }
 
-void iothubInit()
+bool iothubInit()
 {
     srand((unsigned int)time(NULL));
+
+    EEPROMInterface eeprom;
+    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
+    if (ret < 0)
+    {
+        LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
+        return false;
+    }
+    else if (ret == 0)
+    {
+        LogError("The connection string is empty. Please set the value in configuration mode.");
+        return false;
+    }
 
     if (platform_init() != 0)
     {
         LogError("Failed to initialize the platform.");
-        return;
+        return false;
     }
 
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString_WithDiagnostics(SAMPLING_SERVER, 0, CONNECTION_STRING, MQTT_Protocol)) == NULL)
+    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString_WithDiagnostics(SAMPLING_SERVER, 0, (const char*)connString, MQTT_Protocol)) == NULL)
     {
         LogError("Error: iotHubClientHandle is NULL!");
-        return;
+        return false;
     }
 
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"TrustedCerts\"");
-        return;
+        return false;
     }
 
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, c2dMessageCallback, NULL) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetMessageCallback FAILED!");
-        return;
+        return false;
     }
 
     if (IoTHubClient_LL_SetDeviceTwinCallback_WithDiagnostics(iotHubClientHandle, twinCallback, NULL) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
-        return;
+        return false;
     }
+    return true;
 }
 
 static void sendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
 {
-    if (IOTHUB_CLIENT_CONFIRMATION_OK == result)
+    if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
     {
         LogInfo("Message sent to Azure IoT Hub");
         showSendConfirmation();
@@ -178,11 +197,14 @@ static void sendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     messagePending = false;
 }
 
-void iothubSendMessage(const unsigned char *text)
+void iothubSendMessage(void)
 {
     if (messageSending && !messagePending)
     {
-        IOTHUB_MESSAGE_HANDLE messageHandle = IoTHubMessage_CreateFromByteArray(text, strlen((const char *)text));
+        char text[MESSAGE_MAX_LEN];
+        readMessage(messageCount++, text);
+       
+        IOTHUB_MESSAGE_HANDLE messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char *)text, strlen((const char *)text));
         if (messageHandle == NULL)
         {
             LogError("Failed to create a new IoTHubMessage");
@@ -198,7 +220,7 @@ void iothubSendMessage(const unsigned char *text)
         LogInfo("IoTHubClient accepted the message for delivery");
         messagePending = true;
         IoTHubMessage_Destroy(messageHandle);
-        delay(getInterval());
+        delay(interval);
     }
 }
 
