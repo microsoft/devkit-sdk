@@ -93,7 +93,7 @@
                                 "value": "[reference('iothubTemplate').outputs.eventHubConnectionPath.value]"
                             },
                             {
-                                "name": "sunscriptionKey",
+                                "name": "subscriptionKey",
                                 "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName')), '2017-04-18').key1]"
                             }
                         ]
