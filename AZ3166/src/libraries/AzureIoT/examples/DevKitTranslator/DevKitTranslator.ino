@@ -24,7 +24,7 @@ static char source[MAX_WORDS] = "Chinese";
 static char allSource[LANGUAGES_COUNT][MAX_WORDS] = {"Arabic", "Chinese", "French", "German", "Italian", "Japanese", "Portuguese", "Russian", "Spanish"};
 static bool ready = false;
 static bool setupMode = false;
-static AudioClass Audio;
+static AudioClass& Audio = AudioClass::getInstance();
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
 
 enum STATUS
