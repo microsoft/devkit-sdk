@@ -197,7 +197,7 @@ static void sendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     messagePending = false;
 }
 
-void iothubSendMessage(void)
+void iothubSendMessage()
 {
     if (messageSending && !messagePending)
     {
@@ -224,7 +224,7 @@ void iothubSendMessage(void)
     }
 }
 
-void iothubLoop(void)
+void iothubLoop()
 {
     IoTHubClient_LL_DoWork(iotHubClientHandle);
 }
