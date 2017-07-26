@@ -22,7 +22,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     try
     {
         data = await req.Content.ReadAsByteArrayAsync();
-        speechClient = new SpeechClient(ConfigurationManager.AppSettings["sunscriptionKey"], req.Headers.GetValues("source").FirstOrDefault());
+        speechClient = new SpeechClient(ConfigurationManager.AppSettings["subscriptionKey"], req.Headers.GetValues("source").FirstOrDefault());
     }
     catch(Exception ex)
     {
