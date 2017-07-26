@@ -23,7 +23,7 @@ That is definitely something we want to hear about. Please open an issue on gith
 - Do you have logs showing what's happening?
 - And please share all repro steps for your issue.
 
-*Our IoT DevKit are open-source and we do accept pull-requests if you feel like taking a stab at fixing the bug and maybe adding your name to our commit history :) Please mention any relevant issue number in the pull request description.* Please see [Contribute code](#contribute-code) below.
+*Our IoT DevKit SDK are open-source and we do accept pull-requests if you feel like taking a stab at fixing the bug and maybe adding your name to our commit history :) Please mention any relevant issue number in the pull request description.* Please see [Contribute code](#contribute-code) below.
 
 # Contribute code or documentation
 We require pull-requests for code and documentation to be submitted against the `master` branch in order to review and run it in our gated build system. 
