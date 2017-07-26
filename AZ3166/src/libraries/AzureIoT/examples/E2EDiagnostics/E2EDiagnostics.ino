@@ -2,9 +2,10 @@
 #include "AZ3166WiFi.h"
 #include "config.h"
 #include "iothub_client_sample_mqtt.h"
+#include "telemetry.h"
 
 static bool hasWifi = false;
-static int messageCount = 1;
+static bool ready = false;
 
 void initWifi()
 {
@@ -25,6 +26,7 @@ void initWifi()
 
 void setup()
 {
+    Serial.begin(115200);
     hasWifi = false;
     initWifi();
     if (!hasWifi)
@@ -33,18 +35,23 @@ void setup()
         return;
     }
 
-    Serial.begin(9600);
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "E2EDiagnosticsSampleSetup", "");
+
     sensorInit();
-    iothubInit();
+    ready = iothubInit();
 }
 
 void loop()
 {
-    char messagePayload[MESSAGE_MAX_LEN];
-    readMessage(messageCount, messagePayload);
-    Serial.println(messagePayload);
-    iothubSendMessage((const unsigned char *)messagePayload);
-    messageCount++;
+    if(!ready)
+    {
+        delay(1000);
+        return;
+    }
+
+    iothubSendMessage();
     iothubLoop();
-    delay(10);
+    delay(1000);
 }

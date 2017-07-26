@@ -6,13 +6,13 @@
 
 #include "iothub_client_ll.h"
 
-void iothubInit(void);
+bool iothubInit(void);
 void sensorInit(void);
 void showC2DMessageReceived(void);
 void parseTwinMessage(const char *);
 void showSendConfirmation(void);
 void readMessage(int, char *);
-void iothubSendMessage(const unsigned char *text);
+void iothubSendMessage(void);
 void iothubLoop(void);
 void iothubClose(void);
 
