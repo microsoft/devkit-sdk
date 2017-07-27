@@ -10,12 +10,7 @@
 
 int platform_init(void)
 {
-    SyncTime();
-
-    // turn on Azure led 
-    DigitalOut LedAzure(LED_AZURE);
-    LedAzure = 1;
-    
+    SyncTime();    
     return 0;
 }
 
@@ -31,7 +26,4 @@ STRING_HANDLE platform_get_platform_info(void)
 
 void platform_deinit(void)
 {
-    // turn off Azure led 
-    DigitalOut LedAzure(LED_AZURE);
-    LedAzure = 0;
 }
