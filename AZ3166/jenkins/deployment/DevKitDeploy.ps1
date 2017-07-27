@@ -28,7 +28,7 @@ $ArduinoPackageContainer = "arduinopackage"
 $PackageInfoContainer = "packageinfo"
 
 # We can move this credential to Azure Key Vault once we have deploy with production subscription
-$Key = "f4N1eHbWpWp15u+EsC0bs4QNtKBIcRPXKl0kMeh4P9ioliHbSh28ayZ3zvAs3cx5SfwDRy3WKLRxLnhqL35TUQ=="
+$Key = $env:DevKitStorageKey
 $StorageContext = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $Key
 
 # Get current package version
