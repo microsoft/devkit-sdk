@@ -82,7 +82,7 @@ if (!$NewItem) {
 }
 
 
-$MD5Json | ConvertTo-Json -Depth 10 | Out-File $MD5FilePath
+$MD5Json | ConvertTo-Json -Depth 10 | Out-File $MD5FileName
 
 # Update the MD5 JSON file in Azure blob storage
 Set-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -File $MD5FileName -Force
@@ -143,7 +143,7 @@ $ArduinoConfigJson | ConvertTo-Json -Depth 10 | Out-File $ArduinoConfigFileName
 
 # Upload Arduino configuration file to Azure blob storage
 $ArduinoConfigJsonBlobName = "$Environment/package_devkit_index.json"
-Set-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -File $ArduinoConfigFilePath -Blob $ArduinoConfigJsonBlobName -Force
+Set-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -File $ArduinoConfigFileName -Blob $ArduinoConfigJsonBlobName -Force
 
 $ArduinoConfigJsonBlobURL = "https://azureboard.blob.core.windows.net/$PackageInfoContainer/$ArduinoConfigJsonBlobName"
 Write-Host("Arduino board manager JSON file URI: $ArduinoConfigJsonBlobURL")
