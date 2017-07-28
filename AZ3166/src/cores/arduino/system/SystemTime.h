@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 
-#ifndef __SYSTME_CLOCK_H__
-#define __SYSTME_CLOCK_H__
+#ifndef __SYSTEM_CLOCK_H__
+#define __SYSTEM_CLOCK_H__
 
 #include "mbed.h"
 
@@ -16,4 +16,4 @@ void SyncTime(void);
 }
 #endif  // __cplusplus
 
-#endif  // __SYSTME_CLOCK_H__
+#endif  // __SYSTEM_CLOCK_H__

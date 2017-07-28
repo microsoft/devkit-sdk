@@ -215,7 +215,7 @@ json_object_iter_peek_value(const struct json_object_iterator* iter);
  *        much any reasonable underlying representation.
  *
  * @param iter1 Pointer to first valid, non-NULL iterator
- * @param iter2 POinter to second valid, non-NULL iterator
+ * @param iter2 Pointer to second valid, non-NULL iterator
  *
  * @warning	if a NULL iterator pointer or an uninitialized
  *       	or invalid iterator, or iterators derived from

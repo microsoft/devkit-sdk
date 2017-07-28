@@ -73,7 +73,7 @@ extern "C"{
 #define GPIO_PIN_UART_TX              0x00001000
 #define GPIO_PIN_UART_RX              0x00002000
 
-//defines here the ardduino IOs type
+//defines here the Arduino IOs type
 //digital pins
 #define ARDUINO_PIN_D0                D0
 #define ARDUINO_PIN_D1                D1

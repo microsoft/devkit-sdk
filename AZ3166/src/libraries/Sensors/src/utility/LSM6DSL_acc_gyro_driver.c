@@ -452,12 +452,12 @@ mems_status_t LSM6DSL_ACC_GYRO_GetRawGyroData(void *handle, u8_t *buff)
 * Function Name  : mems_status_t LSM6DSL_ACC_Get_AngularRate(u8_t *buff)
 * Description    : Read GetGyroData output register
 * Input          : pointer to [u8_t]
-* Output         : Returned values are espressed in mdps
+* Output         : Returned values are expressed in mdps
 * Return         : Status [MEMS_ERROR, MEMS_SUCCESS]
 *******************************************************************************/
 /*
  * Following is the table of sensitivity values for each case.
- * Values are espressed in udps/digit.
+ * Values are expressed in udps/digit.
  */
 static const long long LSM6DSL_GYRO_Sensitivity_List[5] = {
       4375, /* FS @125 */
@@ -3505,13 +3505,13 @@ mems_status_t LSM6DSL_ACC_GYRO_R_SOFT(void *handle, LSM6DSL_ACC_GYRO_SOFT_t *val
 }
 
 /*******************************************************************************
-* Function Name  : LSM6DSL_ACC_GYRO_W_SignifcantMotion
+* Function Name  : LSM6DSL_ACC_GYRO_W_SignificantMotion
 * Description    : Write SIGN_MOTION_EN
 * Input          : LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t
 * Output         : None
 * Return         : Status [MEMS_ERROR, MEMS_SUCCESS]
 *******************************************************************************/
-mems_status_t LSM6DSL_ACC_GYRO_W_SignifcantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t newValue)
+mems_status_t LSM6DSL_ACC_GYRO_W_SignificantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t newValue)
 {
   u8_t value;
 
@@ -3528,13 +3528,13 @@ mems_status_t LSM6DSL_ACC_GYRO_W_SignifcantMotion(void *handle, LSM6DSL_ACC_GYRO
 }
 
 /*******************************************************************************
-* Function Name  : LSM6DSL_ACC_GYRO_R_SignifcantMotion
+* Function Name  : LSM6DSL_ACC_GYRO_R_SignificantMotion
 * Description    : Read SIGN_MOTION_EN
 * Input          : Pointer to LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t
 * Output         : Status of SIGN_MOTION_EN see LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t
 * Return         : Status [MEMS_ERROR, MEMS_SUCCESS]
 *******************************************************************************/
-mems_status_t LSM6DSL_ACC_GYRO_R_SignifcantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t *value)
+mems_status_t LSM6DSL_ACC_GYRO_R_SignificantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t *value)
 {
  if( !LSM6DSL_ACC_GYRO_read_reg(handle, LSM6DSL_ACC_GYRO_CTRL10_C, (u8_t *)value, 1) )
     return MEMS_ERROR;
@@ -6314,7 +6314,7 @@ mems_status_t LSM6DSL_ACC_GYRO_SH0_ReadMem(void *handle, u8_t SlvAddr, u8_t Reg,
   
   LSM6DSL_ACC_GYRO_SH0_Program(handle, SlvAddr, Reg, len);
 
-  /* Syncronize the SH with internal trigger (xl) */
+  /* Synchronize the SH with internal trigger (xl) */
   LSM6DSL_ACC_GYRO_W_ODR_XL(handle, LSM6DSL_ACC_GYRO_ODR_XL_104Hz);
   
   /* Wait until operation is not completed */
@@ -6370,7 +6370,7 @@ mems_status_t LSM6DSL_ACC_GYRO_SH0_WriteByte(void *handle, u8_t SlvAddr, u8_t Re
   //LSM6DSL_ACC_GYRO_W_PULL_UP_EN(handle, LSM6DSL_ACC_GYRO_PULL_UP_EN_ENABLED);
   LSM6DSL_ACC_GYRO_W_I2C_MASTER_Enable(handle, LSM6DSL_ACC_GYRO_MASTER_ON_ENABLED);
 
-  /* Syncronize the SH with internal trigger (xl) */
+  /* Synchronize the SH with internal trigger (xl) */
   LSM6DSL_ACC_GYRO_W_ODR_XL(handle, LSM6DSL_ACC_GYRO_ODR_XL_104Hz);
   
   /* Wait until operation is not completed */

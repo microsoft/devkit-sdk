@@ -220,7 +220,7 @@ int httpd_send_header(int sock, const char *name, const char *value);
  *  @return WM_SUCCESS      :if successful
  *  @return -WM_FAIL        :otherwise
  */
-int httpd_send_all_header(httpd_request_t *req, const char *first_line, int body_lenth, const char *content_type);
+int httpd_send_all_header(httpd_request_t *req, const char *first_line, int body_length, const char *content_type);
 
 /** Send an HTTP body
  *

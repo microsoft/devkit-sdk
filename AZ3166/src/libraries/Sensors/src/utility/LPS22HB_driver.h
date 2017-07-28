@@ -246,7 +246,7 @@ typedef struct
  * 4 P2_DRDY: Data Ready Signal on INT2 pin.
  * 3 P1_EMPTY: Empty Signal on INT1 pin.
  * 2 P1_WTM: Watermark Signal on INT1 pin.
- * 1 P1_Overrunn:Overrun Signal on INT1 pin.
+ * 1 P1_Overrun:Overrun Signal on INT1 pin.
  * 0 P1_DRDY: Data Ready Signal on INT1 pin.
  * \endcode
  */

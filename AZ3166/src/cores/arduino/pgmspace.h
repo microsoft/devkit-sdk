@@ -89,7 +89,7 @@ int	vsnprintf_P(char *str, size_t strSize, PGM_P formatP, va_list ap) __attribut
 #ifdef __ets__
 #define pgm_read_byte(addr) 		                                           \
 (__extension__({                                                               \
-    PGM_P __local = (PGM_P)(addr);  /* isolate varible for macro expansion */         \
+    PGM_P __local = (PGM_P)(addr);  /* isolate variable for macro expansion */         \
     ptrdiff_t __offset = ((uint32_t)__local & 0x00000003); /* byte aligned mask */            \
     const uint32_t* __addr32 = (const uint32_t*)((const uint8_t*)(__local)-__offset); \
     uint8_t __result = ((*__addr32) >> (__offset * 8));                        \
@@ -98,7 +98,7 @@ int	vsnprintf_P(char *str, size_t strSize, PGM_P formatP, va_list ap) __attribut
 
 #define pgm_read_word(addr) 		                                           \
 (__extension__({                                                               \
-    PGM_P __local = (PGM_P)(addr); /* isolate varible for macro expansion */          \
+    PGM_P __local = (PGM_P)(addr); /* isolate variable for macro expansion */          \
     ptrdiff_t __offset = ((uint32_t)__local & 0x00000002);   /* word aligned mask */          \
     const uint32_t* __addr32 = (const uint32_t*)((const uint8_t*)(__local) - __offset); \
     uint16_t __result = ((*__addr32) >> (__offset * 8));                       \

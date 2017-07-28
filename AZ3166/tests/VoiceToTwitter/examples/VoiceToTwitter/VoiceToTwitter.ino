@@ -20,7 +20,7 @@ static int timeout = 0;
 static int step2Result = -1;
 static RGB_LED rgbLed;
 const char *_json_object_get_string(json_object *obj, const char *name);
-static AudioClass Audio;
+static AudioClass& Audio = AudioClass::getInstance();
 
 static void InitWiFi()
 {

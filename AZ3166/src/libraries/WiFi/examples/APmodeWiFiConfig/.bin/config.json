@@ -1,0 +1,7 @@
+{
+  "sketch": "../APmodeWiFiConfig.ino",
+  "tasks": {
+    "provision": ["device"],
+    "deploy": []
+  }
+}

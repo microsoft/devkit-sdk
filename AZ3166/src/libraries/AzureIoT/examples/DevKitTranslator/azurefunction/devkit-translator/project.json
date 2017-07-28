@@ -1,0 +1,10 @@
+{
+  "frameworks": {
+    "net46":{
+      "dependencies": {
+        "Microsoft.Azure.Devices": "1.2.9",
+        "NAudio": "1.8.0"
+      }
+    }
+   }
+}

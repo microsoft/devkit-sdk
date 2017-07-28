@@ -166,7 +166,7 @@ public:
 
     /** Invoke the function attached to the class
      *  @param arg - An argument that is passed into the function handler that is called
-     *  @return The return from the function hanlder called by this class
+     *  @return The return from the function handler called by this class
      */
     retT operator()(argT arg) const
     {
@@ -200,7 +200,7 @@ private:
     FPtrDummy *obj_callback;
 
     /**
-     *  @union Funciton
+     *  @union Function
      *  @brief Member or global callback function
      */
     union {

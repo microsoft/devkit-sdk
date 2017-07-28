@@ -216,7 +216,7 @@ struct json_object* json_tokener_parse_verbose(const char *str,
    )
 
 /* ADVANCE_CHAR() macro:
- *   Incrementes str & tok->char_offset.
+ *   Increments str & tok->char_offset.
  *   For convenience of existing conditionals, returns the old value of c (0 on eof)
  *   Implicit inputs:  c var
  */
