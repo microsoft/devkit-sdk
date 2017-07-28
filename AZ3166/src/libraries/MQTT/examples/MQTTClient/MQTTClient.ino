@@ -1,7 +1,7 @@
 #include <AZ3166WiFi.h>
 #include "MQTTClient.h"
 #include "MQTTNetwork.h"
-#include "telemetry.h"
+#include "SystemTelemetry.h"
 
 int status = WL_IDLE_STATUS;
 int arrivedcount = 0;
@@ -119,7 +119,7 @@ void setup() {
   {
     // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
     // We collect data about the features you use, how often you use them, and how you use them.
-    send_telemetry_data("", "MQTTClientSetup", "");
+    send_telemetry_data_async("", "MQTTClientSetup", "");
   }
 }
 

@@ -34,7 +34,11 @@ public static void Run(string myEventHubMessage, TraceWriter log)
         log.Info($"Error deserializing: {ex.Message}");
         return;
     }
-
+    if (String.IsNullOrEmpty(deviceObject.topic))
+    {
+        // No hash tag or this is a heartbeat package
+        return;
+    }
 
     string tweet = string.Empty;
 
