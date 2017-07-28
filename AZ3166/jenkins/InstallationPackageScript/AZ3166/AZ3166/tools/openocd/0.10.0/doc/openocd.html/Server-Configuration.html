@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Server Configuration</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Server Configuration">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Server Configuration">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" rel="next" title="Debug Adapter Configuration">
+<link href="Config-File-Guidelines.html#Config-File-Guidelines" rel="prev" title="Config File Guidelines">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Server-Configuration"></a>
+<div class="header">
+<p>
+Next: <a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" accesskey="n" rel="next">Debug Adapter Configuration</a>, Previous: <a href="Config-File-Guidelines.html#Config-File-Guidelines" accesskey="p" rel="prev">Config File Guidelines</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Server-Configuration-1"></a>
+<h2 class="chapter">7 Server Configuration</h2>
+<a name="index-initialization"></a>
+<p>The commands here are commonly found in the openocd.cfg file and are
+used to specify what TCP/IP ports are used, and how GDB should be
+supported.
+</p>
+<a name="configurationstage"></a><a name="Configuration-Stage"></a>
+<h3 class="section">7.1 Configuration Stage</h3>
+<a name="index-configuration-stage"></a>
+<a name="index-config-command"></a>
+
+<p>When the OpenOCD server process starts up, it enters a
+<em>configuration stage</em> which is the only time that
+certain commands, <em>configuration commands</em>, may be issued.
+Normally, configuration commands are only available
+inside startup scripts.
+</p>
+<p>In this manual, the definition of a configuration command is
+presented as a <em>Config Command</em>, not as a <em>Command</em>
+which may be issued interactively.
+The runtime <code>help</code> command also highlights configuration
+commands, and those which may be issued at any time.
+</p>
+<p>Those configuration commands include declaration of TAPs,
+flash banks,
+the interface used for JTAG communication,
+and other basic setup.
+The server must leave the configuration stage before it
+may access or activate TAPs.
+After it leaves this stage, configuration commands may no
+longer be issued.
+</p>
+<a name="enteringtherunstage"></a><a name="Entering-the-Run-Stage"></a>
+<h3 class="section">7.2 Entering the Run Stage</h3>
+
+<p>The first thing OpenOCD does after leaving the configuration
+stage is to verify that it can talk to the scan chain
+(list of TAPs) which has been configured.
+It will warn if it doesn&rsquo;t find TAPs it expects to find,
+or finds TAPs that aren&rsquo;t supposed to be there.
+You should see no errors at this point.
+If you see errors, resolve them by correcting the
+commands you used to configure the server.
+Common errors include using an initial JTAG speed that&rsquo;s too
+fast, and not providing the right IDCODE values for the TAPs
+on the scan chain.
+</p>
+<p>Once OpenOCD has entered the run stage, a number of commands
+become available.
+A number of these relate to the debug targets you may have declared.
+For example, the <code>mww</code> command will not be available until
+a target has been successfuly instantiated.
+If you want to use those commands, you may need to force
+entry to the run stage.
+</p>
+<dl>
+<dt><a name="index-init"></a>Config Command: <strong>init</strong></dt>
+<dd><p>This command terminates the configuration stage and
+enters the run stage. This helps when you need to have
+the startup scripts manage tasks such as resetting the target,
+programming flash, etc. To reset the CPU upon startup, add &quot;init&quot; and
+&quot;reset&quot; at the end of the config script or at the end of the OpenOCD
+command line using the <samp>-c</samp> command line switch.
+</p>
+<p>If this command does not appear in any startup/configuration file
+OpenOCD executes the command for you after processing all
+configuration files and/or command line options.
+</p>
+<p><b>NOTE:</b> This command normally occurs at or near the end of your
+openocd.cfg file to force OpenOCD to &ldquo;initialize&rdquo; and make the
+targets ready. For example: If your openocd.cfg file needs to
+read/write memory on your target, <code>init</code> must occur before
+the memory read/write commands. This includes <code>nand probe</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag_005finit"></a>Overridable Procedure: <strong>jtag_init</strong></dt>
+<dd><p>This is invoked at server startup to verify that it can talk
+to the scan chain (list of TAPs) which has been configured.
+</p>
+<p>The default implementation first tries <code>jtag arp_init</code>,
+which uses only a lightweight JTAG reset before examining the
+scan chain.
+If that fails, it tries again, using a harder reset
+from the overridable procedure <code>init_reset</code>.
+</p>
+<p>Implementations must have verified the JTAG scan chain before
+they return.
+This is done by calling <code>jtag arp_init</code>
+(or <code>jtag arp_init-reset</code>).
+</p></dd></dl>
+
+<a name="tcpipports"></a><a name="TCP_002fIP-Ports"></a>
+<h3 class="section">7.3 TCP/IP Ports</h3>
+<a name="index-TCP-port"></a>
+<a name="index-server"></a>
+<a name="index-port"></a>
+<a name="index-security"></a>
+<p>The OpenOCD server accepts remote commands in several syntaxes.
+Each syntax uses a different TCP/IP port, which you may specify
+only during configuration (before those ports are opened).
+</p>
+<p>For reasons including security, you may wish to prevent remote
+access using one or more of these ports.
+In such cases, just specify the relevant port number as &quot;disabled&quot;.
+If you disable all access through TCP/IP, you will need to
+use the command line <samp>-pipe</samp> option.
+</p>
+<dl>
+<dt><a name="index-gdb_005fport"></a>Command: <strong>gdb_port</strong> <em>[number]</em></dt>
+<dd><a name="index-GDB-server"></a>
+<p>Normally gdb listens to a TCP/IP port, but GDB can also
+communicate via pipes(stdin/out or named pipes). The name
+&quot;gdb_port&quot; stuck because it covers probably more than 90% of
+the normal use cases.
+</p>
+<p>No arguments reports GDB port. &quot;pipe&quot; means listen to stdin
+output to stdout, an integer is base port number, &quot;disabled&quot;
+disables the gdb server.
+</p>
+<p>When using &quot;pipe&quot;, also use log_output to redirect the log
+output to a file so as not to flood the stdin/out pipes.
+</p>
+<p>The -p/&ndash;pipe option is deprecated and a warning is printed
+as it is equivalent to passing in -c &quot;gdb_port pipe; log_output openocd.log&quot;.
+</p>
+<p>Any other string is interpreted as named pipe to listen to.
+Output pipe is the same name as input pipe, but with &rsquo;o&rsquo; appended,
+e.g. /var/gdb, /var/gdbo.
+</p>
+<p>The GDB port for the first target will be the base port, the
+second target will listen on gdb_port + 1, and so on.
+When not specified during the configuration stage,
+the port <var>number</var> defaults to 3333.
+</p>
+<p>Note: when using &quot;gdb_port pipe&quot;, increasing the default remote timeout in
+gdb (with &rsquo;set remotetimeout&rsquo;) is recommended. An insufficient timeout may
+cause initialization to fail with &quot;Unknown remote qXfer reply: OK&quot;.
+</p>
+</dd></dl>
+
+<dl>
+<dt><a name="index-tcl_005fport"></a>Command: <strong>tcl_port</strong> <em>[number]</em></dt>
+<dd><p>Specify or query the port used for a simplified RPC
+connection that can be used by clients to issue TCL commands and get the
+output from the Tcl engine.
+Intended as a machine interface.
+When not specified during the configuration stage,
+the port <var>number</var> defaults to 6666.
+When specified as &quot;disabled&quot;, this service is not activated.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-telnet_005fport"></a>Command: <strong>telnet_port</strong> <em>[number]</em></dt>
+<dd><p>Specify or query the
+port on which to listen for incoming telnet connections.
+This port is intended for interaction with one human through TCL commands.
+When not specified during the configuration stage,
+the port <var>number</var> defaults to 4444.
+When specified as &quot;disabled&quot;, this service is not activated.
+</p></dd></dl>
+
+<a name="gdbconfiguration"></a><a name="GDB-Configuration"></a>
+<h3 class="section">7.4 GDB Configuration</h3>
+<a name="index-GDB"></a>
+<a name="index-GDB-configuration"></a>
+<p>You can reconfigure some GDB behaviors if needed.
+The ones listed here are static and global.
+See <a href="CPU-Configuration.html#targetconfiguration">Target Configuration</a>, about configuring individual targets.
+See <a href="CPU-Configuration.html#targetevents">Target Events</a>, about configuring target-specific event handling.
+</p>
+<a name="gdbbreakpointoverride"></a><dl>
+<dt><a name="index-gdb_005fbreakpoint_005foverride"></a>Command: <strong>gdb_breakpoint_override</strong> <em>[<samp>hard</samp>|<samp>soft</samp>|<samp>disable</samp>]</em></dt>
+<dd><p>Force breakpoint type for gdb <code>break</code> commands.
+This option supports GDB GUIs which don&rsquo;t
+distinguish hard versus soft breakpoints, if the default OpenOCD and
+GDB behaviour is not sufficient. GDB normally uses hardware
+breakpoints if the memory map has been set up for flash regions.
+</p></dd></dl>
+
+<a name="gdbflashprogram"></a><dl>
+<dt><a name="index-gdb_005fflash_005fprogram"></a>Config Command: <strong>gdb_flash_program</strong> <em>(<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Set to <samp>enable</samp> to cause OpenOCD to program the flash memory when a
+vFlash packet is received.
+The default behaviour is <samp>enable</samp>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-gdb_005fmemory_005fmap"></a>Config Command: <strong>gdb_memory_map</strong> <em>(<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Set to <samp>enable</samp> to cause OpenOCD to send the memory configuration to GDB when
+requested. GDB will then know when to set hardware breakpoints, and program flash
+using the GDB load command. <code>gdb_flash_program enable</code> must also be enabled
+for flash programming to work.
+Default behaviour is <samp>enable</samp>.
+See <a href="#gdbflashprogram">gdb_flash_program</a>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-gdb_005freport_005fdata_005fabort"></a>Config Command: <strong>gdb_report_data_abort</strong> <em>(<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Specifies whether data aborts cause an error to be reported
+by GDB memory read packets.
+The default behaviour is <samp>disable</samp>;
+use <samp>enable</samp> see these errors reported.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-gdb_005ftarget_005fdescription"></a>Config Command: <strong>gdb_target_description</strong> <em>(<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Set to <samp>enable</samp> to cause OpenOCD to send the target descriptions to gdb via qXfer:features:read packet.
+The default behaviour is <samp>enable</samp>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-gdb_005fsave_005ftdesc"></a>Command: <strong>gdb_save_tdesc</strong></dt>
+<dd><p>Saves the target descripton file to the local file system.
+</p>
+<p>The file name is <i>target_name</i>.xml.
+</p></dd></dl>
+
+<a name="eventpolling"></a><a name="Event-Polling"></a>
+<h3 class="section">7.5 Event Polling</h3>
+
+<p>Hardware debuggers are parts of asynchronous systems,
+where significant events can happen at any time.
+The OpenOCD server needs to detect some of these events,
+so it can report them to through TCL command line
+or to GDB.
+</p>
+<p>Examples of such events include:
+</p>
+<ul>
+<li> One of the targets can stop running ... maybe it triggers
+a code breakpoint or data watchpoint, or halts itself.
+</li><li> Messages may be sent over &ldquo;debug message&rdquo; channels ... many
+targets support such messages sent over JTAG,
+for receipt by the person debugging or tools.
+</li><li> Loss of power ... some adapters can detect these events.
+</li><li> Resets not issued through JTAG ... such reset sources
+can include button presses or other system hardware, sometimes
+including the target itself (perhaps through a watchdog).
+</li><li> Debug instrumentation sometimes supports event triggering
+such as &ldquo;trace buffer full&rdquo; (so it can quickly be emptied)
+or other signals (to correlate with code behavior).
+</li></ul>
+
+<p>None of those events are signaled through standard JTAG signals.
+However, most conventions for JTAG connectors include voltage
+level and system reset (SRST) signal detection.
+Some connectors also include instrumentation signals, which
+can imply events when those signals are inputs.
+</p>
+<p>In general, OpenOCD needs to periodically check for those events,
+either by looking at the status of signals on the JTAG connector
+or by sending synchronous &ldquo;tell me your status&rdquo; JTAG requests
+to the various active targets.
+There is a command to manage and monitor that polling,
+which is normally done in the background.
+</p>
+<dl>
+<dt><a name="index-poll"></a>Command: <strong>poll</strong> <em>[<samp>on</samp>|<samp>off</samp>]</em></dt>
+<dd><p>Poll the current target for its current state.
+(Also, see <a href="CPU-Configuration.html#targetcurstate">target curstate</a>.)
+If that target is in debug mode, architecture
+specific information about the current state is printed.
+An optional parameter
+allows background polling to be enabled and disabled.
+</p>
+<p>You could use this from the TCL command shell, or
+from GDB using <code>monitor poll</code> command.
+Leave background polling enabled while you&rsquo;re using GDB.
+</p><div class="example">
+<pre class="example">&gt; poll
+background polling: on
+target state: halted
+target halted in ARM state due to debug-request, \
+               current mode: Supervisor
+cpsr: 0x800000d3 pc: 0x11081bfc
+MMU: disabled, D-Cache: disabled, I-Cache: enabled
+&gt;
+</pre></div>
+</dd></dl>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" accesskey="n" rel="next">Debug Adapter Configuration</a>, Previous: <a href="Config-File-Guidelines.html#Config-File-Guidelines" accesskey="p" rel="prev">Config File Guidelines</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

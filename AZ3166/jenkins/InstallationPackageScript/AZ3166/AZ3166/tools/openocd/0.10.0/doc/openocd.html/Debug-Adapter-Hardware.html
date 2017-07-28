@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Debug Adapter Hardware</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Debug Adapter Hardware">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Debug Adapter Hardware">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="About-Jim_002dTcl.html#About-Jim_002dTcl" rel="next" title="About Jim-Tcl">
+<link href="Developers.html#Developers" rel="prev" title="Developers">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Debug-Adapter-Hardware"></a>
+<div class="header">
+<p>
+Next: <a href="About-Jim_002dTcl.html#About-Jim_002dTcl" accesskey="n" rel="next">About Jim-Tcl</a>, Previous: <a href="Developers.html#Developers" accesskey="p" rel="prev">Developers</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Debug-Adapter-Hardware-1"></a>
+<h2 class="chapter">2 Debug Adapter Hardware</h2>
+<a name="index-dongles"></a>
+<a name="index-FTDI"></a>
+<a name="index-wiggler"></a>
+<a name="index-zy1000"></a>
+<a name="index-printer-port"></a>
+<a name="index-USB-Adapter"></a>
+<a name="index-RTCK"></a>
+
+<p>Defined: <b>dongle</b>: A small device that plugs into a computer and serves as
+an adapter .... [snip]
+</p>
+<p>In the OpenOCD case, this generally refers to <b>a small adapter</b> that
+attaches to your computer via USB or the parallel port. One
+exception is the Ultimate Solutions ZY1000, packaged as a small box you
+attach via an ethernet cable. The ZY1000 has the advantage that it does not
+require any drivers to be installed on the developer PC. It also has
+a built in web interface. It supports RTCK/RCLK or adaptive clocking
+and has a built-in relay to power cycle targets remotely.
+</p>
+
+<a name="Choosing-a-Dongle"></a>
+<h3 class="section">2.1 Choosing a Dongle</h3>
+
+<p>There are several things you should keep in mind when choosing a dongle.
+</p>
+<ol>
+<li> <b>Transport</b> Does it support the kind of communication that you need?
+OpenOCD focusses mostly on JTAG. Your version may also support
+other ways to communicate with target devices.
+</li><li> <b>Voltage</b> What voltage is your target - 1.8, 2.8, 3.3, or 5V?
+Does your dongle support it? You might need a level converter.
+</li><li> <b>Pinout</b> What pinout does your target board use?
+Does your dongle support it? You may be able to use jumper
+wires, or an &quot;octopus&quot; connector, to convert pinouts.
+</li><li> <b>Connection</b> Does your computer have the USB, parallel, or
+Ethernet port needed?
+</li><li> <b>RTCK</b> Do you expect to use it with ARM chips and boards with
+RTCK support (also known as &ldquo;adaptive clocking&rdquo;)?
+</li></ol>
+
+<a name="Stand_002dalone-JTAG-Probe"></a>
+<h3 class="section">2.2 Stand-alone JTAG Probe</h3>
+
+<p>The ZY1000 from Ultimate Solutions is technically not a dongle but a
+stand-alone JTAG probe that, unlike most dongles, doesn&rsquo;t require any drivers
+running on the developer&rsquo;s host computer.
+Once installed on a network using DHCP or a static IP assignment, users can
+access the ZY1000 probe locally or remotely from any host with access to the
+IP address assigned to the probe.
+The ZY1000 provides an intuitive web interface with direct access to the
+OpenOCD debugger.
+Users may also run a GDBSERVER directly on the ZY1000 to take full advantage
+of GCC &amp; GDB to debug any distribution of embedded Linux or NetBSD running on
+the target.
+The ZY1000 supports RTCK &amp; RCLK or adaptive clocking and has a built-in relay
+to power cycle the target remotely.
+</p>
+<p>For more information, visit:
+</p>
+<p><b>ZY1000</b> See: <a href="http://www.ultsol.com/index.php/component/content/article/8/210-zylin-zy1000-main">http://www.ultsol.com/index.php/component/content/article/8/210-zylin-zy1000-main</a>
+</p>
+<a name="USB-FT2232-Based"></a>
+<h3 class="section">2.3 USB FT2232 Based</h3>
+
+<p>There are many USB JTAG dongles on the market, many of them based
+on a chip from &ldquo;Future Technology Devices International&rdquo; (FTDI)
+known as the FTDI FT2232; this is a USB full speed (12 Mbps) chip.
+See: <a href="http://www.ftdichip.com">http://www.ftdichip.com</a> for more information.
+In summer 2009, USB high speed (480 Mbps) versions of these FTDI
+chips started to become available in JTAG adapters. Around 2012, a new
+variant appeared - FT232H - this is a single-channel version of FT2232H.
+(Adapters using those high speed FT2232H or FT232H chips may support adaptive
+clocking.)
+</p>
+<p>The FT2232 chips are flexible enough to support some other
+transport options, such as SWD or the SPI variants used to
+program some chips. They have two communications channels,
+and one can be used for a UART adapter at the same time the
+other one is used to provide a debug adapter.
+</p>
+<p>Also, some development boards integrate an FT2232 chip to serve as
+a built-in low-cost debug adapter and USB-to-serial solution.
+</p>
+<ul>
+<li> <b>usbjtag</b>
+<br> Link <a href="http://elk.informatik.fh-augsburg.de/hhweb/doc/openocd/usbjtag/usbjtag.html">http://elk.informatik.fh-augsburg.de/hhweb/doc/openocd/usbjtag/usbjtag.html</a>
+</li><li> <b>jtagkey</b>
+<br> See: <a href="http://www.amontec.com/jtagkey.shtml">http://www.amontec.com/jtagkey.shtml</a>
+</li><li> <b>jtagkey2</b>
+<br> See: <a href="http://www.amontec.com/jtagkey2.shtml">http://www.amontec.com/jtagkey2.shtml</a>
+</li><li> <b>oocdlink</b>
+<br> See: <a href="http://www.oocdlink.com">http://www.oocdlink.com</a> By Joern Kaipf
+</li><li> <b>signalyzer</b>
+<br> See: <a href="http://www.signalyzer.com">http://www.signalyzer.com</a>
+</li><li> <b>Stellaris Eval Boards</b>
+<br> See: <a href="http://www.ti.com">http://www.ti.com</a> - The Stellaris eval boards
+bundle FT2232-based JTAG and SWD support, which can be used to debug
+the Stellaris chips. Using separate JTAG adapters is optional.
+These boards can also be used in a &quot;pass through&quot; mode as JTAG adapters
+to other target boards, disabling the Stellaris chip.
+</li><li> <b>TI/Luminary ICDI</b>
+<br> See: <a href="http://www.ti.com">http://www.ti.com</a> - TI/Luminary In-Circuit Debug
+Interface (ICDI) Boards are included in Stellaris LM3S9B9x
+Evaluation Kits. Like the non-detachable FT2232 support on the other
+Stellaris eval boards, they can be used to debug other target boards.
+</li><li> <b>olimex-jtag</b>
+<br> See: <a href="http://www.olimex.com">http://www.olimex.com</a>
+</li><li> <b>Flyswatter/Flyswatter2</b>
+<br> See: <a href="http://www.tincantools.com">http://www.tincantools.com</a>
+</li><li> <b>turtelizer2</b>
+<br> See:
+<a href="http://www.ethernut.de/en/hardware/turtelizer/index.html">Turtelizer 2</a>, or
+<a href="http://www.ethernut.de">http://www.ethernut.de</a>
+</li><li> <b>comstick</b>
+<br> Link: <a href="http://www.hitex.com/index.php?id=383">http://www.hitex.com/index.php?id=383</a>
+</li><li> <b>stm32stick</b>
+<br> Link <a href="http://www.hitex.com/stm32-stick">http://www.hitex.com/stm32-stick</a>
+</li><li> <b>axm0432_jtag</b>
+<br> Axiom AXM-0432 Link <a href="http://www.axman.com">http://www.axman.com</a> - NOTE: This JTAG does not appear
+to be available anymore as of April 2012.
+</li><li> <b>cortino</b>
+<br> Link <a href="http://www.hitex.com/index.php?id=cortino">http://www.hitex.com/index.php?id=cortino</a>
+</li><li> <b>dlp-usb1232h</b>
+<br> Link <a href="http://www.dlpdesign.com/usb/usb1232h.shtml">http://www.dlpdesign.com/usb/usb1232h.shtml</a>
+</li><li> <b>digilent-hs1</b>
+<br> Link <a href="http://www.digilentinc.com/Products/Detail.cfm?Prod=JTAG-HS1">http://www.digilentinc.com/Products/Detail.cfm?Prod=JTAG-HS1</a>
+</li><li> <b>opendous</b>
+<br> Link <a href="http://code.google.com/p/opendous/wiki/JTAG">http://code.google.com/p/opendous/wiki/JTAG</a> FT2232H-based
+(OpenHardware).
+</li><li> <b>JTAG-lock-pick Tiny 2</b>
+<br> Link <a href="http://www.distortec.com/jtag-lock-pick-tiny-2">http://www.distortec.com/jtag-lock-pick-tiny-2</a> FT232H-based
+
+</li><li> <b>GW16042</b>
+<br> Link: <a href="http://shop.gateworks.com/index.php?route=product/product&amp;path=70_80&amp;product_id=64">http://shop.gateworks.com/index.php?route=product/product&amp;path=70_80&amp;product_id=64</a>
+FT2232H-based
+
+</li></ul>
+<a name="USB_002dJTAG-_002f-Altera-USB_002dBlaster-compatibles"></a>
+<h3 class="section">2.4 USB-JTAG / Altera USB-Blaster compatibles</h3>
+
+<p>These devices also show up as FTDI devices, but are not
+protocol-compatible with the FT2232 devices. They are, however,
+protocol-compatible among themselves. USB-JTAG devices typically consist
+of a FT245 followed by a CPLD that understands a particular protocol,
+or emulates this protocol using some other hardware.
+</p>
+<p>They may appear under different USB VID/PID depending on the particular
+product. The driver can be configured to search for any VID/PID pair
+(see the section on driver commands).
+</p>
+<ul>
+<li> <b>USB-JTAG</b> Kolja Waschk&rsquo;s USB Blaster-compatible adapter
+<br> Link: <a href="http://ixo-jtag.sourceforge.net/">http://ixo-jtag.sourceforge.net/</a>
+</li><li> <b>Altera USB-Blaster</b>
+<br> Link: <a href="http://www.altera.com/literature/ug/ug_usb_blstr.pdf">http://www.altera.com/literature/ug/ug_usb_blstr.pdf</a>
+</li></ul>
+
+<a name="USB-J_002dLink-based"></a>
+<h3 class="section">2.5 USB J-Link based</h3>
+<p>There are several OEM versions of the SEGGER <b>J-Link</b> adapter. It is
+an example of a microcontroller based JTAG adapter, it uses an
+AT91SAM764 internally.
+</p>
+<ul>
+<li> <b>SEGGER J-Link</b>
+<br> Link: <a href="http://www.segger.com/jlink.html">http://www.segger.com/jlink.html</a>
+</li><li> <b>Atmel SAM-ICE</b> (Only works with Atmel chips!)
+<br> Link: <a href="http://www.atmel.com/tools/atmelsam-ice.aspx">http://www.atmel.com/tools/atmelsam-ice.aspx</a>
+</li><li> <b>IAR J-Link</b>
+</li></ul>
+
+<a name="USB-RLINK-based"></a>
+<h3 class="section">2.6 USB RLINK based</h3>
+<p>Raisonance has an adapter called <b>RLink</b>. It exists in a stripped-down form on the STM32 Primer,
+permanently attached to the JTAG lines. It also exists on the STM32 Primer2, but that is wired for
+SWD and not JTAG, thus not supported.
+</p>
+<ul>
+<li> <b>Raisonance RLink</b>
+<br> Link: <a href="http://www.mcu-raisonance.com/~rlink-debugger-programmer__microcontrollers__tool~tool__T018:4cn9ziz4bnx6.html">http://www.mcu-raisonance.com/~rlink-debugger-programmer__microcontrollers__tool~tool__T018:4cn9ziz4bnx6.html</a>
+</li><li> <b>STM32 Primer</b>
+<br> Link: <a href="http://www.stm32circle.com/resources/stm32primer.php">http://www.stm32circle.com/resources/stm32primer.php</a>
+</li><li> <b>STM32 Primer2</b>
+<br> Link: <a href="http://www.stm32circle.com/resources/stm32primer2.php">http://www.stm32circle.com/resources/stm32primer2.php</a>
+</li></ul>
+
+<a name="USB-ST_002dLINK-based"></a>
+<h3 class="section">2.7 USB ST-LINK based</h3>
+<p>ST Micro has an adapter called <b>ST-LINK</b>.
+They only work with ST Micro chips, notably STM32 and STM8.
+</p>
+<ul>
+<li> <b>ST-LINK</b>
+<br> This is available standalone and as part of some kits, eg. STM32VLDISCOVERY.
+<br> Link: <a href="http://www.st.com/internet/evalboard/product/219866.jsp">http://www.st.com/internet/evalboard/product/219866.jsp</a>
+</li><li> <b>ST-LINK/V2</b>
+<br> This is available standalone and as part of some kits, eg. STM32F4DISCOVERY.
+<br> Link: <a href="http://www.st.com/internet/evalboard/product/251168.jsp">http://www.st.com/internet/evalboard/product/251168.jsp</a>
+</li></ul>
+
+<p>For info the original ST-LINK enumerates using the mass storage usb class; however,
+its implementation is completely broken. The result is this causes issues under Linux.
+The simplest solution is to get Linux to ignore the ST-LINK using one of the following methods:
+</p><ul>
+<li> modprobe -r usb-storage &amp;&amp; modprobe usb-storage quirks=483:3744:i
+</li><li> add &quot;options usb-storage quirks=483:3744:i&quot; to /etc/modprobe.conf
+</li></ul>
+
+<a name="USB-TI_002fStellaris-ICDI-based"></a>
+<h3 class="section">2.8 USB TI/Stellaris ICDI based</h3>
+<p>Texas Instruments has an adapter called <b>ICDI</b>.
+It is not to be confused with the FTDI based adapters that were originally fitted to their
+evaluation boards. This is the adapter fitted to the Stellaris LaunchPad.
+</p>
+<a name="USB-CMSIS_002dDAP-based"></a>
+<h3 class="section">2.9 USB CMSIS-DAP based</h3>
+<p>ARM has released a interface standard called CMSIS-DAP that simplifies connecting
+debuggers to ARM Cortex based targets <a href="http://www.keil.com/support/man/docs/dapdebug/dapdebug_introduction.htm">http://www.keil.com/support/man/docs/dapdebug/dapdebug_introduction.htm</a>.
+</p>
+<a name="USB-Other"></a>
+<h3 class="section">2.10 USB Other</h3>
+<ul>
+<li> <b>USBprog</b>
+<br> Link: <a href="http://shop.embedded-projects.net/">http://shop.embedded-projects.net/</a> - which uses an Atmel MEGA32 and a UBN9604
+
+</li><li> <b>USB - Presto</b>
+<br> Link: <a href="http://tools.asix.net/prg_presto.htm">http://tools.asix.net/prg_presto.htm</a>
+
+</li><li> <b>Versaloon-Link</b>
+<br> Link: <a href="http://www.versaloon.com">http://www.versaloon.com</a>
+
+</li><li> <b>ARM-JTAG-EW</b>
+<br> Link: <a href="http://www.olimex.com/dev/arm-jtag-ew.html">http://www.olimex.com/dev/arm-jtag-ew.html</a>
+
+</li><li> <b>Buspirate</b>
+<br> Link: <a href="http://dangerousprototypes.com/bus-pirate-manual/">http://dangerousprototypes.com/bus-pirate-manual/</a>
+
+</li><li> <b>opendous</b>
+<br> Link: <a href="http://code.google.com/p/opendous-jtag/">http://code.google.com/p/opendous-jtag/</a> - which uses an AT90USB162
+
+</li><li> <b>estick</b>
+<br> Link: <a href="http://code.google.com/p/estick-jtag/">http://code.google.com/p/estick-jtag/</a>
+
+</li><li> <b>Keil ULINK v1</b>
+<br> Link: <a href="http://www.keil.com/ulink1/">http://www.keil.com/ulink1/</a>
+</li></ul>
+
+<a name="IBM-PC-Parallel-Printer-Port-Based"></a>
+<h3 class="section">2.11 IBM PC Parallel Printer Port Based</h3>
+
+<p>The two well-known &ldquo;JTAG Parallel Ports&rdquo; cables are the Xilinx DLC5
+and the Macraigor Wiggler. There are many clones and variations of
+these on the market.
+</p>
+<p>Note that parallel ports are becoming much less common, so if you
+have the choice you should probably avoid these adapters in favor
+of USB-based ones.
+</p>
+<ul>
+<li> <b>Wiggler</b> - There are many clones of this.
+<br> Link: <a href="http://www.macraigor.com/wiggler.htm">http://www.macraigor.com/wiggler.htm</a>
+
+</li><li> <b>DLC5</b> - From XILINX - There are many clones of this
+<br> Link: Search the web for: &ldquo;XILINX DLC5&rdquo; - it is no longer
+produced, PDF schematics are easily found and it is easy to make.
+
+</li><li> <b>Amontec - JTAG Accelerator</b>
+<br> Link: <a href="http://www.amontec.com/jtag_accelerator.shtml">http://www.amontec.com/jtag_accelerator.shtml</a>
+
+</li><li> <b>Wiggler2</b>
+<br> Link: <a href="http://www.ccac.rwth-aachen.de/~michaels/index.php/hardware/armjtag">http://www.ccac.rwth-aachen.de/~michaels/index.php/hardware/armjtag</a>
+
+</li><li> <b>Wiggler_ntrst_inverted</b>
+<br> Yet another variation - See the source code, src/jtag/parport.c
+
+</li><li> <b>old_amt_wiggler</b>
+<br> Unknown - probably not on the market today
+
+</li><li> <b>arm-jtag</b>
+<br> Link: Most likely <a href="http://www.olimex.com/dev/arm-jtag.html">http://www.olimex.com/dev/arm-jtag.html</a> [another wiggler clone]
+
+</li><li> <b>chameleon</b>
+<br> Link: <a href="http://www.amontec.com/chameleon.shtml">http://www.amontec.com/chameleon.shtml</a>
+
+</li><li> <b>Triton</b>
+<br> Unknown.
+
+</li><li> <b>Lattice</b>
+<br> ispDownload from Lattice Semiconductor
+<a href="http://www.latticesemi.com/lit/docs/devtools/dlcable.pdf">http://www.latticesemi.com/lit/docs/devtools/dlcable.pdf</a>
+
+</li><li> <b>flashlink</b>
+<br> From ST Microsystems;
+<br> Link: <a href="http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/DATA_BRIEF/DM00039500.pdf">http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/DATA_BRIEF/DM00039500.pdf</a>
+
+</li></ul>
+
+<a name="Other_002e_002e_002e"></a>
+<h3 class="section">2.12 Other...</h3>
+<ul>
+<li> <b>ep93xx</b>
+<br> An EP93xx based Linux machine using the GPIO pins directly.
+
+</li><li> <b>at91rm9200</b>
+<br> Like the EP93xx - but an ATMEL AT91RM9200 based solution using the GPIO pins on the chip.
+
+</li><li> <b>bcm2835gpio</b>
+<br> A BCM2835-based board (e.g. Raspberry Pi) using the GPIO pins of the expansion header.
+
+</li><li> <b>jtag_vpi</b>
+<br> A JTAG driver acting as a client for the JTAG VPI server interface.
+<br> Link: <a href="http://github.com/fjullien/jtag_vpi">http://github.com/fjullien/jtag_vpi</a>
+
+</li></ul>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="About-Jim_002dTcl.html#About-Jim_002dTcl" accesskey="n" rel="next">About Jim-Tcl</a>, Previous: <a href="Developers.html#Developers" accesskey="p" rel="prev">Developers</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

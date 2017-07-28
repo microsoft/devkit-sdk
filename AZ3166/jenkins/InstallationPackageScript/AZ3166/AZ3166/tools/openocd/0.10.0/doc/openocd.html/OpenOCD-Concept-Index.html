@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: OpenOCD Concept Index</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: OpenOCD Concept Index">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: OpenOCD Concept Index">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Command-and-Driver-Index.html#Command-and-Driver-Index" rel="next" title="Command and Driver Index">
+<link href="License.html#License" rel="prev" title="License">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="OpenOCD-Concept-Index"></a>
+<div class="header">
+<p>
+Next: <a href="Command-and-Driver-Index.html#Command-and-Driver-Index" accesskey="n" rel="next">Command and Driver Index</a>, Previous: <a href="License.html#License" accesskey="p" rel="prev">License</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="OpenOCD-Concept-Index-1"></a>
+<h2 class="unnumbered">OpenOCD Concept Index</h2>
+
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-A"><b>A</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-B"><b>B</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-C"><b>C</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-D"><b>D</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-F"><b>F</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-G"><b>G</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-H"><b>H</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-I"><b>I</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-J"><b>J</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-K"><b>K</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-L"><b>L</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-M"><b>M</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-N"><b>N</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-O"><b>O</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-P"><b>P</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-R"><b>R</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-S"><b>S</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-T"><b>T</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-U"><b>U</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-V"><b>V</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-W"><b>W</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-X"><b>X</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-Z"><b>Z</b></a>
+ &nbsp; 
+</td></tr></table>
+<table class="index-cp" border="0">
+<tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-A">A</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="About.html#index-about">about</a>:</td><td>&nbsp;</td><td valign="top"><a href="About.html#About">About</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-adaptive-clocking">adaptive clocking</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="FAQ.html#index-adaptive-clocking-1">adaptive clocking</a>:</td><td>&nbsp;</td><td valign="top"><a href="FAQ.html#FAQ">FAQ</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-ambiqmicro">ambiqmicro</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-apollo">apollo</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Architecture-Specific-Commands">Architecture Specific Commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM">ARM</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="OpenOCD-Project-Setup.html#index-ARM-semihosting">ARM semihosting</a>:</td><td>&nbsp;</td><td valign="top"><a href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup">OpenOCD Project Setup</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM-semihosting-1">ARM semihosting</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM-semihosting-2">ARM semihosting</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM11">ARM11</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM7">ARM7</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM720T">ARM720T</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM9">ARM9</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM9-1">ARM9</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM920T">ARM920T</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM926ej_002ds">ARM926ej-s</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARM966E">ARM966E</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARMv4">ARMv4</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARMv5">ARMv5</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARMv6">ARMv6</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ARMv7">ARMv7</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-at91sam3">at91sam3</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-at91sam4">at91sam4</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-at91sam4l">at91sam4l</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-at91samd">at91samd</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-atsamv">atsamv</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-autoprobe">autoprobe</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-B">B</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-board-config-file">board config file</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-breakpoint">breakpoint</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-bscan_005fspi">bscan_spi</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-C">C</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-CFI">CFI</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Running.html#index-command-line-options">command line options</a>:</td><td>&nbsp;</td><td valign="top"><a href="Running.html#Running">Running</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-commands">commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-Common-Flash-Interface">Common Flash Interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-config-command">config command</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-config-file_002c-board">config file, board</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-config-file_002c-interface">config file, interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="OpenOCD-Project-Setup.html#index-config-file_002c-overview">config file, overview</a>:</td><td>&nbsp;</td><td valign="top"><a href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup">OpenOCD Project Setup</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-config-file_002c-target">config file, target</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="OpenOCD-Project-Setup.html#index-config-file_002c-user">config file, user</a>:</td><td>&nbsp;</td><td valign="top"><a href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup">OpenOCD Project Setup</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-configuration-stage">configuration stage</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="GDB-and-OpenOCD.html#index-Connecting-to-GDB">Connecting to GDB</a>:</td><td>&nbsp;</td><td valign="top"><a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Core-Specific-Commands">Core Specific Commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Cortex_002dA">Cortex-A</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Cortex_002dM">Cortex-M</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Cortex_002dR">Cortex-R</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-CPU-type">CPU type</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-D">D</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-DAP">DAP</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-DCC">DCC</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-DCC-1">DCC</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Debug-Access-Port">Debug Access Port</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Developers.html#index-developers">developers</a>:</td><td>&nbsp;</td><td valign="top"><a href="Developers.html#Developers">Developers</a></td></tr>
+<tr><td></td><td valign="top"><a href="Running.html#index-directory-search">directory search</a>:</td><td>&nbsp;</td><td valign="top"><a href="Running.html#Running">Running</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-disassemble">disassemble</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-dongles">dongles</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-dotted-name">dotted name</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-E">E</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ETB">ETB</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ETM">ETM</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ETM-1">ETM</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-event_002c-reset_002dinit">event, reset-init</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Reset-Configuration.html#index-events">events</a>:</td><td>&nbsp;</td><td valign="top"><a href="Reset-Configuration.html#Reset-Configuration">Reset Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-events-1">events</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-events-2">events</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-F">F</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="FAQ.html#index-faq">faq</a>:</td><td>&nbsp;</td><td valign="top"><a href="FAQ.html#FAQ">FAQ</a></td></tr>
+<tr><td></td><td valign="top"><a href="Utility-Commands.html#index-Firmware-recovery">Firmware recovery</a>:</td><td>&nbsp;</td><td valign="top"><a href="Utility-Commands.html#Utility-Commands">Utility Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-flash-configuration">flash configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-flash-erasing">flash erasing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-flash-programming">flash programming</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-flash-protection">flash protection</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-flash-reading">flash reading</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-flash-writing">flash writing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="PLD_002fFPGA-Commands.html#index-FPGA">FPGA</a>:</td><td>&nbsp;</td><td valign="top"><a href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands">PLD/FPGA Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-FTDI">FTDI</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-G">G</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-GDB">GDB</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="GDB-and-OpenOCD.html#index-GDB-1">GDB</a>:</td><td>&nbsp;</td><td valign="top"><a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-GDB-configuration">GDB configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-GDB-server">GDB server</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-GDB-target">GDB target</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-Generic-JTAG2SPI-driver">Generic JTAG2SPI driver</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-H">H</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-halt">halt</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-I">I</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-image-dumping">image dumping</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-image-loading">image loading</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-initialization">initialization</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-init_005fboard-procedure">init_board procedure</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-init_005ftargets-procedure">init_targets procedure</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-init_005ftarget_005fevents-procedure">init_target_events procedure</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-interface-config-file">interface config file</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-ITM">ITM</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-J">J</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="About-Jim_002dTcl.html#index-Jim_002dTcl">Jim-Tcl</a>:</td><td>&nbsp;</td><td valign="top"><a href="About-Jim_002dTcl.html#About-Jim_002dTcl">About Jim-Tcl</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-jrc">jrc</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="About.html#index-JTAG">JTAG</a>:</td><td>&nbsp;</td><td valign="top"><a href="About.html#About">About</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-JTAG-1">JTAG</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-JTAG-autoprobe">JTAG autoprobe</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="JTAG-Commands.html#index-JTAG-Commands">JTAG Commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="JTAG-Commands.html#JTAG-Commands">JTAG Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-JTAG-Route-Controller">JTAG Route Controller</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-jtagspi">jtagspi</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-K">K</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-kinetis">kinetis</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-kinetis_005fke">kinetis_ke</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-L">L</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-libdcc">libdcc</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-Linux_002dARM-DCC-support">Linux-ARM DCC support</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Running.html#index-logfile">logfile</a>:</td><td>&nbsp;</td><td valign="top"><a href="Running.html#Running">Running</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-lpcspifi">lpcspifi</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-M">M</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-memory-access">memory access</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-message-level">message level</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-mFlash-commands">mFlash commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-mFlash-Configuration">mFlash Configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-N">N</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND">NAND</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-configuration">NAND configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-erasing">NAND erasing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-other-commands">NAND other commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-programming">NAND programming</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-programming-1">NAND programming</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-programming-2">NAND programming</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-reading">NAND reading</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-verification">NAND verification</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NAND-writing">NAND writing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-NXP-SPI-Flash-Interface">NXP SPI Flash Interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-O">O</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-object-command">object command</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-P">P</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="PLD_002fFPGA-Commands.html#index-PLD">PLD</a>:</td><td>&nbsp;</td><td valign="top"><a href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands">PLD/FPGA Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-port">port</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-printer-port">printer port</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-profiling">profiling</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="GDB-and-OpenOCD.html#index-Programming-using-GDB">Programming using GDB</a>:</td><td>&nbsp;</td><td valign="top"><a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-R">R</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Utility-Commands.html#index-RAM-testing">RAM testing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Utility-Commands.html#Utility-Commands">Utility Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-reset">reset</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Reset-Configuration.html#index-Reset-Configuration">Reset Configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="Reset-Configuration.html#Reset-Configuration">Reset Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-reset_002dinit-handler">reset-init handler</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Tcl-Scripting-API.html#index-RPC">RPC</a>:</td><td>&nbsp;</td><td valign="top"><a href="Tcl-Scripting-API.html#Tcl-Scripting-API">Tcl Scripting API</a></td></tr>
+<tr><td></td><td valign="top"><a href="Tcl-Scripting-API.html#index-RPC-Notifications">RPC Notifications</a>:</td><td>&nbsp;</td><td valign="top"><a href="Tcl-Scripting-API.html#Tcl-Scripting-API">Tcl Scripting API</a></td></tr>
+<tr><td></td><td valign="top"><a href="Tcl-Scripting-API.html#index-RPC-trace-output">RPC trace output</a>:</td><td>&nbsp;</td><td valign="top"><a href="Tcl-Scripting-API.html#Tcl-Scripting-API">Tcl Scripting API</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-RTCK">RTCK</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-RTCK-1">RTCK</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="FAQ.html#index-RTCK-2">RTCK</a>:</td><td>&nbsp;</td><td valign="top"><a href="FAQ.html#FAQ">FAQ</a></td></tr>
+<tr><td></td><td valign="top"><a href="GDB-and-OpenOCD.html#index-RTOS-Support">RTOS Support</a>:</td><td>&nbsp;</td><td valign="top"><a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-S">S</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-scan-chain">scan chain</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-security">security</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-Serial-Peripheral-Interface">Serial Peripheral Interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Boundary-Scan-Commands.html#index-Serial-Vector-Format">Serial Vector Format</a>:</td><td>&nbsp;</td><td valign="top"><a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands">Boundary Scan Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-Serial-Wire-Debug">Serial Wire Debug</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-server">server</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-SMI">SMI</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-SMP">SMP</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="GDB-and-OpenOCD.html#index-SMP-1">SMP</a>:</td><td>&nbsp;</td><td valign="top"><a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-SPI">SPI</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-SPI-1">SPI</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-SPIFI">SPIFI</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-STMicroelectronics-Serial-Memory-Interface">STMicroelectronics Serial Memory Interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-stmsmi">stmsmi</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Flash-Commands.html#index-str9xpec">str9xpec</a>:</td><td>&nbsp;</td><td valign="top"><a href="Flash-Commands.html#Flash-Commands">Flash Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Boundary-Scan-Commands.html#index-SVF">SVF</a>:</td><td>&nbsp;</td><td valign="top"><a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands">Boundary Scan Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-SWD">SWD</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-SWO">SWO</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-SWV">SWV</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-T">T</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="About.html#index-TAP">TAP</a>:</td><td>&nbsp;</td><td valign="top"><a href="About.html#About">About</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-TAP-configuration">TAP configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-TAP-declaration">TAP declaration</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-TAP-events">TAP events</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="TAP-Declaration.html#index-TAP-naming-convention">TAP naming convention</a>:</td><td>&nbsp;</td><td valign="top"><a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a></td></tr>
+<tr><td></td><td valign="top"><a href="JTAG-Commands.html#index-TAP-state-names">TAP state names</a>:</td><td>&nbsp;</td><td valign="top"><a href="JTAG-Commands.html#JTAG-Commands">JTAG Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-target-config-file">target config file</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-target-events">target events</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-target-initialization">target initialization</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-target-type">target type</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-target_002c-current">target, current</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="CPU-Configuration.html#index-target_002c-list">target, list</a>:</td><td>&nbsp;</td><td valign="top"><a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="About-Jim_002dTcl.html#index-tcl">tcl</a>:</td><td>&nbsp;</td><td valign="top"><a href="About-Jim_002dTcl.html#About-Jim_002dTcl">About Jim-Tcl</a></td></tr>
+<tr><td></td><td valign="top"><a href="Tcl-Crash-Course.html#index-Tcl">Tcl</a>:</td><td>&nbsp;</td><td valign="top"><a href="Tcl-Crash-Course.html#Tcl-Crash-Course">Tcl Crash Course</a></td></tr>
+<tr><td></td><td valign="top"><a href="Tcl-Scripting-API.html#index-Tcl-Scripting-API">Tcl Scripting API</a>:</td><td>&nbsp;</td><td valign="top"><a href="Tcl-Scripting-API.html#Tcl-Scripting-API">Tcl Scripting API</a></td></tr>
+<tr><td></td><td valign="top"><a href="Tcl-Scripting-API.html#index-Tcl-scripts">Tcl scripts</a>:</td><td>&nbsp;</td><td valign="top"><a href="Tcl-Scripting-API.html#Tcl-Scripting-API">Tcl Scripting API</a></td></tr>
+<tr><td></td><td valign="top"><a href="Server-Configuration.html#index-TCP-port">TCP port</a>:</td><td>&nbsp;</td><td valign="top"><a href="Server-Configuration.html#Server-Configuration">Server Configuration</a></td></tr>
+<tr><td></td><td valign="top"><a href="TFTP.html#index-TFTP">TFTP</a>:</td><td>&nbsp;</td><td valign="top"><a href="TFTP.html#TFTP">TFTP</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-TPIU">TPIU</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-tracing">tracing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-tracing-1">tracing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-tracing-2">tracing</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-translation">translation</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Configuration.html#index-Transport">Transport</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">Debug Adapter Configuration</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-U">U</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-USB-Adapter">USB Adapter</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td></td><td valign="top"><a href="OpenOCD-Project-Setup.html#index-user-config-file">user config file</a>:</td><td>&nbsp;</td><td valign="top"><a href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup">OpenOCD Project Setup</a></td></tr>
+<tr><td></td><td valign="top"><a href="Utility-Commands.html#index-Utility-Commands">Utility Commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="Utility-Commands.html#Utility-Commands">Utility Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-V">V</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Config-File-Guidelines.html#index-variable-names">variable names</a>:</td><td>&nbsp;</td><td valign="top"><a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a></td></tr>
+<tr><td></td><td valign="top"><a href="OpenOCD-Project-Setup.html#index-vector_005fcatch">vector_catch</a>:</td><td>&nbsp;</td><td valign="top"><a href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup">OpenOCD Project Setup</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-vector_005fcatch-1">vector_catch</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-vector_005fcatch-2">vector_catch</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-vector_005fcatch-3">vector_catch</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-vector_005fcatch-4">vector_catch</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-vector_005ftable">vector_table</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-W">W</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="General-Commands.html#index-watchpoint">watchpoint</a>:</td><td>&nbsp;</td><td valign="top"><a href="General-Commands.html#General-Commands">General Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-wiggler">wiggler</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-X">X</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Boundary-Scan-Commands.html#index-Xilinx-Serial-Vector-Format">Xilinx Serial Vector Format</a>:</td><td>&nbsp;</td><td valign="top"><a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands">Boundary Scan Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Architecture-and-Core-Commands.html#index-XScale">XScale</a>:</td><td>&nbsp;</td><td valign="top"><a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a></td></tr>
+<tr><td></td><td valign="top"><a href="Boundary-Scan-Commands.html#index-XSVF">XSVF</a>:</td><td>&nbsp;</td><td valign="top"><a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands">Boundary Scan Commands</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="OpenOCD-Concept-Index_cp_letter-Z">Z</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="Debug-Adapter-Hardware.html#index-zy1000">zy1000</a>:</td><td>&nbsp;</td><td valign="top"><a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+</table>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-A"><b>A</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-B"><b>B</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-C"><b>C</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-D"><b>D</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-F"><b>F</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-G"><b>G</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-H"><b>H</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-I"><b>I</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-J"><b>J</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-K"><b>K</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-L"><b>L</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-M"><b>M</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-N"><b>N</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-O"><b>O</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-P"><b>P</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-R"><b>R</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-S"><b>S</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-T"><b>T</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-U"><b>U</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-V"><b>V</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-W"><b>W</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-X"><b>X</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#OpenOCD-Concept-Index_cp_letter-Z"><b>Z</b></a>
+ &nbsp; 
+</td></tr></table>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Command-and-Driver-Index.html#Command-and-Driver-Index" accesskey="n" rel="next">Command and Driver Index</a>, Previous: <a href="License.html#License" accesskey="p" rel="prev">License</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

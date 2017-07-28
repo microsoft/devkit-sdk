@@ -1,0 +1,649 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: CPU Configuration</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: CPU Configuration">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: CPU Configuration">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Flash-Commands.html#Flash-Commands" rel="next" title="Flash Commands">
+<link href="TAP-Declaration.html#TAP-Declaration" rel="prev" title="TAP Declaration">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="CPU-Configuration"></a>
+<div class="header">
+<p>
+Next: <a href="Flash-Commands.html#Flash-Commands" accesskey="n" rel="next">Flash Commands</a>, Previous: <a href="TAP-Declaration.html#TAP-Declaration" accesskey="p" rel="prev">TAP Declaration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="CPU-Configuration-1"></a>
+<h2 class="chapter">11 CPU Configuration</h2>
+<a name="index-GDB-target"></a>
+
+<p>This chapter discusses how to set up GDB debug targets for CPUs.
+You can also access these targets without GDB
+(see <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a>,
+and <a href="General-Commands.html#targetstatehandling">Target State handling</a>) and
+through various kinds of NAND and NOR flash commands.
+If you have multiple CPUs you can have multiple such targets.
+</p>
+<p>We&rsquo;ll start by looking at how to examine the targets you have,
+then look at how to add one more target and how to configure it.
+</p>
+<a name="Target-List"></a>
+<h3 class="section">11.1 Target List</h3>
+<a name="index-target_002c-current"></a>
+<a name="index-target_002c-list"></a>
+
+<p>All targets that have been set up are part of a list,
+where each member has a name.
+That name should normally be the same as the TAP name.
+You can display the list with the <code>targets</code>
+(plural!) command.
+This display often has only one CPU; here&rsquo;s what it might
+look like with more than one:
+</p><pre class="verbatim">    TargetName         Type       Endian TapName            State
+--  ------------------ ---------- ------ ------------------ ------------
+ 0* at91rm9200.cpu     arm920t    little at91rm9200.cpu     running
+ 1  MyTarget           cortex_m   little mychip.foo         tap-disabled
+</pre>
+<p>One member of that list is the <em>current target</em>, which
+is implicitly referenced by many commands.
+It&rsquo;s the one marked with a <code>*</code> near the target name.
+In particular, memory addresses often refer to the address
+space seen by that current target.
+Commands like <code>mdw</code> (memory display words)
+and <code>flash erase_address</code> (erase NOR flash blocks)
+are examples; and there are many more.
+</p>
+<p>Several commands let you examine the list of targets:
+</p>
+<dl>
+<dt><a name="index-target-current"></a>Command: <strong>target current</strong></dt>
+<dd><p>Returns the name of the current target.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-target-names"></a>Command: <strong>target names</strong></dt>
+<dd><p>Lists the names of all current targets in the list.
+</p><div class="example">
+<pre class="example">foreach t [target names] {
+    puts [format &quot;Target: %s\n&quot; $t]
+}
+</pre></div>
+</dd></dl>
+
+
+<dl>
+<dt><a name="index-targets"></a>Command: <strong>targets</strong> <em>[name]</em></dt>
+<dd><p><em>Note: the name of this command is plural. Other target
+command names are singular.</em>
+</p>
+<p>With no parameter, this command displays a table of all known
+targets in a user friendly form.
+</p>
+<p>With a parameter, this command sets the current target to
+the given target with the given <var>name</var>; this is
+only relevant on boards which have more than one target.
+</p></dd></dl>
+
+<a name="Target-CPU-Types"></a>
+<h3 class="section">11.2 Target CPU Types</h3>
+<a name="index-target-type"></a>
+<a name="index-CPU-type"></a>
+
+<p>Each target has a <em>CPU type</em>, as shown in the output of
+the <code>targets</code> command. You need to specify that type
+when calling <code>target create</code>.
+The CPU type indicates more than just the instruction set.
+It also indicates how that instruction set is implemented,
+what kind of debug support it integrates,
+whether it has an MMU (and if so, what kind),
+what core-specific commands may be available
+(see <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a>),
+and more.
+</p>
+<p>It&rsquo;s easy to see what target types are supported,
+since there&rsquo;s a command to list them.
+</p>
+<a name="targettypes"></a><dl>
+<dt><a name="index-target-types"></a>Command: <strong>target types</strong></dt>
+<dd><p>Lists all supported target types.
+At this writing, the supported CPU types are:
+</p>
+<ul>
+<li> <code>arm11</code> &ndash; this is a generation of ARMv6 cores
+</li><li> <code>arm720t</code> &ndash; this is an ARMv4 core with an MMU
+</li><li> <code>arm7tdmi</code> &ndash; this is an ARMv4 core
+</li><li> <code>arm920t</code> &ndash; this is an ARMv4 core with an MMU
+</li><li> <code>arm926ejs</code> &ndash; this is an ARMv5 core with an MMU
+</li><li> <code>arm966e</code> &ndash; this is an ARMv5 core
+</li><li> <code>arm9tdmi</code> &ndash; this is an ARMv4 core
+</li><li> <code>avr</code> &ndash; implements Atmel&rsquo;s 8-bit AVR instruction set.
+(Support for this is preliminary and incomplete.)
+</li><li> <code>cortex_a</code> &ndash; this is an ARMv7 core with an MMU
+</li><li> <code>cortex_m</code> &ndash; this is an ARMv7 core, supporting only the
+compact Thumb2 instruction set.
+</li><li> <code>dragonite</code> &ndash; resembles arm966e
+</li><li> <code>dsp563xx</code> &ndash; implements Freescale&rsquo;s 24-bit DSP.
+(Support for this is still incomplete.)
+</li><li> <code>fa526</code> &ndash; resembles arm920 (w/o Thumb)
+</li><li> <code>feroceon</code> &ndash; resembles arm926
+</li><li> <code>mips_m4k</code> &ndash; a MIPS core
+</li><li> <code>xscale</code> &ndash; this is actually an architecture,
+not a CPU type. It is based on the ARMv5 architecture.
+</li><li> <code>openrisc</code> &ndash; this is an OpenRISC 1000 core.
+The current implementation supports three JTAG TAP cores:
+</li><li> <code>ls1_sap</code> &ndash; this is the SAP on NXP LS102x CPUs,
+allowing access to physical memory addresses independently of CPU cores.
+<ul class="no-bullet">
+<li>- <code>OpenCores TAP</code> (See: <a href="http://opencores.org/project">jtag</a>)
+</li><li>- <code>Altera Virtual JTAG TAP</code> (See: <a href="http://www.altera.com/literature/ug/ug_virtualjtag.pdf">http://www.altera.com/literature/ug/ug_virtualjtag.pdf</a>)
+</li><li>- <code>Xilinx BSCAN_* virtual JTAG interface</code> (See: <a href="http://www.xilinx.com/support/documentation/sw_manuals/xilinx14_2/spartan6_hdl.pdf">http://www.xilinx.com/support/documentation/sw_manuals/xilinx14_2/spartan6_hdl.pdf</a>)
+</li></ul>
+<p>And two debug interfaces cores:
+</p><ul class="no-bullet">
+<li>- <code>Advanced debug interface</code> (See: <a href="http://opencores.org/project">adv_debug_sys</a>)
+</li><li>- <code>SoC Debug Interface</code> (See: <a href="http://opencores.org/project">dbg_interface</a>)
+</li></ul>
+</li></ul>
+</dd></dl>
+
+<p>To avoid being confused by the variety of ARM based cores, remember
+this key point: <em>ARM is a technology licencing company</em>.
+(See: <a href="http://www.arm.com">http://www.arm.com</a>.)
+The CPU name used by OpenOCD will reflect the CPU design that was
+licenced, not a vendor brand which incorporates that design.
+Name prefixes like arm7, arm9, arm11, and cortex
+reflect design generations;
+while names like ARMv4, ARMv5, ARMv6, and ARMv7
+reflect an architecture version implemented by a CPU design.
+</p>
+<a name="targetconfiguration"></a><a name="Target-Configuration"></a>
+<h3 class="section">11.3 Target Configuration</h3>
+
+<p>Before creating a &ldquo;target&rdquo;, you must have added its TAP to the scan chain.
+When you&rsquo;ve added that TAP, you will have a <code>dotted.name</code>
+which is used to set up the CPU support.
+The chip-specific configuration file will normally configure its CPU(s)
+right after it adds all of the chip&rsquo;s TAPs to the scan chain.
+</p>
+<p>Although you can set up a target in one step, it&rsquo;s often clearer if you
+use shorter commands and do it in two steps: create it, then configure
+optional parts.
+All operations on the target after it&rsquo;s created will use a new
+command, created as part of target creation.
+</p>
+<p>The two main things to configure after target creation are
+a work area, which usually has target-specific defaults even
+if the board setup code overrides them later;
+and event handlers (see <a href="#targetevents">Target Events</a>), which tend
+to be much more board-specific.
+The key steps you use might look something like this
+</p>
+<div class="example">
+<pre class="example">target create MyTarget cortex_m -chain-position mychip.cpu
+$MyTarget configure -work-area-phys 0x08000 -work-area-size 8096
+$MyTarget configure -event reset-deassert-pre { jtag_rclk 5 }
+$MyTarget configure -event reset-init { myboard_reinit }
+</pre></div>
+
+<p>You should specify a working area if you can; typically it uses some
+on-chip SRAM.
+Such a working area can speed up many things, including bulk
+writes to target memory;
+flash operations like checking to see if memory needs to be erased;
+GDB memory checksumming;
+and more.
+</p>
+<blockquote>
+<p><b>Warning:</b> On more complex chips, the work area can become
+inaccessible when application code
+(such as an operating system)
+enables or disables the MMU.
+For example, the particular MMU context used to acess the virtual
+address will probably matter ... and that context might not have
+easy access to other addresses needed.
+At this writing, OpenOCD doesn&rsquo;t have much MMU intelligence.
+</p></blockquote>
+
+<p>It&rsquo;s often very useful to define a <code>reset-init</code> event handler.
+For systems that are normally used with a boot loader,
+common tasks include updating clocks and initializing memory
+controllers.
+That may be needed to let you write the boot loader into flash,
+in order to &ldquo;de-brick&rdquo; your board; or to load programs into
+external DDR memory without having run the boot loader.
+</p>
+<dl>
+<dt><a name="index-target-create"></a>Command: <strong>target create</strong> <em>target_name type configparams...</em></dt>
+<dd><p>This command creates a GDB debug target that refers to a specific JTAG tap.
+It enters that target into a list, and creates a new
+command (<code><var>target_name</var></code>) which is used for various
+purposes including additional configuration.
+</p>
+<ul>
+<li> <var>target_name</var> ... is the name of the debug target.
+By convention this should be the same as the <em>dotted.name</em>
+of the TAP associated with this target, which must be specified here
+using the <code>-chain-position <var>dotted.name</var></code> configparam.
+
+<p>This name is also used to create the target object command,
+referred to here as <code>$target_name</code>,
+and in other places the target needs to be identified.
+</p></li><li> <var>type</var> ... specifies the target type. See <a href="#targettypes">target types</a>.
+</li><li> <var>configparams</var> ... all parameters accepted by
+<code>$target_name configure</code> are permitted.
+If the target is big-endian, set it here with <code>-endian big</code>.
+
+<p>You <em>must</em> set the <code>-chain-position <var>dotted.name</var></code> here.
+</p></li></ul>
+</dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-configure"></a>Command: <strong>$target_name configure</strong> <em>configparams...</em></dt>
+<dd><p>The options accepted by this command may also be
+specified as parameters to <code>target create</code>.
+Their values can later be queried one at a time by
+using the <code>$target_name cget</code> command.
+</p>
+<p><em>Warning:</em> changing some of these after setup is dangerous.
+For example, moving a target from one TAP to another;
+and changing its endianness.
+</p>
+<ul>
+<li> <code>-chain-position</code> <var>dotted.name</var> &ndash; names the TAP
+used to access this target.
+
+</li><li> <code>-endian</code> (<samp>big</samp>|<samp>little</samp>) &ndash; specifies
+whether the CPU uses big or little endian conventions
+
+</li><li> <code>-event</code> <var>event_name</var> <var>event_body</var> &ndash;
+See <a href="#targetevents">Target Events</a>.
+Note that this updates a list of named event handlers.
+Calling this twice with two different event names assigns
+two different handlers, but calling it twice with the
+same event name assigns only one handler.
+
+</li><li> <code>-work-area-backup</code> (<samp>0</samp>|<samp>1</samp>) &ndash; says
+whether the work area gets backed up; by default,
+<em>it is not backed up.</em>
+When possible, use a working_area that doesn&rsquo;t need to be backed up,
+since performing a backup slows down operations.
+For example, the beginning of an SRAM block is likely to
+be used by most build systems, but the end is often unused.
+
+</li><li> <code>-work-area-size</code> <var>size</var> &ndash; specify work are size,
+in bytes. The same size applies regardless of whether its physical
+or virtual address is being used.
+
+</li><li> <code>-work-area-phys</code> <var>address</var> &ndash; set the work area
+base <var>address</var> to be used when no MMU is active.
+
+</li><li> <code>-work-area-virt</code> <var>address</var> &ndash; set the work area
+base <var>address</var> to be used when an MMU is active.
+<em>Do not specify a value for this except on targets with an MMU.</em>
+The value should normally correspond to a static mapping for the
+<code>-work-area-phys</code> address, set up by the current operating system.
+
+<a name="rtostype"></a></li><li> <code>-rtos</code> <var>rtos_type</var> &ndash; enable rtos support for target,
+<var>rtos_type</var> can be one of <samp>auto</samp>, <samp>eCos</samp>,
+<samp>ThreadX</samp>, <samp>FreeRTOS</samp>, <samp>linux</samp>, <samp>ChibiOS</samp>,
+<samp>embKernel</samp>, <samp>mqx</samp>, <samp>uCOS-III</samp>
+See <a href="GDB-and-OpenOCD.html#gdbrtossupport">RTOS Support</a>.
+
+</li><li> <code>-defer-examine</code> &ndash; skip target examination at initial JTAG chain
+scan and after a reset. A manual call to arp_examine is required to
+access the target for debugging.
+
+</li><li> <code>-ap-num</code> <var>ap_number</var> &ndash; set DAP access port for target,
+<var>ap_number</var> is the numeric index of the DAP AP the target is connected to.
+Use this option with systems where multiple, independent cores are connected
+to separate access ports of the same DAP.
+</li></ul>
+</dd></dl>
+
+<a name="Other-_0024target_005fname-Commands"></a>
+<h3 class="section">11.4 Other $target_name Commands</h3>
+<a name="index-object-command"></a>
+
+<p>The Tcl/Tk language has the concept of object commands,
+and OpenOCD adopts that same model for targets.
+</p>
+<p>A good Tk example is a on screen button.
+Once a button is created a button
+has a name (a path in Tk terms) and that name is useable as a first
+class command. For example in Tk, one can create a button and later
+configure it like this:
+</p>
+<div class="example">
+<pre class="example"># Create
+button .foobar -background red -command { foo }
+# Modify
+.foobar configure -foreground blue
+# Query
+set x [.foobar cget -background]
+# Report
+puts [format &quot;The button is %s&quot; $x]
+</pre></div>
+
+<p>In OpenOCD&rsquo;s terms, the &ldquo;target&rdquo; is an object just like a Tcl/Tk
+button, and its object commands are invoked the same way.
+</p>
+<div class="example">
+<pre class="example">str912.cpu    mww 0x1234 0x42
+omap3530.cpu  mww 0x5555 123
+</pre></div>
+
+<p>The commands supported by OpenOCD target objects are:
+</p>
+<dl>
+<dt><a name="index-_0024target_005fname-arp_005fexamine"></a>Command: <strong>$target_name arp_examine</strong> <em><samp>allow-defer</samp></em></dt>
+<dt><a name="index-_0024target_005fname-arp_005fhalt"></a>Command: <strong>$target_name arp_halt</strong></dt>
+<dt><a name="index-_0024target_005fname-arp_005fpoll"></a>Command: <strong>$target_name arp_poll</strong></dt>
+<dt><a name="index-_0024target_005fname-arp_005freset"></a>Command: <strong>$target_name arp_reset</strong></dt>
+<dt><a name="index-_0024target_005fname-arp_005fwaitstate"></a>Command: <strong>$target_name arp_waitstate</strong></dt>
+<dd><p>Internal OpenOCD scripts (most notably <samp>startup.tcl</samp>)
+use these to deal with specific reset cases.
+They are not otherwise documented here.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-array2mem"></a>Command: <strong>$target_name array2mem</strong> <em>arrayname width address count</em></dt>
+<dt><a name="index-_0024target_005fname-mem2array"></a>Command: <strong>$target_name mem2array</strong> <em>arrayname width address count</em></dt>
+<dd><p>These provide an efficient script-oriented interface to memory.
+The <code>array2mem</code> primitive writes bytes, halfwords, or words;
+while <code>mem2array</code> reads them.
+In both cases, the TCL side uses an array, and
+the target side uses raw memory.
+</p>
+<p>The efficiency comes from enabling the use of
+bulk JTAG data transfer operations.
+The script orientation comes from working with data
+values that are packaged for use by TCL scripts;
+<code>mdw</code> type primitives only print data they retrieve,
+and neither store nor return those values.
+</p>
+<ul>
+<li> <var>arrayname</var> ... is the name of an array variable
+</li><li> <var>width</var> ... is 8/16/32 - indicating the memory access size
+</li><li> <var>address</var> ... is the target memory address
+</li><li> <var>count</var> ... is the number of elements to process
+</li></ul>
+</dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-cget"></a>Command: <strong>$target_name cget</strong> <em>queryparm</em></dt>
+<dd><p>Each configuration parameter accepted by
+<code>$target_name configure</code>
+can be individually queried, to return its current value.
+The <var>queryparm</var> is a parameter name
+accepted by that command, such as <code>-work-area-phys</code>.
+There are a few special cases:
+</p>
+<ul>
+<li> <code>-event</code> <var>event_name</var> &ndash; returns the handler for the
+event named <var>event_name</var>.
+This is a special case because setting a handler requires
+two parameters.
+</li><li> <code>-type</code> &ndash; returns the target type.
+This is a special case because this is set using
+<code>target create</code> and can&rsquo;t be changed
+using <code>$target_name configure</code>.
+</li></ul>
+
+<p>For example, if you wanted to summarize information about
+all the targets you might use something like this:
+</p>
+<div class="example">
+<pre class="example">foreach name [target names] {
+    set y [$name cget -endian]
+    set z [$name cget -type]
+    puts [format &quot;Chip %d is %s, Endian: %s, type: %s&quot; \
+                 $x $name $y $z]
+}
+</pre></div>
+</dd></dl>
+
+<a name="targetcurstate"></a><dl>
+<dt><a name="index-_0024target_005fname-curstate"></a>Command: <strong>$target_name curstate</strong></dt>
+<dd><p>Displays the current target state:
+<code>debug-running</code>,
+<code>halted</code>,
+<code>reset</code>,
+<code>running</code>, or <code>unknown</code>.
+(Also, see <a href="Server-Configuration.html#eventpolling">Event Polling</a>.)
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-eventlist"></a>Command: <strong>$target_name eventlist</strong></dt>
+<dd><p>Displays a table listing all event handlers
+currently associated with this target.
+See <a href="#targetevents">Target Events</a>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-invoke_002devent"></a>Command: <strong>$target_name invoke-event</strong> <em>event_name</em></dt>
+<dd><p>Invokes the handler for the event named <var>event_name</var>.
+(This is primarily intended for use by OpenOCD framework
+code, for example by the reset code in <samp>startup.tcl</samp>.)
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-mdw"></a>Command: <strong>$target_name mdw</strong> <em>addr [count]</em></dt>
+<dt><a name="index-_0024target_005fname-mdh"></a>Command: <strong>$target_name mdh</strong> <em>addr [count]</em></dt>
+<dt><a name="index-_0024target_005fname-mdb"></a>Command: <strong>$target_name mdb</strong> <em>addr [count]</em></dt>
+<dd><p>Display contents of address <var>addr</var>, as
+32-bit words (<code>mdw</code>), 16-bit halfwords (<code>mdh</code>),
+or 8-bit bytes (<code>mdb</code>).
+If <var>count</var> is specified, displays that many units.
+(If you want to manipulate the data instead of displaying it,
+see the <code>mem2array</code> primitives.)
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-_0024target_005fname-mww"></a>Command: <strong>$target_name mww</strong> <em>addr word</em></dt>
+<dt><a name="index-_0024target_005fname-mwh"></a>Command: <strong>$target_name mwh</strong> <em>addr halfword</em></dt>
+<dt><a name="index-_0024target_005fname-mwb"></a>Command: <strong>$target_name mwb</strong> <em>addr byte</em></dt>
+<dd><p>Writes the specified <var>word</var> (32 bits),
+<var>halfword</var> (16 bits), or <var>byte</var> (8-bit) pattern,
+at the specified address <var>addr</var>.
+</p></dd></dl>
+
+<a name="targetevents"></a><a name="Target-Events"></a>
+<h3 class="section">11.5 Target Events</h3>
+<a name="index-target-events"></a>
+<a name="index-events-2"></a>
+<p>At various times, certain things can happen, or you want them to happen.
+For example:
+</p><ul>
+<li> What should happen when GDB connects? Should your target reset?
+</li><li> When GDB tries to flash the target, do you need to enable the flash via a special command?
+</li><li> Is using SRST appropriate (and possible) on your system?
+Or instead of that, do you need to issue JTAG commands to trigger reset?
+SRST usually resets everything on the scan chain, which can be inappropriate.
+</li><li> During reset, do you need to write to certain memory locations
+to set up system clocks or
+to reconfigure the SDRAM?
+How about configuring the watchdog timer, or other peripherals,
+to stop running while you hold the core stopped for debugging?
+</li></ul>
+
+<p>All of the above items can be addressed by target event handlers.
+These are set up by <code>$target_name configure -event</code> or
+<code>target create ... -event</code>.
+</p>
+<p>The programmer&rsquo;s model matches the <code>-command</code> option used in Tcl/Tk
+buttons and events. The two examples below act the same, but one creates
+and invokes a small procedure while the other inlines it.
+</p>
+<div class="example">
+<pre class="example">proc my_attach_proc { } {
+    echo &quot;Reset...&quot;
+    reset halt
+}
+mychip.cpu configure -event gdb-attach my_attach_proc
+mychip.cpu configure -event gdb-attach {
+    echo &quot;Reset...&quot;
+    # To make flash probe and gdb load to flash work
+    # we need a reset init.
+    reset init
+}
+</pre></div>
+
+<p>The following target events are defined:
+</p>
+<ul>
+<li> <b>debug-halted</b>
+<br> The target has halted for debug reasons (i.e.: breakpoint)
+</li><li> <b>debug-resumed</b>
+<br> The target has resumed (i.e.: gdb said run)
+</li><li> <b>early-halted</b>
+<br> Occurs early in the halt process
+</li><li> <b>examine-start</b>
+<br> Before target examine is called.
+</li><li> <b>examine-end</b>
+<br> After target examine is called with no errors.
+</li><li> <b>gdb-attach</b>
+<br> When GDB connects. This is before any communication with the target, so this
+can be used to set up the target so it is possible to probe flash. Probing flash
+is necessary during gdb connect if gdb load is to write the image to flash. Another
+use of the flash memory map is for GDB to automatically hardware/software breakpoints
+depending on whether the breakpoint is in RAM or read only memory.
+</li><li> <b>gdb-detach</b>
+<br> When GDB disconnects
+</li><li> <b>gdb-end</b>
+<br> When the target has halted and GDB is not doing anything (see early halt)
+</li><li> <b>gdb-flash-erase-start</b>
+<br> Before the GDB flash process tries to erase the flash (default is
+<code>reset init</code>)
+</li><li> <b>gdb-flash-erase-end</b>
+<br> After the GDB flash process has finished erasing the flash
+</li><li> <b>gdb-flash-write-start</b>
+<br> Before GDB writes to the flash
+</li><li> <b>gdb-flash-write-end</b>
+<br> After GDB writes to the flash (default is <code>reset halt</code>)
+</li><li> <b>gdb-start</b>
+<br> Before the target steps, gdb is trying to start/resume the target
+</li><li> <b>halted</b>
+<br> The target has halted
+</li><li> <b>reset-assert-pre</b>
+<br> Issued as part of <code>reset</code> processing
+after <code>reset_init</code> was triggered
+but before either SRST alone is re-asserted on the scan chain,
+or <code>reset-assert</code> is triggered.
+</li><li> <b>reset-assert</b>
+<br> Issued as part of <code>reset</code> processing
+after <code>reset-assert-pre</code> was triggered.
+When such a handler is present, cores which support this event will use
+it instead of asserting SRST.
+This support is essential for debugging with JTAG interfaces which
+don&rsquo;t include an SRST line (JTAG doesn&rsquo;t require SRST), and for
+selective reset on scan chains that have multiple targets.
+</li><li> <b>reset-assert-post</b>
+<br> Issued as part of <code>reset</code> processing
+after <code>reset-assert</code> has been triggered.
+or the target asserted SRST on the entire scan chain.
+</li><li> <b>reset-deassert-pre</b>
+<br> Issued as part of <code>reset</code> processing
+after <code>reset-assert-post</code> has been triggered.
+</li><li> <b>reset-deassert-post</b>
+<br> Issued as part of <code>reset</code> processing
+after <code>reset-deassert-pre</code> has been triggered
+and (if the target is using it) after SRST has been
+released on the scan chain.
+</li><li> <b>reset-end</b>
+<br> Issued as the final step in <code>reset</code> processing.
+</li><li> <b>reset-init</b>
+<br> Used by <b>reset init</b> command for board-specific initialization.
+This event fires after <em>reset-deassert-post</em>.
+
+<p>This is where you would configure PLLs and clocking, set up DRAM so
+you can download programs that don&rsquo;t fit in on-chip SRAM, set up pin
+multiplexing, and so on.
+(You may be able to switch to a fast JTAG clock rate here, after
+the target clocks are fully set up.)
+</p></li><li> <b>reset-start</b>
+<br> Issued as part of <code>reset</code> processing
+before <code>reset_init</code> is called.
+
+<p>This is the most robust place to use <code>jtag_rclk</code>
+or <code>adapter_khz</code> to switch to a low JTAG clock rate,
+when reset disables PLLs needed to use a fast clock.
+</p></li><li> <b>resume-start</b>
+<br> Before any target is resumed
+</li><li> <b>resume-end</b>
+<br> After all targets have resumed
+</li><li> <b>resumed</b>
+<br> Target has resumed
+</li><li> <b>trace-config</b>
+<br> After target hardware trace configuration was changed
+</li></ul>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Flash-Commands.html#Flash-Commands" accesskey="n" rel="next">Flash Commands</a>, Previous: <a href="TAP-Declaration.html#TAP-Declaration" accesskey="p" rel="prev">TAP Declaration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

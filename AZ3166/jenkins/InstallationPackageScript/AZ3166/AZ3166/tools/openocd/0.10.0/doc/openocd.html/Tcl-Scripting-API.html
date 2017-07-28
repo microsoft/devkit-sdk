@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Tcl Scripting API</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Tcl Scripting API">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Tcl Scripting API">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="FAQ.html#FAQ" rel="next" title="FAQ">
+<link href="GDB-and-OpenOCD.html#GDB-and-OpenOCD" rel="prev" title="GDB and OpenOCD">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Tcl-Scripting-API"></a>
+<div class="header">
+<p>
+Next: <a href="FAQ.html#FAQ" accesskey="n" rel="next">FAQ</a>, Previous: <a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD" accesskey="p" rel="prev">GDB and OpenOCD</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Tcl-Scripting-API-1"></a>
+<h2 class="chapter">22 Tcl Scripting API</h2>
+<a name="index-Tcl-Scripting-API"></a>
+<a name="index-Tcl-scripts"></a>
+<a name="API-rules"></a>
+<h3 class="section">22.1 API rules</h3>
+
+<p>Tcl commands are stateless; e.g. the <code>telnet</code> command has
+a concept of currently active target, the Tcl API proc&rsquo;s take this sort
+of state information as an argument to each proc.
+</p>
+<p>There are three main types of return values: single value, name value
+pair list and lists.
+</p>
+<p>Name value pair. The proc &rsquo;foo&rsquo; below returns a name/value pair
+list.
+</p>
+<div class="example">
+<pre class="example">&gt;  set foo(me)  Duane
+&gt;  set foo(you) Oyvind
+&gt;  set foo(mouse) Micky
+&gt;  set foo(duck) Donald
+</pre></div>
+
+<p>If one does this:
+</p>
+<div class="example">
+<pre class="example">&gt;  set foo
+</pre></div>
+
+<p>The result is:
+</p>
+<div class="example">
+<pre class="example">me Duane you Oyvind mouse Micky duck Donald
+</pre></div>
+
+<p>Thus, to get the names of the associative array is easy:
+</p>
+<pre class="verbatim">foreach { name value } [set foo] {
+        puts &quot;Name: $name, Value: $value&quot;
+}
+</pre>
+<p>Lists returned should be relatively small. Otherwise, a range
+should be passed in to the proc in question.
+</p>
+<a name="Internal-low_002dlevel-Commands"></a>
+<h3 class="section">22.2 Internal low-level Commands</h3>
+
+<p>By &quot;low-level,&quot; we mean commands that a human would typically not
+invoke directly.
+</p>
+<p>Some low-level commands need to be prefixed with &quot;ocd_&quot;; e.g.
+<code>ocd_flash_banks</code>
+is the low-level API upon which <code>flash banks</code> is implemented.
+</p>
+<ul>
+<li> <b>mem2array</b> &lt;<var>varname</var>&gt; &lt;<var>width</var>&gt; &lt;<var>addr</var>&gt; &lt;<var>nelems</var>&gt;
+
+<p>Read memory and return as a Tcl array for script processing
+</p></li><li> <b>array2mem</b> &lt;<var>varname</var>&gt; &lt;<var>width</var>&gt; &lt;<var>addr</var>&gt; &lt;<var>nelems</var>&gt;
+
+<p>Convert a Tcl array to memory locations and write the values
+</p></li><li> <b>ocd_flash_banks</b> &lt;<var>driver</var>&gt; &lt;<var>base</var>&gt; &lt;<var>size</var>&gt; &lt;<var>chip_width</var>&gt; &lt;<var>bus_width</var>&gt; &lt;<var>target</var>&gt; [<samp>driver options</samp> ...]
+
+<p>Return information about the flash banks
+</p>
+</li><li> <b>capture</b> &lt;<var>command</var>&gt;
+
+<p>Run &lt;<var>command</var>&gt; and return full log output that was produced during
+its execution. Example:
+</p>
+<div class="example">
+<pre class="example">&gt; capture &quot;reset init&quot;
+</pre></div>
+
+</li></ul>
+
+<p>OpenOCD commands can consist of two words, e.g. &quot;flash banks&quot;. The
+<samp>startup.tcl</samp> &quot;unknown&quot; proc will translate this into a Tcl proc
+called &quot;flash_banks&quot;.
+</p>
+<a name="OpenOCD-specific-Global-Variables"></a>
+<h3 class="section">22.3 OpenOCD specific Global Variables</h3>
+
+<p>Real Tcl has ::tcl_platform(), and platform::identify, and many other
+variables. JimTCL, as implemented in OpenOCD creates $ocd_HOSTOS which
+holds one of the following values:
+</p>
+<ul>
+<li> <b>cygwin</b>   Running under Cygwin
+</li><li> <b>darwin</b>   Darwin (Mac-OS) is the underlying operating sytem.
+</li><li> <b>freebsd</b>  Running under FreeBSD
+</li><li> <b>openbsd</b>  Running under OpenBSD
+</li><li> <b>netbsd</b>   Running under NetBSD
+</li><li> <b>linux</b>    Linux is the underlying operating sytem
+</li><li> <b>mingw32</b>  Running under MingW32
+</li><li> <b>winxx</b>    Built using Microsoft Visual Studio
+</li><li> <b>ecos</b>     Running under eCos
+</li><li> <b>other</b>    Unknown, none of the above.
+</li></ul>
+
+<p>Note: &rsquo;winxx&rsquo; was choosen because today (March-2009) no distinction is made between Win32 and Win64.
+</p>
+<blockquote>
+<p><b>Note:</b> We should add support for a variable like Tcl variable
+<code>tcl_platform(platform)</code>, it should be called
+<code>jim_platform</code> (because it
+is jim, not real tcl).
+</p></blockquote>
+
+<a name="Tcl-RPC-server"></a>
+<h3 class="section">22.4 Tcl RPC server</h3>
+<a name="index-RPC"></a>
+
+<p>OpenOCD provides a simple RPC server that allows to run arbitrary Tcl
+commands and receive the results.
+</p>
+<p>To access it, your application needs to connect to a configured TCP port
+(see <code>tcl_port</code>). Then it can pass any string to the
+interpreter terminating it with <code>0x1a</code> and wait for the return
+value (it will be terminated with <code>0x1a</code> as well). This can be
+repeated as many times as desired without reopening the connection.
+</p>
+<p>Remember that most of the OpenOCD commands need to be prefixed with
+<code>ocd_</code> to get the results back. Sometimes you might also need the
+<code>capture</code> command.
+</p>
+<p>See <samp>contrib/rpc_examples/</samp> for specific client implementations.
+</p>
+<a name="Tcl-RPC-server-notifications"></a>
+<h3 class="section">22.5 Tcl RPC server notifications</h3>
+<a name="index-RPC-Notifications"></a>
+
+<p>Notifications are sent asynchronously to other commands being executed over
+the RPC server, so the port must be polled continuously.
+</p>
+<p>Target event, state and reset notifications are emitted as Tcl associative arrays
+in the following format.
+</p>
+<pre class="verbatim">type target_event event [event-name]
+type target_state state [state-name]
+type target_reset mode [reset-mode]
+</pre>
+<dl>
+<dt><a name="index-tcl_005fnotifications"></a>Command: <strong>tcl_notifications</strong> <em>[on/off]</em></dt>
+<dd><p>Toggle output of target notifications to the current Tcl RPC server.
+Only available from the Tcl RPC server.
+Defaults to off.
+</p>
+</dd></dl>
+
+<a name="Tcl-RPC-server-trace-output"></a>
+<h3 class="section">22.6 Tcl RPC server trace output</h3>
+<a name="index-RPC-trace-output"></a>
+
+<p>Trace data is sent asynchronously to other commands being executed over
+the RPC server, so the port must be polled continuously.
+</p>
+<p>Target trace data is emitted as a Tcl associative array in the following format.
+</p>
+<pre class="verbatim">type target_trace data [trace-data-hex-encoded]
+</pre>
+<dl>
+<dt><a name="index-tcl_005ftrace"></a>Command: <strong>tcl_trace</strong> <em>[on/off]</em></dt>
+<dd><p>Toggle output of target trace data to the current Tcl RPC server.
+Only available from the Tcl RPC server.
+Defaults to off.
+</p>
+<p>See an example application here:
+<a href="https://github.com/apmorton/OpenOcdTraceUtil">https://github.com/apmorton/OpenOcdTraceUtil</a> [OpenOcdTraceUtil]
+</p>
+</dd></dl>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="FAQ.html#FAQ" accesskey="n" rel="next">FAQ</a>, Previous: <a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD" accesskey="p" rel="prev">GDB and OpenOCD</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

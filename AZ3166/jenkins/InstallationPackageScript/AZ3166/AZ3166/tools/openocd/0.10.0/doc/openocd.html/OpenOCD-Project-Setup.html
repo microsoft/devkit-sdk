@@ -1,0 +1,598 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: OpenOCD Project Setup</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: OpenOCD Project Setup">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: OpenOCD Project Setup">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Config-File-Guidelines.html#Config-File-Guidelines" rel="next" title="Config File Guidelines">
+<link href="Running.html#Running" rel="prev" title="Running">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="OpenOCD-Project-Setup"></a>
+<div class="header">
+<p>
+Next: <a href="Config-File-Guidelines.html#Config-File-Guidelines" accesskey="n" rel="next">Config File Guidelines</a>, Previous: <a href="Running.html#Running" accesskey="p" rel="prev">Running</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="OpenOCD-Project-Setup-1"></a>
+<h2 class="chapter">5 OpenOCD Project Setup</h2>
+
+<p>To use OpenOCD with your development projects, you need to do more than
+just connect the JTAG adapter hardware (dongle) to your development board
+and start the OpenOCD server.
+You also need to configure your OpenOCD server so that it knows
+about your adapter and board, and helps your work.
+You may also want to connect OpenOCD to GDB, possibly
+using Eclipse or some other GUI.
+</p>
+<a name="Hooking-up-the-JTAG-Adapter"></a>
+<h3 class="section">5.1 Hooking up the JTAG Adapter</h3>
+
+<p>Today&rsquo;s most common case is a dongle with a JTAG cable on one side
+(such as a ribbon cable with a 10-pin or 20-pin IDC connector)
+and a USB cable on the other.
+Instead of USB, some cables use Ethernet;
+older ones may use a PC parallel port, or even a serial port.
+</p>
+<ol>
+<li> <em>Start with power to your target board turned off</em>,
+and nothing connected to your JTAG adapter.
+If you&rsquo;re particularly paranoid, unplug power to the board.
+It&rsquo;s important to have the ground signal properly set up,
+unless you are using a JTAG adapter which provides
+galvanic isolation between the target board and the
+debugging host.
+
+</li><li> <em>Be sure it&rsquo;s the right kind of JTAG connector.</em>
+If your dongle has a 20-pin ARM connector, you need some kind
+of adapter (or octopus, see below) to hook it up to
+boards using 14-pin or 10-pin connectors ... or to 20-pin
+connectors which don&rsquo;t use ARM&rsquo;s pinout.
+
+<p>In the same vein, make sure the voltage levels are compatible.
+Not all JTAG adapters have the level shifters needed to work
+with 1.2 Volt boards.
+</p>
+</li><li> <em>Be certain the cable is properly oriented</em> or you might
+damage your board. In most cases there are only two possible
+ways to connect the cable.
+Connect the JTAG cable from your adapter to the board.
+Be sure it&rsquo;s firmly connected.
+
+<p>In the best case, the connector is keyed to physically
+prevent you from inserting it wrong.
+This is most often done using a slot on the board&rsquo;s male connector
+housing, which must match a key on the JTAG cable&rsquo;s female connector.
+If there&rsquo;s no housing, then you must look carefully and
+make sure pin 1 on the cable hooks up to pin 1 on the board.
+Ribbon cables are frequently all grey except for a wire on one
+edge, which is red. The red wire is pin 1.
+</p>
+<p>Sometimes dongles provide cables where one end is an &ldquo;octopus&rdquo; of
+color coded single-wire connectors, instead of a connector block.
+These are great when converting from one JTAG pinout to another,
+but are tedious to set up.
+Use these with connector pinout diagrams to help you match up the
+adapter signals to the right board pins.
+</p>
+</li><li> <em>Connect the adapter&rsquo;s other end</em> once the JTAG cable is connected.
+A USB, parallel, or serial port connector will go to the host which
+you are using to run OpenOCD.
+For Ethernet, consult the documentation and your network administrator.
+
+<p>For USB-based JTAG adapters you have an easy sanity check at this point:
+does the host operating system see the JTAG adapter? If you&rsquo;re running
+Linux, try the <code>lsusb</code> command. If that host is an
+MS-Windows host, you&rsquo;ll need to install a driver before OpenOCD works.
+</p>
+</li><li> <em>Connect the adapter&rsquo;s power supply, if needed.</em>
+This step is primarily for non-USB adapters,
+but sometimes USB adapters need extra power.
+
+</li><li> <em>Power up the target board.</em>
+Unless you just let the magic smoke escape,
+you&rsquo;re now ready to set up the OpenOCD server
+so you can use JTAG to work with that board.
+
+</li></ol>
+
+<p>Talk with the OpenOCD server using
+telnet (<code>telnet localhost 4444</code> on many systems) or GDB.
+See <a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a>.
+</p>
+<a name="Project-Directory"></a>
+<h3 class="section">5.2 Project Directory</h3>
+
+<p>There are many ways you can configure OpenOCD and start it up.
+</p>
+<p>A simple way to organize them all involves keeping a
+single directory for your work with a given board.
+When you start OpenOCD from that directory,
+it searches there first for configuration files, scripts,
+files accessed through semihosting,
+and for code you upload to the target board.
+It is also the natural place to write files,
+such as log files and data you download from the board.
+</p>
+<a name="Configuration-Basics"></a>
+<h3 class="section">5.3 Configuration Basics</h3>
+
+<p>There are two basic ways of configuring OpenOCD, and
+a variety of ways you can mix them.
+Think of the difference as just being how you start the server:
+</p>
+<ul>
+<li> Many <samp>-f file</samp> or <samp>-c command</samp> options on the command line
+</li><li> No options, but a <em>user config file</em>
+in the current directory named <samp>openocd.cfg</samp>
+</li></ul>
+
+<p>Here is an example <samp>openocd.cfg</samp> file for a setup
+using a Signalyzer FT2232-based JTAG adapter to talk to
+a board with an Atmel AT91SAM7X256 microcontroller:
+</p>
+<div class="example">
+<pre class="example">source [find interface/ftdi/signalyzer.cfg]
+
+# GDB can also flash my flash!
+gdb_memory_map enable
+gdb_flash_program enable
+
+source [find target/sam7x256.cfg]
+</pre></div>
+
+<p>Here is the command line equivalent of that configuration:
+</p>
+<div class="example">
+<pre class="example">openocd -f interface/ftdi/signalyzer.cfg \
+        -c &quot;gdb_memory_map enable&quot; \
+        -c &quot;gdb_flash_program enable&quot; \
+        -f target/sam7x256.cfg
+</pre></div>
+
+<p>You could wrap such long command lines in shell scripts,
+each supporting a different development task.
+One might re-flash the board with a specific firmware version.
+Another might set up a particular debugging or run-time environment.
+</p>
+<blockquote>
+<p><b>Important:</b> At this writing (October 2009) the command line method has
+problems with how it treats variables.
+For example, after <samp>-c &quot;set VAR value&quot;</samp>, or doing the
+same in a script, the variable <var>VAR</var> will have no value
+that can be tested in a later script.
+</p></blockquote>
+
+<p>Here we will focus on the simpler solution: one user config
+file, including basic configuration plus any TCL procedures
+to simplify your work.
+</p>
+<a name="User-Config-Files"></a>
+<h3 class="section">5.4 User Config Files</h3>
+<a name="index-config-file_002c-user"></a>
+<a name="index-user-config-file"></a>
+<a name="index-config-file_002c-overview"></a>
+
+<p>A user configuration file ties together all the parts of a project
+in one place.
+One of the following will match your situation best:
+</p>
+<ul>
+<li> Ideally almost everything comes from configuration files
+provided by someone else.
+For example, OpenOCD distributes a <samp>scripts</samp> directory
+(probably in <samp>/usr/share/openocd/scripts</samp> on Linux).
+Board and tool vendors can provide these too, as can individual
+user sites; the <samp>-s</samp> command line option lets you say
+where to find these files. (See <a href="Running.html#Running">Running</a>.)
+The AT91SAM7X256 example above works this way.
+
+<p>Three main types of non-user configuration file each have their
+own subdirectory in the <samp>scripts</samp> directory:
+</p>
+<ol>
+<li> <b>interface</b> &ndash; one for each different debug adapter;
+</li><li> <b>board</b> &ndash; one for each different board
+</li><li> <b>target</b> &ndash; the chips which integrate CPUs and other JTAG TAPs
+</li></ol>
+
+<p>Best case: include just two files, and they handle everything else.
+The first is an interface config file.
+The second is board-specific, and it sets up the JTAG TAPs and
+their GDB targets (by deferring to some <samp>target.cfg</samp> file),
+declares all flash memory, and leaves you nothing to do except
+meet your deadline:
+</p>
+<div class="example">
+<pre class="example">source [find interface/olimex-jtag-tiny.cfg]
+source [find board/csb337.cfg]
+</pre></div>
+
+<p>Boards with a single microcontroller often won&rsquo;t need more
+than the target config file, as in the AT91SAM7X256 example.
+That&rsquo;s because there is no external memory (flash, DDR RAM), and
+the board differences are encapsulated by application code.
+</p>
+</li><li> Maybe you don&rsquo;t know yet what your board looks like to JTAG.
+Once you know the <samp>interface.cfg</samp> file to use, you may
+need help from OpenOCD to discover what&rsquo;s on the board.
+Once you find the JTAG TAPs, you can just search for appropriate
+target and board
+configuration files ... or write your own, from the bottom up.
+See <a href="TAP-Declaration.html#autoprobing">Autoprobing</a>.
+
+</li><li> You can often reuse some standard config files but
+need to write a few new ones, probably a <samp>board.cfg</samp> file.
+You will be using commands described later in this User&rsquo;s Guide,
+and working with the guidelines in the next chapter.
+
+<p>For example, there may be configuration files for your JTAG adapter
+and target chip, but you need a new board-specific config file
+giving access to your particular flash chips.
+Or you might need to write another target chip configuration file
+for a new chip built around the Cortex-M3 core.
+</p>
+<blockquote>
+<p><b>Note:</b> When you write new configuration files, please submit
+them for inclusion in the next OpenOCD release.
+For example, a <samp>board/newboard.cfg</samp> file will help the
+next users of that board, and a <samp>target/newcpu.cfg</samp>
+will help support users of any board using that chip.
+</p></blockquote>
+
+</li><li> You may may need to write some C code.
+It may be as simple as supporting a new FT2232 or parport
+based adapter; a bit more involved, like a NAND or NOR flash
+controller driver; or a big piece of work like supporting
+a new chip architecture.
+</li></ul>
+
+<p>Reuse the existing config files when you can.
+Look first in the <samp>scripts/boards</samp> area, then <samp>scripts/targets</samp>.
+You may find a board configuration that&rsquo;s a good example to follow.
+</p>
+<p>When you write config files, separate the reusable parts
+(things every user of that interface, chip, or board needs)
+from ones specific to your environment and debugging approach.
+</p><ul>
+<li> For example, a <code>gdb-attach</code> event handler that invokes
+the <code>reset init</code> command will interfere with debugging
+early boot code, which performs some of the same actions
+that the <code>reset-init</code> event handler does.
+
+</li><li> Likewise, the <code>arm9 vector_catch</code> command (or
+<a name="index-vector_005fcatch"></a>
+its siblings <code>xscale vector_catch</code>
+and <code>cortex_m vector_catch</code>) can be a timesaver
+during some debug sessions, but don&rsquo;t make everyone use that either.
+Keep those kinds of debugging aids in your user config file,
+along with messaging and tracing setup.
+(See <a href="Architecture-and-Core-Commands.html#softwaredebugmessagesandtracing">Software Debug Messages and Tracing</a>.)
+
+</li><li> You might need to override some defaults.
+For example, you might need to move, shrink, or back up the target&rsquo;s
+work area if your application needs much SRAM.
+
+</li><li> TCP/IP port configuration is another example of something which
+is environment-specific, and should only appear in
+a user config file. See <a href="Server-Configuration.html#tcpipports">TCP/IP Ports</a>.
+</li></ul>
+
+<a name="Project_002dSpecific-Utilities"></a>
+<h3 class="section">5.5 Project-Specific Utilities</h3>
+
+<p>A few project-specific utility
+routines may well speed up your work.
+Write them, and keep them in your project&rsquo;s user config file.
+</p>
+<p>For example, if you are making a boot loader work on a
+board, it&rsquo;s nice to be able to debug the &ldquo;after it&rsquo;s
+loaded to RAM&rdquo; parts separately from the finicky early
+code which sets up the DDR RAM controller and clocks.
+A script like this one, or a more GDB-aware sibling,
+may help:
+</p>
+<div class="example">
+<pre class="example">proc ramboot { } {
+    # Reset, running the target's &quot;reset-init&quot; scripts
+    # to initialize clocks and the DDR RAM controller.
+    # Leave the CPU halted.
+    reset init
+
+    # Load CONFIG_SKIP_LOWLEVEL_INIT version into DDR RAM.
+    load_image u-boot.bin 0x20000000
+
+    # Start running.
+    resume 0x20000000
+}
+</pre></div>
+
+<p>Then once that code is working you will need to make it
+boot from NOR flash; a different utility would help.
+Alternatively, some developers write to flash using GDB.
+(You might use a similar script if you&rsquo;re working with a flash
+based microcontroller application instead of a boot loader.)
+</p>
+<div class="example">
+<pre class="example">proc newboot { } {
+    # Reset, leaving the CPU halted. The &quot;reset-init&quot; event
+    # proc gives faster access to the CPU and to NOR flash;
+    # &quot;reset halt&quot; would be slower.
+    reset init
+
+    # Write standard version of U-Boot into the first two
+    # sectors of NOR flash ... the standard version should
+    # do the same lowlevel init as &quot;reset-init&quot;.
+    flash protect 0 0 1 off
+    flash erase_sector 0 0 1
+    flash write_bank 0 u-boot.bin 0x0
+    flash protect 0 0 1 on
+
+    # Reboot from scratch using that new boot loader.
+    reset run
+}
+</pre></div>
+
+<p>You may need more complicated utility procedures when booting
+from NAND.
+That often involves an extra bootloader stage,
+running from on-chip SRAM to perform DDR RAM setup so it can load
+the main bootloader code (which won&rsquo;t fit into that SRAM).
+</p>
+<p>Other helper scripts might be used to write production system images,
+involving considerably more than just a three stage bootloader.
+</p>
+<a name="Target-Software-Changes"></a>
+<h3 class="section">5.6 Target Software Changes</h3>
+
+<p>Sometimes you may want to make some small changes to the software
+you&rsquo;re developing, to help make JTAG debugging work better.
+For example, in C or assembly language code you might
+use <code>#ifdef JTAG_DEBUG</code> (or its converse) around code
+handling issues like:
+</p>
+<ul>
+<li> <b>Watchdog Timers</b>...
+Watchog timers are typically used to automatically reset systems if
+some application task doesn&rsquo;t periodically reset the timer. (The
+assumption is that the system has locked up if the task can&rsquo;t run.)
+When a JTAG debugger halts the system, that task won&rsquo;t be able to run
+and reset the timer ... potentially causing resets in the middle of
+your debug sessions.
+
+<p>It&rsquo;s rarely a good idea to disable such watchdogs, since their usage
+needs to be debugged just like all other parts of your firmware.
+That might however be your only option.
+</p>
+<p>Look instead for chip-specific ways to stop the watchdog from counting
+while the system is in a debug halt state. It may be simplest to set
+that non-counting mode in your debugger startup scripts. You may however
+need a different approach when, for example, a motor could be physically
+damaged by firmware remaining inactive in a debug halt state. That might
+involve a type of firmware mode where that &quot;non-counting&quot; mode is disabled
+at the beginning then re-enabled at the end; a watchdog reset might fire
+and complicate the debug session, but hardware (or people) would be
+protected.<a name="DOCF1" href="#FOOT1"><sup>1</sup></a>
+</p>
+</li><li> <b>ARM Semihosting</b>...
+<a name="index-ARM-semihosting"></a>
+When linked with a special runtime library provided with many
+toolchains<a name="DOCF2" href="#FOOT2"><sup>2</sup></a>,
+your target code can use I/O facilities on the debug host. That library
+provides a small set of system calls which are handled by OpenOCD.
+It can let the debugger provide your system console and a file system,
+helping with early debugging or providing a more capable environment
+for sometimes-complex tasks like installing system firmware onto
+NAND or SPI flash.
+
+</li><li> <b>ARM Wait-For-Interrupt</b>...
+Many ARM chips synchronize the JTAG clock using the core clock.
+Low power states which stop that core clock thus prevent JTAG access.
+Idle loops in tasking environments often enter those low power states
+via the <code>WFI</code> instruction (or its coprocessor equivalent, before ARMv7).
+
+<p>You may want to <em>disable that instruction</em> in source code,
+or otherwise prevent using that state,
+to ensure you can get JTAG access at any time.<a name="DOCF3" href="#FOOT3"><sup>3</sup></a>
+For example, the OpenOCD <code>halt</code> command may not
+work for an idle processor otherwise.
+</p>
+</li><li> <b>Delay after reset</b>...
+Not all chips have good support for debugger access
+right after reset; many LPC2xxx chips have issues here.
+Similarly, applications that reconfigure pins used for
+JTAG access as they start will also block debugger access.
+
+<p>To work with boards like this, <em>enable a short delay loop</em>
+the first thing after reset, before &quot;real&quot; startup activities.
+For example, one second&rsquo;s delay is usually more than enough
+time for a JTAG debugger to attach, so that
+early code execution can be debugged
+or firmware can be replaced.
+</p>
+</li><li> <b>Debug Communications Channel (DCC)</b>...
+Some processors include mechanisms to send messages over JTAG.
+Many ARM cores support these, as do some cores from other vendors.
+(OpenOCD may be able to use this DCC internally, speeding up some
+operations like writing to memory.)
+
+<p>Your application may want to deliver various debugging messages
+over JTAG, by <em>linking with a small library of code</em>
+provided with OpenOCD and using the utilities there to send
+various kinds of message.
+See <a href="Architecture-and-Core-Commands.html#softwaredebugmessagesandtracing">Software Debug Messages and Tracing</a>.
+</p>
+</li></ul>
+
+<a name="Target-Hardware-Setup"></a>
+<h3 class="section">5.7 Target Hardware Setup</h3>
+
+<p>Chip vendors often provide software development boards which
+are highly configurable, so that they can support all options
+that product boards may require. <em>Make sure that any
+jumpers or switches match the system configuration you are
+working with.</em>
+</p>
+<p>Common issues include:
+</p>
+<ul>
+<li> <b>JTAG setup</b> ...
+Boards may support more than one JTAG configuration.
+Examples include jumpers controlling pullups versus pulldowns
+on the nTRST and/or nSRST signals, and choice of connectors
+(e.g. which of two headers on the base board,
+or one from a daughtercard).
+For some Texas Instruments boards, you may need to jumper the
+EMU0 and EMU1 signals (which OpenOCD won&rsquo;t currently control).
+
+</li><li> <b>Boot Modes</b> ...
+Complex chips often support multiple boot modes, controlled
+by external jumpers. Make sure this is set up correctly.
+For example many i.MX boards from NXP need to be jumpered
+to &quot;ATX mode&quot; to start booting using the on-chip ROM, when
+using second stage bootloader code stored in a NAND flash chip.
+
+<p>Such explicit configuration is common, and not limited to
+booting from NAND. You might also need to set jumpers to
+start booting using code loaded from an MMC/SD card; external
+SPI flash; Ethernet, UART, or USB links; NOR flash; OneNAND
+flash; some external host; or various other sources.
+</p>
+
+</li><li> <b>Memory Addressing</b> ...
+Boards which support multiple boot modes may also have jumpers
+to configure memory addressing. One board, for example, jumpers
+external chipselect 0 (used for booting) to address either
+a large SRAM (which must be pre-loaded via JTAG), NOR flash,
+or NAND flash. When it&rsquo;s jumpered to address NAND flash, that
+board must also be told to start booting from on-chip ROM.
+
+<p>Your <samp>board.cfg</samp> file may also need to be told this jumper
+configuration, so that it can know whether to declare NOR flash
+using <code>flash bank</code> or instead declare NAND flash with
+<code>nand device</code>; and likewise which probe to perform in
+its <code>reset-init</code> handler.
+</p>
+<p>A closely related issue is bus width. Jumpers might need to
+distinguish between 8 bit or 16 bit bus access for the flash
+used to start booting.
+</p>
+</li><li> <b>Peripheral Access</b> ...
+Development boards generally provide access to every peripheral
+on the chip, sometimes in multiple modes (such as by providing
+multiple audio codec chips).
+This interacts with software
+configuration of pin multiplexing, where for example a
+given pin may be routed either to the MMC/SD controller
+or the GPIO controller. It also often interacts with
+configuration jumpers. One jumper may be used to route
+signals to an MMC/SD card slot or an expansion bus (which
+might in turn affect booting); others might control which
+audio or video codecs are used.
+
+</li></ul>
+
+<p>Plus you should of course have <code>reset-init</code> event handlers
+which set up the hardware to match that jumper configuration.
+That includes in particular any oscillator or PLL used to clock
+the CPU, and any memory controllers needed to access external
+memory and peripherals. Without such handlers, you won&rsquo;t be
+able to access those resources without working target firmware
+which can do that setup ... this can be awkward when you&rsquo;re
+trying to debug that target firmware. Even if there&rsquo;s a ROM
+bootloader which handles a few issues, it rarely provides full
+access to all board-specific capabilities.
+</p>
+
+<div class="footnote">
+<hr>
+<h4 class="footnotes-heading">Footnotes</h4>
+
+<h3><a name="FOOT1" href="#DOCF1">(1)</a></h3>
+<p>Note that many systems support a &quot;monitor mode&quot; debug
+that is a somewhat cleaner way to address such issues. You can think of
+it as only halting part of the system, maybe just one task,
+instead of the whole thing.
+At this writing, January 2010, OpenOCD based debugging does not support
+monitor mode debug, only &quot;halt mode&quot; debug.</p>
+<h3><a name="FOOT2" href="#DOCF2">(2)</a></h3>
+<p>See chapter 8 &quot;Semihosting&quot; in
+<a href="http://infocenter.arm.com/help/topic/com.arm.doc.dui0203i/DUI0203I_rvct_developer_guide.pdf">ARM DUI 0203I</a>, the &quot;RealView Compilation Tools Developer Guide&quot;.
+The CodeSourcery EABI toolchain also includes a semihosting library.</p>
+<h3><a name="FOOT3" href="#DOCF3">(3)</a></h3>
+<p>As a more
+polite alternative, some processors have special debug-oriented
+registers which can be used to change various features including
+how the low power states are clocked while debugging.
+The STM32 DBGMCU_CR register is an example; at the cost of extra
+power consumption, JTAG can be used during low power states.</p>
+</div>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Config-File-Guidelines.html#Config-File-Guidelines" accesskey="n" rel="next">Config File Guidelines</a>, Previous: <a href="Running.html#Running" accesskey="p" rel="prev">Running</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

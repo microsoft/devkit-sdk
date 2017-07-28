@@ -1,0 +1,586 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: General Commands</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: General Commands">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: General Commands">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands" rel="next" title="Architecture and Core Commands">
+<link href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands" rel="prev" title="PLD/FPGA Commands">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="General-Commands"></a>
+<div class="header">
+<p>
+Next: <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands" accesskey="n" rel="next">Architecture and Core Commands</a>, Previous: <a href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands" accesskey="p" rel="prev">PLD/FPGA Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="General-Commands-1"></a>
+<h2 class="chapter">15 General Commands</h2>
+<a name="index-commands"></a>
+
+<p>The commands documented in this chapter here are common commands that
+you, as a human, may want to type and see the output of. Configuration type
+commands are documented elsewhere.
+</p>
+<p>Intent:
+</p><ul>
+<li> <b>Source Of Commands</b>
+<br> OpenOCD commands can occur in a configuration script (discussed
+elsewhere) or typed manually by a human or supplied programatically,
+or via one of several TCP/IP Ports.
+
+</li><li> <b>From the human</b>
+<br> A human should interact with the telnet interface (default port: 4444)
+or via GDB (default port 3333).
+
+<p>To issue commands from within a GDB session, use the <samp>monitor</samp>
+command, e.g. use <samp>monitor poll</samp> to issue the <samp>poll</samp>
+command. All output is relayed through the GDB session.
+</p>
+</li><li> <b>Machine Interface</b>
+The Tcl interface&rsquo;s intent is to be a machine interface. The default Tcl
+port is 5555.
+</li></ul>
+
+
+<a name="Server-Commands"></a>
+<h3 class="section">15.1 Server Commands</h3>
+
+<dl>
+<dt><a name="index-exit"></a>Command: <strong>exit</strong></dt>
+<dd><p>Exits the current telnet session.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-help"></a>Command: <strong>help</strong> <em>[string]</em></dt>
+<dd><p>With no parameters, prints help text for all commands.
+Otherwise, prints each helptext containing <var>string</var>.
+Not every command provides helptext.
+</p>
+<p>Configuration commands, and commands valid at any time, are
+explicitly noted in parenthesis.
+In most cases, no such restriction is listed; this indicates commands
+which are only available after the configuration stage has completed.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-sleep"></a>Command: <strong>sleep</strong> <em>msec [<samp>busy</samp>]</em></dt>
+<dd><p>Wait for at least <var>msec</var> milliseconds before resuming.
+If <samp>busy</samp> is passed, busy-wait instead of sleeping.
+(This option is strongly discouraged.)
+Useful in connection with script files
+(<code>script</code> command and <code>target_name</code> configuration).
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-shutdown"></a>Command: <strong>shutdown</strong> <em>[<samp>error</samp>]</em></dt>
+<dd><p>Close the OpenOCD server, disconnecting all clients (GDB, telnet,
+other). If option <samp>error</samp> is used, OpenOCD will return a
+non-zero exit code to the parent process.
+</p></dd></dl>
+
+<a name="debuglevel"></a><dl>
+<dt><a name="index-debug_005flevel"></a>Command: <strong>debug_level</strong> <em>[n]</em></dt>
+<dd><a name="index-message-level"></a>
+<p>Display debug level.
+If <var>n</var> (from 0..3) is provided, then set it to that level.
+This affects the kind of messages sent to the server log.
+Level 0 is error messages only;
+level 1 adds warnings;
+level 2 adds informational messages;
+and level 3 adds debugging messages.
+The default is level 2, but that can be overridden on
+the command line along with the location of that log
+file (which is normally the server&rsquo;s standard output).
+See <a href="Running.html#Running">Running</a>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-echo"></a>Command: <strong>echo</strong> <em>[-n] message</em></dt>
+<dd><p>Logs a message at &quot;user&quot; priority.
+Output <var>message</var> to stdout.
+Option &quot;-n&quot; suppresses trailing newline.
+</p><div class="example">
+<pre class="example">echo &quot;Downloading kernel -- please wait&quot;
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-log_005foutput"></a>Command: <strong>log_output</strong> <em>[filename]</em></dt>
+<dd><p>Redirect logging to <var>filename</var>;
+the initial log output channel is stderr.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-add_005fscript_005fsearch_005fdir"></a>Command: <strong>add_script_search_dir</strong> <em>[directory]</em></dt>
+<dd><p>Add <var>directory</var> to the file/script search path.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-bindto"></a>Command: <strong>bindto</strong> <em>[name]</em></dt>
+<dd><p>Specify address by name on which to listen for incoming TCP/IP connections.
+By default, OpenOCD will listen on all available interfaces.
+</p></dd></dl>
+
+<a name="targetstatehandling"></a><a name="Target-State-handling"></a>
+<h3 class="section">15.2 Target State handling</h3>
+<a name="index-reset"></a>
+<a name="index-halt"></a>
+<a name="index-target-initialization"></a>
+
+<p>In this section &ldquo;target&rdquo; refers to a CPU configured as
+shown earlier (see <a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a>).
+These commands, like many, implicitly refer to
+a current target which is used to perform the
+various operations. The current target may be changed
+by using <code>targets</code> command with the name of the
+target which should become current.
+</p>
+<dl>
+<dt><a name="index-reg"></a>Command: <strong>reg</strong> <em>[(number|name) [(value|'force')]]</em></dt>
+<dd><p>Access a single register by <var>number</var> or by its <var>name</var>.
+The target must generally be halted before access to CPU core
+registers is allowed. Depending on the hardware, some other
+registers may be accessible while the target is running.
+</p>
+<p><em>With no arguments</em>:
+list all available registers for the current target,
+showing number, name, size, value, and cache status.
+For valid entries, a value is shown; valid entries
+which are also dirty (and will be written back later)
+are flagged as such.
+</p>
+<p><em>With number/name</em>: display that register&rsquo;s value.
+Use <var>force</var> argument to read directly from the target,
+bypassing any internal cache.
+</p>
+<p><em>With both number/name and value</em>: set register&rsquo;s value.
+Writes may be held in a writeback cache internal to OpenOCD,
+so that setting the value marks the register as dirty instead
+of immediately flushing that value. Resuming CPU execution
+(including by single stepping) or otherwise activating the
+relevant module will flush such values.
+</p>
+<p>Cores may have surprisingly many registers in their
+Debug and trace infrastructure:
+</p>
+<div class="example">
+<pre class="example">&gt; reg
+===== ARM registers
+(0) r0 (/32): 0x0000D3C2 (dirty)
+(1) r1 (/32): 0xFD61F31C
+(2) r2 (/32)
+...
+(164) ETM_contextid_comparator_mask (/32)
+&gt;
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-halt-1"></a>Command: <strong>halt</strong> <em>[ms]</em></dt>
+<dt><a name="index-wait_005fhalt"></a>Command: <strong>wait_halt</strong> <em>[ms]</em></dt>
+<dd><p>The <code>halt</code> command first sends a halt request to the target,
+which <code>wait_halt</code> doesn&rsquo;t.
+Otherwise these behave the same: wait up to <var>ms</var> milliseconds,
+or 5 seconds if there is no parameter, for the target to halt
+(and enter debug mode).
+Using 0 as the <var>ms</var> parameter prevents OpenOCD from waiting.
+</p>
+<blockquote>
+<p><b>Warning:</b> On ARM cores, software using the <em>wait for interrupt</em> operation
+often blocks the JTAG access needed by a <code>halt</code> command.
+This is because that operation also puts the core into a low
+power mode by gating the core clock;
+but the core clock is needed to detect JTAG clock transitions.
+</p>
+<p>One partial workaround uses adaptive clocking: when the core is
+interrupted the operation completes, then JTAG clocks are accepted
+at least until the interrupt handler completes.
+However, this workaround is often unusable since the processor, board,
+and JTAG adapter must all support adaptive JTAG clocking.
+Also, it can&rsquo;t work until an interrupt is issued.
+</p>
+<p>A more complete workaround is to not use that operation while you
+work with a JTAG debugger.
+Tasking environments generaly have idle loops where the body is the
+<em>wait for interrupt</em> operation.
+(On older cores, it is a coprocessor action;
+newer cores have a <samp>wfi</samp> instruction.)
+Such loops can just remove that operation, at the cost of higher
+power consumption (because the CPU is needlessly clocked).
+</p></blockquote>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-resume"></a>Command: <strong>resume</strong> <em>[address]</em></dt>
+<dd><p>Resume the target at its current code position,
+or the optional <var>address</var> if it is provided.
+OpenOCD will wait 5 seconds for the target to resume.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-step"></a>Command: <strong>step</strong> <em>[address]</em></dt>
+<dd><p>Single-step the target at its current code position,
+or the optional <var>address</var> if it is provided.
+</p></dd></dl>
+
+<a name="resetcommand"></a><dl>
+<dt><a name="index-reset-1"></a>Command: <strong>reset</strong></dt>
+<dt><a name="index-reset-run"></a>Command: <strong>reset run</strong></dt>
+<dt><a name="index-reset-halt"></a>Command: <strong>reset halt</strong></dt>
+<dt><a name="index-reset-init"></a>Command: <strong>reset init</strong></dt>
+<dd><p>Perform as hard a reset as possible, using SRST if possible.
+<em>All defined targets will be reset, and target
+events will fire during the reset sequence.</em>
+</p>
+<p>The optional parameter specifies what should
+happen after the reset.
+If there is no parameter, a <code>reset run</code> is executed.
+The other options will not work on all systems.
+See <a href="Reset-Configuration.html#Reset-Configuration">Reset Configuration</a>.
+</p>
+<ul class="no-bullet">
+<li>- <b>run</b> Let the target run
+</li><li>- <b>halt</b> Immediately halt the target
+</li><li>- <b>init</b> Immediately halt the target, and execute the reset-init script
+</li></ul>
+</dd></dl>
+
+<dl>
+<dt><a name="index-soft_005freset_005fhalt"></a>Command: <strong>soft_reset_halt</strong></dt>
+<dd><p>Requesting target halt and executing a soft reset. This is often used
+when a target cannot be reset and halted. The target, after reset is
+released begins to execute code. OpenOCD attempts to stop the CPU and
+then sets the program counter back to the reset vector. Unfortunately
+the code that was executed may have left the hardware in an unknown
+state.
+</p></dd></dl>
+
+<a name="I_002fO-Utilities"></a>
+<h3 class="section">15.3 I/O Utilities</h3>
+
+<p>These commands are available when
+OpenOCD is built with <samp>--enable-ioutil</samp>.
+They are mainly useful on embedded targets,
+notably the ZY1000.
+Hosts with operating systems have complementary tools.
+</p>
+<p><em>Note:</em> there are several more such commands.
+</p>
+<dl>
+<dt><a name="index-append_005ffile"></a>Command: <strong>append_file</strong> <em>filename [string]*</em></dt>
+<dd><p>Appends the <var>string</var> parameters to
+the text file <samp>filename</samp>.
+Each string except the last one is followed by one space.
+The last string is followed by a newline.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-cat"></a>Command: <strong>cat</strong> <em>filename</em></dt>
+<dd><p>Reads and displays the text file <samp>filename</samp>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-cp"></a>Command: <strong>cp</strong> <em>src_filename dest_filename</em></dt>
+<dd><p>Copies contents from the file <samp>src_filename</samp>
+into <samp>dest_filename</samp>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-ip"></a>Command: <strong>ip</strong></dt>
+<dd><p><em>No description provided.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-ls"></a>Command: <strong>ls</strong></dt>
+<dd><p><em>No description provided.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mac"></a>Command: <strong>mac</strong></dt>
+<dd><p><em>No description provided.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-meminfo"></a>Command: <strong>meminfo</strong></dt>
+<dd><p>Display available RAM memory on OpenOCD host.
+Used in OpenOCD regression testing scripts.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-peek"></a>Command: <strong>peek</strong></dt>
+<dd><p><em>No description provided.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-poke"></a>Command: <strong>poke</strong></dt>
+<dd><p><em>No description provided.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-rm"></a>Command: <strong>rm</strong> <em>filename</em></dt>
+<dd><p>Unlinks the file <samp>filename</samp>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-trunc"></a>Command: <strong>trunc</strong> <em>filename</em></dt>
+<dd><p>Removes all data in the file <samp>filename</samp>.
+</p></dd></dl>
+
+<a name="memoryaccess"></a><a name="Memory-access-commands"></a>
+<h3 class="section">15.4 Memory access commands</h3>
+<a name="index-memory-access"></a>
+
+<p>These commands allow accesses of a specific size to the memory
+system. Often these are used to configure the current target in some
+special way. For example - one may need to write certain values to the
+SDRAM controller to enable SDRAM.
+</p>
+<ol>
+<li> Use the <code>targets</code> (plural) command
+to change the current target.
+</li><li> In system level scripts these commands are deprecated.
+Please use their TARGET object siblings to avoid making assumptions
+about what TAP is the current target, or about MMU configuration.
+</li></ol>
+
+<dl>
+<dt><a name="index-mdw"></a>Command: <strong>mdw</strong> <em>[phys] addr [count]</em></dt>
+<dt><a name="index-mdh"></a>Command: <strong>mdh</strong> <em>[phys] addr [count]</em></dt>
+<dt><a name="index-mdb"></a>Command: <strong>mdb</strong> <em>[phys] addr [count]</em></dt>
+<dd><p>Display contents of address <var>addr</var>, as
+32-bit words (<code>mdw</code>), 16-bit halfwords (<code>mdh</code>),
+or 8-bit bytes (<code>mdb</code>).
+When the current target has an MMU which is present and active,
+<var>addr</var> is interpreted as a virtual address.
+Otherwise, or if the optional <var>phys</var> flag is specified,
+<var>addr</var> is interpreted as a physical address.
+If <var>count</var> is specified, displays that many units.
+(If you want to manipulate the data instead of displaying it,
+see the <code>mem2array</code> primitives.)
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mww"></a>Command: <strong>mww</strong> <em>[phys] addr word</em></dt>
+<dt><a name="index-mwh"></a>Command: <strong>mwh</strong> <em>[phys] addr halfword</em></dt>
+<dt><a name="index-mwb"></a>Command: <strong>mwb</strong> <em>[phys] addr byte</em></dt>
+<dd><p>Writes the specified <var>word</var> (32 bits),
+<var>halfword</var> (16 bits), or <var>byte</var> (8-bit) value,
+at the specified address <var>addr</var>.
+When the current target has an MMU which is present and active,
+<var>addr</var> is interpreted as a virtual address.
+Otherwise, or if the optional <var>phys</var> flag is specified,
+<var>addr</var> is interpreted as a physical address.
+</p></dd></dl>
+
+<a name="imageaccess"></a><a name="Image-loading-commands"></a>
+<h3 class="section">15.5 Image loading commands</h3>
+<a name="index-image-loading"></a>
+<a name="index-image-dumping"></a>
+
+<dl>
+<dt><a name="index-dump_005fimage"></a>Command: <strong>dump_image</strong> <em>filename address size</em></dt>
+<dd><p>Dump <var>size</var> bytes of target memory starting at <var>address</var> to the
+binary file named <var>filename</var>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-fast_005fload"></a>Command: <strong>fast_load</strong></dt>
+<dd><p>Loads an image stored in memory by <code>fast_load_image</code> to the
+current target. Must be preceeded by fast_load_image.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-fast_005fload_005fimage"></a>Command: <strong>fast_load_image</strong> <em>filename address [<samp>bin</samp>|<samp>ihex</samp>|<samp>elf</samp>|<samp>s19</samp>]</em></dt>
+<dd><p>Normally you should be using <code>load_image</code> or GDB load. However, for
+testing purposes or when I/O overhead is significant(OpenOCD running on an embedded
+host), storing the image in memory and uploading the image to the target
+can be a way to upload e.g. multiple debug sessions when the binary does not change.
+Arguments are the same as <code>load_image</code>, but the image is stored in OpenOCD host
+memory, i.e. does not affect target. This approach is also useful when profiling
+target programming performance as I/O and target programming can easily be profiled
+separately.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-load_005fimage"></a>Command: <strong>load_image</strong> <em>filename address [[<samp>bin</samp>|<samp>ihex</samp>|<samp>elf</samp>|<samp>s19</samp>] <samp>min_addr</samp> <samp>max_length</samp>]</em></dt>
+<dd><p>Load image from file <var>filename</var> to target memory offset by <var>address</var> from its load address.
+The file format may optionally be specified
+(<samp>bin</samp>, <samp>ihex</samp>, <samp>elf</samp>, or <samp>s19</samp>).
+In addition the following arguments may be specifed:
+<var>min_addr</var> - ignore data below <var>min_addr</var> (this is w.r.t. to the target&rsquo;s load address + <var>address</var>)
+<var>max_length</var> - maximum number of bytes to load.
+</p><div class="example">
+<pre class="example">proc load_image_bin {fname foffset address length } {
+    # Load data from fname filename at foffset offset to
+    # target at address. Load at most length bytes.
+    load_image $fname [expr $address - $foffset] bin \
+               $address $length
+}
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-test_005fimage"></a>Command: <strong>test_image</strong> <em>filename [address [<samp>bin</samp>|<samp>ihex</samp>|<samp>elf</samp>]]</em></dt>
+<dd><p>Displays image section sizes and addresses
+as if <var>filename</var> were loaded into target memory
+starting at <var>address</var> (defaults to zero).
+The file format may optionally be specified
+(<samp>bin</samp>, <samp>ihex</samp>, or <samp>elf</samp>)
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-verify_005fimage"></a>Command: <strong>verify_image</strong> <em>filename address [<samp>bin</samp>|<samp>ihex</samp>|<samp>elf</samp>]</em></dt>
+<dd><p>Verify <var>filename</var> against target memory starting at <var>address</var>.
+The file format may optionally be specified
+(<samp>bin</samp>, <samp>ihex</samp>, or <samp>elf</samp>)
+This will first attempt a comparison using a CRC checksum, if this fails it will try a binary compare.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-verify_005fimage_005fchecksum"></a>Command: <strong>verify_image_checksum</strong> <em>filename address [<samp>bin</samp>|<samp>ihex</samp>|<samp>elf</samp>]</em></dt>
+<dd><p>Verify <var>filename</var> against target memory starting at <var>address</var>.
+The file format may optionally be specified
+(<samp>bin</samp>, <samp>ihex</samp>, or <samp>elf</samp>)
+This perform a comparison using a CRC checksum only
+</p></dd></dl>
+
+
+<a name="Breakpoint-and-Watchpoint-commands"></a>
+<h3 class="section">15.6 Breakpoint and Watchpoint commands</h3>
+<a name="index-breakpoint"></a>
+<a name="index-watchpoint"></a>
+
+<p>CPUs often make debug modules accessible through JTAG, with
+hardware support for a handful of code breakpoints and data
+watchpoints.
+In addition, CPUs almost always support software breakpoints.
+</p>
+<dl>
+<dt><a name="index-bp"></a>Command: <strong>bp</strong> <em>[address len [<samp>hw</samp>]]</em></dt>
+<dd><p>With no parameters, lists all active breakpoints.
+Else sets a breakpoint on code execution starting
+at <var>address</var> for <var>length</var> bytes.
+This is a software breakpoint, unless <samp>hw</samp> is specified
+in which case it will be a hardware breakpoint.
+</p>
+<p>(See <a href="Architecture-and-Core-Commands.html#arm9vectorcatch">arm9 vector_catch</a>, or see <a href="Architecture-and-Core-Commands.html#xscalevectorcatch">xscale vector_catch</a>,
+for similar mechanisms that do not consume hardware breakpoints.)
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-rbp"></a>Command: <strong>rbp</strong> <em>address</em></dt>
+<dd><p>Remove the breakpoint at <var>address</var>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-rwp"></a>Command: <strong>rwp</strong> <em>address</em></dt>
+<dd><p>Remove data watchpoint on <var>address</var>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-wp"></a>Command: <strong>wp</strong> <em>[address len [(<samp>r</samp>|<samp>w</samp>|<samp>a</samp>) [value [mask]]]]</em></dt>
+<dd><p>With no parameters, lists all active watchpoints.
+Else sets a data watchpoint on data from <var>address</var> for <var>length</var> bytes.
+The watch point is an &quot;access&quot; watchpoint unless
+the <samp>r</samp> or <samp>w</samp> parameter is provided,
+defining it as respectively a read or write watchpoint.
+If a <var>value</var> is provided, that value is used when determining if
+the watchpoint should trigger. The value may be first be masked
+using <var>mask</var> to mark &ldquo;don&rsquo;t care&rdquo; fields.
+</p></dd></dl>
+
+<a name="Misc-Commands"></a>
+<h3 class="section">15.7 Misc Commands</h3>
+
+<a name="index-profiling"></a>
+<dl>
+<dt><a name="index-profile"></a>Command: <strong>profile</strong> <em>seconds filename [start end]</em></dt>
+<dd><p>Profiling samples the CPU&rsquo;s program counter as quickly as possible,
+which is useful for non-intrusive stochastic profiling.
+Saves up to 10000 samples in <samp>filename</samp> using &ldquo;gmon.out&rdquo;
+format. Optional <samp>start</samp> and <samp>end</samp> parameters allow to
+limit the address range.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-version"></a>Command: <strong>version</strong></dt>
+<dd><p>Displays a string identifying the version of this OpenOCD server.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-virt2phys"></a>Command: <strong>virt2phys</strong> <em>virtual_address</em></dt>
+<dd><p>Requests the current target to map the specified <var>virtual_address</var>
+to its corresponding physical address, and displays the result.
+</p></dd></dl>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands" accesskey="n" rel="next">Architecture and Core Commands</a>, Previous: <a href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands" accesskey="p" rel="prev">PLD/FPGA Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

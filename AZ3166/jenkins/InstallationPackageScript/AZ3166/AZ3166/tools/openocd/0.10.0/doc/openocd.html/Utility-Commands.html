@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Utility Commands</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Utility Commands">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Utility Commands">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="TFTP.html#TFTP" rel="next" title="TFTP">
+<link href="Boundary-Scan-Commands.html#Boundary-Scan-Commands" rel="prev" title="Boundary Scan Commands">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Utility-Commands"></a>
+<div class="header">
+<p>
+Next: <a href="TFTP.html#TFTP" accesskey="n" rel="next">TFTP</a>, Previous: <a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands" accesskey="p" rel="prev">Boundary Scan Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Utility-Commands-1"></a>
+<h2 class="chapter">19 Utility Commands</h2>
+<a name="index-Utility-Commands"></a>
+
+<a name="RAM-testing"></a>
+<h3 class="section">19.1 RAM testing</h3>
+<a name="index-RAM-testing"></a>
+
+<p>There is often a need to stress-test random access memory (RAM) for
+errors. OpenOCD comes with a Tcl implementation of well-known memory
+testing procedures allowing the detection of all sorts of issues with
+electrical wiring, defective chips, PCB layout and other common
+hardware problems.
+</p>
+<p>To use them, you usually need to initialise your RAM controller first;
+consult your SoC&rsquo;s documentation to get the recommended list of
+register operations and translate them to the corresponding
+<code>mww</code>/<code>mwb</code> commands.
+</p>
+<p>Load the memory testing functions with
+</p>
+<div class="example">
+<pre class="example">source [find tools/memtest.tcl]
+</pre></div>
+
+<p>to get access to the following facilities:
+</p>
+<dl>
+<dt><a name="index-memTestDataBus"></a>Command: <strong>memTestDataBus</strong> <em>address</em></dt>
+<dd><p>Test the data bus wiring in a memory region by performing a walking
+1&rsquo;s test at a fixed address within that region.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-memTestAddressBus"></a>Command: <strong>memTestAddressBus</strong> <em>baseaddress size</em></dt>
+<dd><p>Perform a walking 1&rsquo;s test on the relevant bits of the address and
+check for aliasing. This test will find single-bit address failures
+such as stuck-high, stuck-low, and shorted pins.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-memTestDevice"></a>Command: <strong>memTestDevice</strong> <em>baseaddress size</em></dt>
+<dd><p>Test the integrity of a physical memory device by performing an
+increment/decrement test over the entire region. In the process every
+storage bit in the device is tested as zero and as one.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-runAllMemTests"></a>Command: <strong>runAllMemTests</strong> <em>baseaddress size</em></dt>
+<dd><p>Run all of the above tests over a specified memory region.
+</p></dd></dl>
+
+<a name="Firmware-recovery-helpers"></a>
+<h3 class="section">19.2 Firmware recovery helpers</h3>
+<a name="index-Firmware-recovery"></a>
+
+<p>OpenOCD includes an easy-to-use script to facilitate mass-market
+devices recovery with JTAG.
+</p>
+<p>For quickstart instructions run:
+</p><div class="example">
+<pre class="example">openocd -f tools/firmware-recovery.tcl -c firmware_help
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="TFTP.html#TFTP" accesskey="n" rel="next">TFTP</a>, Previous: <a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands" accesskey="p" rel="prev">Boundary Scan Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

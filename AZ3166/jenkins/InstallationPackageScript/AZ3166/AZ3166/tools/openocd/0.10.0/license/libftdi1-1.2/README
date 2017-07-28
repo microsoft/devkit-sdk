@@ -1,0 +1,47 @@
+--------------------------------------------------------------------
+libftdi version 1.2
+--------------------------------------------------------------------
+
+libftdi - A library (using libusb) to talk to FTDI's UART/FIFO chips
+including the popular bitbang mode.
+
+The following chips are supported:
+- FT4232H / FT2232H
+- FT232R  / FT245R
+- FT2232L / FT2232D / FT2232C
+- FT232BM / FT245BM (and the BL/BQ variants)
+- FT8U232AM / FT8U245AM
+
+libftdi requires libusb 1.x.
+
+The AUTHORS file contains a list of all the people
+that made libftdi possible what it is today.
+
+Changes
+-------
+* Support for FT230X devices (Uwe Bonnes)
+* ftdi_usb_get_strings(): Don't try to open an already open device (Denis Sirotkin)
+* Support for finding devices bricked by the Windows driver (Forest Crossman)
+* cmake build system: New LibFTDI1ConfigVersion.cmake file (xantares09)
+* Fix a typo in the MPSSE command CLK_BYTES_OR_LOW (Benjamin Vanheuverzwijn)
+* Minor fixes for MSVC++ (Andrei Errapart)
+* Various small code improvements (Florian Preinstorfer, Jochen Sprickerhof, xantares09)
+
+You'll find the newest version of libftdi at:
+http://www.intra2net.com/en/developer/libftdi
+
+
+Quick start
+-----------
+mkdir build
+cd build
+
+cmake -DCMAKE_INSTALL_PREFIX="/usr" ../
+make
+make install
+
+More verbose build instructions are in "README.build"
+
+--------------------------------------------------------------------
+www.intra2net.com                             2003-2014 Intra2net AG
+--------------------------------------------------------------------

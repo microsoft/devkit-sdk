@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: PLD/FPGA Commands</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: PLD/FPGA Commands">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: PLD/FPGA Commands">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="General-Commands.html#General-Commands" rel="next" title="General Commands">
+<link href="Flash-Programming.html#Flash-Programming" rel="prev" title="Flash Programming">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="PLD_002fFPGA-Commands"></a>
+<div class="header">
+<p>
+Next: <a href="General-Commands.html#General-Commands" accesskey="n" rel="next">General Commands</a>, Previous: <a href="Flash-Programming.html#Flash-Programming" accesskey="p" rel="prev">Flash Programming</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="PLD_002fFPGA-Commands-1"></a>
+<h2 class="chapter">14 PLD/FPGA Commands</h2>
+<a name="index-PLD"></a>
+<a name="index-FPGA"></a>
+
+<p>Programmable Logic Devices (PLDs) and the more flexible
+Field Programmable Gate Arrays (FPGAs) are both types of programmable hardware.
+OpenOCD can support programming them.
+Although PLDs are generally restrictive (cells are less functional, and
+there are no special purpose cells for memory or computational tasks),
+they share the same OpenOCD infrastructure.
+Accordingly, both are called PLDs here.
+</p>
+<a name="PLD_002fFPGA-Configuration-and-Commands"></a>
+<h3 class="section">14.1 PLD/FPGA Configuration and Commands</h3>
+
+<p>As it does for JTAG TAPs, debug targets, and flash chips (both NOR and NAND),
+OpenOCD maintains a list of PLDs available for use in various commands.
+Also, each such PLD requires a driver.
+</p>
+<p>They are referenced by the number shown by the <code>pld devices</code> command,
+and new PLDs are defined by <code>pld device driver_name</code>.
+</p>
+<dl>
+<dt><a name="index-pld-device"></a>Config Command: <strong>pld device</strong> <em>driver_name tap_name [driver_options]</em></dt>
+<dd><p>Defines a new PLD device, supported by driver <var>driver_name</var>,
+using the TAP named <var>tap_name</var>.
+The driver may make use of any <var>driver_options</var> to configure its
+behavior.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-pld-devices"></a>Command: <strong>pld devices</strong></dt>
+<dd><p>Lists the PLDs and their numbers.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-pld-load"></a>Command: <strong>pld load</strong> <em>num filename</em></dt>
+<dd><p>Loads the file <samp>filename</samp> into the PLD identified by <var>num</var>.
+The file format must be inferred by the driver.
+</p></dd></dl>
+
+<a name="PLD_002fFPGA-Drivers_002c-Options_002c-and-Commands"></a>
+<h3 class="section">14.2 PLD/FPGA Drivers, Options, and Commands</h3>
+
+<p>Drivers may support PLD-specific options to the <code>pld device</code>
+definition command, and may also define commands usable only with
+that particular type of PLD.
+</p>
+<dl>
+<dt><a name="index-virtex2"></a>FPGA Driver: <strong>virtex2</strong> <em>[no_jstart]</em></dt>
+<dd><p>Virtex-II is a family of FPGAs sold by Xilinx.
+It supports the IEEE 1532 standard for In-System Configuration (ISC).
+</p>
+<p>If <var>no_jstart</var> is non-zero, the JSTART instruction is not used after
+loading the bitstream. While required for Series2, Series3, and Series6, it
+breaks bitstream loading on Series7.
+</p>
+<dl>
+<dt><a name="index-virtex2-read_005fstat"></a>Command: <strong>virtex2 read_stat</strong> <em>num</em></dt>
+<dd><p>Reads and displays the Virtex-II status register (STAT)
+for FPGA <var>num</var>.
+</p></dd></dl>
+</dd></dl>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="General-Commands.html#General-Commands" accesskey="n" rel="next">General Commands</a>, Previous: <a href="Flash-Programming.html#Flash-Programming" accesskey="p" rel="prev">Flash Programming</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>
