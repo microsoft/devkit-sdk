@@ -1,0 +1,484 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Top</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Top">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Top">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="../dir/index.html" rel="up" title="(dir)">
+<link href="About.html#About" rel="next" title="About">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<h1 class="settitle" align="center">OpenOCD User&rsquo;s Guide</h1>
+
+
+
+
+<a name="SEC_Overview"></a>
+<h2 class="shortcontents-heading">Short Table of Contents</h2>
+
+<div class="shortcontents">
+<ul class="no-bullet">
+<li><a name="stoc-About-1" href="#toc-About-1">About</a></li>
+<li><a name="stoc-OpenOCD-Developer-Resources" href="#toc-OpenOCD-Developer-Resources">1 OpenOCD Developer Resources</a></li>
+<li><a name="stoc-Debug-Adapter-Hardware-1" href="#toc-Debug-Adapter-Hardware-1">2 Debug Adapter Hardware</a></li>
+<li><a name="stoc-About-Jim_002dTcl-1" href="#toc-About-Jim_002dTcl-1">3 About Jim-Tcl</a></li>
+<li><a name="stoc-Running-1" href="#toc-Running-1">4 Running</a></li>
+<li><a name="stoc-OpenOCD-Project-Setup-1" href="#toc-OpenOCD-Project-Setup-1">5 OpenOCD Project Setup</a></li>
+<li><a name="stoc-Config-File-Guidelines-1" href="#toc-Config-File-Guidelines-1">6 Config File Guidelines</a></li>
+<li><a name="stoc-Server-Configuration-1" href="#toc-Server-Configuration-1">7 Server Configuration</a></li>
+<li><a name="stoc-Debug-Adapter-Configuration-1" href="#toc-Debug-Adapter-Configuration-1">8 Debug Adapter Configuration</a></li>
+<li><a name="stoc-Reset-Configuration-1" href="#toc-Reset-Configuration-1">9 Reset Configuration</a></li>
+<li><a name="stoc-TAP-Declaration-1" href="#toc-TAP-Declaration-1">10 TAP Declaration</a></li>
+<li><a name="stoc-CPU-Configuration-1" href="#toc-CPU-Configuration-1">11 CPU Configuration</a></li>
+<li><a name="stoc-Flash-Commands-1" href="#toc-Flash-Commands-1">12 Flash Commands</a></li>
+<li><a name="stoc-Flash-Programming-1" href="#toc-Flash-Programming-1">13 Flash Programming</a></li>
+<li><a name="stoc-PLD_002fFPGA-Commands-1" href="#toc-PLD_002fFPGA-Commands-1">14 PLD/FPGA Commands</a></li>
+<li><a name="stoc-General-Commands-1" href="#toc-General-Commands-1">15 General Commands</a></li>
+<li><a name="stoc-Architecture-and-Core-Commands-1" href="#toc-Architecture-and-Core-Commands-1">16 Architecture and Core Commands</a></li>
+<li><a name="stoc-JTAG-Commands-1" href="#toc-JTAG-Commands-1">17 JTAG Commands</a></li>
+<li><a name="stoc-Boundary-Scan-Commands-1" href="#toc-Boundary-Scan-Commands-1">18 Boundary Scan Commands</a></li>
+<li><a name="stoc-Utility-Commands-1" href="#toc-Utility-Commands-1">19 Utility Commands</a></li>
+<li><a name="stoc-TFTP-1" href="#toc-TFTP-1">20 TFTP</a></li>
+<li><a name="stoc-GDB-and-OpenOCD-1" href="#toc-GDB-and-OpenOCD-1">21 GDB and OpenOCD</a></li>
+<li><a name="stoc-Tcl-Scripting-API-1" href="#toc-Tcl-Scripting-API-1">22 Tcl Scripting API</a></li>
+<li><a name="stoc-FAQ-1" href="#toc-FAQ-1">23 FAQ</a></li>
+<li><a name="stoc-Tcl-Crash-Course-1" href="#toc-Tcl-Crash-Course-1">24 Tcl Crash Course</a></li>
+<li><a name="stoc-The-GNU-Free-Documentation-License_002e" href="#toc-The-GNU-Free-Documentation-License_002e">Appendix A The GNU Free Documentation License.</a></li>
+<li><a name="stoc-OpenOCD-Concept-Index-1" href="#toc-OpenOCD-Concept-Index-1">OpenOCD Concept Index</a></li>
+<li><a name="stoc-Command-and-Driver-Index-1" href="#toc-Command-and-Driver-Index-1">Command and Driver Index</a></li>
+</ul>
+</div>
+
+<a name="SEC_Contents"></a>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a name="toc-About-1" href="About.html#About">About</a>
+  <ul class="no-bullet">
+    <li><a name="toc-What-is-OpenOCD_003f" href="About.html#What-is-OpenOCD_003f">What is OpenOCD?</a></li>
+    <li><a name="toc-OpenOCD-Web-Site" href="About.html#OpenOCD-Web-Site">OpenOCD Web Site</a></li>
+    <li><a name="toc-Latest-User_0027s-Guide_003a" href="About.html#Latest-User_0027s-Guide_003a">Latest User&rsquo;s Guide:</a></li>
+    <li><a name="toc-OpenOCD-User_0027s-Forum" href="About.html#OpenOCD-User_0027s-Forum">OpenOCD User&rsquo;s Forum</a></li>
+    <li><a name="toc-OpenOCD-User_0027s-Mailing-List" href="About.html#OpenOCD-User_0027s-Mailing-List">OpenOCD User&rsquo;s Mailing List</a></li>
+    <li><a name="toc-OpenOCD-IRC" href="About.html#OpenOCD-IRC">OpenOCD IRC</a></li>
+  </ul></li>
+  <li><a name="toc-OpenOCD-Developer-Resources" href="Developers.html#Developers">1 OpenOCD Developer Resources</a>
+  <ul class="no-bullet">
+    <li><a name="toc-OpenOCD-Git-Repository" href="Developers.html#OpenOCD-Git-Repository">1.1 OpenOCD Git Repository</a></li>
+    <li><a name="toc-Doxygen-Developer-Manual" href="Developers.html#Doxygen-Developer-Manual">1.2 Doxygen Developer Manual</a></li>
+    <li><a name="toc-Gerrit-Review-System" href="Developers.html#Gerrit-Review-System">1.3 Gerrit Review System</a></li>
+    <li><a name="toc-OpenOCD-Developer-Mailing-List" href="Developers.html#OpenOCD-Developer-Mailing-List">1.4 OpenOCD Developer Mailing List</a></li>
+    <li><a name="toc-OpenOCD-Bug-Tracker" href="Developers.html#OpenOCD-Bug-Tracker">1.5 OpenOCD Bug Tracker</a></li>
+  </ul></li>
+  <li><a name="toc-Debug-Adapter-Hardware-1" href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">2 Debug Adapter Hardware</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Choosing-a-Dongle" href="Debug-Adapter-Hardware.html#Choosing-a-Dongle">2.1 Choosing a Dongle</a></li>
+    <li><a name="toc-Stand_002dalone-JTAG-Probe" href="Debug-Adapter-Hardware.html#Stand_002dalone-JTAG-Probe">2.2 Stand-alone JTAG Probe</a></li>
+    <li><a name="toc-USB-FT2232-Based" href="Debug-Adapter-Hardware.html#USB-FT2232-Based">2.3 USB FT2232 Based</a></li>
+    <li><a name="toc-USB_002dJTAG-_002f-Altera-USB_002dBlaster-compatibles" href="Debug-Adapter-Hardware.html#USB_002dJTAG-_002f-Altera-USB_002dBlaster-compatibles">2.4 USB-JTAG / Altera USB-Blaster compatibles</a></li>
+    <li><a name="toc-USB-J_002dLink-based" href="Debug-Adapter-Hardware.html#USB-J_002dLink-based">2.5 USB J-Link based</a></li>
+    <li><a name="toc-USB-RLINK-based" href="Debug-Adapter-Hardware.html#USB-RLINK-based">2.6 USB RLINK based</a></li>
+    <li><a name="toc-USB-ST_002dLINK-based" href="Debug-Adapter-Hardware.html#USB-ST_002dLINK-based">2.7 USB ST-LINK based</a></li>
+    <li><a name="toc-USB-TI_002fStellaris-ICDI-based" href="Debug-Adapter-Hardware.html#USB-TI_002fStellaris-ICDI-based">2.8 USB TI/Stellaris ICDI based</a></li>
+    <li><a name="toc-USB-CMSIS_002dDAP-based" href="Debug-Adapter-Hardware.html#USB-CMSIS_002dDAP-based">2.9 USB CMSIS-DAP based</a></li>
+    <li><a name="toc-USB-Other" href="Debug-Adapter-Hardware.html#USB-Other">2.10 USB Other</a></li>
+    <li><a name="toc-IBM-PC-Parallel-Printer-Port-Based" href="Debug-Adapter-Hardware.html#IBM-PC-Parallel-Printer-Port-Based">2.11 IBM PC Parallel Printer Port Based</a></li>
+    <li><a name="toc-Other_002e_002e_002e" href="Debug-Adapter-Hardware.html#Other_002e_002e_002e">2.12 Other...</a></li>
+  </ul></li>
+  <li><a name="toc-About-Jim_002dTcl-1" href="About-Jim_002dTcl.html#About-Jim_002dTcl">3 About Jim-Tcl</a></li>
+  <li><a name="toc-Running-1" href="Running.html#Running">4 Running</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Simple-setup_002c-no-customization" href="Running.html#Simple-setup_002c-no-customization">4.1 Simple setup, no customization</a></li>
+    <li><a name="toc-What-OpenOCD-does-as-it-starts" href="Running.html#What-OpenOCD-does-as-it-starts">4.2 What OpenOCD does as it starts</a></li>
+  </ul></li>
+  <li><a name="toc-OpenOCD-Project-Setup-1" href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup">5 OpenOCD Project Setup</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Hooking-up-the-JTAG-Adapter" href="OpenOCD-Project-Setup.html#Hooking-up-the-JTAG-Adapter">5.1 Hooking up the JTAG Adapter</a></li>
+    <li><a name="toc-Project-Directory" href="OpenOCD-Project-Setup.html#Project-Directory">5.2 Project Directory</a></li>
+    <li><a name="toc-Configuration-Basics" href="OpenOCD-Project-Setup.html#Configuration-Basics">5.3 Configuration Basics</a></li>
+    <li><a name="toc-User-Config-Files" href="OpenOCD-Project-Setup.html#User-Config-Files">5.4 User Config Files</a></li>
+    <li><a name="toc-Project_002dSpecific-Utilities" href="OpenOCD-Project-Setup.html#Project_002dSpecific-Utilities">5.5 Project-Specific Utilities</a></li>
+    <li><a name="toc-Target-Software-Changes" href="OpenOCD-Project-Setup.html#Target-Software-Changes">5.6 Target Software Changes</a></li>
+    <li><a name="toc-Target-Hardware-Setup" href="OpenOCD-Project-Setup.html#Target-Hardware-Setup">5.7 Target Hardware Setup</a></li>
+  </ul></li>
+  <li><a name="toc-Config-File-Guidelines-1" href="Config-File-Guidelines.html#Config-File-Guidelines">6 Config File Guidelines</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Interface-Config-Files" href="Config-File-Guidelines.html#Interface-Config-Files">6.1 Interface Config Files</a></li>
+    <li><a name="toc-Board-Config-Files" href="Config-File-Guidelines.html#Board-Config-Files">6.2 Board Config Files</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Communication-Between-Config-files" href="Config-File-Guidelines.html#Communication-Between-Config-files">6.2.1 Communication Between Config files</a></li>
+      <li><a name="toc-Variable-Naming-Convention" href="Config-File-Guidelines.html#Variable-Naming-Convention">6.2.2 Variable Naming Convention</a></li>
+      <li><a name="toc-The-reset_002dinit-Event-Handler" href="Config-File-Guidelines.html#The-reset_002dinit-Event-Handler">6.2.3 The reset-init Event Handler</a></li>
+      <li><a name="toc-JTAG-Clock-Rate" href="Config-File-Guidelines.html#JTAG-Clock-Rate">6.2.4 JTAG Clock Rate</a></li>
+      <li><a name="toc-The-init_005fboard-procedure" href="Config-File-Guidelines.html#The-init_005fboard-procedure">6.2.5 The init_board procedure</a></li>
+    </ul></li>
+    <li><a name="toc-Target-Config-Files" href="Config-File-Guidelines.html#Target-Config-Files">6.3 Target Config Files</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Default-Value-Boiler-Plate-Code" href="Config-File-Guidelines.html#Default-Value-Boiler-Plate-Code">6.3.1 Default Value Boiler Plate Code</a></li>
+      <li><a name="toc-Adding-TAPs-to-the-Scan-Chain" href="Config-File-Guidelines.html#Adding-TAPs-to-the-Scan-Chain">6.3.2 Adding TAPs to the Scan Chain</a></li>
+      <li><a name="toc-Add-CPU-targets" href="Config-File-Guidelines.html#Add-CPU-targets">6.3.3 Add CPU targets</a></li>
+      <li><a name="toc-Define-CPU-targets-working-in-SMP" href="Config-File-Guidelines.html#Define-CPU-targets-working-in-SMP">6.3.4 Define CPU targets working in SMP</a></li>
+      <li><a name="toc-Chip-Reset-Setup" href="Config-File-Guidelines.html#Chip-Reset-Setup">6.3.5 Chip Reset Setup</a></li>
+      <li><a name="toc-The-init_005ftargets-procedure" href="Config-File-Guidelines.html#The-init_005ftargets-procedure">6.3.6 The init_targets procedure</a></li>
+      <li><a name="toc-The-init_005ftarget_005fevents-procedure" href="Config-File-Guidelines.html#The-init_005ftarget_005fevents-procedure">6.3.7 The init_target_events procedure</a></li>
+      <li><a name="toc-ARM-Core-Specific-Hacks" href="Config-File-Guidelines.html#ARM-Core-Specific-Hacks">6.3.8 ARM Core Specific Hacks</a></li>
+      <li><a name="toc-Internal-Flash-Configuration" href="Config-File-Guidelines.html#Internal-Flash-Configuration">6.3.9 Internal Flash Configuration</a></li>
+    </ul></li>
+    <li><a name="toc-Translating-Configuration-Files" href="Config-File-Guidelines.html#Translating-Configuration-Files">6.4 Translating Configuration Files</a></li>
+  </ul></li>
+  <li><a name="toc-Server-Configuration-1" href="Server-Configuration.html#Server-Configuration">7 Server Configuration</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Configuration-Stage" href="Server-Configuration.html#Configuration-Stage">7.1 Configuration Stage</a></li>
+    <li><a name="toc-Entering-the-Run-Stage" href="Server-Configuration.html#Entering-the-Run-Stage">7.2 Entering the Run Stage</a></li>
+    <li><a name="toc-TCP_002fIP-Ports" href="Server-Configuration.html#TCP_002fIP-Ports">7.3 TCP/IP Ports</a></li>
+    <li><a name="toc-GDB-Configuration" href="Server-Configuration.html#GDB-Configuration">7.4 GDB Configuration</a></li>
+    <li><a name="toc-Event-Polling" href="Server-Configuration.html#Event-Polling">7.5 Event Polling</a></li>
+  </ul></li>
+  <li><a name="toc-Debug-Adapter-Configuration-1" href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration">8 Debug Adapter Configuration</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Interface-Configuration" href="Debug-Adapter-Configuration.html#Interface-Configuration">8.1 Interface Configuration</a></li>
+    <li><a name="toc-Interface-Drivers" href="Debug-Adapter-Configuration.html#Interface-Drivers">8.2 Interface Drivers</a></li>
+    <li><a name="toc-Transport-Configuration" href="Debug-Adapter-Configuration.html#Transport-Configuration">8.3 Transport Configuration</a>
+    <ul class="no-bullet">
+      <li><a name="toc-JTAG-Transport" href="Debug-Adapter-Configuration.html#JTAG-Transport">8.3.1 JTAG Transport</a></li>
+      <li><a name="toc-SWD-Transport" href="Debug-Adapter-Configuration.html#SWD-Transport">8.3.2 SWD Transport</a></li>
+      <li><a name="toc-SPI-Transport" href="Debug-Adapter-Configuration.html#SPI-Transport">8.3.3 SPI Transport</a></li>
+    </ul></li>
+    <li><a name="toc-JTAG-Speed" href="Debug-Adapter-Configuration.html#JTAG-Speed">8.4 JTAG Speed</a></li>
+  </ul></li>
+  <li><a name="toc-Reset-Configuration-1" href="Reset-Configuration.html#Reset-Configuration">9 Reset Configuration</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Types-of-Reset" href="Reset-Configuration.html#Types-of-Reset">9.1 Types of Reset</a></li>
+    <li><a name="toc-SRST-and-TRST-Issues" href="Reset-Configuration.html#SRST-and-TRST-Issues">9.2 SRST and TRST Issues</a></li>
+    <li><a name="toc-Commands-for-Handling-Resets" href="Reset-Configuration.html#Commands-for-Handling-Resets">9.3 Commands for Handling Resets</a></li>
+    <li><a name="toc-Custom-Reset-Handling" href="Reset-Configuration.html#Custom-Reset-Handling">9.4 Custom Reset Handling</a></li>
+  </ul></li>
+  <li><a name="toc-TAP-Declaration-1" href="TAP-Declaration.html#TAP-Declaration">10 TAP Declaration</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Scan-Chains" href="TAP-Declaration.html#Scan-Chains">10.1 Scan Chains</a></li>
+    <li><a name="toc-TAP-Names" href="TAP-Declaration.html#TAP-Names">10.2 TAP Names</a></li>
+    <li><a name="toc-TAP-Declaration-Commands" href="TAP-Declaration.html#TAP-Declaration-Commands">10.3 TAP Declaration Commands</a></li>
+    <li><a name="toc-Other-TAP-commands" href="TAP-Declaration.html#Other-TAP-commands">10.4 Other TAP commands</a></li>
+    <li><a name="toc-TAP-Events" href="TAP-Declaration.html#TAP-Events">10.5 TAP Events</a></li>
+    <li><a name="toc-Enabling-and-Disabling-TAPs" href="TAP-Declaration.html#Enabling-and-Disabling-TAPs">10.6 Enabling and Disabling TAPs</a></li>
+    <li><a name="toc-Autoprobing" href="TAP-Declaration.html#Autoprobing">10.7 Autoprobing</a></li>
+  </ul></li>
+  <li><a name="toc-CPU-Configuration-1" href="CPU-Configuration.html#CPU-Configuration">11 CPU Configuration</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Target-List" href="CPU-Configuration.html#Target-List">11.1 Target List</a></li>
+    <li><a name="toc-Target-CPU-Types" href="CPU-Configuration.html#Target-CPU-Types">11.2 Target CPU Types</a></li>
+    <li><a name="toc-Target-Configuration" href="CPU-Configuration.html#Target-Configuration">11.3 Target Configuration</a></li>
+    <li><a name="toc-Other-_0024target_005fname-Commands" href="CPU-Configuration.html#Other-_0024target_005fname-Commands">11.4 Other $target_name Commands</a></li>
+    <li><a name="toc-Target-Events" href="CPU-Configuration.html#Target-Events">11.5 Target Events</a></li>
+  </ul></li>
+  <li><a name="toc-Flash-Commands-1" href="Flash-Commands.html#Flash-Commands">12 Flash Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Flash-Configuration-Commands" href="Flash-Commands.html#Flash-Configuration-Commands">12.1 Flash Configuration Commands</a></li>
+    <li><a name="toc-Erasing_002c-Reading_002c-Writing-to-Flash" href="Flash-Commands.html#Erasing_002c-Reading_002c-Writing-to-Flash">12.2 Erasing, Reading, Writing to Flash</a></li>
+    <li><a name="toc-Other-Flash-commands" href="Flash-Commands.html#Other-Flash-commands">12.3 Other Flash commands</a></li>
+    <li><a name="toc-Flash-Driver-List" href="Flash-Commands.html#Flash-Driver-List">12.4 Flash Driver List</a>
+    <ul class="no-bullet">
+      <li><a name="toc-External-Flash" href="Flash-Commands.html#External-Flash">12.4.1 External Flash</a></li>
+      <li><a name="toc-Internal-Flash-_0028Microcontrollers_0029" href="Flash-Commands.html#Internal-Flash-_0028Microcontrollers_0029">12.4.2 Internal Flash (Microcontrollers)</a></li>
+    </ul></li>
+    <li><a name="toc-NAND-Flash-Commands" href="Flash-Commands.html#NAND-Flash-Commands">12.5 NAND Flash Commands</a>
+    <ul class="no-bullet">
+      <li><a name="toc-NAND-Configuration-Commands" href="Flash-Commands.html#NAND-Configuration-Commands">12.5.1 NAND Configuration Commands</a></li>
+      <li><a name="toc-Erasing_002c-Reading_002c-Writing-to-NAND-Flash" href="Flash-Commands.html#Erasing_002c-Reading_002c-Writing-to-NAND-Flash">12.5.2 Erasing, Reading, Writing to NAND Flash</a></li>
+      <li><a name="toc-Other-NAND-commands" href="Flash-Commands.html#Other-NAND-commands">12.5.3 Other NAND commands</a></li>
+      <li><a name="toc-NAND-Driver-List" href="Flash-Commands.html#NAND-Driver-List">12.5.4 NAND Driver List</a></li>
+    </ul></li>
+    <li><a name="toc-mFlash" href="Flash-Commands.html#mFlash">12.6 mFlash</a>
+    <ul class="no-bullet">
+      <li><a name="toc-mFlash-Configuration" href="Flash-Commands.html#mFlash-Configuration">12.6.1 mFlash Configuration</a></li>
+      <li><a name="toc-mFlash-commands" href="Flash-Commands.html#mFlash-commands">12.6.2 mFlash commands</a></li>
+    </ul></li>
+  </ul></li>
+  <li><a name="toc-Flash-Programming-1" href="Flash-Programming.html#Flash-Programming">13 Flash Programming</a></li>
+  <li><a name="toc-PLD_002fFPGA-Commands-1" href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands">14 PLD/FPGA Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-PLD_002fFPGA-Configuration-and-Commands" href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Configuration-and-Commands">14.1 PLD/FPGA Configuration and Commands</a></li>
+    <li><a name="toc-PLD_002fFPGA-Drivers_002c-Options_002c-and-Commands" href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Drivers_002c-Options_002c-and-Commands">14.2 PLD/FPGA Drivers, Options, and Commands</a></li>
+  </ul></li>
+  <li><a name="toc-General-Commands-1" href="General-Commands.html#General-Commands">15 General Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Server-Commands" href="General-Commands.html#Server-Commands">15.1 Server Commands</a></li>
+    <li><a name="toc-Target-State-handling" href="General-Commands.html#Target-State-handling">15.2 Target State handling</a></li>
+    <li><a name="toc-I_002fO-Utilities" href="General-Commands.html#I_002fO-Utilities">15.3 I/O Utilities</a></li>
+    <li><a name="toc-Memory-access-commands" href="General-Commands.html#Memory-access-commands">15.4 Memory access commands</a></li>
+    <li><a name="toc-Image-loading-commands" href="General-Commands.html#Image-loading-commands">15.5 Image loading commands</a></li>
+    <li><a name="toc-Breakpoint-and-Watchpoint-commands" href="General-Commands.html#Breakpoint-and-Watchpoint-commands">15.6 Breakpoint and Watchpoint commands</a></li>
+    <li><a name="toc-Misc-Commands" href="General-Commands.html#Misc-Commands">15.7 Misc Commands</a></li>
+  </ul></li>
+  <li><a name="toc-Architecture-and-Core-Commands-1" href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">16 Architecture and Core Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-ARM-Hardware-Tracing" href="Architecture-and-Core-Commands.html#ARM-Hardware-Tracing">16.1 ARM Hardware Tracing</a>
+    <ul class="no-bullet">
+      <li><a name="toc-ETM-Configuration" href="Architecture-and-Core-Commands.html#ETM-Configuration">16.1.1 ETM Configuration</a></li>
+      <li><a name="toc-ETM-Trace-Operation" href="Architecture-and-Core-Commands.html#ETM-Trace-Operation">16.1.2 ETM Trace Operation</a></li>
+      <li><a name="toc-Trace-Port-Drivers" href="Architecture-and-Core-Commands.html#Trace-Port-Drivers">16.1.3 Trace Port Drivers</a></li>
+    </ul></li>
+    <li><a name="toc-Generic-ARM" href="Architecture-and-Core-Commands.html#Generic-ARM">16.2 Generic ARM</a></li>
+    <li><a name="toc-ARMv4-and-ARMv5-Architecture" href="Architecture-and-Core-Commands.html#ARMv4-and-ARMv5-Architecture">16.3 ARMv4 and ARMv5 Architecture</a>
+    <ul class="no-bullet">
+      <li><a name="toc-ARM7-and-ARM9-specific-commands" href="Architecture-and-Core-Commands.html#ARM7-and-ARM9-specific-commands">16.3.1 ARM7 and ARM9 specific commands</a></li>
+      <li><a name="toc-ARM720T-specific-commands" href="Architecture-and-Core-Commands.html#ARM720T-specific-commands">16.3.2 ARM720T specific commands</a></li>
+      <li><a name="toc-ARM9-specific-commands" href="Architecture-and-Core-Commands.html#ARM9-specific-commands">16.3.3 ARM9 specific commands</a></li>
+      <li><a name="toc-ARM920T-specific-commands" href="Architecture-and-Core-Commands.html#ARM920T-specific-commands">16.3.4 ARM920T specific commands</a></li>
+      <li><a name="toc-ARM926ej_002ds-specific-commands" href="Architecture-and-Core-Commands.html#ARM926ej_002ds-specific-commands">16.3.5 ARM926ej-s specific commands</a></li>
+      <li><a name="toc-ARM966E-specific-commands" href="Architecture-and-Core-Commands.html#ARM966E-specific-commands">16.3.6 ARM966E specific commands</a></li>
+      <li><a name="toc-XScale-specific-commands" href="Architecture-and-Core-Commands.html#XScale-specific-commands">16.3.7 XScale specific commands</a></li>
+    </ul></li>
+    <li><a name="toc-ARMv6-Architecture" href="Architecture-and-Core-Commands.html#ARMv6-Architecture">16.4 ARMv6 Architecture</a>
+    <ul class="no-bullet">
+      <li><a name="toc-ARM11-specific-commands" href="Architecture-and-Core-Commands.html#ARM11-specific-commands">16.4.1 ARM11 specific commands</a></li>
+    </ul></li>
+    <li><a name="toc-ARMv7-Architecture" href="Architecture-and-Core-Commands.html#ARMv7-Architecture">16.5 ARMv7 Architecture</a>
+    <ul class="no-bullet">
+      <li><a name="toc-ARMv7-Debug-Access-Port-_0028DAP_0029-specific-commands" href="Architecture-and-Core-Commands.html#ARMv7-Debug-Access-Port-_0028DAP_0029-specific-commands">16.5.1 ARMv7 Debug Access Port (DAP) specific commands</a></li>
+      <li><a name="toc-ARMv7_002dA-specific-commands" href="Architecture-and-Core-Commands.html#ARMv7_002dA-specific-commands">16.5.2 ARMv7-A specific commands</a></li>
+      <li><a name="toc-ARMv7_002dR-specific-commands" href="Architecture-and-Core-Commands.html#ARMv7_002dR-specific-commands">16.5.3 ARMv7-R specific commands</a></li>
+      <li><a name="toc-ARMv7_002dM-specific-commands" href="Architecture-and-Core-Commands.html#ARMv7_002dM-specific-commands">16.5.4 ARMv7-M specific commands</a></li>
+      <li><a name="toc-Cortex_002dM-specific-commands" href="Architecture-and-Core-Commands.html#Cortex_002dM-specific-commands">16.5.5 Cortex-M specific commands</a></li>
+    </ul></li>
+    <li><a name="toc-Intel-Architecture" href="Architecture-and-Core-Commands.html#Intel-Architecture">16.6 Intel Architecture</a>
+    <ul class="no-bullet">
+      <li><a name="toc-x86-32_002dbit-specific-commands" href="Architecture-and-Core-Commands.html#x86-32_002dbit-specific-commands">16.6.1 x86 32-bit specific commands</a></li>
+    </ul></li>
+    <li><a name="toc-OpenRISC-Architecture" href="Architecture-and-Core-Commands.html#OpenRISC-Architecture">16.7 OpenRISC Architecture</a>
+    <ul class="no-bullet">
+      <li><a name="toc-TAP-and-Debug-Unit-selection-commands" href="Architecture-and-Core-Commands.html#TAP-and-Debug-Unit-selection-commands">16.7.1 TAP and Debug Unit selection commands</a></li>
+      <li><a name="toc-Registers-commands" href="Architecture-and-Core-Commands.html#Registers-commands">16.7.2 Registers commands</a></li>
+    </ul></li>
+    <li><a name="toc-Software-Debug-Messages-and-Tracing" href="Architecture-and-Core-Commands.html#Software-Debug-Messages-and-Tracing">16.8 Software Debug Messages and Tracing</a></li>
+  </ul></li>
+  <li><a name="toc-JTAG-Commands-1" href="JTAG-Commands.html#JTAG-Commands">17 JTAG Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Low-Level-JTAG-Commands" href="JTAG-Commands.html#Low-Level-JTAG-Commands">17.1 Low Level JTAG Commands</a></li>
+    <li><a name="toc-TAP-state-names" href="JTAG-Commands.html#TAP-state-names">17.2 TAP state names</a></li>
+  </ul></li>
+  <li><a name="toc-Boundary-Scan-Commands-1" href="Boundary-Scan-Commands.html#Boundary-Scan-Commands">18 Boundary Scan Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-SVF_003a-Serial-Vector-Format" href="Boundary-Scan-Commands.html#SVF_003a-Serial-Vector-Format">18.1 SVF: Serial Vector Format</a></li>
+    <li><a name="toc-XSVF_003a-Xilinx-Serial-Vector-Format" href="Boundary-Scan-Commands.html#XSVF_003a-Xilinx-Serial-Vector-Format">18.2 XSVF: Xilinx Serial Vector Format</a></li>
+  </ul></li>
+  <li><a name="toc-Utility-Commands-1" href="Utility-Commands.html#Utility-Commands">19 Utility Commands</a>
+  <ul class="no-bullet">
+    <li><a name="toc-RAM-testing" href="Utility-Commands.html#RAM-testing">19.1 RAM testing</a></li>
+    <li><a name="toc-Firmware-recovery-helpers" href="Utility-Commands.html#Firmware-recovery-helpers">19.2 Firmware recovery helpers</a></li>
+  </ul></li>
+  <li><a name="toc-TFTP-1" href="TFTP.html#TFTP">20 TFTP</a></li>
+  <li><a name="toc-GDB-and-OpenOCD-1" href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">21 GDB and OpenOCD</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Connecting-to-GDB" href="GDB-and-OpenOCD.html#Connecting-to-GDB">21.1 Connecting to GDB</a></li>
+    <li><a name="toc-Sample-GDB-session-startup" href="GDB-and-OpenOCD.html#Sample-GDB-session-startup">21.2 Sample GDB session startup</a></li>
+    <li><a name="toc-Configuring-GDB-for-OpenOCD" href="GDB-and-OpenOCD.html#Configuring-GDB-for-OpenOCD">21.3 Configuring GDB for OpenOCD</a></li>
+    <li><a name="toc-Programming-using-GDB" href="GDB-and-OpenOCD.html#Programming-using-GDB">21.4 Programming using GDB</a></li>
+    <li><a name="toc-Using-OpenOCD-SMP-with-GDB" href="GDB-and-OpenOCD.html#Using-OpenOCD-SMP-with-GDB">21.5 Using OpenOCD SMP with GDB</a></li>
+    <li><a name="toc-RTOS-Support" href="GDB-and-OpenOCD.html#RTOS-Support">21.6 RTOS Support</a></li>
+  </ul></li>
+  <li><a name="toc-Tcl-Scripting-API-1" href="Tcl-Scripting-API.html#Tcl-Scripting-API">22 Tcl Scripting API</a>
+  <ul class="no-bullet">
+    <li><a name="toc-API-rules" href="Tcl-Scripting-API.html#API-rules">22.1 API rules</a></li>
+    <li><a name="toc-Internal-low_002dlevel-Commands" href="Tcl-Scripting-API.html#Internal-low_002dlevel-Commands">22.2 Internal low-level Commands</a></li>
+    <li><a name="toc-OpenOCD-specific-Global-Variables" href="Tcl-Scripting-API.html#OpenOCD-specific-Global-Variables">22.3 OpenOCD specific Global Variables</a></li>
+    <li><a name="toc-Tcl-RPC-server" href="Tcl-Scripting-API.html#Tcl-RPC-server">22.4 Tcl RPC server</a></li>
+    <li><a name="toc-Tcl-RPC-server-notifications" href="Tcl-Scripting-API.html#Tcl-RPC-server-notifications">22.5 Tcl RPC server notifications</a></li>
+    <li><a name="toc-Tcl-RPC-server-trace-output" href="Tcl-Scripting-API.html#Tcl-RPC-server-trace-output">22.6 Tcl RPC server trace output</a></li>
+  </ul></li>
+  <li><a name="toc-FAQ-1" href="FAQ.html#FAQ">23 FAQ</a></li>
+  <li><a name="toc-Tcl-Crash-Course-1" href="Tcl-Crash-Course.html#Tcl-Crash-Course">24 Tcl Crash Course</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Tcl-Rule-_00231" href="Tcl-Crash-Course.html#Tcl-Rule-_00231">24.1 Tcl Rule #1</a></li>
+    <li><a name="toc-Tcl-Rule-_00231b" href="Tcl-Crash-Course.html#Tcl-Rule-_00231b">24.2 Tcl Rule #1b</a></li>
+    <li><a name="toc-Per-Rule-_00231-_002d-All-Results-are-strings" href="Tcl-Crash-Course.html#Per-Rule-_00231-_002d-All-Results-are-strings">24.3 Per Rule #1 - All Results are strings</a></li>
+    <li><a name="toc-Tcl-Quoting-Operators" href="Tcl-Crash-Course.html#Tcl-Quoting-Operators">24.4 Tcl Quoting Operators</a></li>
+    <li><a name="toc-Consequences-of-Rule-1_002f2_002f3_002f4" href="Tcl-Crash-Course.html#Consequences-of-Rule-1_002f2_002f3_002f4">24.5 Consequences of Rule 1/2/3/4</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Tokenisation-_0026-Execution_002e" href="Tcl-Crash-Course.html#Tokenisation-_0026-Execution_002e">24.5.1 Tokenisation &amp; Execution.</a></li>
+      <li><a name="toc-Command-Execution" href="Tcl-Crash-Course.html#Command-Execution">24.5.2 Command Execution</a></li>
+      <li><a name="toc-The-FOR-command" href="Tcl-Crash-Course.html#The-FOR-command">24.5.3 The FOR command</a></li>
+      <li><a name="toc-FOR-command-implementation" href="Tcl-Crash-Course.html#FOR-command-implementation">24.5.4 FOR command implementation</a></li>
+    </ul></li>
+    <li><a name="toc-OpenOCD-Tcl-Usage" href="Tcl-Crash-Course.html#OpenOCD-Tcl-Usage">24.6 OpenOCD Tcl Usage</a>
+    <ul class="no-bullet">
+      <li><a name="toc-source-and-find-commands" href="Tcl-Crash-Course.html#source-and-find-commands">24.6.1 source and find commands</a></li>
+      <li><a name="toc-format-command" href="Tcl-Crash-Course.html#format-command">24.6.2 format command</a></li>
+      <li><a name="toc-Body-or-Inlined-Text" href="Tcl-Crash-Course.html#Body-or-Inlined-Text">24.6.3 Body or Inlined Text</a></li>
+      <li><a name="toc-Global-Variables" href="Tcl-Crash-Course.html#Global-Variables">24.6.4 Global Variables</a></li>
+    </ul></li>
+    <li><a name="toc-Other-Tcl-Hacks" href="Tcl-Crash-Course.html#Other-Tcl-Hacks">24.7 Other Tcl Hacks</a></li>
+  </ul></li>
+  <li><a name="toc-The-GNU-Free-Documentation-License_002e" href="License.html#License">Appendix A The GNU Free Documentation License.</a>
+  <ul class="no-bullet">
+    <li><a name="toc-ADDENDUM_003a-How-to-use-this-License-for-your-documents" href="License.html#ADDENDUM_003a-How-to-use-this-License-for-your-documents">ADDENDUM: How to use this License for your documents</a></li>
+  </ul></li>
+  <li><a name="toc-OpenOCD-Concept-Index-1" href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index">OpenOCD Concept Index</a></li>
+  <li><a name="toc-Command-and-Driver-Index-1" href="Command-and-Driver-Index.html#Command-and-Driver-Index">Command and Driver Index</a></li>
+</ul>
+</div>
+
+
+<a name="Top"></a>
+<div class="header">
+<p>
+Next: <a href="About.html#About" accesskey="n" rel="next">About</a>, Up: <a href="../dir/index.html" accesskey="u" rel="up">(dir)</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="OpenOCD-User_0027s-Guide"></a>
+<h1 class="top">OpenOCD User&rsquo;s Guide</h1>
+
+
+<p>This User&rsquo;s Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+</p>
+<ul>
+<li> Copyright &copy; 2008 The OpenOCD Project
+</li><li> Copyright &copy; 2007-2008 Spencer Oliver <a href="mailto:spen@spen-soft.co.uk">spen@spen-soft.co.uk</a>
+</li><li> Copyright &copy; 2008-2010 Oyvind Harboe <a href="mailto:oyvind.harboe@zylin.com">oyvind.harboe@zylin.com</a>
+</li><li> Copyright &copy; 2008 Duane Ellis <a href="mailto:openocd@duaneellis.com">openocd@duaneellis.com</a>
+</li><li> Copyright &copy; 2009-2010 David Brownell
+</li></ul>
+
+<blockquote>
+<p>Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled &ldquo;GNU
+Free Documentation License&rdquo;.
+</p></blockquote>
+
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="About.html#About" accesskey="1">About</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">About OpenOCD
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Developers.html#Developers" accesskey="2">Developers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">OpenOCD Developer Resources
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware" accesskey="3">Debug Adapter Hardware</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Debug Adapter Hardware
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="About-Jim_002dTcl.html#About-Jim_002dTcl" accesskey="4">About Jim-Tcl</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">About Jim-Tcl
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Running.html#Running" accesskey="5">Running</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Running OpenOCD
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="OpenOCD-Project-Setup.html#OpenOCD-Project-Setup" accesskey="6">OpenOCD Project Setup</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">OpenOCD Project Setup
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Config-File-Guidelines.html#Config-File-Guidelines" accesskey="7">Config File Guidelines</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Config File Guidelines
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Server-Configuration.html#Server-Configuration" accesskey="8">Server Configuration</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Server Configuration
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" accesskey="9">Debug Adapter Configuration</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Debug Adapter Configuration
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Reset-Configuration.html#Reset-Configuration">Reset Configuration</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Reset Configuration
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">TAP Declaration
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="CPU-Configuration.html#CPU-Configuration">CPU Configuration</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">CPU Configuration
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Flash-Commands.html#Flash-Commands">Flash Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Flash Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Flash-Programming.html#Flash-Programming">Flash Programming</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Flash Programming
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands">PLD/FPGA Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">PLD/FPGA Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="General-Commands.html#General-Commands">General Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">General Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands">Architecture and Core Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Architecture and Core Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="JTAG-Commands.html#JTAG-Commands">JTAG Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">JTAG Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands">Boundary Scan Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Boundary Scan Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Utility-Commands.html#Utility-Commands">Utility Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Utility Commands
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="TFTP.html#TFTP">TFTP</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">TFTP
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD">GDB and OpenOCD</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Using GDB and OpenOCD
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Tcl-Scripting-API.html#Tcl-Scripting-API">Tcl Scripting API</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Tcl Scripting API
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="FAQ.html#FAQ">FAQ</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Frequently Asked Questions
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Tcl-Crash-Course.html#Tcl-Crash-Course">Tcl Crash Course</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Tcl Crash Course
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="License.html#License">License</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">GNU Free Documentation License
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index">OpenOCD Concept Index</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Concept Index
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Command-and-Driver-Index.html#Command-and-Driver-Index">Command and Driver Index</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Command and Driver Index
+</td></tr>
+</table>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="About.html#About" accesskey="n" rel="next">About</a>, Up: <a href="../dir/index.html" accesskey="u" rel="up">(dir)</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

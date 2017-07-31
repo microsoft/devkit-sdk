@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Flash Programming</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Flash Programming">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Flash Programming">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands" rel="next" title="PLD/FPGA Commands">
+<link href="Flash-Commands.html#Flash-Commands" rel="prev" title="Flash Commands">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Flash-Programming"></a>
+<div class="header">
+<p>
+Next: <a href="PLD_002fFPGA-Commands.html#PLD_002fFPGA-Commands" accesskey="n" rel="next">PLD/FPGA Commands</a>, Previous: <a href="Flash-Commands.html#Flash-Commands" accesskey="p" rel="prev">Flash Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Flash-Programming-1"></a>
+<h2 class="chapter">13 Flash Programming</h2>
+
+<p>OpenOCD implements numerous ways to program the target flash, whether internal or external.
+Programming can be acheived by either using GDB <a href="GDB-and-OpenOCD.html#programmingusinggdb">Programming using GDB</a>,
+or using the cmds given in <a href="Flash-Commands.html#flashprogrammingcommands">Flash Programming Commands</a>.
+</p>
+<br><p>To simplify using the flash cmds directly a jimtcl script is available that handles the programming and verify stage.
+OpenOCD will program/verify/reset the target and optionally shutdown.
+</p>
+<p>The script is executed as follows and by default the following actions will be peformed.
+</p><ol>
+<li> &rsquo;init&rsquo; is executed.
+</li><li> &rsquo;reset init&rsquo; is called to reset and halt the target, any &rsquo;reset init&rsquo; scripts are executed.
+</li><li> <code>flash write_image</code> is called to erase and write any flash using the filename given.
+</li><li> <code>verify_image</code> is called if <samp>verify</samp> parameter is given.
+</li><li> <code>reset run</code> is called if <samp>reset</samp> parameter is given.
+</li><li> OpenOCD is shutdown if <samp>exit</samp> parameter is given.
+</li></ol>
+
+<p>An example of usage is given below. See <a href="Flash-Commands.html#program">program</a>.
+</p>
+<div class="example">
+<pre class="example"># program and verify using elf/hex/s19. verify and reset
+# are optional parameters
+openocd -f board/stm32f3discovery.cfg \
+	-c &quot;program filename.elf verify reset exit&quot;
+
+# binary files need the flash address passing
+openocd -f board/stm32f3discovery.cfg \
+	-c &quot;program filename.bin exit 0x08000000&quot;
+</pre></div>
+
+
+
+
+</body>
+</html>

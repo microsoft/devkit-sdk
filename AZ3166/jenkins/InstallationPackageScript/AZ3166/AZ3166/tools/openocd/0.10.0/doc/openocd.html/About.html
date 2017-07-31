@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: About</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: About">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: About">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Developers.html#Developers" rel="next" title="Developers">
+<link href="index.html#Top" rel="prev" title="Top">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="About"></a>
+<div class="header">
+<p>
+Next: <a href="Developers.html#Developers" accesskey="n" rel="next">Developers</a>, Previous: <a href="index.html#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="About-1"></a>
+<h2 class="unnumbered">About</h2>
+<a name="index-about"></a>
+
+<p>OpenOCD was created by Dominic Rath as part of a 2005 diploma thesis written
+at the University of Applied Sciences Augsburg (<a href="http://www.hs-augsburg.de">http://www.hs-augsburg.de</a>).
+Since that time, the project has grown into an active open-source project,
+supported by a diverse community of software and hardware developers from
+around the world.
+</p>
+<a name="What-is-OpenOCD_003f"></a>
+<h3 class="section">What is OpenOCD?</h3>
+<a name="index-TAP"></a>
+<a name="index-JTAG"></a>
+
+<p>The Open On-Chip Debugger (OpenOCD) aims to provide debugging,
+in-system programming and boundary-scan testing for embedded target
+devices.
+</p>
+<p>It does so with the assistance of a <em>debug adapter</em>, which is
+a small hardware module which helps provide the right kind of
+electrical signaling to the target being debugged. These are
+required since the debug host (on which OpenOCD runs) won&rsquo;t
+usually have native support for such signaling, or the connector
+needed to hook up to the target.
+</p>
+<p>Such debug adapters support one or more <em>transport</em> protocols,
+each of which involves different electrical signaling (and uses
+different messaging protocols on top of that signaling). There
+are many types of debug adapter, and little uniformity in what
+they are called. (There are also product naming differences.)
+</p>
+<p>These adapters are sometimes packaged as discrete dongles, which
+may generically be called <em>hardware interface dongles</em>.
+Some development boards also integrate them directly, which may
+let the development board connect directly to the debug
+host over USB (and sometimes also to power it over USB).
+</p>
+<p>For example, a <em>JTAG Adapter</em> supports JTAG
+signaling, and is used to communicate
+with JTAG (IEEE 1149.1) compliant TAPs on your target board.
+A <em>TAP</em> is a &ldquo;Test Access Port&rdquo;, a module which processes
+special instructions and data. TAPs are daisy-chained within and
+between chips and boards. JTAG supports debugging and boundary
+scan operations.
+</p>
+<p>There are also <em>SWD Adapters</em> that support Serial Wire Debug (SWD)
+signaling to communicate with some newer ARM cores, as well as debug
+adapters which support both JTAG and SWD transports. SWD supports only
+debugging, whereas JTAG also supports boundary scan operations.
+</p>
+<p>For some chips, there are also <em>Programming Adapters</em> supporting
+special transports used only to write code to flash memory, without
+support for on-chip debugging or boundary scan.
+(At this writing, OpenOCD does not support such non-debug adapters.)
+</p>
+
+<p><b>Dongles:</b> OpenOCD currently supports many types of hardware dongles:
+USB-based, parallel port-based, and other standalone boxes that run
+OpenOCD internally. See <a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware">Debug Adapter Hardware</a>.
+</p>
+<p><b>GDB Debug:</b> It allows ARM7 (ARM7TDMI and ARM720t), ARM9 (ARM920T,
+ARM922T, ARM926EJ&ndash;S, ARM966E&ndash;S), XScale (PXA25x, IXP42x), Cortex-M3
+(Stellaris LM3, ST STM32 and Energy Micro EFM32) and Intel Quark (x10xx)
+based cores to be debugged via the GDB protocol.
+</p>
+<p><b>Flash Programming:</b> Flash writing is supported for external
+CFI-compatible NOR flashes (Intel and AMD/Spansion command set) and several
+internal flashes (LPC1700, LPC1800, LPC2000, LPC4300, AT91SAM7, AT91SAM3U,
+STR7x, STR9x, LM3, STM32x and EFM32). Preliminary support for various NAND flash
+controllers (LPC3180, Orion, S3C24xx, more) is included.
+</p>
+<a name="OpenOCD-Web-Site"></a>
+<h3 class="section">OpenOCD Web Site</h3>
+
+<p>The OpenOCD web site provides the latest public news from the community:
+</p>
+<p><a href="http://openocd.org/">http://openocd.org/</a>
+</p>
+<a name="Latest-User_0027s-Guide_003a"></a>
+<h3 class="section">Latest User&rsquo;s Guide:</h3>
+
+<p>The user&rsquo;s guide you are now reading may not be the latest one
+available. A version for more recent code may be available.
+Its HTML form is published regularly at:
+</p>
+<p><a href="http://openocd.org/doc/html/index.html">http://openocd.org/doc/html/index.html</a>
+</p>
+<p>PDF form is likewise published at:
+</p>
+<p><a href="http://openocd.org/doc/pdf/openocd.pdf">http://openocd.org/doc/pdf/openocd.pdf</a>
+</p>
+<a name="OpenOCD-User_0027s-Forum"></a>
+<h3 class="section">OpenOCD User&rsquo;s Forum</h3>
+
+<p>There is an OpenOCD forum (phpBB) hosted by SparkFun,
+which might be helpful to you. Note that if you want
+anything to come to the attention of developers, you
+should post it to the OpenOCD Developer Mailing List
+instead of this forum.
+</p>
+<p><a href="http://forum.sparkfun.com/viewforum.php?f=18">http://forum.sparkfun.com/viewforum.php?f=18</a>
+</p>
+<a name="OpenOCD-User_0027s-Mailing-List"></a>
+<h3 class="section">OpenOCD User&rsquo;s Mailing List</h3>
+
+<p>The OpenOCD User Mailing List provides the primary means of
+communication between users:
+</p>
+<p><a href="https://lists.sourceforge.net/mailman/listinfo/openocd-user">https://lists.sourceforge.net/mailman/listinfo/openocd-user</a>
+</p>
+<a name="OpenOCD-IRC"></a>
+<h3 class="section">OpenOCD IRC</h3>
+
+<p>Support can also be found on irc:
+<a href="irc://irc.freenode.net/openocd">irc://irc.freenode.net/openocd</a>
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Developers.html#Developers" accesskey="n" rel="next">Developers</a>, Previous: <a href="index.html#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+deb_host_multiarch=
+Name: stlink
+Description: Open source version of the STMicroelectronics Stlink Tools
+Version: 1.3.0
+Requires: libusb-1.0
+prefix=/usr/local
+includedir=${prefix}/include/${deb_host_multiarch}/stlink-1.3.0
+libdir=${prefix}/lib/${deb_host_multiarch}
+Libs: -L${libdir} -l:libstlink.so.1
+Cflags: -I${includedir}
+

@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: FAQ</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: FAQ">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: FAQ">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Tcl-Crash-Course.html#Tcl-Crash-Course" rel="next" title="Tcl Crash Course">
+<link href="Tcl-Scripting-API.html#Tcl-Scripting-API" rel="prev" title="Tcl Scripting API">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="FAQ"></a>
+<div class="header">
+<p>
+Next: <a href="Tcl-Crash-Course.html#Tcl-Crash-Course" accesskey="n" rel="next">Tcl Crash Course</a>, Previous: <a href="Tcl-Scripting-API.html#Tcl-Scripting-API" accesskey="p" rel="prev">Tcl Scripting API</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="FAQ-1"></a>
+<h2 class="chapter">23 FAQ</h2>
+<a name="index-faq"></a>
+<ol>
+<li><a name="faqrtck"></a></li><li> <b>RTCK, also known as: Adaptive Clocking - What is it?</b>
+<a name="index-RTCK-2"></a>
+<a name="index-adaptive-clocking-1"></a>
+<br>
+
+<p>In digital circuit design it is often refered to as &ldquo;clock
+synchronisation&rdquo; the JTAG interface uses one clock (TCK or TCLK)
+operating at some speed, your CPU target is operating at another.
+The two clocks are not synchronised, they are &ldquo;asynchronous&rdquo;
+</p>
+<p>In order for the two to work together they must be synchronised
+well enough to work; JTAG can&rsquo;t go ten times faster than the CPU,
+for example. There are 2 basic options:
+</p><ol>
+<li> Use a special &quot;adaptive clocking&quot; circuit to change the JTAG
+clock rate to match what the CPU currently supports.
+</li><li> The JTAG clock must be fixed at some speed that&rsquo;s enough slower than
+the CPU clock that all TMS and TDI transitions can be detected.
+</li></ol>
+
+<p><b>Does this really matter?</b> For some chips and some situations, this
+is a non-issue, like a 500MHz ARM926 with a 5 MHz JTAG link;
+the CPU has no difficulty keeping up with JTAG.
+Startup sequences are often problematic though, as are other
+situations where the CPU clock rate changes (perhaps to save
+power).
+</p>
+<p>For example, Atmel AT91SAM chips start operation from reset with
+a 32kHz system clock. Boot firmware may activate the main oscillator
+and PLL before switching to a faster clock (perhaps that 500 MHz
+ARM926 scenario).
+If you&rsquo;re using JTAG to debug that startup sequence, you must slow
+the JTAG clock to sometimes 1 to 4kHz. After startup completes,
+JTAG can use a faster clock.
+</p>
+<p>Consider also debugging a 500MHz ARM926 hand held battery powered
+device that enters a low power &ldquo;deep sleep&rdquo; mode, at 32kHz CPU
+clock, between keystrokes unless it has work to do. When would
+that 5 MHz JTAG clock be usable?
+</p>
+<p><b>Solution #1 - A special circuit</b>
+</p>
+<p>In order to make use of this,
+your CPU, board, and JTAG adapter must all support the RTCK
+feature. Not all of them support this; keep reading!
+</p>
+<p>The RTCK (&quot;Return TCK&quot;) signal in some ARM chips is used to help with
+this problem. ARM has a good description of the problem described at
+this link: <a href="http://www.arm.com/support/faqdev/4170.html">http://www.arm.com/support/faqdev/4170.html</a> [checked
+28/nov/2008]. Link title: &ldquo;How does the JTAG synchronisation logic
+work? / how does adaptive clocking work?&rdquo;.
+</p>
+<p>The nice thing about adaptive clocking is that &ldquo;battery powered hand
+held device example&rdquo; - the adaptiveness works perfectly all the
+time. One can set a break point or halt the system in the deep power
+down code, slow step out until the system speeds up.
+</p>
+<p>Note that adaptive clocking may also need to work at the board level,
+when a board-level scan chain has multiple chips.
+Parallel clock voting schemes are good way to implement this,
+both within and between chips, and can easily be implemented
+with a CPLD.
+It&rsquo;s not difficult to have logic fan a module&rsquo;s input TCK signal out
+to each TAP in the scan chain, and then wait until each TAP&rsquo;s RTCK comes
+back with the right polarity before changing the output RTCK signal.
+Texas Instruments makes some clock voting logic available
+for free (with no support) in VHDL form; see
+<a href="http://tiexpressdsp.com/index.php/Adaptive_Clocking">http://tiexpressdsp.com/index.php/Adaptive_Clocking</a>
+</p>
+<p><b>Solution #2 - Always works - but may be slower</b>
+</p>
+<p>Often this is a perfectly acceptable solution.
+</p>
+<p>In most simple terms: Often the JTAG clock must be 1/10 to 1/12 of
+the target clock speed. But what that &ldquo;magic division&rdquo; is varies
+depending on the chips on your board.
+<b>ARM rule of thumb</b> Most ARM based systems require an 6:1 division;
+ARM11 cores use an 8:1 division.
+<b>Xilinx rule of thumb</b> is 1/12 the clock speed.
+</p>
+<p>Note: most full speed FT2232 based JTAG adapters are limited to a
+maximum of 6MHz. The ones using USB high speed chips (FT2232H)
+often support faster clock rates (and adaptive clocking).
+</p>
+<p>You can still debug the &rsquo;low power&rsquo; situations - you just need to
+either use a fixed and very slow JTAG clock rate ... or else
+manually adjust the clock speed at every step. (Adjusting is painful
+and tedious, and is not always practical.)
+</p>
+<p>It is however easy to &ldquo;code your way around it&rdquo; - i.e.: Cheat a little,
+have a special debug mode in your application that does a &ldquo;high power
+sleep&rdquo;. If you are careful - 98% of your problems can be debugged
+this way.
+</p>
+<p>Note that on ARM you may need to avoid using the <em>wait for interrupt</em>
+operation in your idle loops even if you don&rsquo;t otherwise change the CPU
+clock rate.
+That operation gates the CPU clock, and thus the JTAG clock; which
+prevents JTAG access. One consequence is not being able to <code>halt</code>
+cores which are executing that <em>wait for interrupt</em> operation.
+</p>
+<p>To set the JTAG frequency use the command:
+</p>
+<div class="example">
+<pre class="example"># Example: 1.234MHz
+adapter_khz 1234
+</pre></div>
+
+
+</li><li> <b>Win32 Pathnames</b> Why don&rsquo;t backslashes work in Windows paths?
+
+<p>OpenOCD uses Tcl and a backslash is an escape char. Use { and }
+around Windows filenames.
+</p>
+<div class="example">
+<pre class="example">&gt; echo \a
+
+&gt; echo {\a}
+\a
+&gt; echo &quot;\a&quot;
+
+&gt;
+</pre></div>
+
+
+</li><li> <b>Missing: cygwin1.dll</b> OpenOCD complains about a missing cygwin1.dll.
+
+<p>Make sure you have Cygwin installed, or at least a version of OpenOCD that
+claims to come with all the necessary DLLs. When using Cygwin, try launching
+OpenOCD from the Cygwin shell.
+</p>
+</li><li> <b>Breakpoint Issue</b> I&rsquo;m trying to set a breakpoint using GDB (or a frontend like Insight or
+Eclipse), but OpenOCD complains that &quot;Info: arm7_9_common.c:213
+arm7_9_add_breakpoint(): sw breakpoint requested, but software breakpoints not enabled&quot;.
+
+<p>GDB issues software breakpoints when a normal breakpoint is requested, or to implement
+source-line single-stepping. On ARMv4T systems, like ARM7TDMI, ARM720T or ARM920T,
+software breakpoints consume one of the two available hardware breakpoints.
+</p>
+</li><li> <b>LPC2000 Flash</b> When erasing or writing LPC2000 on-chip flash, the operation fails at random.
+
+<p>Make sure the core frequency specified in the <samp>flash lpc2000</samp> line matches the
+clock at the time you&rsquo;re programming the flash. If you&rsquo;ve specified the crystal&rsquo;s
+frequency, make sure the PLL is disabled. If you&rsquo;ve specified the full core speed
+(e.g. 60MHz), make sure the PLL is enabled.
+</p>
+</li><li> <b>Amontec Chameleon</b> When debugging using an Amontec Chameleon in its JTAG Accelerator configuration,
+I keep getting &quot;Error: amt_jtagaccel.c:184 amt_wait_scan_busy(): amt_jtagaccel timed
+out while waiting for end of scan, rtck was disabled&quot;.
+
+<p>Make sure your PC&rsquo;s parallel port operates in EPP mode. You might have to try several
+settings in your PC BIOS (ECP, EPP, and different versions of those).
+</p>
+</li><li> <b>Data Aborts</b> When debugging with OpenOCD and GDB (plain GDB, Insight, or Eclipse),
+I get lots of &quot;Error: arm7_9_common.c:1771 arm7_9_read_memory():
+memory read caused data abort&quot;.
+
+<p>The errors are non-fatal, and are the result of GDB trying to trace stack frames
+beyond the last valid frame. It might be possible to prevent this by setting up
+a proper &quot;initial&quot; stack frame, if you happen to know what exactly has to
+be done, feel free to add this here.
+</p>
+<p><b>Simple:</b> In your startup code - push 8 registers of zeros onto the
+stack before calling main(). What GDB is doing is &ldquo;climbing&rdquo; the run
+time stack by reading various values on the stack using the standard
+call frame for the target. GDB keeps going - until one of 2 things
+happen <b>#1</b> an invalid frame is found, or <b>#2</b> some huge number of
+stackframes have been processed. By pushing zeros on the stack, GDB
+gracefully stops.
+</p>
+<p><b>Debugging Interrupt Service Routines</b> - In your ISR before you call
+your C code, do the same - artifically push some zeros onto the stack,
+remember to pop them off when the ISR is done.
+</p>
+<p><b>Also note:</b> If you have a multi-threaded operating system, they
+often do not <b>in the intrest of saving memory</b> waste these few
+bytes. Painful...
+</p>
+
+</li><li> <b>JTAG Reset Config</b> I get the following message in the OpenOCD console (or log file):
+&quot;Warning: arm7_9_common.c:679 arm7_9_assert_reset(): srst resets test logic, too&quot;.
+
+<p>This warning doesn&rsquo;t indicate any serious problem, as long as you don&rsquo;t want to
+debug your core right out of reset. Your .cfg file specified <samp>jtag_reset
+trst_and_srst srst_pulls_trst</samp> to tell OpenOCD that either your board,
+your debugger or your target uC (e.g. LPC2000) can&rsquo;t assert the two reset signals
+independently. With this setup, it&rsquo;s not possible to halt the core right out of
+reset, everything else should work fine.
+</p>
+</li><li> <b>USB Power</b> When using OpenOCD in conjunction with Amontec JTAGkey and the Yagarto
+toolchain (Eclipse, arm-elf-gcc, arm-elf-gdb), the debugging seems to be
+unstable. When single-stepping over large blocks of code, GDB and OpenOCD
+quit with an error message. Is there a stability issue with OpenOCD?
+
+<p>No, this is not a stability issue concerning OpenOCD. Most users have solved
+this issue by simply using a self-powered USB hub, which they connect their
+Amontec JTAGkey to. Apparently, some computers do not provide a USB power
+supply stable enough for the Amontec JTAGkey to be operated.
+</p>
+<p><b>Laptops running on battery have this problem too...</b>
+</p>
+</li><li> <b>GDB Disconnects</b> When using the Amontec JTAGkey, sometimes OpenOCD crashes with the following
+error message: &quot;Error: gdb_server.c:101 gdb_get_char(): read: 10054&quot;.
+What does that mean and what might be the reason for this?
+
+<p>Error code 10054 corresponds to WSAECONNRESET, which means that the debugger (GDB)
+has closed the connection to OpenOCD. This might be a GDB issue.
+</p>
+</li><li> <b>LPC2000 Flash</b> In the configuration file in the section where flash device configurations
+are described, there is a parameter for specifying the clock frequency
+for LPC2000 internal flash devices (e.g. <samp>flash bank $_FLASHNAME lpc2000
+0x0 0x40000 0 0 $_TARGETNAME lpc2000_v1 14746 calc_checksum</samp>), which must be
+specified in kilohertz. However, I do have a quartz crystal of a
+frequency that contains fractions of kilohertz (e.g. 14,745,600 Hz,
+i.e. 14,745.600 kHz). Is it possible to specify real numbers for the
+clock frequency?
+
+<p>No. The clock frequency specified here must be given as an integral number.
+However, this clock frequency is used by the In-Application-Programming (IAP)
+routines of the LPC2000 family only, which seems to be very tolerant concerning
+the given clock frequency, so a slight difference between the specified clock
+frequency and the actual clock frequency will not cause any trouble.
+</p>
+</li><li> <b>Command Order</b> Do I have to keep a specific order for the commands in the configuration file?
+
+<p>Well, yes and no. Commands can be given in arbitrary order, yet the
+devices listed for the JTAG scan chain must be given in the right
+order (jtag newdevice), with the device closest to the TDO-Pin being
+listed first. In general, whenever objects of the same type exist
+which require an index number, then these objects must be given in the
+right order (jtag newtap, targets and flash banks - a target
+references a jtag newtap and a flash bank references a target).
+</p>
+<p>You can use the &ldquo;scan_chain&rdquo; command to verify and display the tap order.
+</p>
+<p>Also, some commands can&rsquo;t execute until after <code>init</code> has been
+processed. Such commands include <code>nand probe</code> and everything
+else that needs to write to controller registers, perhaps for setting
+up DRAM and loading it with code.
+</p>
+<a name="faqtaporder"></a></li><li> <b>JTAG TAP Order</b> Do I have to declare the TAPS in some
+particular order?
+
+<p>Yes; whenever you have more than one, you must declare them in
+the same order used by the hardware.
+</p>
+<p>Many newer devices have multiple JTAG TAPs. For example: ST
+Microsystems STM32 chips have two TAPs, a &ldquo;boundary scan TAP&rdquo; and
+&ldquo;Cortex-M3&rdquo; TAP. Example: The STM32 reference manual, Document ID:
+RM0008, Section 26.5, Figure 259, page 651/681, the &ldquo;TDI&rdquo; pin is
+connected to the boundary scan TAP, which then connects to the
+Cortex-M3 TAP, which then connects to the TDO pin.
+</p>
+<p>Thus, the proper order for the STM32 chip is: (1) The Cortex-M3, then
+(2) The boundary scan TAP. If your board includes an additional JTAG
+chip in the scan chain (for example a Xilinx CPLD or FPGA) you could
+place it before or after the STM32 chip in the chain. For example:
+</p>
+<ul>
+<li> OpenOCD_TDI(output) -&gt; STM32 TDI Pin (BS Input)
+</li><li> STM32 BS TDO (output) -&gt; STM32 Cortex-M3 TDI (input)
+</li><li> STM32 Cortex-M3 TDO (output) -&gt; SM32 TDO Pin
+</li><li> STM32 TDO Pin (output) -&gt; Xilinx TDI Pin (input)
+</li><li> Xilinx TDO Pin -&gt; OpenOCD TDO (input)
+</li></ul>
+
+<p>The &ldquo;jtag device&rdquo; commands would thus be in the order shown below. Note:
+</p>
+<ul>
+<li> jtag newtap Xilinx tap -irlen ...
+</li><li> jtag newtap stm32  cpu -irlen ...
+</li><li> jtag newtap stm32  bs  -irlen ...
+</li><li> # Create the debug target and say where it is
+</li><li> target create stm32.cpu -chain-position stm32.cpu ...
+</li></ul>
+
+
+</li><li> <b>SYSCOMP</b> Sometimes my debugging session terminates with an error. When I look into the
+log file, I can see these error messages: Error: arm7_9_common.c:561
+arm7_9_execute_sys_speed(): timeout waiting for SYSCOMP
+
+<p>TODO.
+</p>
+</li></ol>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Tcl-Crash-Course.html#Tcl-Crash-Course" accesskey="n" rel="next">Tcl Crash Course</a>, Previous: <a href="Tcl-Scripting-API.html#Tcl-Scripting-API" accesskey="p" rel="prev">Tcl Scripting API</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

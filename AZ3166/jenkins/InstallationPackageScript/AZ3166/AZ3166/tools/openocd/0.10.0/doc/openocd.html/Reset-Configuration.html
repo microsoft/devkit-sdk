@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Reset Configuration</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Reset Configuration">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Reset Configuration">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="TAP-Declaration.html#TAP-Declaration" rel="next" title="TAP Declaration">
+<link href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" rel="prev" title="Debug Adapter Configuration">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Reset-Configuration"></a>
+<div class="header">
+<p>
+Next: <a href="TAP-Declaration.html#TAP-Declaration" accesskey="n" rel="next">TAP Declaration</a>, Previous: <a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" accesskey="p" rel="prev">Debug Adapter Configuration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Reset-Configuration-1"></a>
+<h2 class="chapter">9 Reset Configuration</h2>
+<a name="index-Reset-Configuration"></a>
+
+<p>Every system configuration may require a different reset
+configuration. This can also be quite confusing.
+Resets also interact with <var>reset-init</var> event handlers,
+which do things like setting up clocks and DRAM, and
+JTAG clock rates. (See <a href="Debug-Adapter-Configuration.html#jtagspeed">JTAG Speed</a>.)
+They can also interact with JTAG routers.
+Please see the various board files for examples.
+</p>
+<blockquote>
+<p><b>Note:</b> To maintainers and integrators:
+Reset configuration touches several things at once.
+Normally the board configuration file
+should define it and assume that the JTAG adapter supports
+everything that&rsquo;s wired up to the board&rsquo;s JTAG connector.
+</p>
+<p>However, the target configuration file could also make note
+of something the silicon vendor has done inside the chip,
+which will be true for most (or all) boards using that chip.
+And when the JTAG adapter doesn&rsquo;t support everything, the
+user configuration file will need to override parts of
+the reset configuration provided by other files.
+</p></blockquote>
+
+<a name="Types-of-Reset"></a>
+<h3 class="section">9.1 Types of Reset</h3>
+
+<p>There are many kinds of reset possible through JTAG, but
+they may not all work with a given board and adapter.
+That&rsquo;s part of why reset configuration can be error prone.
+</p>
+<ul>
+<li> <em>System Reset</em> ... the <em>SRST</em> hardware signal
+resets all chips connected to the JTAG adapter, such as processors,
+power management chips, and I/O controllers. Normally resets triggered
+with this signal behave exactly like pressing a RESET button.
+</li><li> <em>JTAG TAP Reset</em> ... the <em>TRST</em> hardware signal resets
+just the TAP controllers connected to the JTAG adapter.
+Such resets should not be visible to the rest of the system; resetting a
+device&rsquo;s TAP controller just puts that controller into a known state.
+</li><li> <em>Emulation Reset</em> ... many devices can be reset through JTAG
+commands. These resets are often distinguishable from system
+resets, either explicitly (a &quot;reset reason&quot; register says so)
+or implicitly (not all parts of the chip get reset).
+</li><li> <em>Other Resets</em> ... system-on-chip devices often support
+several other types of reset.
+You may need to arrange that a watchdog timer stops
+while debugging, preventing a watchdog reset.
+There may be individual module resets.
+</li></ul>
+
+<p>In the best case, OpenOCD can hold SRST, then reset
+the TAPs via TRST and send commands through JTAG to halt the
+CPU at the reset vector before the 1st instruction is executed.
+Then when it finally releases the SRST signal, the system is
+halted under debugger control before any code has executed.
+This is the behavior required to support the <code>reset halt</code>
+and <code>reset init</code> commands; after <code>reset init</code> a
+board-specific script might do things like setting up DRAM.
+(See <a href="General-Commands.html#resetcommand">Reset Command</a>.)
+</p>
+<a name="srstandtrstissues"></a><a name="SRST-and-TRST-Issues"></a>
+<h3 class="section">9.2 SRST and TRST Issues</h3>
+
+<p>Because SRST and TRST are hardware signals, they can have a
+variety of system-specific constraints. Some of the most
+common issues are:
+</p>
+<ul>
+<li> <em>Signal not available</em> ... Some boards don&rsquo;t wire
+SRST or TRST to the JTAG connector. Some JTAG adapters don&rsquo;t
+support such signals even if they are wired up.
+Use the <code>reset_config</code> <var>signals</var> options to say
+when either of those signals is not connected.
+When SRST is not available, your code might not be able to rely
+on controllers having been fully reset during code startup.
+Missing TRST is not a problem, since JTAG-level resets can
+be triggered using with TMS signaling.
+
+</li><li> <em>Signals shorted</em> ... Sometimes a chip, board, or
+adapter will connect SRST to TRST, instead of keeping them separate.
+Use the <code>reset_config</code> <var>combination</var> options to say
+when those signals aren&rsquo;t properly independent.
+
+</li><li> <em>Timing</em> ... Reset circuitry like a resistor/capacitor
+delay circuit, reset supervisor, or on-chip features can extend
+the effect of a JTAG adapter&rsquo;s reset for some time after the adapter
+stops issuing the reset. For example, there may be chip or board
+requirements that all reset pulses last for at least a
+certain amount of time; and reset buttons commonly have
+hardware debouncing.
+Use the <code>adapter_nsrst_delay</code> and <code>jtag_ntrst_delay</code>
+commands to say when extra delays are needed.
+
+</li><li> <em>Drive type</em> ... Reset lines often have a pullup
+resistor, letting the JTAG interface treat them as open-drain
+signals. But that&rsquo;s not a requirement, so the adapter may need
+to use push/pull output drivers.
+Also, with weak pullups it may be advisable to drive
+signals to both levels (push/pull) to minimize rise times.
+Use the <code>reset_config</code> <var>trst_type</var> and
+<var>srst_type</var> parameters to say how to drive reset signals.
+
+</li><li> <em>Special initialization</em> ... Targets sometimes need
+special JTAG initialization sequences to handle chip-specific
+issues (not limited to errata).
+For example, certain JTAG commands might need to be issued while
+the system as a whole is in a reset state (SRST active)
+but the JTAG scan chain is usable (TRST inactive).
+Many systems treat combined assertion of SRST and TRST as a
+trigger for a harder reset than SRST alone.
+Such custom reset handling is discussed later in this chapter.
+</li></ul>
+
+<p>There can also be other issues.
+Some devices don&rsquo;t fully conform to the JTAG specifications.
+Trivial system-specific differences are common, such as
+SRST and TRST using slightly different names.
+There are also vendors who distribute key JTAG documentation for
+their chips only to developers who have signed a Non-Disclosure
+Agreement (NDA).
+</p>
+<p>Sometimes there are chip-specific extensions like a requirement to use
+the normally-optional TRST signal (precluding use of JTAG adapters which
+don&rsquo;t pass TRST through), or needing extra steps to complete a TAP reset.
+</p>
+<p>In short, SRST and especially TRST handling may be very finicky,
+needing to cope with both architecture and board specific constraints.
+</p>
+<a name="Commands-for-Handling-Resets"></a>
+<h3 class="section">9.3 Commands for Handling Resets</h3>
+
+<dl>
+<dt><a name="index-adapter_005fnsrst_005fassert_005fwidth"></a>Command: <strong>adapter_nsrst_assert_width</strong> <em>milliseconds</em></dt>
+<dd><p>Minimum amount of time (in milliseconds) OpenOCD should wait
+after asserting nSRST (active-low system reset) before
+allowing it to be deasserted.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-adapter_005fnsrst_005fdelay"></a>Command: <strong>adapter_nsrst_delay</strong> <em>milliseconds</em></dt>
+<dd><p>How long (in milliseconds) OpenOCD should wait after deasserting
+nSRST (active-low system reset) before starting new JTAG operations.
+When a board has a reset button connected to SRST line it will
+probably have hardware debouncing, implying you should use this.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag_005fntrst_005fassert_005fwidth"></a>Command: <strong>jtag_ntrst_assert_width</strong> <em>milliseconds</em></dt>
+<dd><p>Minimum amount of time (in milliseconds) OpenOCD should wait
+after asserting nTRST (active-low JTAG TAP reset) before
+allowing it to be deasserted.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag_005fntrst_005fdelay"></a>Command: <strong>jtag_ntrst_delay</strong> <em>milliseconds</em></dt>
+<dd><p>How long (in milliseconds) OpenOCD should wait after deasserting
+nTRST (active-low JTAG TAP reset) before starting new JTAG operations.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-reset_005fconfig"></a>Command: <strong>reset_config</strong> <em>mode_flag ...</em></dt>
+<dd><p>This command displays or modifies the reset configuration
+of your combination of JTAG board and target in target
+configuration scripts.
+</p>
+<p>Information earlier in this section describes the kind of problems
+the command is intended to address (see <a href="#srstandtrstissues">SRST and TRST Issues</a>).
+As a rule this command belongs only in board config files,
+describing issues like <em>board doesn&rsquo;t connect TRST</em>;
+or in user config files, addressing limitations derived
+from a particular combination of interface and board.
+(An unlikely example would be using a TRST-only adapter
+with a board that only wires up SRST.)
+</p>
+<p>The <var>mode_flag</var> options can be specified in any order, but only one
+of each type &ndash; <var>signals</var>, <var>combination</var>, <var>gates</var>,
+<var>trst_type</var>, <var>srst_type</var> and <var>connect_type</var>
+&ndash; may be specified at a time.
+If you don&rsquo;t provide a new value for a given type, its previous
+value (perhaps the default) is unchanged.
+For example, this means that you don&rsquo;t need to say anything at all about
+TRST just to declare that if the JTAG adapter should want to drive SRST,
+it must explicitly be driven high (<samp>srst_push_pull</samp>).
+</p>
+<ul>
+<li> <var>signals</var> can specify which of the reset signals are connected.
+For example, If the JTAG interface provides SRST, but the board doesn&rsquo;t
+connect that signal properly, then OpenOCD can&rsquo;t use it.
+Possible values are <samp>none</samp> (the default), <samp>trst_only</samp>,
+<samp>srst_only</samp> and <samp>trst_and_srst</samp>.
+
+<blockquote>
+<p><b>Tip:</b> If your board provides SRST and/or TRST through the JTAG connector,
+you must declare that so those signals can be used.
+</p></blockquote>
+
+</li><li> The <var>combination</var> is an optional value specifying broken reset
+signal implementations.
+The default behaviour if no option given is <samp>separate</samp>,
+indicating everything behaves normally.
+<samp>srst_pulls_trst</samp> states that the
+test logic is reset together with the reset of the system (e.g. NXP
+LPC2000, &quot;broken&quot; board layout), <samp>trst_pulls_srst</samp> says that
+the system is reset together with the test logic (only hypothetical, I
+haven&rsquo;t seen hardware with such a bug, and can be worked around).
+<samp>combined</samp> implies both <samp>srst_pulls_trst</samp> and
+<samp>trst_pulls_srst</samp>.
+
+</li><li> The <var>gates</var> tokens control flags that describe some cases where
+JTAG may be unvailable during reset.
+<samp>srst_gates_jtag</samp> (default)
+indicates that asserting SRST gates the
+JTAG clock. This means that no communication can happen on JTAG
+while SRST is asserted.
+Its converse is <samp>srst_nogate</samp>, indicating that JTAG commands
+can safely be issued while SRST is active.
+
+</li><li> The <var>connect_type</var> tokens control flags that describe some cases where
+SRST is asserted while connecting to the target. <samp>srst_nogate</samp>
+is required to use this option.
+<samp>connect_deassert_srst</samp> (default)
+indicates that SRST will not be asserted while connecting to the target.
+Its converse is <samp>connect_assert_srst</samp>, indicating that SRST will
+be asserted before any target connection.
+Only some targets support this feature, STM32 and STR9 are examples.
+This feature is useful if you are unable to connect to your target due
+to incorrect options byte config or illegal program execution.
+</li></ul>
+
+<p>The optional <var>trst_type</var> and <var>srst_type</var> parameters allow the
+driver mode of each reset line to be specified. These values only affect
+JTAG interfaces with support for different driver modes, like the Amontec
+JTAGkey and JTAG Accelerator. Also, they are necessarily ignored if the
+relevant signal (TRST or SRST) is not connected.
+</p>
+<ul>
+<li> Possible <var>trst_type</var> driver modes for the test reset signal (TRST)
+are the default <samp>trst_push_pull</samp>, and <samp>trst_open_drain</samp>.
+Most boards connect this signal to a pulldown, so the JTAG TAPs
+never leave reset unless they are hooked up to a JTAG adapter.
+
+</li><li> Possible <var>srst_type</var> driver modes for the system reset signal (SRST)
+are the default <samp>srst_open_drain</samp>, and <samp>srst_push_pull</samp>.
+Most boards connect this signal to a pullup, and allow the
+signal to be pulled low by various events including system
+powerup and pressing a reset button.
+</li></ul>
+</dd></dl>
+
+<a name="Custom-Reset-Handling"></a>
+<h3 class="section">9.4 Custom Reset Handling</h3>
+<a name="index-events"></a>
+
+<p>OpenOCD has several ways to help support the various reset
+mechanisms provided by chip and board vendors.
+The commands shown in the previous section give standard parameters.
+There are also <em>event handlers</em> associated with TAPs or Targets.
+Those handlers are Tcl procedures you can provide, which are invoked
+at particular points in the reset sequence.
+</p>
+<p><em>When SRST is not an option</em> you must set
+up a <code>reset-assert</code> event handler for your target.
+For example, some JTAG adapters don&rsquo;t include the SRST signal;
+and some boards have multiple targets, and you won&rsquo;t always
+want to reset everything at once.
+</p>
+<p>After configuring those mechanisms, you might still
+find your board doesn&rsquo;t start up or reset correctly.
+For example, maybe it needs a slightly different sequence
+of SRST and/or TRST manipulations, because of quirks that
+the <code>reset_config</code> mechanism doesn&rsquo;t address;
+or asserting both might trigger a stronger reset, which
+needs special attention.
+</p>
+<p>Experiment with lower level operations, such as <code>jtag_reset</code>
+and the <code>jtag arp_*</code> operations shown here,
+to find a sequence of operations that works.
+See <a href="JTAG-Commands.html#JTAG-Commands">JTAG Commands</a>.
+When you find a working sequence, it can be used to override
+<code>jtag_init</code>, which fires during OpenOCD startup
+(see <a href="Server-Configuration.html#configurationstage">Configuration Stage</a>);
+or <code>init_reset</code>, which fires during reset processing.
+</p>
+<p>You might also want to provide some project-specific reset
+schemes. For example, on a multi-target board the standard
+<code>reset</code> command would reset all targets, but you
+may need the ability to reset only one target at time and
+thus want to avoid using the board-wide SRST signal.
+</p>
+<dl>
+<dt><a name="index-init_005freset"></a>Overridable Procedure: <strong>init_reset</strong> <em>mode</em></dt>
+<dd><p>This is invoked near the beginning of the <code>reset</code> command,
+usually to provide as much of a cold (power-up) reset as practical.
+By default it is also invoked from <code>jtag_init</code> if
+the scan chain does not respond to pure JTAG operations.
+The <var>mode</var> parameter is the parameter given to the
+low level reset command (<samp>halt</samp>,
+<samp>init</samp>, or <samp>run</samp>), <samp>setup</samp>,
+or potentially some other value.
+</p>
+<p>The default implementation just invokes <code>jtag arp_init-reset</code>.
+Replacements will normally build on low level JTAG
+operations such as <code>jtag_reset</code>.
+Operations here must not address individual TAPs
+(or their associated targets)
+until the JTAG scan chain has first been verified to work.
+</p>
+<p>Implementations must have verified the JTAG scan chain before
+they return.
+This is done by calling <code>jtag arp_init</code>
+(or <code>jtag arp_init-reset</code>).
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag-arp_005finit"></a>Command: <strong>jtag arp_init</strong></dt>
+<dd><p>This validates the scan chain using just the four
+standard JTAG signals (TMS, TCK, TDI, TDO).
+It starts by issuing a JTAG-only reset.
+Then it performs checks to verify that the scan chain configuration
+matches the TAPs it can observe.
+Those checks include checking IDCODE values for each active TAP,
+and verifying the length of their instruction registers using
+TAP <code>-ircapture</code> and <code>-irmask</code> values.
+If these tests all pass, TAP <code>setup</code> events are
+issued to all TAPs with handlers for that event.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag-arp_005finit_002dreset"></a>Command: <strong>jtag arp_init-reset</strong></dt>
+<dd><p>This uses TRST and SRST to try resetting
+everything on the JTAG scan chain
+(and anything else connected to SRST).
+It then invokes the logic of <code>jtag arp_init</code>.
+</p></dd></dl>
+
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="TAP-Declaration.html#TAP-Declaration" accesskey="n" rel="next">TAP Declaration</a>, Previous: <a href="Debug-Adapter-Configuration.html#Debug-Adapter-Configuration" accesskey="p" rel="prev">Debug Adapter Configuration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

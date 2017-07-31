@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Tcl Crash Course</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Tcl Crash Course">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Tcl Crash Course">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="License.html#License" rel="next" title="License">
+<link href="FAQ.html#FAQ" rel="prev" title="FAQ">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Tcl-Crash-Course"></a>
+<div class="header">
+<p>
+Next: <a href="License.html#License" accesskey="n" rel="next">License</a>, Previous: <a href="FAQ.html#FAQ" accesskey="p" rel="prev">FAQ</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Tcl-Crash-Course-1"></a>
+<h2 class="chapter">24 Tcl Crash Course</h2>
+<a name="index-Tcl"></a>
+
+<p>Not everyone knows Tcl - this is not intended to be a replacement for
+learning Tcl, the intent of this chapter is to give you some idea of
+how the Tcl scripts work.
+</p>
+<p>This chapter is written with two audiences in mind. (1) OpenOCD users
+who need to understand a bit more of how Jim-Tcl works so they can do
+something useful, and (2) those that want to add a new command to
+OpenOCD.
+</p>
+<a name="Tcl-Rule-_00231"></a>
+<h3 class="section">24.1 Tcl Rule #1</h3>
+<p>There is a famous joke, it goes like this:
+</p><ol>
+<li> Rule #1: The wife is always correct
+</li><li> Rule #2: If you think otherwise, See Rule #1
+</li></ol>
+
+<p>The Tcl equal is this:
+</p>
+<ol>
+<li> Rule #1: Everything is a string
+</li><li> Rule #2: If you think otherwise, See Rule #1
+</li></ol>
+
+<p>As in the famous joke, the consequences of Rule #1 are profound. Once
+you understand Rule #1, you will understand Tcl.
+</p>
+<a name="Tcl-Rule-_00231b"></a>
+<h3 class="section">24.2 Tcl Rule #1b</h3>
+<p>There is a second pair of rules.
+</p><ol>
+<li> Rule #1: Control flow does not exist. Only commands
+<br> For example: the classic FOR loop or IF statement is not a control
+flow item, they are commands, there is no such thing as control flow
+in Tcl.
+</li><li> Rule #2: If you think otherwise, See Rule #1
+<br> Actually what happens is this: There are commands that by
+convention, act like control flow key words in other languages. One of
+those commands is the word &ldquo;for&rdquo;, another command is &ldquo;if&rdquo;.
+</li></ol>
+
+<a name="Per-Rule-_00231-_002d-All-Results-are-strings"></a>
+<h3 class="section">24.3 Per Rule #1 - All Results are strings</h3>
+<p>Every Tcl command results in a string. The word &ldquo;result&rdquo; is used
+deliberatly. No result is just an empty string. Remember: <i>Rule #1 -
+Everything is a string</i>
+</p>
+<a name="Tcl-Quoting-Operators"></a>
+<h3 class="section">24.4 Tcl Quoting Operators</h3>
+<p>In life of a Tcl script, there are two important periods of time, the
+difference is subtle.
+</p><ol>
+<li> Parse Time
+</li><li> Evaluation Time
+</li></ol>
+
+<p>The two key items here are how &ldquo;quoted things&rdquo; work in Tcl. Tcl has
+three primary quoting constructs, the [square-brackets] the
+{curly-braces} and &ldquo;double-quotes&rdquo;
+</p>
+<p>By now you should know $VARIABLES always start with a $DOLLAR
+sign. BTW: To set a variable, you actually use the command &ldquo;set&rdquo;, as
+in &ldquo;set VARNAME VALUE&rdquo; much like the ancient BASIC langauge &ldquo;let x
+= 1&rdquo; statement, but without the equal sign.
+</p>
+<ul>
+<li> <b>[square-brackets]</b>
+<br> <b>[square-brackets]</b> are command substitutions. It operates much
+like Unix Shell &lsquo;back-ticks&lsquo;. The result of a [square-bracket]
+operation is exactly 1 string. <i>Remember Rule #1 - Everything is a
+string</i>. These two statements are roughly identical:
+<div class="example">
+<pre class="example">    # bash example
+    X=`date`
+    echo &quot;The Date is: $X&quot;
+    # Tcl example
+    set X [date]
+    puts &quot;The Date is: $X&quot;
+</pre></div>
+</li><li> <b>&ldquo;double-quoted-things&rdquo;</b>
+<br> <b>&ldquo;double-quoted-things&rdquo;</b> are just simply quoted
+text. $VARIABLES and [square-brackets] are expanded in place - the
+result however is exactly 1 string. <i>Remember Rule #1 - Everything
+is a string</i>
+<div class="example">
+<pre class="example">    set x &quot;Dinner&quot;
+    puts &quot;It is now \&quot;[date]\&quot;, $x is in 1 hour&quot;
+</pre></div>
+</li><li> <b>{Curly-Braces}</b>
+<br><b>{Curly-Braces}</b> are magic: $VARIABLES and [square-brackets] are
+parsed, but are NOT expanded or executed. {Curly-Braces} are like
+&rsquo;single-quote&rsquo; operators in BASH shell scripts, with the added
+feature: {curly-braces} can be nested, single quotes can not. {{{this is
+nested 3 times}}} NOTE: [date] is a bad example;
+at this writing, Jim/OpenOCD does not have a date command.
+</li></ul>
+
+<a name="Consequences-of-Rule-1_002f2_002f3_002f4"></a>
+<h3 class="section">24.5 Consequences of Rule 1/2/3/4</h3>
+
+<p>The consequences of Rule 1 are profound.
+</p>
+<a name="Tokenisation-_0026-Execution_002e"></a>
+<h4 class="subsection">24.5.1 Tokenisation &amp; Execution.</h4>
+
+<p>Of course, whitespace, blank lines and #comment lines are handled in
+the normal way.
+</p>
+<p>As a script is parsed, each (multi) line in the script file is
+tokenised and according to the quoting rules. After tokenisation, that
+line is immedatly executed.
+</p>
+<p>Multi line statements end with one or more &ldquo;still-open&rdquo;
+{curly-braces} which - eventually - closes a few lines later.
+</p>
+<a name="Command-Execution"></a>
+<h4 class="subsection">24.5.2 Command Execution</h4>
+
+<p>Remember earlier: There are no &ldquo;control flow&rdquo;
+statements in Tcl. Instead there are COMMANDS that simply act like
+control flow operators.
+</p>
+<p>Commands are executed like this:
+</p>
+<ol>
+<li> Parse the next line into (argc) and (argv[]).
+</li><li> Look up (argv[0]) in a table and call its function.
+</li><li> Repeat until End Of File.
+</li></ol>
+
+<p>It sort of works like this:
+</p><div class="example">
+<pre class="example">    for(;;){
+        ReadAndParse( &amp;argc, &amp;argv );
+
+        cmdPtr = LookupCommand( argv[0] );
+
+        (*cmdPtr-&gt;Execute)( argc, argv );
+    }
+</pre></div>
+
+<p>When the command &ldquo;proc&rdquo; is parsed (which creates a procedure
+function) it gets 3 parameters on the command line. <b>1</b> the name of
+the proc (function), <b>2</b> the list of parameters, and <b>3</b> the body
+of the function. Not the choice of words: LIST and BODY. The PROC
+command stores these items in a table somewhere so it can be found by
+&ldquo;LookupCommand()&rdquo;
+</p>
+<a name="The-FOR-command"></a>
+<h4 class="subsection">24.5.3 The FOR command</h4>
+
+<p>The most interesting command to look at is the FOR command. In Tcl,
+the FOR command is normally implemented in C. Remember, FOR is a
+command just like any other command.
+</p>
+<p>When the ascii text containing the FOR command is parsed, the parser
+produces 5 parameter strings, <i>(If in doubt: Refer to Rule #1)</i> they
+are:
+</p>
+<ol>
+<li> The ascii text &rsquo;for&rsquo;
+</li><li> The start text
+</li><li> The test expression
+</li><li> The next text
+</li><li> The body text
+</li></ol>
+
+<p>Sort of reminds you of &ldquo;main( int argc, char **argv )&rdquo; does it not?
+Remember <i>Rule #1 - Everything is a string.</i> The key point is this:
+Often many of those parameters are in {curly-braces} - thus the
+variables inside are not expanded or replaced until later.
+</p>
+<p>Remember that every Tcl command looks like the classic &ldquo;main( argc,
+argv )&rdquo; function in C. In JimTCL - they actually look like this:
+</p>
+<div class="example">
+<pre class="example">int
+MyCommand( Jim_Interp *interp,
+           int *argc,
+           Jim_Obj * const *argvs );
+</pre></div>
+
+<p>Real Tcl is nearly identical. Although the newer versions have
+introduced a byte-code parser and intepreter, but at the core, it
+still operates in the same basic way.
+</p>
+<a name="FOR-command-implementation"></a>
+<h4 class="subsection">24.5.4 FOR command implementation</h4>
+
+<p>To understand Tcl it is perhaps most helpful to see the FOR
+command. Remember, it is a COMMAND not a control flow structure.
+</p>
+<p>In Tcl there are two underlying C helper functions.
+</p>
+<p>Remember Rule #1 - You are a string.
+</p>
+<p>The <b>first</b> helper parses and executes commands found in an ascii
+string. Commands can be seperated by semicolons, or newlines. While
+parsing, variables are expanded via the quoting rules.
+</p>
+<p>The <b>second</b> helper evaluates an ascii string as a numerical
+expression and returns a value.
+</p>
+<p>Here is an example of how the <b>FOR</b> command could be
+implemented. The pseudo code below does not show error handling.
+</p><div class="example">
+<pre class="example">void Execute_AsciiString( void *interp, const char *string );
+
+int Evaluate_AsciiExpression( void *interp, const char *string );
+
+int
+MyForCommand( void *interp,
+              int argc,
+              char **argv )
+{
+   if( argc != 5 ){
+       SetResult( interp, &quot;WRONG number of parameters&quot;);
+       return ERROR;
+   }
+
+   // argv[0] = the ascii string just like C
+
+   // Execute the start statement.
+   Execute_AsciiString( interp, argv[1] );
+
+   // Top of loop test
+   for(;;){
+        i = Evaluate_AsciiExpression(interp, argv[2]);
+        if( i == 0 )
+            break;
+
+        // Execute the body
+        Execute_AsciiString( interp, argv[3] );
+
+        // Execute the LOOP part
+        Execute_AsciiString( interp, argv[4] );
+    }
+
+    // Return no error
+    SetResult( interp, &quot;&quot; );
+    return SUCCESS;
+}
+</pre></div>
+
+<p>Every other command IF, WHILE, FORMAT, PUTS, EXPR, everything works
+in the same basic way.
+</p>
+<a name="OpenOCD-Tcl-Usage"></a>
+<h3 class="section">24.6 OpenOCD Tcl Usage</h3>
+
+<a name="source-and-find-commands"></a>
+<h4 class="subsection">24.6.1 source and find commands</h4>
+<p><b>Where:</b> In many configuration files
+<br> Example: <b> source [find FILENAME] </b>
+<br>Remember the parsing rules
+</p><ol>
+<li> The <code>find</code> command is in square brackets,
+and is executed with the parameter FILENAME. It should find and return
+the full path to a file with that name; it uses an internal search path.
+The RESULT is a string, which is substituted into the command line in
+place of the bracketed <code>find</code> command.
+(Don&rsquo;t try to use a FILENAME which includes the &quot;#&quot; character.
+That character begins Tcl comments.)
+</li><li> The <code>source</code> command is executed with the resulting filename;
+it reads a file and executes as a script.
+</li></ol>
+<a name="format-command"></a>
+<h4 class="subsection">24.6.2 format command</h4>
+<p><b>Where:</b> Generally occurs in numerous places.
+<br> Tcl has no command like <b>printf()</b>, instead it has <b>format</b>, which is really more like
+<b>sprintf()</b>.
+<b>Example</b>
+</p><div class="example">
+<pre class="example">    set x 6
+    set y 7
+    puts [format &quot;The answer: %d&quot; [expr $x * $y]]
+</pre></div>
+<ol>
+<li> The SET command creates 2 variables, X and Y.
+</li><li> The double [nested] EXPR command performs math
+<br> The EXPR command produces numerical result as a string.
+<br> Refer to Rule #1
+</li><li> The format command is executed, producing a single string
+<br> Refer to Rule #1.
+</li><li> The PUTS command outputs the text.
+</li></ol>
+<a name="Body-or-Inlined-Text"></a>
+<h4 class="subsection">24.6.3 Body or Inlined Text</h4>
+<p><b>Where:</b> Various TARGET scripts.
+</p><div class="example">
+<pre class="example">#1 Good
+   proc someproc {} {
+       ... multiple lines of stuff ...
+   }
+   $_TARGETNAME configure -event FOO someproc
+#2 Good - no variables
+   $_TARGETNAME confgure -event foo &quot;this ; that;&quot;
+#3 Good Curly Braces
+   $_TARGETNAME configure -event FOO {
+        puts &quot;Time: [date]&quot;
+   }
+#4 DANGER DANGER DANGER
+   $_TARGETNAME configure -event foo &quot;puts \&quot;Time: [date]\&quot;&quot;
+</pre></div>
+<ol>
+<li> The $_TARGETNAME is an OpenOCD variable convention.
+<br><b>$_TARGETNAME</b> represents the last target created, the value changes
+each time a new target is created. Remember the parsing rules. When
+the ascii text is parsed, the <b>$_TARGETNAME</b> becomes a simple string,
+the name of the target which happens to be a TARGET (object)
+command.
+</li><li> The 2nd parameter to the <samp>-event</samp> parameter is a TCBODY
+<br>There are 4 examples:
+<ol>
+<li> The TCLBODY is a simple string that happens to be a proc name
+</li><li> The TCLBODY is several simple commands seperated by semicolons
+</li><li> The TCLBODY is a multi-line {curly-brace} quoted string
+</li><li> The TCLBODY is a string with variables that get expanded.
+</li></ol>
+
+<p>In the end, when the target event FOO occurs the TCLBODY is
+evaluated. Method <b>#1</b> and <b>#2</b> are functionally identical. For
+Method <b>#3</b> and <b>#4</b> it is more interesting. What is the TCLBODY?
+</p>
+<p>Remember the parsing rules. In case #3, {curly-braces} mean the
+$VARS and [square-brackets] are expanded later, when the EVENT occurs,
+and the text is evaluated. In case #4, they are replaced before the
+&ldquo;Target Object Command&rdquo; is executed. This occurs at the same time
+$_TARGETNAME is replaced. In case #4 the date will never
+change. {BTW: [date] is a bad example; at this writing,
+Jim/OpenOCD does not have a date command}
+</p></li></ol>
+<a name="Global-Variables"></a>
+<h4 class="subsection">24.6.4 Global Variables</h4>
+<p><b>Where:</b> You might discover this when writing your own procs <br> In
+simple terms: Inside a PROC, if you need to access a global variable
+you must say so. See also &ldquo;upvar&rdquo;. Example:
+</p><div class="example">
+<pre class="example">proc myproc { } {
+     set y 0 #Local variable Y
+     global x #Global variable X
+     puts [format &quot;X=%d, Y=%d&quot; $x $y]
+}
+</pre></div>
+<a name="Other-Tcl-Hacks"></a>
+<h3 class="section">24.7 Other Tcl Hacks</h3>
+<p><b>Dynamic variable creation</b>
+</p><div class="example">
+<pre class="example"># Dynamically create a bunch of variables.
+for { set x 0 } { $x &lt; 32 } { set x [expr $x + 1]} {
+    # Create var name
+    set vn [format &quot;BIT%d&quot; $x]
+    # Make it a global
+    global $vn
+    # Set it.
+    set $vn [expr (1 &lt;&lt; $x)]
+}
+</pre></div>
+<p><b>Dynamic proc/command creation</b>
+</p><div class="example">
+<pre class="example"># One &quot;X&quot; function - 5 uart functions.
+foreach who {A B C D E}
+   proc [format &quot;show_uart%c&quot; $who] { } &quot;show_UARTx $who&quot;
+}
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="License.html#License" accesskey="n" rel="next">License</a>, Previous: <a href="FAQ.html#FAQ" accesskey="p" rel="prev">FAQ</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

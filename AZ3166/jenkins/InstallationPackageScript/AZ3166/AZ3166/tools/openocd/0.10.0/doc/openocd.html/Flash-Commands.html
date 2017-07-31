@@ -1,0 +1,2340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Flash Commands</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Flash Commands">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Flash Commands">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Flash-Programming.html#Flash-Programming" rel="next" title="Flash Programming">
+<link href="CPU-Configuration.html#CPU-Configuration" rel="prev" title="CPU Configuration">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Flash-Commands"></a>
+<div class="header">
+<p>
+Next: <a href="Flash-Programming.html#Flash-Programming" accesskey="n" rel="next">Flash Programming</a>, Previous: <a href="CPU-Configuration.html#CPU-Configuration" accesskey="p" rel="prev">CPU Configuration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Flash-Commands-1"></a>
+<h2 class="chapter">12 Flash Commands</h2>
+
+<p>OpenOCD has different commands for NOR and NAND flash;
+the &ldquo;flash&rdquo; command works with NOR flash, while
+the &ldquo;nand&rdquo; command works with NAND flash.
+This partially reflects different hardware technologies:
+NOR flash usually supports direct CPU instruction and data bus access,
+while data from a NAND flash must be copied to memory before it can be
+used. (SPI flash must also be copied to memory before use.)
+However, the documentation also uses &ldquo;flash&rdquo; as a generic term;
+for example, &ldquo;Put flash configuration in board-specific files&rdquo;.
+</p>
+<p>Flash Steps:
+</p><ol>
+<li> Configure via the command <code>flash bank</code>
+<br> Do this in a board-specific configuration file,
+passing parameters as needed by the driver.
+</li><li> Operate on the flash via <code>flash subcommand</code>
+<br> Often commands to manipulate the flash are typed by a human, or run
+via a script in some automated way. Common tasks include writing a
+boot loader, operating system, or other data.
+</li><li> GDB Flashing
+<br> Flashing via GDB requires the flash be configured via &ldquo;flash
+bank&rdquo;, and the GDB flash features be enabled.
+See <a href="Server-Configuration.html#gdbconfiguration">GDB Configuration</a>.
+</li></ol>
+
+<p>Many CPUs have the ablity to &ldquo;boot&rdquo; from the first flash bank.
+This means that misprogramming that bank can &ldquo;brick&rdquo; a system,
+so that it can&rsquo;t boot.
+JTAG tools, like OpenOCD, are often then used to &ldquo;de-brick&rdquo; the
+board by (re)installing working boot firmware.
+</p>
+<a name="norconfiguration"></a><a name="Flash-Configuration-Commands"></a>
+<h3 class="section">12.1 Flash Configuration Commands</h3>
+<a name="index-flash-configuration"></a>
+
+<dl>
+<dt><a name="index-flash-bank"></a>Config Command: <strong>flash bank</strong> <em>name driver base size chip_width bus_width target [driver_options]</em></dt>
+<dd><p>Configures a flash bank which provides persistent storage
+for addresses from <em>base</em> to <em>base + size - 1</em>.
+These banks will often be visible to GDB through the target&rsquo;s memory map.
+In some cases, configuring a flash bank will activate extra commands;
+see the driver-specific documentation.
+</p>
+<ul>
+<li> <var>name</var> ... may be used to reference the flash bank
+in other flash commands. A number is also available.
+</li><li> <var>driver</var> ... identifies the controller driver
+associated with the flash bank being declared.
+This is usually <code>cfi</code> for external flash, or else
+the name of a microcontroller with embedded flash memory.
+See <a href="#flashdriverlist">Flash Driver List</a>.
+</li><li> <var>base</var> ... Base address of the flash chip.
+</li><li> <var>size</var> ... Size of the chip, in bytes.
+For some drivers, this value is detected from the hardware.
+</li><li> <var>chip_width</var> ... Width of the flash chip, in bytes;
+ignored for most microcontroller drivers.
+</li><li> <var>bus_width</var> ... Width of the data bus used to access the
+chip, in bytes; ignored for most microcontroller drivers.
+</li><li> <var>target</var> ... Names the target used to issue
+commands to the flash controller.
+</li><li> <var>driver_options</var> ... drivers may support, or require,
+additional parameters. See the driver-specific documentation
+for more information.
+</li></ul>
+<blockquote>
+<p><b>Note:</b> This command is not available after OpenOCD initialization has completed.
+Use it in board specific configuration files, not interactively.
+</p></blockquote>
+</dd></dl>
+
+<dl>
+<dt><a name="index-flash-banks"></a>Command: <strong>flash banks</strong></dt>
+<dd><p>Prints a one-line summary of each device that was
+declared using <code>flash bank</code>, numbered from zero.
+Note that this is the <em>plural</em> form;
+the <em>singular</em> form is a very different command.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-list"></a>Command: <strong>flash list</strong></dt>
+<dd><p>Retrieves a list of associative arrays for each device that was
+declared using <code>flash bank</code>, numbered from zero.
+This returned list can be manipulated easily from within scripts.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-probe"></a>Command: <strong>flash probe</strong> <em>num</em></dt>
+<dd><p>Identify the flash, or validate the parameters of the configured flash. Operation
+depends on the flash type.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+Most flash commands will implicitly <em>autoprobe</em> the bank;
+flash drivers can distinguish between probing and autoprobing,
+but most don&rsquo;t bother.
+</p></dd></dl>
+
+<a name="Erasing_002c-Reading_002c-Writing-to-Flash"></a>
+<h3 class="section">12.2 Erasing, Reading, Writing to Flash</h3>
+<a name="index-flash-erasing"></a>
+<a name="index-flash-reading"></a>
+<a name="index-flash-writing"></a>
+<a name="index-flash-programming"></a>
+<a name="flashprogrammingcommands"></a>
+<p>One feature distinguishing NOR flash from NAND or serial flash technologies
+is that for read access, it acts exactly like any other addressible memory.
+This means you can use normal memory read commands like <code>mdw</code> or
+<code>dump_image</code> with it, with no special <code>flash</code> subcommands.
+See <a href="General-Commands.html#memoryaccess">Memory access</a>, and <a href="General-Commands.html#imageaccess">Image access</a>.
+</p>
+<p>Write access works differently. Flash memory normally needs to be erased
+before it&rsquo;s written. Erasing a sector turns all of its bits to ones, and
+writing can turn ones into zeroes. This is why there are special commands
+for interactive erasing and writing, and why GDB needs to know which parts
+of the address space hold NOR flash memory.
+</p>
+<blockquote>
+<p><b>Note:</b> Most of these erase and write commands leverage the fact that NOR flash
+chips consume target address space. They implicitly refer to the current
+JTAG target, and map from an address in that target&rsquo;s address space
+back to a flash bank.
+A few commands use abstract addressing based on bank and sector numbers,
+and don&rsquo;t depend on searching the current target and its address space.
+Avoid confusing the two command models.
+</p></blockquote>
+
+<p>Some flash chips implement software protection against accidental writes,
+since such buggy writes could in some cases &ldquo;brick&rdquo; a system.
+For such systems, erasing and writing may require sector protection to be
+disabled first.
+Examples include CFI flash such as &ldquo;Intel Advanced Bootblock flash&rdquo;,
+and AT91SAM7 on-chip flash.
+See <a href="#flashprotect">flash protect</a>.
+</p>
+<dl>
+<dt><a name="index-flash-erase_005fsector"></a>Command: <strong>flash erase_sector</strong> <em>num first last</em></dt>
+<dd><p>Erase sectors in bank <var>num</var>, starting at sector <var>first</var>
+up to and including <var>last</var>.
+Sector numbering starts at 0.
+Providing a <var>last</var> sector of <samp>last</samp>
+specifies &quot;to the end of the flash bank&quot;.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-erase_005faddress"></a>Command: <strong>flash erase_address</strong> <em>[<samp>pad</samp>] [<samp>unlock</samp>] address length</em></dt>
+<dd><p>Erase sectors starting at <var>address</var> for <var>length</var> bytes.
+Unless <samp>pad</samp> is specified, <em>address</em> must begin a
+flash sector, and <em>address + length - 1</em> must end a sector.
+Specifying <samp>pad</samp> erases extra data at the beginning and/or
+end of the specified region, as needed to erase only full sectors.
+The flash bank to use is inferred from the <var>address</var>, and
+the specified length must stay within that bank.
+As a special case, when <var>length</var> is zero and <var>address</var> is
+the start of the bank, the whole flash is erased.
+If <samp>unlock</samp> is specified, then the flash is unprotected
+before erase starts.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-fillw"></a>Command: <strong>flash fillw</strong> <em>address word length</em></dt>
+<dt><a name="index-flash-fillh"></a>Command: <strong>flash fillh</strong> <em>address halfword length</em></dt>
+<dt><a name="index-flash-fillb"></a>Command: <strong>flash fillb</strong> <em>address byte length</em></dt>
+<dd><p>Fills flash memory with the specified <var>word</var> (32 bits),
+<var>halfword</var> (16 bits), or <var>byte</var> (8-bit) pattern,
+starting at <var>address</var> and continuing
+for <var>length</var> units (word/halfword/byte).
+No erasure is done before writing; when needed, that must be done
+before issuing this command.
+Writes are done in blocks of up to 1024 bytes, and each write is
+verified by reading back the data and comparing it to what was written.
+The flash bank to use is inferred from the <var>address</var> of
+each block, and the specified length must stay within that bank.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-write_005fbank"></a>Command: <strong>flash write_bank</strong> <em>num filename offset</em></dt>
+<dd><p>Write the binary <samp>filename</samp> to flash bank <var>num</var>,
+starting at <var>offset</var> bytes from the beginning of the bank.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-read_005fbank"></a>Command: <strong>flash read_bank</strong> <em>num filename offset length</em></dt>
+<dd><p>Read <var>length</var> bytes from the flash bank <var>num</var> starting at <var>offset</var>
+and write the contents to the binary <samp>filename</samp>.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-verify_005fbank"></a>Command: <strong>flash verify_bank</strong> <em>num filename offset</em></dt>
+<dd><p>Compare the contents of the binary file <var>filename</var> with the contents of the
+flash <var>num</var> starting at <var>offset</var>. Fails if the contents do not match.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-write_005fimage"></a>Command: <strong>flash write_image</strong> <em>[erase] [unlock] filename [offset] [type]</em></dt>
+<dd><p>Write the image <samp>filename</samp> to the current target&rsquo;s flash bank(s).
+Only loadable sections from the image are written.
+A relocation <var>offset</var> may be specified, in which case it is added
+to the base address for each section in the image.
+The file [<var>type</var>] can be specified
+explicitly as <samp>bin</samp> (binary), <samp>ihex</samp> (Intel hex),
+<samp>elf</samp> (ELF file), <samp>s19</samp> (Motorola s19).
+<samp>mem</samp>, or <samp>builder</samp>.
+The relevant flash sectors will be erased prior to programming
+if the <samp>erase</samp> parameter is given. If <samp>unlock</samp> is
+provided, then the flash banks are unlocked before erase and
+program. The flash bank to use is inferred from the address of
+each image section.
+</p>
+<blockquote>
+<p><b>Warning:</b> Be careful using the <samp>erase</samp> flag when the flash is holding
+data you want to preserve.
+Portions of the flash outside those described in the image&rsquo;s
+sections might be erased with no notice.
+</p><ul>
+<li> When a section of the image being written does not fill out all the
+sectors it uses, the unwritten parts of those sectors are necessarily
+also erased, because sectors can&rsquo;t be partially erased.
+</li><li> Data stored in sector &quot;holes&quot; between image sections are also affected.
+For example, &quot;<code>flash write_image erase ...</code>&quot; of an image with
+one byte at the beginning of a flash bank and one byte at the end
+erases the entire bank &ndash; not just the two sectors being written.
+</li></ul>
+<p>Also, when flash protection is important, you must re-apply it after
+it has been removed by the <samp>unlock</samp> flag.
+</p></blockquote>
+
+</dd></dl>
+
+<a name="Other-Flash-commands"></a>
+<h3 class="section">12.3 Other Flash commands</h3>
+<a name="index-flash-protection"></a>
+
+<dl>
+<dt><a name="index-flash-erase_005fcheck"></a>Command: <strong>flash erase_check</strong> <em>num</em></dt>
+<dd><p>Check erase state of sectors in flash bank <var>num</var>,
+and display that status.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-info"></a>Command: <strong>flash info</strong> <em>num [sectors]</em></dt>
+<dd><p>Print info about flash bank <var>num</var>, a list of protection blocks
+and their status. Use <samp>sectors</samp> to show a list of sectors instead.
+</p>
+<p>The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+This command will first query the hardware, it does not print cached
+and possibly stale information.
+</p></dd></dl>
+
+<a name="flashprotect"></a><dl>
+<dt><a name="index-flash-protect"></a>Command: <strong>flash protect</strong> <em>num first last (<samp>on</samp>|<samp>off</samp>)</em></dt>
+<dd><p>Enable (<samp>on</samp>) or disable (<samp>off</samp>) protection of flash blocks
+in flash bank <var>num</var>, starting at protection block <var>first</var>
+and continuing up to and including <var>last</var>.
+Providing a <var>last</var> block of <samp>last</samp>
+specifies &quot;to the end of the flash bank&quot;.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+The protection block is usually identical to a flash sector.
+Some devices may utilize a protection block distinct from flash sector.
+See <code>flash info</code> for a list of protection blocks.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-flash-padded_005fvalue"></a>Command: <strong>flash padded_value</strong> <em>num value</em></dt>
+<dd><p>Sets the default value used for padding any image sections, This should
+normally match the flash bank erased value. If not specified by this
+comamnd or the flash driver then it defaults to 0xff.
+</p></dd></dl>
+
+<a name="program"></a><dl>
+<dt><a name="index-program"></a>Command: <strong>program</strong> <em>filename [verify] [reset] [exit] [offset]</em></dt>
+<dd><p>This is a helper script that simplifies using OpenOCD as a standalone
+programmer. The only required parameter is <samp>filename</samp>, the others are optional.
+See <a href="Flash-Programming.html#Flash-Programming">Flash Programming</a>.
+</p></dd></dl>
+
+<a name="flashdriverlist"></a><a name="Flash-Driver-List"></a>
+<h3 class="section">12.4 Flash Driver List</h3>
+<p>As noted above, the <code>flash bank</code> command requires a driver name,
+and allows driver-specific options and behaviors.
+Some drivers also activate driver-specific commands.
+</p>
+<dl>
+<dt><a name="index-virtual"></a>Flash Driver: <strong>virtual</strong></dt>
+<dd><p>This is a special driver that maps a previously defined bank to another
+address. All bank settings will be copied from the master physical bank.
+</p>
+<p>The <var>virtual</var> driver defines one mandatory parameters,
+</p>
+<ul>
+<li> <var>master_bank</var> The bank that this virtual address refers to.
+</li></ul>
+
+<p>So in the following example addresses 0xbfc00000 and 0x9fc00000 refer to
+the flash bank defined at address 0x1fc00000. Any cmds executed on
+the virtual banks are actually performed on the physical banks.
+</p><div class="example">
+<pre class="example">flash bank $_FLASHNAME pic32mx 0x1fc00000 0 0 0 $_TARGETNAME
+flash bank vbank0 virtual 0xbfc00000 0 0 0 \
+           $_TARGETNAME $_FLASHNAME
+flash bank vbank1 virtual 0x9fc00000 0 0 0 \
+           $_TARGETNAME $_FLASHNAME
+</pre></div>
+</dd></dl>
+
+<a name="External-Flash"></a>
+<h4 class="subsection">12.4.1 External Flash</h4>
+
+<dl>
+<dt><a name="index-cfi"></a>Flash Driver: <strong>cfi</strong></dt>
+<dd><a name="index-Common-Flash-Interface"></a>
+<a name="index-CFI"></a>
+<p>The &ldquo;Common Flash Interface&rdquo; (CFI) is the main standard for
+external NOR flash chips, each of which connects to a
+specific external chip select on the CPU.
+Frequently the first such chip is used to boot the system.
+Your board&rsquo;s <code>reset-init</code> handler might need to
+configure additional chip selects using other commands (like: <code>mww</code> to
+configure a bus and its timings), or
+perhaps configure a GPIO pin that controls the &ldquo;write protect&rdquo; pin
+on the flash chip.
+The CFI driver can use a target-specific working area to significantly
+speed up operation.
+</p>
+<p>The CFI driver can accept the following optional parameters, in any order:
+</p>
+<ul>
+<li> <var>jedec_probe</var> ... is used to detect certain non-CFI flash ROMs,
+like AM29LV010 and similar types.
+</li><li> <var>x16_as_x8</var> ... when a 16-bit flash is hooked up to an 8-bit bus.
+</li><li> <var>bus_swap</var> ... when data bytes in a 16-bit flash needs to be swapped.
+</li><li> <var>data_swap</var> ... when data bytes in a 16-bit flash needs to be
+swapped when writing data values (ie. not CFI commands).
+</li></ul>
+
+<p>To configure two adjacent banks of 16 MBytes each, both sixteen bits (two bytes)
+wide on a sixteen bit bus:
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME cfi 0x00000000 0x01000000 2 2 $_TARGETNAME
+flash bank $_FLASHNAME cfi 0x01000000 0x01000000 2 2 $_TARGETNAME
+</pre></div>
+
+<p>To configure one bank of 32 MBytes
+built from two sixteen bit (two byte) wide parts wired in parallel
+to create a thirty-two bit (four byte) bus with doubled throughput:
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME cfi 0x00000000 0x02000000 2 4 $_TARGETNAME
+</pre></div>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-jtagspi-1"></a>Flash Driver: <strong>jtagspi</strong></dt>
+<dd><a name="index-Generic-JTAG2SPI-driver"></a>
+<a name="index-SPI-1"></a>
+<a name="index-jtagspi"></a>
+<a name="index-bscan_005fspi"></a>
+<p>Several FPGAs and CPLDs can retrieve their configuration (bitstream) from a
+SPI flash connected to them. To access this flash from the host, the device
+is first programmed with a special proxy bitstream that
+exposes the SPI flash on the device&rsquo;s JTAG interface. The flash can then be
+accessed through JTAG.
+</p>
+<p>Since signaling between JTAG and SPI is compatible, all that is required for
+a proxy bitstream is to connect TDI-MOSI, TDO-MISO, TCK-CLK and activate
+the flash chip select when the JTAG state machine is in SHIFT-DR. Such
+a bitstream for several Xilinx FPGAs can be found in
+<samp>contrib/loaders/flash/fpga/xilinx_bscan_spi.py</samp>. It requires
+<a href="https://github.com/m-labs/migen">migen</a> and a Xilinx toolchain to build.
+</p>
+<p>This flash bank driver requires a target on a JTAG tap and will access that
+tap directly. Since no support from the target is needed, the target can be a
+&quot;testee&quot; dummy. Since the target does not expose the flash memory
+mapping, target commands that would otherwise be expected to access the flash
+will not work. These include all <code>*_image</code> and
+<code>$target_name m*</code> commands as well as <code>program</code>. Equivalent
+functionality is available through the <code>flash write_bank</code>,
+<code>flash read_bank</code>, and <code>flash verify_bank</code> commands.
+</p>
+<ul>
+<li> <var>ir</var> ... is loaded into the JTAG IR to map the flash as the JTAG DR.
+For the bitstreams generated from <samp>xilinx_bscan_spi.py</samp> this is the
+<var>USER1</var> instruction.
+</li><li> <var>dr_length</var> ... is the length of the DR register. This will be 1 for
+<samp>xilinx_bscan_spi.py</samp> bitstreams and most other cases.
+</li></ul>
+
+<div class="example">
+<pre class="example">target create $_TARGETNAME testee -chain-position $_CHIPNAME.fpga
+set _XILINX_USER1 0x02
+set _DR_LENGTH 1
+flash bank $_FLASHNAME spi 0x0 0 0 0 \
+           $_TARGETNAME $_XILINX_USER1 $_DR_LENGTH
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpcspifi-1"></a>Flash Driver: <strong>lpcspifi</strong></dt>
+<dd><a name="index-NXP-SPI-Flash-Interface"></a>
+<a name="index-SPIFI"></a>
+<a name="index-lpcspifi"></a>
+<p>NXP&rsquo;s LPC43xx and LPC18xx families include a proprietary SPI
+Flash Interface (SPIFI) peripheral that can drive and provide
+memory mapped access to external SPI flash devices.
+</p>
+<p>The lpcspifi driver initializes this interface and provides
+program and erase functionality for these serial flash devices.
+Use of this driver <b>requires</b> a working area of at least 1kB
+to be configured on the target device; more than this will
+significantly reduce flash programming times.
+</p>
+<p>The setup command only requires the <var>base</var> parameter. All
+other parameters are ignored, and the flash size and layout
+are configured by the driver.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME lpcspifi 0x14000000 0 0 0 $_TARGETNAME
+</pre></div>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-stmsmi-1"></a>Flash Driver: <strong>stmsmi</strong></dt>
+<dd><a name="index-STMicroelectronics-Serial-Memory-Interface"></a>
+<a name="index-SMI"></a>
+<a name="index-stmsmi"></a>
+<p>Some devices form STMicroelectronics (e.g. STR75x MCU family,
+SPEAr MPU family) include a proprietary
+&ldquo;Serial Memory Interface&rdquo; (SMI) controller able to drive external
+SPI flash devices.
+Depending on specific device and board configuration, up to 4 external
+flash devices can be connected.
+</p>
+<p>SMI makes the flash content directly accessible in the CPU address
+space; each external device is mapped in a memory bank.
+CPU can directly read data, execute code and boot from SMI banks.
+Normal OpenOCD commands like <code>mdw</code> can be used to display
+the flash content.
+</p>
+<p>The setup command only requires the <var>base</var> parameter in order
+to identify the memory bank.
+All other parameters are ignored. Additional information, like
+flash size, are detected automatically.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME stmsmi 0xf8000000 0 0 0 $_TARGETNAME
+</pre></div>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-mrvlqspi"></a>Flash Driver: <strong>mrvlqspi</strong></dt>
+<dd><p>This driver supports QSPI flash controller of Marvell&rsquo;s Wireless
+Microcontroller platform.
+</p>
+<p>The flash size is autodetected based on the table of known JEDEC IDs
+hardcoded in the OpenOCD sources.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME mrvlqspi 0x0 0 0 0 $_TARGETNAME 0x46010000
+</pre></div>
+
+</dd></dl>
+
+<a name="Internal-Flash-_0028Microcontrollers_0029"></a>
+<h4 class="subsection">12.4.2 Internal Flash (Microcontrollers)</h4>
+
+<dl>
+<dt><a name="index-aduc702x"></a>Flash Driver: <strong>aduc702x</strong></dt>
+<dd><p>The ADUC702x analog microcontrollers from Analog Devices
+include internal flash and use ARM7TDMI cores.
+The aduc702x flash driver works with models ADUC7019 through ADUC7028.
+The setup command only requires the <var>target</var> argument
+since all devices in this family have the same memory layout.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME aduc702x 0 0 0 0 $_TARGETNAME
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-ambiqmicro-1"></a>Flash Driver: <strong>ambiqmicro</strong></dt>
+<dd><a name="index-ambiqmicro"></a>
+<a name="index-apollo"></a>
+<p>All members of the Apollo microcontroller family from
+Ambiq Micro include internal flash and use ARM&rsquo;s Cortex-M4 core.
+The host connects over USB to an FTDI interface that communicates
+with the target using SWD.
+</p>
+<p>The <var>ambiqmicro</var> driver reads the Chip Information Register detect
+the device class of the MCU.
+The Flash and Sram sizes directly follow device class, and are used
+to set up the flash banks.
+If this fails, the driver will use default values set to the minimum
+sizes of an Apollo chip.
+</p>
+<p>All Apollo chips have two flash banks of the same size.
+In all cases the first flash bank starts at location 0,
+and the second bank starts after the first.
+</p>
+<div class="example">
+<pre class="example"># Flash bank 0
+flash bank $_FLASHNAME ambiqmicro 0 0x00040000 0 0 $_TARGETNAME
+# Flash bank 1 - same size as bank0, starts after bank 0.
+flash bank $_FLASHNAME ambiqmicro 0x00040000 0x00040000 0 0 \
+           $_TARGETNAME
+</pre></div>
+
+<p>Flash is programmed using custom entry points into the bootloader.
+This is the only way to program the flash as no flash control registers
+are available to the user.
+</p>
+<p>The <var>ambiqmicro</var> driver adds some additional commands:
+</p>
+<dl>
+<dt><a name="index-ambiqmicro-mass_005ferase"></a>Command: <strong>ambiqmicro mass_erase</strong> <em>&lt;bank&gt;</em></dt>
+<dd><p>Erase entire bank.
+</p></dd></dl>
+<dl>
+<dt><a name="index-ambiqmicro-page_005ferase"></a>Command: <strong>ambiqmicro page_erase</strong> <em>&lt;bank&gt; &lt;first&gt; &lt;last&gt;</em></dt>
+<dd><p>Erase device pages.
+</p></dd></dl>
+<dl>
+<dt><a name="index-ambiqmicro-program_005fotp"></a>Command: <strong>ambiqmicro program_otp</strong> <em>&lt;bank&gt; &lt;offset&gt; &lt;count&gt;</em></dt>
+<dd><p>Program OTP is a one time operation to create write protected flash.
+The user writes sectors to sram starting at 0x10000010.
+Program OTP will write these sectors from sram to flash, and write protect
+the flash.
+</p></dd></dl>
+</dd></dl>
+
+<a name="at91samd"></a><dl>
+<dt><a name="index-at91samd-1"></a>Flash Driver: <strong>at91samd</strong></dt>
+<dd><a name="index-at91samd"></a>
+<p>All members of the ATSAMD, ATSAMR, ATSAML and ATSAMC microcontroller
+families from Atmel include internal flash and use ARM&rsquo;s Cortex-M0+ core.
+This driver uses the same cmd names/syntax as See <a href="#at91sam3">at91sam3</a>.
+</p>
+<dl>
+<dt><a name="index-at91samd-chip_002derase"></a>Command: <strong>at91samd chip-erase</strong></dt>
+<dd><p>Issues a complete Flash erase via the Device Service Unit (DSU). This can be
+used to erase a chip back to its factory state and does not require the
+processor to be halted.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-at91samd-set_002dsecurity"></a>Command: <strong>at91samd set-security</strong></dt>
+<dd><p>Secures the Flash via the Set Security Bit (SSB) command. This prevents access
+to the Flash and can only be undone by using the chip-erase command which
+erases the Flash contents and turns off the security bit. Warning: at this
+time, openocd will not be able to communicate with a secured chip and it is
+therefore not possible to chip-erase it without using another tool.
+</p>
+<div class="example">
+<pre class="example">at91samd set-security enable
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-at91samd-eeprom"></a>Command: <strong>at91samd eeprom</strong></dt>
+<dd><p>Shows or sets the EEPROM emulation size configuration, stored in the User Row
+of the Flash. When setting, the EEPROM size must be specified in bytes and it
+must be one of the permitted sizes according to the datasheet. Settings are
+written immediately but only take effect on MCU reset. EEPROM emulation
+requires additional firmware support and the minumum EEPROM size may not be
+the same as the minimum that the hardware supports. Set the EEPROM size to 0
+in order to disable this feature.
+</p>
+<div class="example">
+<pre class="example">at91samd eeprom
+at91samd eeprom 1024
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-at91samd-bootloader"></a>Command: <strong>at91samd bootloader</strong></dt>
+<dd><p>Shows or sets the bootloader size configuration, stored in the User Row of the
+Flash. This is called the BOOTPROT region. When setting, the bootloader size
+must be specified in bytes and it must be one of the permitted sizes according
+to the datasheet. Settings are written immediately but only take effect on
+MCU reset. Setting the bootloader size to 0 disables bootloader protection.
+</p>
+<div class="example">
+<pre class="example">at91samd bootloader
+at91samd bootloader 16384
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-at91samd-dsu_005freset_005fdeassert"></a>Command: <strong>at91samd dsu_reset_deassert</strong></dt>
+<dd><p>This command releases internal reset held by DSU
+and prepares reset vector catch in case of reset halt.
+Command is used internally in event event reset-deassert-post.
+</p></dd></dl>
+
+</dd></dl>
+
+<a name="at91sam3"></a><dl>
+<dt><a name="index-at91sam3-1"></a>Flash Driver: <strong>at91sam3</strong></dt>
+<dd><a name="index-at91sam3"></a>
+<p>All members of the AT91SAM3 microcontroller family from
+Atmel include internal flash and use ARM&rsquo;s Cortex-M3 core. The driver
+currently (6/22/09) recognizes the AT91SAM3U[1/2/4][C/E] chips. Note
+that the driver was orginaly developed and tested using the
+AT91SAM3U4E, using a SAM3U-EK eval board. Support for other chips in
+the family was cribbed from the data sheet. <em>Note to future
+readers/updaters: Please remove this worrysome comment after other
+chips are confirmed.</em>
+</p>
+<p>The AT91SAM3U4[E/C] (256K) chips have two flash banks; most other chips
+have one flash bank. In all cases the flash banks are at
+the following fixed locations:
+</p>
+<div class="example">
+<pre class="example"># Flash bank 0 - all chips
+flash bank $_FLASHNAME at91sam3 0x00080000 0 1 1 $_TARGETNAME
+# Flash bank 1 - only 256K chips
+flash bank $_FLASHNAME at91sam3 0x00100000 0 1 1 $_TARGETNAME
+</pre></div>
+
+<p>Internally, the AT91SAM3 flash memory is organized as follows.
+Unlike the AT91SAM7 chips, these are not used as parameters
+to the <code>flash bank</code> command:
+</p>
+<ul>
+<li> <em>N-Banks:</em> 256K chips have 2 banks, others have 1 bank.
+</li><li> <em>Bank Size:</em> 128K/64K Per flash bank
+</li><li> <em>Sectors:</em> 16 or 8 per bank
+</li><li> <em>SectorSize:</em> 8K Per Sector
+</li><li> <em>PageSize:</em> 256 bytes per page. Note that OpenOCD operates on &rsquo;sector&rsquo; sizes, not page sizes.
+</li></ul>
+
+<p>The AT91SAM3 driver adds some additional commands:
+</p>
+<dl>
+<dt><a name="index-at91sam3-gpnvm"></a>Command: <strong>at91sam3 gpnvm</strong></dt>
+<dt><a name="index-at91sam3-gpnvm-clear"></a>Command: <strong>at91sam3 gpnvm clear</strong> <em>number</em></dt>
+<dt><a name="index-at91sam3-gpnvm-set"></a>Command: <strong>at91sam3 gpnvm set</strong> <em>number</em></dt>
+<dt><a name="index-at91sam3-gpnvm-show"></a>Command: <strong>at91sam3 gpnvm show</strong> <em>[<samp>all</samp>|number]</em></dt>
+<dd><p>With no parameters, <code>show</code> or <code>show all</code>,
+shows the status of all GPNVM bits.
+With <code>show</code> <var>number</var>, displays that bit.
+</p>
+<p>With <code>set</code> <var>number</var> or <code>clear</code> <var>number</var>,
+modifies that GPNVM bit.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-at91sam3-info"></a>Command: <strong>at91sam3 info</strong></dt>
+<dd><p>This command attempts to display information about the AT91SAM3
+chip. <em>First</em> it read the <code>CHIPID_CIDR</code> [address 0x400e0740, see
+Section 28.2.1, page 505 of the AT91SAM3U 29/may/2009 datasheet,
+document id: doc6430A] and decodes the values. <em>Second</em> it reads the
+various clock configuration registers and attempts to display how it
+believes the chip is configured. By default, the SLOWCLK is assumed to
+be 32768 Hz, see the command <code>at91sam3 slowclk</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-at91sam3-slowclk"></a>Command: <strong>at91sam3 slowclk</strong> <em>[value]</em></dt>
+<dd><p>This command shows/sets the slow clock frequency used in the
+<code>at91sam3 info</code> command calculations above.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-at91sam4-1"></a>Flash Driver: <strong>at91sam4</strong></dt>
+<dd><a name="index-at91sam4"></a>
+<p>All members of the AT91SAM4 microcontroller family from
+Atmel include internal flash and use ARM&rsquo;s Cortex-M4 core.
+This driver uses the same cmd names/syntax as See <a href="#at91sam3">at91sam3</a>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-at91sam4l-1"></a>Flash Driver: <strong>at91sam4l</strong></dt>
+<dd><a name="index-at91sam4l"></a>
+<p>All members of the AT91SAM4L microcontroller family from
+Atmel include internal flash and use ARM&rsquo;s Cortex-M4 core.
+This driver uses the same cmd names/syntax as See <a href="#at91sam3">at91sam3</a>.
+</p>
+<p>The AT91SAM4L driver adds some additional commands:
+</p><dl>
+<dt><a name="index-at91sam4l-smap_005freset_005fdeassert"></a>Command: <strong>at91sam4l smap_reset_deassert</strong></dt>
+<dd><p>This command releases internal reset held by SMAP
+and prepares reset vector catch in case of reset halt.
+Command is used internally in event event reset-deassert-post.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-atsamv-1"></a>Flash Driver: <strong>atsamv</strong></dt>
+<dd><a name="index-atsamv"></a>
+<p>All members of the ATSAMV, ATSAMS, and ATSAME families from
+Atmel include internal flash and use ARM&rsquo;s Cortex-M7 core.
+This driver uses the same cmd names/syntax as See <a href="#at91sam3">at91sam3</a>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-at91sam7"></a>Flash Driver: <strong>at91sam7</strong></dt>
+<dd><p>All members of the AT91SAM7 microcontroller family from Atmel include
+internal flash and use ARM7TDMI cores. The driver automatically
+recognizes a number of these chips using the chip identification
+register, and autoconfigures itself.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME at91sam7 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<p>For chips which are not recognized by the controller driver, you must
+provide additional parameters in the following order:
+</p>
+<ul>
+<li> <var>chip_model</var> ... label used with <code>flash info</code>
+</li><li> <var>banks</var>
+</li><li> <var>sectors_per_bank</var>
+</li><li> <var>pages_per_sector</var>
+</li><li> <var>pages_size</var>
+</li><li> <var>num_nvm_bits</var>
+</li><li> <var>freq_khz</var> ... required if an external clock is provided,
+optional (but recommended) when the oscillator frequency is known
+</li></ul>
+
+<p>It is recommended that you provide zeroes for all of those values
+except the clock frequency, so that everything except that frequency
+will be autoconfigured.
+Knowing the frequency helps ensure correct timings for flash access.
+</p>
+<p>The flash controller handles erases automatically on a page (128/256 byte)
+basis, so explicit erase commands are not necessary for flash programming.
+However, there is an &ldquo;EraseAll&ldquo; command that can erase an entire flash
+plane (of up to 256KB), and it will be used automatically when you issue
+<code>flash erase_sector</code> or <code>flash erase_address</code> commands.
+</p>
+<dl>
+<dt><a name="index-at91sam7-gpnvm"></a>Command: <strong>at91sam7 gpnvm</strong> <em>bitnum (<samp>set</samp>|<samp>clear</samp>)</em></dt>
+<dd><p>Set or clear a &ldquo;General Purpose Non-Volatile Memory&rdquo; (GPNVM)
+bit for the processor. Each processor has a number of such bits,
+used for controlling features such as brownout detection (so they
+are not truly general purpose).
+</p><blockquote>
+<p><b>Note:</b> This assumes that the first flash bank (number 0) is associated with
+the appropriate at91sam7 target.
+</p></blockquote>
+</dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-avr"></a>Flash Driver: <strong>avr</strong></dt>
+<dd><p>The AVR 8-bit microcontrollers from Atmel integrate flash memory.
+<em>The current implementation is incomplete.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-efm32"></a>Flash Driver: <strong>efm32</strong></dt>
+<dd><p>All members of the EFM32 microcontroller family from Energy Micro include
+internal flash and use ARM Cortex-M3 cores. The driver automatically recognizes
+a number of these chips using the chip identification register, and
+autoconfigures itself.
+</p><div class="example">
+<pre class="example">flash bank $_FLASHNAME efm32 0 0 0 0 $_TARGETNAME
+</pre></div>
+<p>A special feature of efm32 controllers is that it is possible to completely disable the
+debug interface by writing the correct values to the &rsquo;Debug Lock Word&rsquo;. OpenOCD supports
+this via the following command:
+</p><div class="example">
+<pre class="example">efm32 debuglock num
+</pre></div>
+<p>The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+Note that in order for this command to take effect, the target needs to be reset.
+<em>The current implementation is incomplete. Unprotecting flash pages is not
+supported.</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-fm3"></a>Flash Driver: <strong>fm3</strong></dt>
+<dd><p>All members of the FM3 microcontroller family from Fujitsu
+include internal flash and use ARM Cortex-M3 cores.
+The <var>fm3</var> driver uses the <var>target</var> parameter to select the
+correct bank config, it can currently be one of the following:
+<code>mb9bfxx1.cpu</code>, <code>mb9bfxx2.cpu</code>, <code>mb9bfxx3.cpu</code>,
+<code>mb9bfxx4.cpu</code>, <code>mb9bfxx5.cpu</code> or <code>mb9bfxx6.cpu</code>.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME fm3 0 0 0 0 $_TARGETNAME
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-fm4"></a>Flash Driver: <strong>fm4</strong></dt>
+<dd><p>All members of the FM4 microcontroller family from Spansion (formerly Fujitsu)
+include internal flash and use ARM Cortex-M4 cores.
+The <var>fm4</var> driver uses a <var>family</var> parameter to select the
+correct bank config, it can currently be one of the following:
+<code>MB9BFx64</code>, <code>MB9BFx65</code>, <code>MB9BFx66</code>, <code>MB9BFx67</code>, <code>MB9BFx68</code>,
+<code>S6E2Cx8</code>, <code>S6E2Cx9</code>, <code>S6E2CxA</code> or <code>S6E2Dx</code>,
+with <code>x</code> treated as wildcard and otherwise case (and any trailing
+characters) ignored.
+</p>
+<div class="example">
+<pre class="example">flash bank ${_FLASHNAME}0 fm4 0x00000000 0 0 0 \
+           $_TARGETNAME S6E2CCAJ0A
+flash bank ${_FLASHNAME}1 fm4 0x00100000 0 0 0 \
+           $_TARGETNAME S6E2CCAJ0A
+</pre></div>
+<p><em>The current implementation is incomplete. Protection is not supported,
+nor is Chip Erase (only Sector Erase is implemented).</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-1"></a>Flash Driver: <strong>kinetis</strong></dt>
+<dd><a name="index-kinetis"></a>
+<p>Kx and KLx members of the Kinetis microcontroller family from Freescale include
+internal flash and use ARM Cortex-M0+ or M4 cores. The driver automatically
+recognizes flash size and a number of flash banks (1-4) using the chip
+identification register, and autoconfigures itself.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME kinetis 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<dl>
+<dt><a name="index-kinetis-fcf_005fsource"></a>Command: <strong>kinetis fcf_source</strong> <em>[protection|write]</em></dt>
+<dd><p>Select what source is used when writing to a Flash Configuration Field.
+<samp>protection</samp> mode builds FCF content from protection bits previously
+set by &rsquo;flash protect&rsquo; command.
+This mode is default. MCU is protected from unwanted locking by immediate
+writing FCF after erase of relevant sector.
+<samp>write</samp> mode enables direct write to FCF.
+Protection cannot be set by &rsquo;flash protect&rsquo; command. FCF is written along
+with the rest of a flash image.
+<em>BEWARE: Incorrect flash configuration may permanently lock the device!</em>
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-fopt"></a>Command: <strong>kinetis fopt</strong> <em>[num]</em></dt>
+<dd><p>Set value to write to FOPT byte of Flash Configuration Field.
+Used in kinetis &rsquo;fcf_source protection&rsquo; mode only.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-mdm-check_005fsecurity"></a>Command: <strong>kinetis mdm check_security</strong></dt>
+<dd><p>Checks status of device security lock. Used internally in examine-end event.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-mdm-halt"></a>Command: <strong>kinetis mdm halt</strong></dt>
+<dd><p>Issues a halt via the MDM-AP. This command can be used to break a watchdog reset
+loop when connecting to an unsecured target.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-mdm-mass_005ferase"></a>Command: <strong>kinetis mdm mass_erase</strong></dt>
+<dd><p>Issues a complete flash erase via the MDM-AP. This can be used to erase a chip
+back to its factory state, removing security. It does not require the processor
+to be halted, however the target will remain in a halted state after this
+command completes.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-nvm_005fpartition"></a>Command: <strong>kinetis nvm_partition</strong></dt>
+<dd><p>For FlexNVM devices only (KxxDX and KxxFX).
+Command shows or sets data flash or EEPROM backup size in kilobytes,
+sets two EEPROM blocks sizes in bytes and enables/disables loading
+of EEPROM contents to FlexRAM during reset.
+</p>
+<p>For details see device reference manual, Flash Memory Module,
+Program Partition command.
+</p>
+<p>Setting is possible only once after mass_erase.
+Reset the device after partition setting.
+</p>
+<p>Show partition size:
+</p><div class="example">
+<pre class="example">kinetis nvm_partition info
+</pre></div>
+
+<p>Set 32 KB data flash, rest of FlexNVM is EEPROM backup. EEPROM has two blocks
+of 512 and 1536 bytes and its contents is loaded to FlexRAM during reset:
+</p><div class="example">
+<pre class="example">kinetis nvm_partition dataflash 32 512 1536 on
+</pre></div>
+
+<p>Set 16 KB EEPROM backup, rest of FlexNVM is a data flash. EEPROM has two blocks
+of 1024 bytes and its contents is not loaded to FlexRAM during reset:
+</p><div class="example">
+<pre class="example">kinetis nvm_partition eebkp 16 1024 1024 off
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-mdm-reset"></a>Command: <strong>kinetis mdm reset</strong></dt>
+<dd><p>Issues a reset via the MDM-AP. This causes the MCU to output a low pulse on the
+RESET pin, which can be used to reset other hardware on board.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis-disable_005fwdog"></a>Command: <strong>kinetis disable_wdog</strong></dt>
+<dd><p>For Kx devices only (KLx has different COP watchdog, it is not supported).
+Command disables watchdog timer.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-kinetis_005fke-1"></a>Flash Driver: <strong>kinetis_ke</strong></dt>
+<dd><a name="index-kinetis_005fke"></a>
+<p>KE members of the Kinetis microcontroller family from Freescale include
+internal flash and use ARM Cortex-M0+. The driver automatically recognizes
+the KE family and sub-family using the chip identification register, and
+autoconfigures itself.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME kinetis_ke 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<dl>
+<dt><a name="index-kinetis_005fke-mdm-check_005fsecurity"></a>Command: <strong>kinetis_ke mdm check_security</strong></dt>
+<dd><p>Checks status of device security lock. Used internally in examine-end event.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis_005fke-mdm-mass_005ferase"></a>Command: <strong>kinetis_ke mdm mass_erase</strong></dt>
+<dd><p>Issues a complete Flash erase via the MDM-AP.
+This can be used to erase a chip back to its factory state.
+Command removes security lock from a device (use of SRST highly recommended).
+It does not require the processor to be halted.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-kinetis_005fke-disable_005fwdog"></a>Command: <strong>kinetis_ke disable_wdog</strong></dt>
+<dd><p>Command disables watchdog timer.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc2000"></a>Flash Driver: <strong>lpc2000</strong></dt>
+<dd><p>This is the driver to support internal flash of all members of the
+LPC11(x)00 and LPC1300 microcontroller families and most members of
+the LPC800, LPC1500, LPC1700, LPC1800, LPC2000, LPC4000 and LPC54100
+microcontroller families from NXP.
+</p>
+<blockquote>
+<p><b>Note:</b> There are LPC2000 devices which are not supported by the <var>lpc2000</var>
+driver:
+The LPC2888 is supported by the <var>lpc288x</var> driver.
+The LPC29xx family is supported by the <var>lpc2900</var> driver.
+</p></blockquote>
+
+<p>The <var>lpc2000</var> driver defines two mandatory and one optional parameters,
+which must appear in the following order:
+</p>
+<ul>
+<li> <var>variant</var> ... required, may be
+<samp>lpc2000_v1</samp> (older LPC21xx and LPC22xx)
+<samp>lpc2000_v2</samp> (LPC213x, LPC214x, LPC210[123], LPC23xx and LPC24xx)
+<samp>lpc1700</samp> (LPC175x and LPC176x and LPC177x/8x)
+<samp>lpc4300</samp> - available also as <samp>lpc1800</samp> alias (LPC18x[2357] and
+LPC43x[2357])
+<samp>lpc800</samp> (LPC8xx)
+<samp>lpc1100</samp> (LPC11(x)xx and LPC13xx)
+<samp>lpc1500</samp> (LPC15xx)
+<samp>lpc54100</samp> (LPC541xx)
+<samp>lpc4000</samp> (LPC40xx)
+or <samp>auto</samp> - automatically detects flash variant and size for LPC11(x)00,
+LPC8xx, LPC13xx, LPC17xx and LPC40xx
+</li><li> <var>clock_kHz</var> ... the frequency, in kiloHertz,
+at which the core is running
+</li><li> <samp>calc_checksum</samp> ... optional (but you probably want to provide this!),
+telling the driver to calculate a valid checksum for the exception vector table.
+<blockquote>
+<p><b>Note:</b> If you don&rsquo;t provide <samp>calc_checksum</samp> when you&rsquo;re writing the vector
+table, the boot ROM will almost certainly ignore your flash image.
+However, if you do provide it,
+with most tool chains <code>verify_image</code> will fail.
+</p></blockquote>
+</li></ul>
+
+<p>LPC flashes don&rsquo;t require the chip and bus width to be specified.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME lpc2000 0x0 0x7d000 0 0 $_TARGETNAME \
+      lpc2000_v2 14765 calc_checksum
+</pre></div>
+
+<dl>
+<dt><a name="index-lpc2000-part_005fid"></a>Command: <strong>lpc2000 part_id</strong> <em>bank</em></dt>
+<dd><p>Displays the four byte part identifier associated with
+the specified flash <var>bank</var>.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc288x"></a>Flash Driver: <strong>lpc288x</strong></dt>
+<dd><p>The LPC2888 microcontroller from NXP needs slightly different flash
+support from its lpc2000 siblings.
+The <var>lpc288x</var> driver defines one mandatory parameter,
+the programming clock rate in Hz.
+LPC flashes don&rsquo;t require the chip and bus width to be specified.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME lpc288x 0 0 0 0 $_TARGETNAME 12000000
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc2900"></a>Flash Driver: <strong>lpc2900</strong></dt>
+<dd><p>This driver supports the LPC29xx ARM968E based microcontroller family
+from NXP.
+</p>
+<p>The predefined parameters <var>base</var>, <var>size</var>, <var>chip_width</var> and
+<var>bus_width</var> of the <code>flash bank</code> command are ignored. Flash size and
+sector layout are auto-configured by the driver.
+The driver has one additional mandatory parameter: The CPU clock rate
+(in kHz) at the time the flash operations will take place. Most of the time this
+will not be the crystal frequency, but a higher PLL frequency. The
+<code>reset-init</code> event handler in the board script is usually the place where
+you start the PLL.
+</p>
+<p>The driver rejects flashless devices (currently the LPC2930).
+</p>
+<p>The EEPROM in LPC2900 devices is not mapped directly into the address space.
+It must be handled much more like NAND flash memory, and will therefore be
+handled by a separate <code>lpc2900_eeprom</code> driver (not yet available).
+</p>
+<p>Sector protection in terms of the LPC2900 is handled transparently. Every time a
+sector needs to be erased or programmed, it is automatically unprotected.
+What is shown as protection status in the <code>flash info</code> command, is
+actually the LPC2900 <em>sector security</em>. This is a mechanism to prevent a
+sector from ever being erased or programmed again. As this is an irreversible
+mechanism, it is handled by a special command (<code>lpc2900 secure_sector</code>),
+and not by the standard <code>flash protect</code> command.
+</p>
+<p>Example for a 125 MHz clock frequency:
+</p><div class="example">
+<pre class="example">flash bank $_FLASHNAME lpc2900 0 0 0 0 $_TARGETNAME 125000
+</pre></div>
+
+<p>Some <code>lpc2900</code>-specific commands are defined. In the following command list,
+the <var>bank</var> parameter is the bank number as obtained by the
+<code>flash banks</code> command.
+</p>
+<dl>
+<dt><a name="index-lpc2900-signature"></a>Command: <strong>lpc2900 signature</strong> <em>bank</em></dt>
+<dd><p>Calculates a 128-bit hash value, the <em>signature</em>, from the whole flash
+content. This is a hardware feature of the flash block, hence the calculation is
+very fast. You may use this to verify the content of a programmed device against
+a known signature.
+Example:
+</p><div class="example">
+<pre class="example">lpc2900 signature 0
+  signature: 0x5f40cdc8:0xc64e592e:0x10490f89:0x32a0f317
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc2900-read_005fcustom"></a>Command: <strong>lpc2900 read_custom</strong> <em>bank filename</em></dt>
+<dd><p>Reads the 912 bytes of customer information from the flash index sector, and
+saves it to a file in binary format.
+Example:
+</p><div class="example">
+<pre class="example">lpc2900 read_custom 0 /path_to/customer_info.bin
+</pre></div>
+</dd></dl>
+
+<p>The index sector of the flash is a <em>write-only</em> sector. It cannot be
+erased! In order to guard against unintentional write access, all following
+commands need to be preceeded by a successful call to the <code>password</code>
+command:
+</p>
+<dl>
+<dt><a name="index-lpc2900-password"></a>Command: <strong>lpc2900 password</strong> <em>bank password</em></dt>
+<dd><p>You need to use this command right before each of the following commands:
+<code>lpc2900 write_custom</code>, <code>lpc2900 secure_sector</code>,
+<code>lpc2900 secure_jtag</code>.
+</p>
+<p>The password string is fixed to &quot;I_know_what_I_am_doing&quot;.
+Example:
+</p><div class="example">
+<pre class="example">lpc2900 password 0 I_know_what_I_am_doing
+  Potentially dangerous operation allowed in next command!
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc2900-write_005fcustom"></a>Command: <strong>lpc2900 write_custom</strong> <em>bank filename type</em></dt>
+<dd><p>Writes the content of the file into the customer info space of the flash index
+sector. The filetype can be specified with the <var>type</var> field. Possible values
+for <var>type</var> are: <var>bin</var> (binary), <var>ihex</var> (Intel hex format),
+<var>elf</var> (ELF binary) or <var>s19</var> (Motorola S-records). The file must
+contain a single section, and the contained data length must be exactly
+912 bytes.
+</p><blockquote>
+<p><b>Attention:</b> This cannot be reverted! Be careful!
+</p></blockquote>
+<p>Example:
+</p><div class="example">
+<pre class="example">lpc2900 write_custom 0 /path_to/customer_info.bin bin
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc2900-secure_005fsector"></a>Command: <strong>lpc2900 secure_sector</strong> <em>bank first last</em></dt>
+<dd><p>Secures the sector range from <var>first</var> to <var>last</var> (including) against
+further program and erase operations. The sector security will be effective
+after the next power cycle.
+</p><blockquote>
+<p><b>Attention:</b> This cannot be reverted! Be careful!
+</p></blockquote>
+<p>Secured sectors appear as <em>protected</em> in the <code>flash info</code> command.
+Example:
+</p><div class="example">
+<pre class="example">lpc2900 secure_sector 0 1 1
+flash info 0
+  #0 : lpc2900 at 0x20000000, size 0x000c0000, (...)
+          #  0: 0x00000000 (0x2000 8kB) not protected
+          #  1: 0x00002000 (0x2000 8kB) protected
+          #  2: 0x00004000 (0x2000 8kB) not protected
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-lpc2900-secure_005fjtag"></a>Command: <strong>lpc2900 secure_jtag</strong> <em>bank</em></dt>
+<dd><p>Irreversibly disable the JTAG port. The new JTAG security setting will be
+effective after the next power cycle.
+</p><blockquote>
+<p><b>Attention:</b> This cannot be reverted! Be careful!
+</p></blockquote>
+<p>Examples:
+</p><div class="example">
+<pre class="example">lpc2900 secure_jtag 0
+</pre></div>
+</dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-mdr"></a>Flash Driver: <strong>mdr</strong></dt>
+<dd><p>This drivers handles the integrated NOR flash on Milandr Cortex-M
+based controllers. A known limitation is that the Info memory can&rsquo;t be
+read or verified as it&rsquo;s not memory mapped.
+</p>
+<div class="example">
+<pre class="example">flash bank &lt;name&gt; mdr &lt;base&gt; &lt;size&gt; \
+      0 0 &lt;target#&gt; <var>type</var> <var>page_count</var> <var>sec_count</var>
+</pre></div>
+
+<ul>
+<li> <var>type</var> - 0 for main memory, 1 for info memory
+</li><li> <var>page_count</var> - total number of pages
+</li><li> <var>sec_count</var> - number of sector per page count
+</li></ul>
+
+<p>Example usage:
+</p><div class="example">
+<pre class="example">if { [info exists IMEMORY] &amp;&amp; [string equal $IMEMORY true] } {
+   flash bank ${_CHIPNAME}_info.flash mdr 0x00000000 0x01000 \
+         0 0 $_TARGETNAME 1 1 4
+} else {
+   flash bank $_CHIPNAME.flash mdr 0x00000000 0x20000 \
+         0 0 $_TARGETNAME 0 32 4
+}
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4"></a>Flash Driver: <strong>niietcm4</strong></dt>
+<dd><p>This drivers handles the integrated NOR flash on NIIET Cortex-M4
+based controllers. Flash size and sector layout are auto-configured by the driver.
+Main flash memory is called &quot;Bootflash&quot; and has main region and info region.
+Info region is NOT memory mapped by default,
+but it can replace first part of main region if needed.
+Full erase, single and block writes are supported for both main and info regions.
+There is additional not memory mapped flash called &quot;Userflash&quot;, which
+also have division into regions: main and info.
+Purpose of userflash - to store system and user settings.
+Driver has special commands to perform operations with this memmory.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME niietcm4 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Some niietcm4-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-niietcm4-uflash_005fread_005fbyte"></a>Command: <strong>niietcm4 uflash_read_byte</strong> <em>bank ('main'|'info') address</em></dt>
+<dd><p>Read byte from main or info userflash region.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-uflash_005fwrite_005fbyte"></a>Command: <strong>niietcm4 uflash_write_byte</strong> <em>bank ('main'|'info') address value</em></dt>
+<dd><p>Write byte to main or info userflash region.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-uflash_005ffull_005ferase"></a>Command: <strong>niietcm4 uflash_full_erase</strong> <em>bank</em></dt>
+<dd><p>Erase all userflash including info region.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-uflash_005ferase"></a>Command: <strong>niietcm4 uflash_erase</strong> <em>bank ('main'|'info') first_sector last_sector</em></dt>
+<dd><p>Erase sectors of main or info userflash region, starting at sector first up to and including last.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-uflash_005fprotect_005fcheck"></a>Command: <strong>niietcm4 uflash_protect_check</strong> <em>bank ('main'|'info')</em></dt>
+<dd><p>Check sectors protect.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-uflash_005fprotect"></a>Command: <strong>niietcm4 uflash_protect</strong> <em>bank ('main'|'info') first_sector last_sector ('on'|'off')</em></dt>
+<dd><p>Protect sectors of main or info userflash region, starting at sector first up to and including last.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-bflash_005finfo_005fremap"></a>Command: <strong>niietcm4 bflash_info_remap</strong> <em>bank ('on'|'off')</em></dt>
+<dd><p>Enable remapping bootflash info region to 0x00000000 (or 0x40000000 if external memory boot used).
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-extmem_005fcfg"></a>Command: <strong>niietcm4 extmem_cfg</strong> <em>bank ('gpioa'|'gpiob'|'gpioc'|'gpiod'|'gpioe'|'gpiof'|'gpiog'|'gpioh') pin_num ('func1'|'func3')</em></dt>
+<dd><p>Configure external memory interface for boot.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-service_005fmode_005ferase"></a>Command: <strong>niietcm4 service_mode_erase</strong> <em>bank</em></dt>
+<dd><p>Perform emergency erase of all flash (bootflash and userflash).
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-niietcm4-driver_005finfo"></a>Command: <strong>niietcm4 driver_info</strong> <em>bank</em></dt>
+<dd><p>Show information about flash driver.
+</p></dd></dl>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-nrf51"></a>Flash Driver: <strong>nrf51</strong></dt>
+<dd><p>All members of the nRF51 microcontroller families from Nordic Semiconductor
+include internal flash and use ARM Cortex-M0 core.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME nrf51 0 0x00000000 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Some nrf51-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-nrf51-mass_005ferase"></a>Command: <strong>nrf51 mass_erase</strong></dt>
+<dd><p>Erases the contents of the code memory and user information
+configuration registers as well. It must be noted that this command
+works only for chips that do not have factory pre-programmed region 0
+code.
+</p></dd></dl>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-ocl"></a>Flash Driver: <strong>ocl</strong></dt>
+<dd><p>This driver is an implementation of the &ldquo;on chip flash loader&rdquo;
+protocol proposed by Pavel Chromy.
+</p>
+<p>It is a minimalistic command-response protocol intended to be used
+over a DCC when communicating with an internal or external flash
+loader running from RAM. An example implementation for AT91SAM7x is
+available in <samp>contrib/loaders/flash/at91sam7x/</samp>.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME ocl 0 0 0 0 $_TARGETNAME
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-pic32mx"></a>Flash Driver: <strong>pic32mx</strong></dt>
+<dd><p>The PIC32MX microcontrollers are based on the MIPS 4K cores,
+and integrate flash memory.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME pix32mx 0x1fc00000 0 0 0 $_TARGETNAME
+flash bank $_FLASHNAME pix32mx 0x1d000000 0 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Some pic32mx-specific commands are defined:
+</p><dl>
+<dt><a name="index-pic32mx-pgm_005fword"></a>Command: <strong>pic32mx pgm_word</strong> <em>address value bank</em></dt>
+<dd><p>Programs the specified 32-bit <var>value</var> at the given <var>address</var>
+in the specified chip <var>bank</var>.
+</p></dd></dl>
+<dl>
+<dt><a name="index-pic32mx-unlock"></a>Command: <strong>pic32mx unlock</strong> <em>bank</em></dt>
+<dd><p>Unlock and erase specified chip <var>bank</var>.
+This will remove any Code Protection.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-psoc4"></a>Flash Driver: <strong>psoc4</strong></dt>
+<dd><p>All members of the PSoC 41xx/42xx microcontroller family from Cypress
+include internal flash and use ARM Cortex-M0 cores.
+The driver automatically recognizes a number of these chips using
+the chip identification register, and autoconfigures itself.
+</p>
+<p>Note: Erased internal flash reads as 00.
+System ROM of PSoC 4 does not implement erase of a flash sector.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME psoc4 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<p>psoc4-specific commands
+</p><dl>
+<dt><a name="index-psoc4-flash_005fautoerase"></a>Command: <strong>psoc4 flash_autoerase</strong> <em>num (on|off)</em></dt>
+<dd><p>Enables or disables autoerase mode for a flash bank.
+</p>
+<p>If flash_autoerase is off, use mass_erase before flash programming.
+Flash erase command fails if region to erase is not whole flash memory.
+</p>
+<p>If flash_autoerase is on, a sector is both erased and programmed in one
+system ROM call. Flash erase command is ignored.
+This mode is suitable for gdb load.
+</p>
+<p>The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-psoc4-mass_005ferase"></a>Command: <strong>psoc4 mass_erase</strong> <em>num</em></dt>
+<dd><p>Erases the contents of the flash memory, protection and security lock.
+</p>
+<p>The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-sim3x"></a>Flash Driver: <strong>sim3x</strong></dt>
+<dd><p>All members of the SiM3 microcontroller family from Silicon Laboratories
+include internal flash and use ARM Cortex-M3 cores. It supports both JTAG
+and SWD interface.
+The <var>sim3x</var> driver tries to probe the device to auto detect the MCU.
+If this failes, it will use the <var>size</var> parameter as the size of flash bank.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME sim3x 0 $_CPUROMSIZE 0 0 $_TARGETNAME
+</pre></div>
+
+<p>There are 2 commands defined in the <var>sim3x</var> driver:
+</p>
+<dl>
+<dt><a name="index-sim3x-mass_005ferase"></a>Command: <strong>sim3x mass_erase</strong></dt>
+<dd><p>Erases the complete flash. This is used to unlock the flash.
+And this command is only possible when using the SWD interface.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-sim3x-lock"></a>Command: <strong>sim3x lock</strong></dt>
+<dd><p>Lock the flash. To unlock use the <code>sim3x mass_erase</code> command.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-stellaris"></a>Flash Driver: <strong>stellaris</strong></dt>
+<dd><p>All members of the Stellaris LM3Sxxx, LM4x and Tiva C microcontroller
+families from Texas Instruments include internal flash. The driver
+automatically recognizes a number of these chips using the chip
+identification register, and autoconfigures itself.
+<a name="DOCF6" href="#FOOT6"><sup>6</sup></a>
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME stellaris 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<dl>
+<dt><a name="index-stellaris-recover"></a>Command: <strong>stellaris recover</strong></dt>
+<dd><p>Performs the <em>Recovering a &quot;Locked&quot; Device</em> procedure to restore
+the flash and its associated nonvolatile registers to their factory
+default values (erased). This is the only way to remove flash
+protection or re-enable debugging if that capability has been
+disabled.
+</p>
+<p>Note that the final &quot;power cycle the chip&quot; step in this procedure
+must be performed by hand, since OpenOCD can&rsquo;t do it.
+</p><blockquote>
+<p><b>Warning:</b> if more than one Stellaris chip is connected, the procedure is
+applied to all of them.
+</p></blockquote>
+</dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-stm32f1x"></a>Flash Driver: <strong>stm32f1x</strong></dt>
+<dd><p>All members of the STM32F0, STM32F1 and STM32F3 microcontroller families
+from ST Microelectronics include internal flash and use ARM Cortex-M0/M3/M4 cores.
+The driver automatically recognizes a number of these chips using
+the chip identification register, and autoconfigures itself.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME stm32f1x 0 0 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Note that some devices have been found that have a flash size register that contains
+an invalid value, to workaround this issue you can override the probed value used by
+the flash driver.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME stm32f1x 0 0x20000 0 0 $_TARGETNAME
+</pre></div>
+
+<p>If you have a target with dual flash banks then define the second bank
+as per the following example.
+</p><div class="example">
+<pre class="example">flash bank $_FLASHNAME stm32f1x 0x08080000 0 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Some stm32f1x-specific commands
+<a name="DOCF7" href="#FOOT7"><sup>7</sup></a>
+are defined:
+</p>
+<dl>
+<dt><a name="index-stm32f1x-lock"></a>Command: <strong>stm32f1x lock</strong> <em>num</em></dt>
+<dd><p>Locks the entire stm32 device.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-stm32f1x-unlock"></a>Command: <strong>stm32f1x unlock</strong> <em>num</em></dt>
+<dd><p>Unlocks the entire stm32 device.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-stm32f1x-options_005fread"></a>Command: <strong>stm32f1x options_read</strong> <em>num</em></dt>
+<dd><p>Read and display the stm32 option bytes written by
+the <code>stm32f1x options_write</code> command.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-stm32f1x-options_005fwrite"></a>Command: <strong>stm32f1x options_write</strong> <em>num (<samp>SWWDG</samp>|<samp>HWWDG</samp>) (<samp>RSTSTNDBY</samp>|<samp>NORSTSTNDBY</samp>) (<samp>RSTSTOP</samp>|<samp>NORSTSTOP</samp>)</em></dt>
+<dd><p>Writes the stm32 option byte with the specified values.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-stm32f2x"></a>Flash Driver: <strong>stm32f2x</strong></dt>
+<dd><p>All members of the STM32F2, STM32F4 and STM32F7 microcontroller families from ST Microelectronics
+include internal flash and use ARM Cortex-M3/M4/M7 cores.
+The driver automatically recognizes a number of these chips using
+the chip identification register, and autoconfigures itself.
+</p>
+<p>Note that some devices have been found that have a flash size register that contains
+an invalid value, to workaround this issue you can override the probed value used by
+the flash driver.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME stm32f2x 0 0x20000 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Some stm32f2x-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-stm32f2x-lock"></a>Command: <strong>stm32f2x lock</strong> <em>num</em></dt>
+<dd><p>Locks the entire stm32 device.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-stm32f2x-unlock"></a>Command: <strong>stm32f2x unlock</strong> <em>num</em></dt>
+<dd><p>Unlocks the entire stm32 device.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-stm32f2x-options_005fread"></a>Command: <strong>stm32f2x options_read</strong> <em>num</em></dt>
+<dd><p>Reads and displays user options and (where implemented) boot_addr0 and boot_addr1.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-stm32f2x-options_005fwrite"></a>Command: <strong>stm32f2x options_write</strong> <em>num user_options boot_addr0 boot_addr1</em></dt>
+<dd><p>Writes user options and (where implemented) boot_addr0 and boot_addr1 in raw format.
+Warning: The meaning of the various bits depends on the device, always check datasheet!
+The <var>num</var> parameter is a value shown by <code>flash banks</code>, user_options a
+12 bit value, consisting of bits 31-28 and 7-0 of FLASH_OPTCR, boot_addr0 and boot_addr1
+two halfwords (of FLASH_OPTCR1).
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-stm32lx"></a>Flash Driver: <strong>stm32lx</strong></dt>
+<dd><p>All members of the STM32L microcontroller families from ST Microelectronics
+include internal flash and use ARM Cortex-M3 and Cortex-M0+ cores.
+The driver automatically recognizes a number of these chips using
+the chip identification register, and autoconfigures itself.
+</p>
+<p>Note that some devices have been found that have a flash size register that contains
+an invalid value, to workaround this issue you can override the probed value used by
+the flash driver. If you use 0 as the bank base address, it tells the
+driver to autodetect the bank location assuming you&rsquo;re configuring the
+second bank.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME stm32lx 0x08000000 0x20000 0 0 $_TARGETNAME
+</pre></div>
+
+<p>Some stm32lx-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-stm32lx-mass_005ferase"></a>Command: <strong>stm32lx mass_erase</strong> <em>num</em></dt>
+<dd><p>Mass erases the entire stm32lx device (all flash banks and EEPROM
+data). This is the only way to unlock a protected flash (unless RDP
+Level is 2 which can&rsquo;t be unlocked at all).
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-str7x"></a>Flash Driver: <strong>str7x</strong></dt>
+<dd><p>All members of the STR7 microcontroller family from ST Microelectronics
+include internal flash and use ARM7TDMI cores.
+The <var>str7x</var> driver defines one mandatory parameter, <var>variant</var>,
+which is either <code>STR71x</code>, <code>STR73x</code> or <code>STR75x</code>.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME str7x \
+      0x40000000 0x00040000 0 0 $_TARGETNAME STR71x
+</pre></div>
+
+<dl>
+<dt><a name="index-str7x-disable_005fjtag"></a>Command: <strong>str7x disable_jtag</strong> <em>bank</em></dt>
+<dd><p>Activate the Debug/Readout protection mechanism
+for the specified flash bank.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-str9x"></a>Flash Driver: <strong>str9x</strong></dt>
+<dd><p>Most members of the STR9 microcontroller family from ST Microelectronics
+include internal flash and use ARM966E cores.
+The str9 needs the flash controller to be configured using
+the <code>str9x flash_config</code> command prior to Flash programming.
+</p>
+<div class="example">
+<pre class="example">flash bank $_FLASHNAME str9x 0x40000000 0x00040000 0 0 $_TARGETNAME
+str9x flash_config 0 4 2 0 0x80000
+</pre></div>
+
+<dl>
+<dt><a name="index-str9x-flash_005fconfig"></a>Command: <strong>str9x flash_config</strong> <em>num bbsr nbbsr bbadr nbbadr</em></dt>
+<dd><p>Configures the str9 flash controller.
+The <var>num</var> parameter is a value shown by <code>flash banks</code>.
+</p>
+<ul>
+<li> <var>bbsr</var> - Boot Bank Size register
+</li><li> <var>nbbsr</var> - Non Boot Bank Size register
+</li><li> <var>bbadr</var> - Boot Bank Start Address register
+</li><li> <var>nbbadr</var> - Boot Bank Start Address register
+</li></ul>
+</dd></dl>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-1"></a>Flash Driver: <strong>str9xpec</strong></dt>
+<dd><a name="index-str9xpec"></a>
+
+<p>Only use this driver for locking/unlocking the device or configuring the option bytes.
+Use the standard str9 driver for programming.
+Before using the flash commands the turbo mode must be enabled using the
+<code>str9xpec enable_turbo</code> command.
+</p>
+<p>Here is some background info to help
+you better understand how this driver works. OpenOCD has two flash drivers for
+the str9:
+</p><ol>
+<li> Standard driver <samp>str9x</samp> programmed via the str9 core. Normally used for
+flash programming as it is faster than the <samp>str9xpec</samp> driver.
+</li><li> Direct programming <samp>str9xpec</samp> using the flash controller. This is an
+ISC compilant (IEEE 1532) tap connected in series with the str9 core. The str9
+core does not need to be running to program using this flash driver. Typical use
+for this driver is locking/unlocking the target and programming the option bytes.
+</li></ol>
+
+<p>Before we run any commands using the <samp>str9xpec</samp> driver we must first disable
+the str9 core. This example assumes the <samp>str9xpec</samp> driver has been
+configured for flash bank 0.
+</p><div class="example">
+<pre class="example"># assert srst, we do not want core running
+# while accessing str9xpec flash driver
+jtag_reset 0 1
+# turn off target polling
+poll off
+# disable str9 core
+str9xpec enable_turbo 0
+# read option bytes
+str9xpec options_read 0
+# re-enable str9 core
+str9xpec disable_turbo 0
+poll on
+reset halt
+</pre></div>
+<p>The above example will read the str9 option bytes.
+When performing a unlock remember that you will not be able to halt the str9 - it
+has been locked. Halting the core is not required for the <samp>str9xpec</samp> driver
+as mentioned above, just issue the commands above manually or from a telnet prompt.
+</p>
+<p>Several str9xpec-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-str9xpec-disable_005fturbo"></a>Command: <strong>str9xpec disable_turbo</strong> <em>num</em></dt>
+<dd><p>Restore the str9 into JTAG chain.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-enable_005fturbo"></a>Command: <strong>str9xpec enable_turbo</strong> <em>num</em></dt>
+<dd><p>Enable turbo mode, will simply remove the str9 from the chain and talk
+directly to the embedded flash controller.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-lock"></a>Command: <strong>str9xpec lock</strong> <em>num</em></dt>
+<dd><p>Lock str9 device. The str9 will only respond to an unlock command that will
+erase the device.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-part_005fid"></a>Command: <strong>str9xpec part_id</strong> <em>num</em></dt>
+<dd><p>Prints the part identifier for bank <var>num</var>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-options_005fcmap"></a>Command: <strong>str9xpec options_cmap</strong> <em>num (<samp>bank0</samp>|<samp>bank1</samp>)</em></dt>
+<dd><p>Configure str9 boot bank.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-options_005flvdsel"></a>Command: <strong>str9xpec options_lvdsel</strong> <em>num (<samp>vdd</samp>|<samp>vdd_vddq</samp>)</em></dt>
+<dd><p>Configure str9 lvd source.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-options_005flvdthd"></a>Command: <strong>str9xpec options_lvdthd</strong> <em>num (<samp>2.4v</samp>|<samp>2.7v</samp>)</em></dt>
+<dd><p>Configure str9 lvd threshold.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-options_005flvdwarn"></a>Command: <strong>str9xpec options_lvdwarn</strong> <em>bank (<samp>vdd</samp>|<samp>vdd_vddq</samp>)</em></dt>
+<dd><p>Configure str9 lvd reset warning source.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-options_005fread"></a>Command: <strong>str9xpec options_read</strong> <em>num</em></dt>
+<dd><p>Read str9 option bytes.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-options_005fwrite"></a>Command: <strong>str9xpec options_write</strong> <em>num</em></dt>
+<dd><p>Write str9 option bytes.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-str9xpec-unlock"></a>Command: <strong>str9xpec unlock</strong> <em>num</em></dt>
+<dd><p>unlock str9 device.
+</p></dd></dl>
+
+</dd></dl>
+
+<dl>
+<dt><a name="index-tms470"></a>Flash Driver: <strong>tms470</strong></dt>
+<dd><p>Most members of the TMS470 microcontroller family from Texas Instruments
+include internal flash and use ARM7TDMI cores.
+This driver doesn&rsquo;t require the chip and bus width to be specified.
+</p>
+<p>Some tms470-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-tms470-flash_005fkeyset"></a>Command: <strong>tms470 flash_keyset</strong> <em>key0 key1 key2 key3</em></dt>
+<dd><p>Saves programming keys in a register, to enable flash erase and write commands.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-tms470-osc_005fmhz"></a>Command: <strong>tms470 osc_mhz</strong> <em>clock_mhz</em></dt>
+<dd><p>Reports the clock speed, which is used to calculate timings.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-tms470-plldis"></a>Command: <strong>tms470 plldis</strong> <em>(0|1)</em></dt>
+<dd><p>Disables (<var>1</var>) or enables (<var>0</var>) use of the PLL to speed up
+the flash clock.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-xmc1xxx"></a>Flash Driver: <strong>xmc1xxx</strong></dt>
+<dd><p>All members of the XMC1xxx microcontroller family from Infineon.
+This driver does not require the chip and bus width to be specified.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-xmc4xxx"></a>Flash Driver: <strong>xmc4xxx</strong></dt>
+<dd><p>All members of the XMC4xxx microcontroller family from Infineon.
+This driver does not require the chip and bus width to be specified.
+</p>
+<p>Some xmc4xxx-specific commands are defined:
+</p>
+<dl>
+<dt><a name="index-xmc4xxx-flash_005fpassword"></a>Command: <strong>xmc4xxx flash_password</strong> <em>bank_id passwd1 passwd2</em></dt>
+<dd><p>Saves flash protection passwords which are used to lock the user flash
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-xmc4xxx-flash_005funprotect"></a>Command: <strong>xmc4xxx flash_unprotect</strong> <em>bank_id user_level[0-1]</em></dt>
+<dd><p>Removes Flash write protection from the selected user bank
+</p></dd></dl>
+
+</dd></dl>
+
+<a name="NAND-Flash-Commands"></a>
+<h3 class="section">12.5 NAND Flash Commands</h3>
+<a name="index-NAND"></a>
+
+<p>Compared to NOR or SPI flash, NAND devices are inexpensive
+and high density. Today&rsquo;s NAND chips, and multi-chip modules,
+commonly hold multiple GigaBytes of data.
+</p>
+<p>NAND chips consist of a number of &ldquo;erase blocks&rdquo; of a given
+size (such as 128 KBytes), each of which is divided into a
+number of pages (of perhaps 512 or 2048 bytes each). Each
+page of a NAND flash has an &ldquo;out of band&rdquo; (OOB) area to hold
+Error Correcting Code (ECC) and other metadata, usually 16 bytes
+of OOB for every 512 bytes of page data.
+</p>
+<p>One key characteristic of NAND flash is that its error rate
+is higher than that of NOR flash. In normal operation, that
+ECC is used to correct and detect errors. However, NAND
+blocks can also wear out and become unusable; those blocks
+are then marked &quot;bad&quot;. NAND chips are even shipped from the
+manufacturer with a few bad blocks. The highest density chips
+use a technology (MLC) that wears out more quickly, so ECC
+support is increasingly important as a way to detect blocks
+that have begun to fail, and help to preserve data integrity
+with techniques such as wear leveling.
+</p>
+<p>Software is used to manage the ECC. Some controllers don&rsquo;t
+support ECC directly; in those cases, software ECC is used.
+Other controllers speed up the ECC calculations with hardware.
+Single-bit error correction hardware is routine. Controllers
+geared for newer MLC chips may correct 4 or more errors for
+every 512 bytes of data.
+</p>
+<p>You will need to make sure that any data you write using
+OpenOCD includes the apppropriate kind of ECC. For example,
+that may mean passing the <code>oob_softecc</code> flag when
+writing NAND data, or ensuring that the correct hardware
+ECC mode is used.
+</p>
+<p>The basic steps for using NAND devices include:
+</p><ol>
+<li> Declare via the command <code>nand device</code>
+<br> Do this in a board-specific configuration file,
+passing parameters as needed by the controller.
+</li><li> Configure each device using <code>nand probe</code>.
+<br> Do this only after the associated target is set up,
+such as in its reset-init script or in procures defined
+to access that device.
+</li><li> Operate on the flash via <code>nand subcommand</code>
+<br> Often commands to manipulate the flash are typed by a human, or run
+via a script in some automated way. Common task include writing a
+boot loader, operating system, or other data needed to initialize or
+de-brick a board.
+</li></ol>
+
+<p><b>NOTE:</b> At the time this text was written, the largest NAND
+flash fully supported by OpenOCD is 2 GiBytes (16 GiBits).
+This is because the variables used to hold offsets and lengths
+are only 32 bits wide.
+(Larger chips may work in some cases, unless an offset or length
+is larger than 0xffffffff, the largest 32-bit unsigned integer.)
+Some larger devices will work, since they are actually multi-chip
+modules with two smaller chips and individual chipselect lines.
+</p>
+<a name="nandconfiguration"></a><a name="NAND-Configuration-Commands"></a>
+<h4 class="subsection">12.5.1 NAND Configuration Commands</h4>
+<a name="index-NAND-configuration"></a>
+
+<p>NAND chips must be declared in configuration scripts,
+plus some additional configuration that&rsquo;s done after
+OpenOCD has initialized.
+</p>
+<dl>
+<dt><a name="index-nand-device"></a>Config Command: <strong>nand device</strong> <em>name driver target [configparams...]</em></dt>
+<dd><p>Declares a NAND device, which can be read and written to
+after it has been configured through <code>nand probe</code>.
+In OpenOCD, devices are single chips; this is unlike some
+operating systems, which may manage multiple chips as if
+they were a single (larger) device.
+In some cases, configuring a device will activate extra
+commands; see the controller-specific documentation.
+</p>
+<p><b>NOTE:</b> This command is not available after OpenOCD
+initialization has completed. Use it in board specific
+configuration files, not interactively.
+</p>
+<ul>
+<li> <var>name</var> ... may be used to reference the NAND bank
+in most other NAND commands. A number is also available.
+</li><li> <var>driver</var> ... identifies the NAND controller driver
+associated with the NAND device being declared.
+See <a href="#nanddriverlist">NAND Driver List</a>.
+</li><li> <var>target</var> ... names the target used when issuing
+commands to the NAND controller.
+</li><li> <var>configparams</var> ... controllers may support, or require,
+additional parameters. See the controller-specific documentation
+for more information.
+</li></ul>
+</dd></dl>
+
+<dl>
+<dt><a name="index-nand-list"></a>Command: <strong>nand list</strong></dt>
+<dd><p>Prints a summary of each device declared
+using <code>nand device</code>, numbered from zero.
+Note that un-probed devices show no details.
+</p><div class="example">
+<pre class="example">&gt; nand list
+#0: NAND 1GiB 3,3V 8-bit (Micron) pagesize: 2048, buswidth: 8,
+        blocksize: 131072, blocks: 8192
+#1: NAND 1GiB 3,3V 8-bit (Micron) pagesize: 2048, buswidth: 8,
+        blocksize: 131072, blocks: 8192
+&gt;
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-nand-probe"></a>Command: <strong>nand probe</strong> <em>num</em></dt>
+<dd><p>Probes the specified device to determine key characteristics
+like its page and block sizes, and how many blocks it has.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+You must (successfully) probe a device before you can use
+it with most other NAND commands.
+</p></dd></dl>
+
+<a name="Erasing_002c-Reading_002c-Writing-to-NAND-Flash"></a>
+<h4 class="subsection">12.5.2 Erasing, Reading, Writing to NAND Flash</h4>
+
+<dl>
+<dt><a name="index-nand-dump"></a>Command: <strong>nand dump</strong> <em>num filename offset length [oob_option]</em></dt>
+<dd><a name="index-NAND-reading"></a>
+<p>Reads binary data from the NAND device and writes it to the file,
+starting at the specified offset.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p>
+<p>Use a complete path name for <var>filename</var>, so you don&rsquo;t depend
+on the directory used to start the OpenOCD server.
+</p>
+<p>The <var>offset</var> and <var>length</var> must be exact multiples of the
+device&rsquo;s page size. They describe a data region; the OOB data
+associated with each such page may also be accessed.
+</p>
+<p><b>NOTE:</b> At the time this text was written, no error correction
+was done on the data that&rsquo;s read, unless raw access was disabled
+and the underlying NAND controller driver had a <code>read_page</code>
+method which handled that error correction.
+</p>
+<p>By default, only page data is saved to the specified file.
+Use an <var>oob_option</var> parameter to save OOB data:
+</p><ul>
+<li> no oob_* parameter
+<br>Output file holds only page data; OOB is discarded.
+</li><li> <code>oob_raw</code>
+<br>Output file interleaves page data and OOB data;
+the file will be longer than &quot;length&quot; by the size of the
+spare areas associated with each data page.
+Note that this kind of &quot;raw&quot; access is different from
+what&rsquo;s implied by <code>nand raw_access</code>, which just
+controls whether a hardware-aware access method is used.
+</li><li> <code>oob_only</code>
+<br>Output file has only raw OOB data, and will
+be smaller than &quot;length&quot; since it will contain only the
+spare areas associated with each data page.
+</li></ul>
+</dd></dl>
+
+<dl>
+<dt><a name="index-nand-erase"></a>Command: <strong>nand erase</strong> <em>num [offset length]</em></dt>
+<dd><a name="index-NAND-erasing"></a>
+<a name="index-NAND-programming"></a>
+<p>Erases blocks on the specified NAND device, starting at the
+specified <var>offset</var> and continuing for <var>length</var> bytes.
+Both of those values must be exact multiples of the device&rsquo;s
+block size, and the region they specify must fit entirely in the chip.
+If those parameters are not specified,
+the whole NAND chip will be erased.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p>
+<p><b>NOTE:</b> This command will try to erase bad blocks, when told
+to do so, which will probably invalidate the manufacturer&rsquo;s bad
+block marker.
+For the remainder of the current server session, <code>nand info</code>
+will still report that the block &ldquo;is&rdquo; bad.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-nand-write"></a>Command: <strong>nand write</strong> <em>num filename offset [option...]</em></dt>
+<dd><a name="index-NAND-writing"></a>
+<a name="index-NAND-programming-1"></a>
+<p>Writes binary data from the file into the specified NAND device,
+starting at the specified offset. Those pages should already
+have been erased; you can&rsquo;t change zero bits to one bits.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p>
+<p>Use a complete path name for <var>filename</var>, so you don&rsquo;t depend
+on the directory used to start the OpenOCD server.
+</p>
+<p>The <var>offset</var> must be an exact multiple of the device&rsquo;s page size.
+All data in the file will be written, assuming it doesn&rsquo;t run
+past the end of the device.
+Only full pages are written, and any extra space in the last
+page will be filled with 0xff bytes. (That includes OOB data,
+if that&rsquo;s being written.)
+</p>
+<p><b>NOTE:</b> At the time this text was written, bad blocks are
+ignored. That is, this routine will not skip bad blocks,
+but will instead try to write them. This can cause problems.
+</p>
+<p>Provide at most one <var>option</var> parameter. With some
+NAND drivers, the meanings of these parameters may change
+if <code>nand raw_access</code> was used to disable hardware ECC.
+</p><ul>
+<li> no oob_* parameter
+<br>File has only page data, which is written.
+If raw acccess is in use, the OOB area will not be written.
+Otherwise, if the underlying NAND controller driver has
+a <code>write_page</code> routine, that routine may write the OOB
+with hardware-computed ECC data.
+</li><li> <code>oob_only</code>
+<br>File has only raw OOB data, which is written to the OOB area.
+Each page&rsquo;s data area stays untouched. <i>This can be a dangerous
+option</i>, since it can invalidate the ECC data.
+You may need to force raw access to use this mode.
+</li><li> <code>oob_raw</code>
+<br>File interleaves data and OOB data, both of which are written
+If raw access is enabled, the data is written first, then the
+un-altered OOB.
+Otherwise, if the underlying NAND controller driver has
+a <code>write_page</code> routine, that routine may modify the OOB
+before it&rsquo;s written, to include hardware-computed ECC data.
+</li><li> <code>oob_softecc</code>
+<br>File has only page data, which is written.
+The OOB area is filled with 0xff, except for a standard 1-bit
+software ECC code stored in conventional locations.
+You might need to force raw access to use this mode, to prevent
+the underlying driver from applying hardware ECC.
+</li><li> <code>oob_softecc_kw</code>
+<br>File has only page data, which is written.
+The OOB area is filled with 0xff, except for a 4-bit software ECC
+specific to the boot ROM in Marvell Kirkwood SoCs.
+You might need to force raw access to use this mode, to prevent
+the underlying driver from applying hardware ECC.
+</li></ul>
+</dd></dl>
+
+<dl>
+<dt><a name="index-nand-verify"></a>Command: <strong>nand verify</strong> <em>num filename offset [option...]</em></dt>
+<dd><a name="index-NAND-verification"></a>
+<a name="index-NAND-programming-2"></a>
+<p>Verify the binary data in the file has been programmed to the
+specified NAND device, starting at the specified offset.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p>
+<p>Use a complete path name for <var>filename</var>, so you don&rsquo;t depend
+on the directory used to start the OpenOCD server.
+</p>
+<p>The <var>offset</var> must be an exact multiple of the device&rsquo;s page size.
+All data in the file will be read and compared to the contents of the
+flash, assuming it doesn&rsquo;t run past the end of the device.
+As with <code>nand write</code>, only full pages are verified, so any extra
+space in the last page will be filled with 0xff bytes.
+</p>
+<p>The same <var>options</var> accepted by <code>nand write</code>,
+and the file will be processed similarly to produce the buffers that
+can be compared against the contents produced from <code>nand dump</code>.
+</p>
+<p><b>NOTE:</b> This will not work when the underlying NAND controller
+driver&rsquo;s <code>write_page</code> routine must update the OOB with a
+hardward-computed ECC before the data is written. This limitation may
+be removed in a future release.
+</p></dd></dl>
+
+<a name="Other-NAND-commands"></a>
+<h4 class="subsection">12.5.3 Other NAND commands</h4>
+<a name="index-NAND-other-commands"></a>
+
+<dl>
+<dt><a name="index-nand-check_005fbad_005fblocks"></a>Command: <strong>nand check_bad_blocks</strong> <em>num [offset length]</em></dt>
+<dd><p>Checks for manufacturer bad block markers on the specified NAND
+device. If no parameters are provided, checks the whole
+device; otherwise, starts at the specified <var>offset</var> and
+continues for <var>length</var> bytes.
+Both of those values must be exact multiples of the device&rsquo;s
+block size, and the region they specify must fit entirely in the chip.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p>
+<p><b>NOTE:</b> Before using this command you should force raw access
+with <code>nand raw_access enable</code> to ensure that the underlying
+driver will not try to apply hardware ECC.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-nand-info"></a>Command: <strong>nand info</strong> <em>num</em></dt>
+<dd><p>The <var>num</var> parameter is the value shown by <code>nand list</code>.
+This prints the one-line summary from &quot;nand list&quot;, plus for
+devices which have been probed this also prints any known
+status for each block.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-nand-raw_005faccess"></a>Command: <strong>nand raw_access</strong> <em>num (<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Sets or clears an flag affecting how page I/O is done.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p>
+<p>This flag is cleared (disabled) by default, but changing that
+value won&rsquo;t affect all NAND devices. The key factor is whether
+the underlying driver provides <code>read_page</code> or <code>write_page</code>
+methods. If it doesn&rsquo;t provide those methods, the setting of
+this flag is irrelevant; all access is effectively &ldquo;raw&rdquo;.
+</p>
+<p>When those methods exist, they are normally used when reading
+data (<code>nand dump</code> or reading bad block markers) or
+writing it (<code>nand write</code>). However, enabling
+raw access (setting the flag) prevents use of those methods,
+bypassing hardware ECC logic.
+<i>This can be a dangerous option</i>, since writing blocks
+with the wrong ECC data can cause them to be marked as bad.
+</p></dd></dl>
+
+<a name="nanddriverlist"></a><a name="NAND-Driver-List"></a>
+<h4 class="subsection">12.5.4 NAND Driver List</h4>
+<p>As noted above, the <code>nand device</code> command allows
+driver-specific options and behaviors.
+Some controllers also activate controller-specific commands.
+</p>
+<dl>
+<dt><a name="index-at91sam9"></a>NAND Driver: <strong>at91sam9</strong></dt>
+<dd><p>This driver handles the NAND controllers found on AT91SAM9 family chips from
+Atmel. It takes two extra parameters: address of the NAND chip;
+address of the ECC controller.
+</p><div class="example">
+<pre class="example">nand device $NANDFLASH at91sam9 $CHIPNAME 0x40000000 0xfffffe800
+</pre></div>
+<p>AT91SAM9 chips support single-bit ECC hardware. The <code>write_page</code> and
+<code>read_page</code> methods are used to utilize the ECC hardware unless they are
+disabled by using the <code>nand raw_access</code> command. There are four
+additional commands that are needed to fully configure the AT91SAM9 NAND
+controller. Two are optional; most boards use the same wiring for ALE/CLE:
+</p><dl>
+<dt><a name="index-at91sam9-cle"></a>Command: <strong>at91sam9 cle</strong> <em>num addr_line</em></dt>
+<dd><p>Configure the address line used for latching commands. The <var>num</var>
+parameter is the value shown by <code>nand list</code>.
+</p></dd></dl>
+<dl>
+<dt><a name="index-at91sam9-ale"></a>Command: <strong>at91sam9 ale</strong> <em>num addr_line</em></dt>
+<dd><p>Configure the address line used for latching addresses. The <var>num</var>
+parameter is the value shown by <code>nand list</code>.
+</p></dd></dl>
+
+<p>For the next two commands, it is assumed that the pins have already been
+properly configured for input or output.
+</p><dl>
+<dt><a name="index-at91sam9-rdy_005fbusy"></a>Command: <strong>at91sam9 rdy_busy</strong> <em>num pio_base_addr pin</em></dt>
+<dd><p>Configure the RDY/nBUSY input from the NAND device. The <var>num</var>
+parameter is the value shown by <code>nand list</code>. <var>pio_base_addr</var>
+is the base address of the PIO controller and <var>pin</var> is the pin number.
+</p></dd></dl>
+<dl>
+<dt><a name="index-at91sam9-ce"></a>Command: <strong>at91sam9 ce</strong> <em>num pio_base_addr pin</em></dt>
+<dd><p>Configure the chip enable input to the NAND device. The <var>num</var>
+parameter is the value shown by <code>nand list</code>. <var>pio_base_addr</var>
+is the base address of the PIO controller and <var>pin</var> is the pin number.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-davinci"></a>NAND Driver: <strong>davinci</strong></dt>
+<dd><p>This driver handles the NAND controllers found on DaVinci family
+chips from Texas Instruments.
+It takes three extra parameters:
+address of the NAND chip;
+hardware ECC mode to use (<samp>hwecc1</samp>,
+<samp>hwecc4</samp>, <samp>hwecc4_infix</samp>);
+address of the AEMIF controller on this processor.
+</p><div class="example">
+<pre class="example">nand device davinci dm355.arm 0x02000000 hwecc4 0x01e10000
+</pre></div>
+<p>All DaVinci processors support the single-bit ECC hardware,
+and newer ones also support the four-bit ECC hardware.
+The <code>write_page</code> and <code>read_page</code> methods are used
+to implement those ECC modes, unless they are disabled using
+the <code>nand raw_access</code> command.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-lpc3180"></a>NAND Driver: <strong>lpc3180</strong></dt>
+<dd><p>These controllers require an extra <code>nand device</code>
+parameter: the clock rate used by the controller.
+</p><dl>
+<dt><a name="index-lpc3180-select"></a>Command: <strong>lpc3180 select</strong> <em>num [mlc|slc]</em></dt>
+<dd><p>Configures use of the MLC or SLC controller mode.
+MLC implies use of hardware ECC.
+The <var>num</var> parameter is the value shown by <code>nand list</code>.
+</p></dd></dl>
+
+<p>At this writing, this driver includes <code>write_page</code>
+and <code>read_page</code> methods. Using <code>nand raw_access</code>
+to disable those methods will prevent use of hardware ECC
+in the MLC controller mode, but won&rsquo;t change SLC behavior.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mx3"></a>NAND Driver: <strong>mx3</strong></dt>
+<dd><p>This driver handles the NAND controller in i.MX31. The mxc driver
+should work for this chip aswell.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mxc"></a>NAND Driver: <strong>mxc</strong></dt>
+<dd><p>This driver handles the NAND controller found in Freescale i.MX
+chips. It has support for v1 (i.MX27 and i.MX31) and v2 (i.MX35).
+The driver takes 3 extra arguments, chip (<samp>mx27</samp>,
+<samp>mx31</samp>, <samp>mx35</samp>), ecc (<samp>noecc</samp>, <samp>hwecc</samp>)
+and optionally if bad block information should be swapped between
+main area and spare area (<samp>biswap</samp>), defaults to off.
+</p><div class="example">
+<pre class="example">nand device mx35.nand mxc imx35.cpu mx35 hwecc biswap
+</pre></div>
+<dl>
+<dt><a name="index-mxc-biswap"></a>Command: <strong>mxc biswap</strong> <em>bank_num [enable|disable]</em></dt>
+<dd><p>Turns on/off bad block information swaping from main area,
+without parameter query status.
+</p></dd></dl>
+</dd></dl>
+
+<dl>
+<dt><a name="index-orion"></a>NAND Driver: <strong>orion</strong></dt>
+<dd><p>These controllers require an extra <code>nand device</code>
+parameter: the address of the controller.
+</p><div class="example">
+<pre class="example">nand device orion 0xd8000000
+</pre></div>
+<p>These controllers don&rsquo;t define any specialized commands.
+At this writing, their drivers don&rsquo;t include <code>write_page</code>
+or <code>read_page</code> methods, so <code>nand raw_access</code> won&rsquo;t
+change any behavior.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-s3c2410"></a>NAND Driver: <strong>s3c2410</strong></dt>
+<dt><a name="index-s3c2412"></a>NAND Driver: <strong>s3c2412</strong></dt>
+<dt><a name="index-s3c2440"></a>NAND Driver: <strong>s3c2440</strong></dt>
+<dt><a name="index-s3c2443"></a>NAND Driver: <strong>s3c2443</strong></dt>
+<dt><a name="index-s3c6400"></a>NAND Driver: <strong>s3c6400</strong></dt>
+<dd><p>These S3C family controllers don&rsquo;t have any special
+<code>nand device</code> options, and don&rsquo;t define any
+specialized commands.
+At this writing, their drivers don&rsquo;t include <code>write_page</code>
+or <code>read_page</code> methods, so <code>nand raw_access</code> won&rsquo;t
+change any behavior.
+</p></dd></dl>
+
+<a name="mFlash"></a>
+<h3 class="section">12.6 mFlash</h3>
+
+<a name="mFlash-Configuration"></a>
+<h4 class="subsection">12.6.1 mFlash Configuration</h4>
+<a name="index-mFlash-Configuration"></a>
+
+<dl>
+<dt><a name="index-mflash-bank"></a>Config Command: <strong>mflash bank</strong> <em>soc base RST_pin target</em></dt>
+<dd><p>Configures a mflash for <var>soc</var> host bank at
+address <var>base</var>.
+The pin number format depends on the host GPIO naming convention.
+Currently, the mflash driver supports s3c2440 and pxa270.
+</p>
+<p>Example for s3c2440 mflash where <var>RST pin</var> is GPIO B1:
+</p>
+<div class="example">
+<pre class="example">mflash bank $_FLASHNAME s3c2440 0x10000000 1b 0
+</pre></div>
+
+<p>Example for pxa270 mflash where <var>RST pin</var> is GPIO 43:
+</p>
+<div class="example">
+<pre class="example">mflash bank $_FLASHNAME pxa270 0x08000000 43 0
+</pre></div>
+</dd></dl>
+
+<a name="mFlash-commands"></a>
+<h4 class="subsection">12.6.2 mFlash commands</h4>
+<a name="index-mFlash-commands"></a>
+
+<dl>
+<dt><a name="index-mflash-config-pll"></a>Command: <strong>mflash config pll</strong> <em>frequency</em></dt>
+<dd><p>Configure mflash PLL.
+The <var>frequency</var> is the mflash input frequency, in Hz.
+Issuing this command will erase mflash&rsquo;s whole internal nand and write new pll.
+After this command, mflash needs power-on-reset for normal operation.
+If pll was newly configured, storage and boot(optional) info also need to be update.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mflash-config-boot"></a>Command: <strong>mflash config boot</strong></dt>
+<dd><p>Configure bootable option.
+If bootable option is set, mflash offer the first 8 sectors
+(4kB) for boot.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mflash-config-storage"></a>Command: <strong>mflash config storage</strong></dt>
+<dd><p>Configure storage information.
+For the normal storage operation, this information must be
+written.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mflash-dump"></a>Command: <strong>mflash dump</strong> <em>num filename offset size</em></dt>
+<dd><p>Dump <var>size</var> bytes, starting at <var>offset</var> bytes from the
+beginning of the bank <var>num</var>, to the file named <var>filename</var>.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mflash-probe"></a>Command: <strong>mflash probe</strong></dt>
+<dd><p>Probe mflash.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-mflash-write"></a>Command: <strong>mflash write</strong> <em>num filename offset</em></dt>
+<dd><p>Write the binary file <var>filename</var> to mflash bank <var>num</var>, starting at
+<var>offset</var> bytes from the beginning of the bank.
+</p></dd></dl>
+
+<div class="footnote">
+<hr>
+<h4 class="footnotes-heading">Footnotes</h4>
+
+<h3><a name="FOOT6" href="#DOCF6">(6)</a></h3>
+<p>Currently there is a <code>stellaris mass_erase</code> command.
+That seems pointless since the same effect can be had using the
+standard <code>flash erase_address</code> command.</p>
+<h3><a name="FOOT7" href="#DOCF7">(7)</a></h3>
+<p>Currently there is a <code>stm32f1x mass_erase</code> command.
+That seems pointless since the same effect can be had using the
+standard <code>flash erase_address</code> command.</p>
+</div>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Flash-Programming.html#Flash-Programming" accesskey="n" rel="next">Flash Programming</a>, Previous: <a href="CPU-Configuration.html#CPU-Configuration" accesskey="p" rel="prev">CPU Configuration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

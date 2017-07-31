@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: JTAG Commands</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: JTAG Commands">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: JTAG Commands">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Boundary-Scan-Commands.html#Boundary-Scan-Commands" rel="next" title="Boundary Scan Commands">
+<link href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands" rel="prev" title="Architecture and Core Commands">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="JTAG-Commands"></a>
+<div class="header">
+<p>
+Next: <a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands" accesskey="n" rel="next">Boundary Scan Commands</a>, Previous: <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands" accesskey="p" rel="prev">Architecture and Core Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="JTAG-Commands-1"></a>
+<h2 class="chapter">17 JTAG Commands</h2>
+<a name="index-JTAG-Commands"></a>
+<p>Most general purpose JTAG commands have been presented earlier.
+(See <a href="Debug-Adapter-Configuration.html#jtagspeed">JTAG Speed</a>, <a href="Reset-Configuration.html#Reset-Configuration">Reset Configuration</a>, and <a href="TAP-Declaration.html#TAP-Declaration">TAP Declaration</a>.)
+Lower level JTAG commands, as presented here,
+may be needed to work with targets which require special
+attention during operations such as reset or initialization.
+</p>
+<p>To use these commands you will need to understand some
+of the basics of JTAG, including:
+</p>
+<ul>
+<li> A JTAG scan chain consists of a sequence of individual TAP
+devices such as a CPUs.
+</li><li> Control operations involve moving each TAP through the same
+standard state machine (in parallel)
+using their shared TMS and clock signals.
+</li><li> Data transfer involves shifting data through the chain of
+instruction or data registers of each TAP, writing new register values
+while the reading previous ones.
+</li><li> Data register sizes are a function of the instruction active in
+a given TAP, while instruction register sizes are fixed for each TAP.
+All TAPs support a BYPASS instruction with a single bit data register.
+</li><li> The way OpenOCD differentiates between TAP devices is by
+shifting different instructions into (and out of) their instruction
+registers.
+</li></ul>
+
+<a name="Low-Level-JTAG-Commands"></a>
+<h3 class="section">17.1 Low Level JTAG Commands</h3>
+
+<p>These commands are used by developers who need to access
+JTAG instruction or data registers, possibly controlling
+the order of TAP state transitions.
+If you&rsquo;re not debugging OpenOCD internals, or bringing up a
+new JTAG adapter or a new type of TAP device (like a CPU or
+JTAG router), you probably won&rsquo;t need to use these commands.
+In a debug session that doesn&rsquo;t use JTAG for its transport protocol,
+these commands are not available.
+</p>
+<dl>
+<dt><a name="index-drscan"></a>Command: <strong>drscan</strong> <em>tap [numbits value]+ [<samp>-endstate</samp> tap_state]</em></dt>
+<dd><p>Loads the data register of <var>tap</var> with a series of bit fields
+that specify the entire register.
+Each field is <var>numbits</var> bits long with
+a numeric <var>value</var> (hexadecimal encouraged).
+The return value holds the original value of each
+of those fields.
+</p>
+<p>For example, a 38 bit number might be specified as one
+field of 32 bits then one of 6 bits.
+<em>For portability, never pass fields which are more
+than 32 bits long. Many OpenOCD implementations do not
+support 64-bit (or larger) integer values.</em>
+</p>
+<p>All TAPs other than <var>tap</var> must be in BYPASS mode.
+The single bit in their data registers does not matter.
+</p>
+<p>When <var>tap_state</var> is specified, the JTAG state machine is left
+in that state.
+For example <small>DRPAUSE</small> might be specified, so that more
+instructions can be issued before re-entering the <small>RUN/IDLE</small> state.
+If the end state is not specified, the <small>RUN/IDLE</small> state is entered.
+</p>
+<blockquote>
+<p><b>Warning:</b> OpenOCD does not record information about data register lengths,
+so <em>it is important that you get the bit field lengths right</em>.
+Remember that different JTAG instructions refer to different
+data registers, which may have different lengths.
+Moreover, those lengths may not be fixed;
+the SCAN_N instruction can change the length of
+the register accessed by the INTEST instruction
+(by connecting a different scan chain).
+</p></blockquote>
+</dd></dl>
+
+<dl>
+<dt><a name="index-flush_005fcount"></a>Command: <strong>flush_count</strong></dt>
+<dd><p>Returns the number of times the JTAG queue has been flushed.
+This may be used for performance tuning.
+</p>
+<p>For example, flushing a queue over USB involves a
+minimum latency, often several milliseconds, which does
+not change with the amount of data which is written.
+You may be able to identify performance problems by finding
+tasks which waste bandwidth by flushing small transfers too often,
+instead of batching them into larger operations.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-irscan"></a>Command: <strong>irscan</strong> <em>[tap instruction]+ [<samp>-endstate</samp> tap_state]</em></dt>
+<dd><p>For each <var>tap</var> listed, loads the instruction register
+with its associated numeric <var>instruction</var>.
+(The number of bits in that instruction may be displayed
+using the <code>scan_chain</code> command.)
+For other TAPs, a BYPASS instruction is loaded.
+</p>
+<p>When <var>tap_state</var> is specified, the JTAG state machine is left
+in that state.
+For example <small>IRPAUSE</small> might be specified, so the data register
+can be loaded before re-entering the <small>RUN/IDLE</small> state.
+If the end state is not specified, the <small>RUN/IDLE</small> state is entered.
+</p>
+<blockquote>
+<p><b>Note:</b> OpenOCD currently supports only a single field for instruction
+register values, unlike data register values.
+For TAPs where the instruction register length is more than 32 bits,
+portable scripts currently must issue only BYPASS instructions.
+</p></blockquote>
+</dd></dl>
+
+<dl>
+<dt><a name="index-jtag_005freset"></a>Command: <strong>jtag_reset</strong> <em>trst srst</em></dt>
+<dd><p>Set values of reset signals.
+The <var>trst</var> and <var>srst</var> parameter values may be
+<samp>0</samp>, indicating that reset is inactive (pulled or driven high),
+or <samp>1</samp>, indicating it is active (pulled or driven low).
+The <code>reset_config</code> command should already have been used
+to configure how the board and JTAG adapter treat these two
+signals, and to say if either signal is even present.
+See <a href="Reset-Configuration.html#Reset-Configuration">Reset Configuration</a>.
+</p>
+<p>Note that TRST is specially handled.
+It actually signifies JTAG&rsquo;s <small>RESET</small> state.
+So if the board doesn&rsquo;t support the optional TRST signal,
+or it doesn&rsquo;t support it along with the specified SRST value,
+JTAG reset is triggered with TMS and TCK signals
+instead of the TRST signal.
+And no matter how that JTAG reset is triggered, once
+the scan chain enters <small>RESET</small> with TRST inactive,
+TAP <code>post-reset</code> events are delivered to all TAPs
+with handlers for that event.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-pathmove"></a>Command: <strong>pathmove</strong> <em>start_state [next_state ...]</em></dt>
+<dd><p>Start by moving to <var>start_state</var>, which
+must be one of the <em>stable</em> states.
+Unless it is the only state given, this will often be the
+current state, so that no TCK transitions are needed.
+Then, in a series of single state transitions
+(conforming to the JTAG state machine) shift to
+each <var>next_state</var> in sequence, one per TCK cycle.
+The final state must also be stable.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-runtest"></a>Command: <strong>runtest</strong> <em><var>num_cycles</var></em></dt>
+<dd><p>Move to the <small>RUN/IDLE</small> state, and execute at least
+<var>num_cycles</var> of the JTAG clock (TCK).
+Instructions often need some time
+to execute before they take effect.
+</p></dd></dl>
+
+
+<dl>
+<dt><a name="index-verify_005fircapture"></a>Command: <strong>verify_ircapture</strong> <em>(<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Verify values captured during <small>IRCAPTURE</small> and returned
+during IR scans. Default is enabled, but this can be
+overridden by <code>verify_jtag</code>.
+This flag is ignored when validating JTAG chain configuration.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-verify_005fjtag"></a>Command: <strong>verify_jtag</strong> <em>(<samp>enable</samp>|<samp>disable</samp>)</em></dt>
+<dd><p>Enables verification of DR and IR scans, to help detect
+programming errors. For IR scans, <code>verify_ircapture</code>
+must also be enabled.
+Default is enabled.
+</p></dd></dl>
+
+<a name="TAP-state-names"></a>
+<h3 class="section">17.2 TAP state names</h3>
+<a name="index-TAP-state-names"></a>
+
+<p>The <var>tap_state</var> names used by OpenOCD in the <code>drscan</code>,
+<code>irscan</code>, and <code>pathmove</code> commands are the same
+as those used in SVF boundary scan documents, except that
+SVF uses <small>IDLE</small> instead of <small>RUN/IDLE</small>.
+</p>
+<ul>
+<li> <b>RESET</b> ... <em>stable</em> (with TMS high);
+acts as if TRST were pulsed
+</li><li> <b>RUN/IDLE</b> ... <em>stable</em>; don&rsquo;t assume this always means IDLE
+</li><li> <b>DRSELECT</b>
+</li><li> <b>DRCAPTURE</b>
+</li><li> <b>DRSHIFT</b> ... <em>stable</em>; TDI/TDO shifting
+through the data register
+</li><li> <b>DREXIT1</b>
+</li><li> <b>DRPAUSE</b> ... <em>stable</em>; data register ready
+for update or more shifting
+</li><li> <b>DREXIT2</b>
+</li><li> <b>DRUPDATE</b>
+</li><li> <b>IRSELECT</b>
+</li><li> <b>IRCAPTURE</b>
+</li><li> <b>IRSHIFT</b> ... <em>stable</em>; TDI/TDO shifting
+through the instruction register
+</li><li> <b>IREXIT1</b>
+</li><li> <b>IRPAUSE</b> ... <em>stable</em>; instruction register ready
+for update or more shifting
+</li><li> <b>IREXIT2</b>
+</li><li> <b>IRUPDATE</b>
+</li></ul>
+
+<p>Note that only six of those states are fully &ldquo;stable&rdquo; in the
+face of TMS fixed (low except for <small>RESET</small>)
+and a free-running JTAG clock. For all the
+others, the next TCK transition changes to a new state.
+</p>
+<ul>
+<li> From <small>DRSHIFT</small> and <small>IRSHIFT</small>, clock transitions will
+produce side effects by changing register contents. The values
+to be latched in upcoming <small>DRUPDATE</small> or <small>IRUPDATE</small> states
+may not be as expected.
+</li><li> <small>RUN/IDLE</small>, <small>DRPAUSE</small>, and <small>IRPAUSE</small> are reasonable
+choices after <code>drscan</code> or <code>irscan</code> commands,
+since they are free of JTAG side effects.
+</li><li> <small>RUN/IDLE</small> may have side effects that appear at non-JTAG
+levels, such as advancing the ARM9E-S instruction pipeline.
+Consult the documentation for the TAP(s) you are working with.
+</li></ul>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Boundary-Scan-Commands.html#Boundary-Scan-Commands" accesskey="n" rel="next">Boundary Scan Commands</a>, Previous: <a href="Architecture-and-Core-Commands.html#Architecture-and-Core-Commands" accesskey="p" rel="prev">Architecture and Core Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

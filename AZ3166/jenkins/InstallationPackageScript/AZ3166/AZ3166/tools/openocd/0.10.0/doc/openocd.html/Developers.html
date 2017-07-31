@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: Developers</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: Developers">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: Developers">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware" rel="next" title="Debug Adapter Hardware">
+<link href="About.html#About" rel="prev" title="About">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Developers"></a>
+<div class="header">
+<p>
+Next: <a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware" accesskey="n" rel="next">Debug Adapter Hardware</a>, Previous: <a href="About.html#About" accesskey="p" rel="prev">About</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="OpenOCD-Developer-Resources"></a>
+<h2 class="chapter">1 OpenOCD Developer Resources</h2>
+<a name="index-developers"></a>
+
+<p>If you are interested in improving the state of OpenOCD&rsquo;s debugging and
+testing support, new contributions will be welcome. Motivated developers
+can produce new target, flash or interface drivers, improve the
+documentation, as well as more conventional bug fixes and enhancements.
+</p>
+<p>The resources in this chapter are available for developers wishing to explore
+or expand the OpenOCD source code.
+</p>
+<a name="OpenOCD-Git-Repository"></a>
+<h3 class="section">1.1 OpenOCD Git Repository</h3>
+
+<p>During the 0.3.x release cycle, OpenOCD switched from Subversion to
+a Git repository hosted at SourceForge. The repository URL is:
+</p>
+<p><a href="git://git.code.sf.net/p/openocd/code">git://git.code.sf.net/p/openocd/code</a>
+</p>
+<p>or via http
+</p>
+<p><a href="http://git.code.sf.net/p/openocd/code">http://git.code.sf.net/p/openocd/code</a>
+</p>
+<p>You may prefer to use a mirror and the HTTP protocol:
+</p>
+<p><a href="http://repo.or.cz/r/openocd.git">http://repo.or.cz/r/openocd.git</a>
+</p>
+<p>With standard Git tools, use <code>git clone</code> to initialize
+a local repository, and <code>git pull</code> to update it.
+There are also gitweb pages letting you browse the repository
+with a web browser, or download arbitrary snapshots without
+needing a Git client:
+</p>
+<p><a href="http://repo.or.cz/w/openocd.git">http://repo.or.cz/w/openocd.git</a>
+</p>
+<p>The <samp>README</samp> file contains the instructions for building the project
+from the repository or a snapshot.
+</p>
+<p>Developers that want to contribute patches to the OpenOCD system are
+<b>strongly</b> encouraged to work against mainline.
+Patches created against older versions may require additional
+work from their submitter in order to be updated for newer releases.
+</p>
+<a name="Doxygen-Developer-Manual"></a>
+<h3 class="section">1.2 Doxygen Developer Manual</h3>
+
+<p>During the 0.2.x release cycle, the OpenOCD project began
+providing a Doxygen reference manual. This document contains more
+technical information about the software internals, development
+processes, and similar documentation:
+</p>
+<p><a href="http://openocd.org/doc/doxygen/html/index.html">http://openocd.org/doc/doxygen/html/index.html</a>
+</p>
+<p>This document is a work-in-progress, but contributions would be welcome
+to fill in the gaps. All of the source files are provided in-tree,
+listed in the Doxyfile configuration at the top of the source tree.
+</p>
+<a name="Gerrit-Review-System"></a>
+<h3 class="section">1.3 Gerrit Review System</h3>
+
+<p>All changes in the OpenOCD Git repository go through the web-based Gerrit
+Code Review System:
+</p>
+<p><a href="http://openocd.zylin.com/">http://openocd.zylin.com/</a>
+</p>
+<p>After a one-time registration and repository setup, anyone can push commits
+from their local Git repository directly into Gerrit.
+All users and developers are encouraged to review, test, discuss and vote
+for changes in Gerrit. The feedback provides the basis for a maintainer to
+eventually submit the change to the main Git repository.
+</p>
+<p>The <samp>HACKING</samp> file, also available as the Patch Guide in the Doxygen
+Developer Manual, contains basic information about how to connect a
+repository to Gerrit, prepare and push patches. Patch authors are expected to
+maintain their changes while they&rsquo;re in Gerrit, respond to feedback and if
+necessary rework and push improved versions of the change.
+</p>
+<a name="OpenOCD-Developer-Mailing-List"></a>
+<h3 class="section">1.4 OpenOCD Developer Mailing List</h3>
+
+<p>The OpenOCD Developer Mailing List provides the primary means of
+communication between developers:
+</p>
+<p><a href="https://lists.sourceforge.net/mailman/listinfo/openocd-devel">https://lists.sourceforge.net/mailman/listinfo/openocd-devel</a>
+</p>
+<a name="OpenOCD-Bug-Tracker"></a>
+<h3 class="section">1.5 OpenOCD Bug Tracker</h3>
+
+<p>The OpenOCD Bug Tracker is hosted on SourceForge:
+</p>
+<p><a href="http://bugs.openocd.org/">http://bugs.openocd.org/</a>
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Debug-Adapter-Hardware.html#Debug-Adapter-Hardware" accesskey="n" rel="next">Debug Adapter Hardware</a>, Previous: <a href="About.html#About" accesskey="p" rel="prev">About</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

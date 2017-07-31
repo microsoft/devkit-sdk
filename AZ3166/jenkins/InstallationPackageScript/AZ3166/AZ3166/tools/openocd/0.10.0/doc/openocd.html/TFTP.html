@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: TFTP</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: TFTP">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: TFTP">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="GDB-and-OpenOCD.html#GDB-and-OpenOCD" rel="next" title="GDB and OpenOCD">
+<link href="Utility-Commands.html#Utility-Commands" rel="prev" title="Utility Commands">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="TFTP"></a>
+<div class="header">
+<p>
+Next: <a href="GDB-and-OpenOCD.html#GDB-and-OpenOCD" accesskey="n" rel="next">GDB and OpenOCD</a>, Previous: <a href="Utility-Commands.html#Utility-Commands" accesskey="p" rel="prev">Utility Commands</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="TFTP-1"></a>
+<h2 class="chapter">20 TFTP</h2>
+<a name="index-TFTP"></a>
+<p>If OpenOCD runs on an embedded host (as ZY1000 does), then TFTP can
+be used to access files on PCs (either the developer&rsquo;s PC or some other PC).
+</p>
+<p>The way this works on the ZY1000 is to prefix a filename by
+&quot;/tftp/ip/&quot; and append the TFTP path on the TFTP
+server (tftpd). For example,
+</p>
+<div class="example">
+<pre class="example">load_image /tftp/10.0.0.96/c:\temp\abc.elf
+</pre></div>
+
+<p>will load c:\temp\abc.elf from the developer pc (10.0.0.96) into memory as
+if the file was hosted on the embedded host.
+</p>
+<p>In order to achieve decent performance, you must choose a TFTP server
+that supports a packet size bigger than the default packet size (512 bytes). There
+are numerous TFTP servers out there (free and commercial) and you will have to do
+a bit of googling to find something that fits your requirements.
+</p>
+
+
+
+</body>
+</html>

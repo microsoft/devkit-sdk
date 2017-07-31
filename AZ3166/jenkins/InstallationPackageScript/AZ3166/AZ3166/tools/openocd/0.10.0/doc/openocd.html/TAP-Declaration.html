@@ -1,0 +1,545 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This User's Guide documents
+release 0.10.0,
+dated 19 April 2017,
+of the Open On-Chip Debugger (OpenOCD).
+
+Copyright (C) 2008 The OpenOCD Project
+Copyright (C) 2007-2008 Spencer Oliver spen@spen-soft.co.uk
+Copyright (C) 2008-2010 Oyvind Harboe oyvind.harboe@zylin.com
+Copyright (C) 2008 Duane Ellis openocd@duaneellis.com
+Copyright (C) 2009-2010 David Brownell
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts. A copy of the license is included in the section entitled "GNU
+Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>OpenOCD User&rsquo;s Guide: TAP Declaration</title>
+
+<meta name="description" content="OpenOCD User&rsquo;s Guide: TAP Declaration">
+<meta name="keywords" content="OpenOCD User&rsquo;s Guide: TAP Declaration">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" rel="index" title="OpenOCD Concept Index">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="CPU-Configuration.html#CPU-Configuration" rel="next" title="CPU Configuration">
+<link href="Reset-Configuration.html#Reset-Configuration" rel="prev" title="Reset Configuration">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="TAP-Declaration"></a>
+<div class="header">
+<p>
+Next: <a href="CPU-Configuration.html#CPU-Configuration" accesskey="n" rel="next">CPU Configuration</a>, Previous: <a href="Reset-Configuration.html#Reset-Configuration" accesskey="p" rel="prev">Reset Configuration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="TAP-Declaration-1"></a>
+<h2 class="chapter">10 TAP Declaration</h2>
+<a name="index-TAP-declaration"></a>
+<a name="index-TAP-configuration"></a>
+
+<p><em>Test Access Ports</em> (TAPs) are the core of JTAG.
+TAPs serve many roles, including:
+</p>
+<ul>
+<li> <b>Debug Target</b> A CPU TAP can be used as a GDB debug target.
+</li><li> <b>Flash Programming</b> Some chips program the flash directly via JTAG.
+Others do it indirectly, making a CPU do it.
+</li><li> <b>Program Download</b> Using the same CPU support GDB uses,
+you can initialize a DRAM controller, download code to DRAM, and then
+start running that code.
+</li><li> <b>Boundary Scan</b> Most chips support boundary scan, which
+helps test for board assembly problems like solder bridges
+and missing connections.
+</li></ul>
+
+<p>OpenOCD must know about the active TAPs on your board(s).
+Setting up the TAPs is the core task of your configuration files.
+Once those TAPs are set up, you can pass their names to code
+which sets up CPUs and exports them as GDB targets,
+probes flash memory, performs low-level JTAG operations, and more.
+</p>
+<a name="Scan-Chains"></a>
+<h3 class="section">10.1 Scan Chains</h3>
+<a name="index-scan-chain"></a>
+
+<p>TAPs are part of a hardware <em>scan chain</em>,
+which is a daisy chain of TAPs.
+They also need to be added to
+OpenOCD&rsquo;s software mirror of that hardware list,
+giving each member a name and associating other data with it.
+Simple scan chains, with a single TAP, are common in
+systems with a single microcontroller or microprocessor.
+More complex chips may have several TAPs internally.
+Very complex scan chains might have a dozen or more TAPs:
+several in one chip, more in the next, and connecting
+to other boards with their own chips and TAPs.
+</p>
+<p>You can display the list with the <code>scan_chain</code> command.
+(Don&rsquo;t confuse this with the list displayed by the <code>targets</code>
+command, presented in the next chapter.
+That only displays TAPs for CPUs which are configured as
+debugging targets.)
+Here&rsquo;s what the scan chain might look like for a chip more than one TAP:
+</p>
+<pre class="verbatim">   TapName            Enabled IdCode     Expected   IrLen IrCap IrMask
+-- ------------------ ------- ---------- ---------- ----- ----- ------
+ 0 omap5912.dsp          Y    0x03df1d81 0x03df1d81    38 0x01  0x03
+ 1 omap5912.arm          Y    0x0692602f 0x0692602f     4 0x01  0x0f
+ 2 omap5912.unknown      Y    0x00000000 0x00000000     8 0x01  0x03
+</pre>
+<p>OpenOCD can detect some of that information, but not all
+of it. See <a href="#autoprobing">Autoprobing</a>.
+Unfortunately, those TAPs can&rsquo;t always be autoconfigured,
+because not all devices provide good support for that.
+JTAG doesn&rsquo;t require supporting IDCODE instructions, and
+chips with JTAG routers may not link TAPs into the chain
+until they are told to do so.
+</p>
+<p>The configuration mechanism currently supported by OpenOCD
+requires explicit configuration of all TAP devices using
+<code>jtag newtap</code> commands, as detailed later in this chapter.
+A command like this would declare one tap and name it <code>chip1.cpu</code>:
+</p>
+<div class="example">
+<pre class="example">jtag newtap chip1 cpu -irlen 4 -expected-id 0x3ba00477
+</pre></div>
+
+<p>Each target configuration file lists the TAPs provided
+by a given chip.
+Board configuration files combine all the targets on a board,
+and so forth.
+Note that <em>the order in which TAPs are declared is very important.</em>
+That declaration order must match the order in the JTAG scan chain,
+both inside a single chip and between them.
+See <a href="FAQ.html#faqtaporder">FAQ TAP Order</a>.
+</p>
+<p>For example, the ST Microsystems STR912 chip has
+three separate TAPs<a name="DOCF5" href="#FOOT5"><sup>5</sup></a>.
+To configure those taps, <samp>target/str912.cfg</samp>
+includes commands something like this:
+</p>
+<div class="example">
+<pre class="example">jtag newtap str912 flash ... params ...
+jtag newtap str912 cpu ... params ...
+jtag newtap str912 bs ... params ...
+</pre></div>
+
+<p>Actual config files typically use a variable such as <code>$_CHIPNAME</code>
+instead of literals like <samp>str912</samp>, to support more than one chip
+of each type.  See <a href="Config-File-Guidelines.html#Config-File-Guidelines">Config File Guidelines</a>.
+</p>
+<dl>
+<dt><a name="index-jtag-names"></a>Command: <strong>jtag names</strong></dt>
+<dd><p>Returns the names of all current TAPs in the scan chain.
+Use <code>jtag cget</code> or <code>jtag tapisenabled</code>
+to examine attributes and state of each TAP.
+</p><div class="example">
+<pre class="example">foreach t [jtag names] {
+    puts [format &quot;TAP: %s\n&quot; $t]
+}
+</pre></div>
+</dd></dl>
+
+<dl>
+<dt><a name="index-scan_005fchain"></a>Command: <strong>scan_chain</strong></dt>
+<dd><p>Displays the TAPs in the scan chain configuration,
+and their status.
+The set of TAPs listed by this command is fixed by
+exiting the OpenOCD configuration stage,
+but systems with a JTAG router can
+enable or disable TAPs dynamically.
+</p></dd></dl>
+
+
+
+<a name="TAP-Names"></a>
+<h3 class="section">10.2 TAP Names</h3>
+<a name="index-dotted-name"></a>
+
+<p>When TAP objects are declared with <code>jtag newtap</code>,
+a <em>dotted.name</em> is created for the TAP, combining the
+name of a module (usually a chip) and a label for the TAP.
+For example: <code>xilinx.tap</code>, <code>str912.flash</code>,
+<code>omap3530.jrc</code>, <code>dm6446.dsp</code>, or <code>stm32.cpu</code>.
+Many other commands use that dotted.name to manipulate or
+refer to the TAP. For example, CPU configuration uses the
+name, as does declaration of NAND or NOR flash banks.
+</p>
+<p>The components of a dotted name should follow &ldquo;C&rdquo; symbol
+name rules: start with an alphabetic character, then numbers
+and underscores are OK; while others (including dots!) are not.
+</p>
+<a name="TAP-Declaration-Commands"></a>
+<h3 class="section">10.3 TAP Declaration Commands</h3>
+
+<dl>
+<dt><a name="index-jtag-newtap"></a>Command: <strong>jtag newtap</strong> <em>chipname tapname configparams...</em></dt>
+<dd><p>Declares a new TAP with the dotted name <var>chipname</var>.<var>tapname</var>,
+and configured according to the various <var>configparams</var>.
+</p>
+<p>The <var>chipname</var> is a symbolic name for the chip.
+Conventionally target config files use <code>$_CHIPNAME</code>,
+defaulting to the model name given by the chip vendor but
+overridable.
+</p>
+<a name="index-TAP-naming-convention"></a>
+<p>The <var>tapname</var> reflects the role of that TAP,
+and should follow this convention:
+</p>
+<ul>
+<li> <code>bs</code> &ndash; For boundary scan if this is a separate TAP;
+</li><li> <code>cpu</code> &ndash; The main CPU of the chip, alternatively
+<code>arm</code> and <code>dsp</code> on chips with both ARM and DSP CPUs,
+<code>arm1</code> and <code>arm2</code> on chips with two ARMs, and so forth;
+</li><li> <code>etb</code> &ndash; For an embedded trace buffer (example: an ARM ETB11);
+</li><li> <code>flash</code> &ndash; If the chip has a flash TAP, like the str912;
+</li><li> <code>jrc</code> &ndash; For JTAG route controller (example: the ICEPick modules
+on many Texas Instruments chips, like the OMAP3530 on Beagleboards);
+</li><li> <code>tap</code> &ndash; Should be used only for FPGA- or CPLD-like devices
+with a single TAP;
+</li><li> <code>unknownN</code> &ndash; If you have no idea what the TAP is for (N is a number);
+</li><li> <em>when in doubt</em> &ndash; Use the chip maker&rsquo;s name in their data sheet.
+For example, the Freescale i.MX31 has a SDMA (Smart DMA) with
+a JTAG TAP; that TAP should be named <code>sdma</code>.
+</li></ul>
+
+<p>Every TAP requires at least the following <var>configparams</var>:
+</p>
+<ul>
+<li> <code>-irlen</code> <var>NUMBER</var>
+<br>The length in bits of the
+instruction register, such as 4 or 5 bits.
+</li></ul>
+
+<p>A TAP may also provide optional <var>configparams</var>:
+</p>
+<ul>
+<li> <code>-disable</code> (or <code>-enable</code>)
+<br>Use the <code>-disable</code> parameter to flag a TAP which is not
+linked into the scan chain after a reset using either TRST
+or the JTAG state machine&rsquo;s <small>RESET</small> state.
+You may use <code>-enable</code> to highlight the default state
+(the TAP is linked in).
+See <a href="#enablinganddisablingtaps">Enabling and Disabling TAPs</a>.
+</li><li> <code>-expected-id</code> <var>NUMBER</var>
+<br>A non-zero <var>number</var> represents a 32-bit IDCODE
+which you expect to find when the scan chain is examined.
+These codes are not required by all JTAG devices.
+<em>Repeat the option</em> as many times as required if more than one
+ID code could appear (for example, multiple versions).
+Specify <var>number</var> as zero to suppress warnings about IDCODE
+values that were found but not included in the list.
+
+<p>Provide this value if at all possible, since it lets OpenOCD
+tell when the scan chain it sees isn&rsquo;t right. These values
+are provided in vendors&rsquo; chip documentation, usually a technical
+reference manual. Sometimes you may need to probe the JTAG
+hardware to find these values.
+See <a href="#autoprobing">Autoprobing</a>.
+</p></li><li> <code>-ignore-version</code>
+<br>Specify this to ignore the JTAG version field in the <code>-expected-id</code>
+option. When vendors put out multiple versions of a chip, or use the same
+JTAG-level ID for several largely-compatible chips, it may be more practical
+to ignore the version field than to update config files to handle all of
+the various chip IDs. The version field is defined as bit 28-31 of the IDCODE.
+</li><li> <code>-ircapture</code> <var>NUMBER</var>
+<br>The bit pattern loaded by the TAP into the JTAG shift register
+on entry to the <small>IRCAPTURE</small> state, such as 0x01.
+JTAG requires the two LSBs of this value to be 01.
+By default, <code>-ircapture</code> and <code>-irmask</code> are set
+up to verify that two-bit value. You may provide
+additional bits if you know them, or indicate that
+a TAP doesn&rsquo;t conform to the JTAG specification.
+</li><li> <code>-irmask</code> <var>NUMBER</var>
+<br>A mask used with <code>-ircapture</code>
+to verify that instruction scans work correctly.
+Such scans are not used by OpenOCD except to verify that
+there seems to be no problems with JTAG scan chain operations.
+</li></ul>
+</dd></dl>
+
+<a name="Other-TAP-commands"></a>
+<h3 class="section">10.4 Other TAP commands</h3>
+
+<dl>
+<dt><a name="index-jtag-cget"></a>Command: <strong>jtag cget</strong> <em>dotted.name <samp>-event</samp> event_name</em></dt>
+<dt><a name="index-jtag-configure"></a>Command: <strong>jtag configure</strong> <em>dotted.name <samp>-event</samp> event_name handler</em></dt>
+<dd><p>At this writing this TAP attribute
+mechanism is used only for event handling.
+(It is not a direct analogue of the <code>cget</code>/<code>configure</code>
+mechanism for debugger targets.)
+See the next section for information about the available events.
+</p>
+<p>The <code>configure</code> subcommand assigns an event handler,
+a TCL string which is evaluated when the event is triggered.
+The <code>cget</code> subcommand returns that handler.
+</p></dd></dl>
+
+<a name="TAP-Events"></a>
+<h3 class="section">10.5 TAP Events</h3>
+<a name="index-events-1"></a>
+<a name="index-TAP-events"></a>
+
+<p>OpenOCD includes two event mechanisms.
+The one presented here applies to all JTAG TAPs.
+The other applies to debugger targets,
+which are associated with certain TAPs.
+</p>
+<p>The TAP events currently defined are:
+</p>
+<ul>
+<li> <b>post-reset</b>
+<br> The TAP has just completed a JTAG reset.
+The tap may still be in the JTAG <small>RESET</small> state.
+Handlers for these events might perform initialization sequences
+such as issuing TCK cycles, TMS sequences to ensure
+exit from the ARM SWD mode, and more.
+
+<p>Because the scan chain has not yet been verified, handlers for these events
+<em>should not issue commands which scan the JTAG IR or DR registers</em>
+of any particular target.
+<b>NOTE:</b> As this is written (September 2009), nothing prevents such access.
+</p></li><li> <b>setup</b>
+<br> The scan chain has been reset and verified.
+This handler may enable TAPs as needed.
+</li><li> <b>tap-disable</b>
+<br> The TAP needs to be disabled. This handler should
+implement <code>jtag tapdisable</code>
+by issuing the relevant JTAG commands.
+</li><li> <b>tap-enable</b>
+<br> The TAP needs to be enabled. This handler should
+implement <code>jtag tapenable</code>
+by issuing the relevant JTAG commands.
+</li></ul>
+
+<p>If you need some action after each JTAG reset which isn&rsquo;t actually
+specific to any TAP (since you can&rsquo;t yet trust the scan chain&rsquo;s
+contents to be accurate), you might:
+</p>
+<div class="example">
+<pre class="example">jtag configure CHIP.jrc -event post-reset {
+  echo &quot;JTAG Reset done&quot;
+  ... non-scan jtag operations to be done after reset
+}
+</pre></div>
+
+
+<a name="enablinganddisablingtaps"></a><a name="Enabling-and-Disabling-TAPs"></a>
+<h3 class="section">10.6 Enabling and Disabling TAPs</h3>
+<a name="index-JTAG-Route-Controller"></a>
+<a name="index-jrc"></a>
+
+<p>In some systems, a <em>JTAG Route Controller</em> (JRC)
+is used to enable and/or disable specific JTAG TAPs.
+Many ARM-based chips from Texas Instruments include
+an &ldquo;ICEPick&rdquo; module, which is a JRC.
+Such chips include DaVinci and OMAP3 processors.
+</p>
+<p>A given TAP may not be visible until the JRC has been
+told to link it into the scan chain; and if the JRC
+has been told to unlink that TAP, it will no longer
+be visible.
+Such routers address problems that JTAG &ldquo;bypass mode&rdquo;
+ignores, such as:
+</p>
+<ul>
+<li> The scan chain can only go as fast as its slowest TAP.
+</li><li> Having many TAPs slows instruction scans, since all
+TAPs receive new instructions.
+</li><li> TAPs in the scan chain must be powered up, which wastes
+power and prevents debugging some power management mechanisms.
+</li></ul>
+
+<p>The IEEE 1149.1 JTAG standard has no concept of a &ldquo;disabled&rdquo; tap,
+as implied by the existence of JTAG routers.
+However, the upcoming IEEE 1149.7 framework (layered on top of JTAG)
+does include a kind of JTAG router functionality.
+</p>
+
+<p>In OpenOCD, tap enabling/disabling is invoked by the Tcl commands
+shown below, and is implemented using TAP event handlers.
+So for example, when defining a TAP for a CPU connected to
+a JTAG router, your <samp>target.cfg</samp> file
+should define TAP event handlers using
+code that looks something like this:
+</p>
+<div class="example">
+<pre class="example">jtag configure CHIP.cpu -event tap-enable {
+  ... jtag operations using CHIP.jrc
+}
+jtag configure CHIP.cpu -event tap-disable {
+  ... jtag operations using CHIP.jrc
+}
+</pre></div>
+
+<p>Then you might want that CPU&rsquo;s TAP enabled almost all the time:
+</p>
+<div class="example">
+<pre class="example">jtag configure $CHIP.jrc -event setup &quot;jtag tapenable $CHIP.cpu&quot;
+</pre></div>
+
+<p>Note how that particular setup event handler declaration
+uses quotes to evaluate <code>$CHIP</code> when the event is configured.
+Using brackets { } would cause it to be evaluated later,
+at runtime, when it might have a different value.
+</p>
+<dl>
+<dt><a name="index-jtag-tapdisable"></a>Command: <strong>jtag tapdisable</strong> <em>dotted.name</em></dt>
+<dd><p>If necessary, disables the tap
+by sending it a <samp>tap-disable</samp> event.
+Returns the string &quot;1&quot; if the tap
+specified by <var>dotted.name</var> is enabled,
+and &quot;0&quot; if it is disabled.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag-tapenable"></a>Command: <strong>jtag tapenable</strong> <em>dotted.name</em></dt>
+<dd><p>If necessary, enables the tap
+by sending it a <samp>tap-enable</samp> event.
+Returns the string &quot;1&quot; if the tap
+specified by <var>dotted.name</var> is enabled,
+and &quot;0&quot; if it is disabled.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-jtag-tapisenabled"></a>Command: <strong>jtag tapisenabled</strong> <em>dotted.name</em></dt>
+<dd><p>Returns the string &quot;1&quot; if the tap
+specified by <var>dotted.name</var> is enabled,
+and &quot;0&quot; if it is disabled.
+</p>
+<blockquote>
+<p><b>Note:</b> Humans will find the <code>scan_chain</code> command more helpful
+for querying the state of the JTAG taps.
+</p></blockquote>
+</dd></dl>
+
+<a name="autoprobing"></a><a name="Autoprobing"></a>
+<h3 class="section">10.7 Autoprobing</h3>
+<a name="index-autoprobe"></a>
+<a name="index-JTAG-autoprobe"></a>
+
+<p>TAP configuration is the first thing that needs to be done
+after interface and reset configuration. Sometimes it&rsquo;s
+hard finding out what TAPs exist, or how they are identified.
+Vendor documentation is not always easy to find and use.
+</p>
+<p>To help you get past such problems, OpenOCD has a limited
+<em>autoprobing</em> ability to look at the scan chain, doing
+a <em>blind interrogation</em> and then reporting the TAPs it finds.
+To use this mechanism, start the OpenOCD server with only data
+that configures your JTAG interface, and arranges to come up
+with a slow clock (many devices don&rsquo;t support fast JTAG clocks
+right when they come out of reset).
+</p>
+<p>For example, your <samp>openocd.cfg</samp> file might have:
+</p>
+<div class="example">
+<pre class="example">source [find interface/olimex-arm-usb-tiny-h.cfg]
+reset_config trst_and_srst
+jtag_rclk 8
+</pre></div>
+
+<p>When you start the server without any TAPs configured, it will
+attempt to autoconfigure the TAPs. There are two parts to this:
+</p>
+<ol>
+<li> <em>TAP discovery</em> ...
+After a JTAG reset (sometimes a system reset may be needed too),
+each TAP&rsquo;s data registers will hold the contents of either the
+IDCODE or BYPASS register.
+If JTAG communication is working, OpenOCD will see each TAP,
+and report what <samp>-expected-id</samp> to use with it.
+</li><li> <em>IR Length discovery</em> ...
+Unfortunately JTAG does not provide a reliable way to find out
+the value of the <samp>-irlen</samp> parameter to use with a TAP
+that is discovered.
+If OpenOCD can discover the length of a TAP&rsquo;s instruction
+register, it will report it.
+Otherwise you may need to consult vendor documentation, such
+as chip data sheets or BSDL files.
+</li></ol>
+
+<p>In many cases your board will have a simple scan chain with just
+a single device. Here&rsquo;s what OpenOCD reported with one board
+that&rsquo;s a bit more complex:
+</p>
+<div class="example">
+<pre class="example">clock speed 8 kHz
+There are no enabled taps. AUTO PROBING MIGHT NOT WORK!!
+AUTO auto0.tap - use &quot;jtag newtap auto0 tap -expected-id 0x2b900f0f ...&quot;
+AUTO auto1.tap - use &quot;jtag newtap auto1 tap -expected-id 0x07926001 ...&quot;
+AUTO auto2.tap - use &quot;jtag newtap auto2 tap -expected-id 0x0b73b02f ...&quot;
+AUTO auto0.tap - use &quot;... -irlen 4&quot;
+AUTO auto1.tap - use &quot;... -irlen 4&quot;
+AUTO auto2.tap - use &quot;... -irlen 6&quot;
+no gdb ports allocated as no target has been specified
+</pre></div>
+
+<p>Given that information, you should be able to either find some existing
+config files to use, or create your own. If you create your own, you
+would configure from the bottom up: first a <samp>target.cfg</samp> file
+with these TAPs, any targets associated with them, and any on-chip
+resources; then a <samp>board.cfg</samp> with off-chip resources, clocking,
+and so forth.
+</p>
+<div class="footnote">
+<hr>
+<h4 class="footnotes-heading">Footnotes</h4>
+
+<h3><a name="FOOT5" href="#DOCF5">(5)</a></h3>
+<p>See the ST
+document titled: <em>STR91xFAxxx, Section 3.15 Jtag Interface, Page:
+28/102, Figure 3: JTAG chaining inside the STR91xFA</em>.
+<a href="http://eu.st.com/stonline/products/literature/ds/13495.pdf">http://eu.st.com/stonline/products/literature/ds/13495.pdf</a></p>
+</div>
+<hr>
+<div class="header">
+<p>
+Next: <a href="CPU-Configuration.html#CPU-Configuration" accesskey="n" rel="next">CPU Configuration</a>, Previous: <a href="Reset-Configuration.html#Reset-Configuration" accesskey="p" rel="prev">Reset Configuration</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="OpenOCD-Concept-Index.html#OpenOCD-Concept-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>
