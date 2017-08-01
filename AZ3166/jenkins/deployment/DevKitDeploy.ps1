@@ -1,7 +1,7 @@
 param(
     [string]
     $Environment = "prod",
-    $MD5FileName = "devkit-package-md5.json",
+    $MD5FileName = "devkit_package_md5.json",
     $ArduinoConfigFileName = "devkit_package_index.json"
 )
 
@@ -38,13 +38,13 @@ $CurrentVersion = $CurrentVersion.ToString().Trim()
 # Upload installation package
 $InstallPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\usb_install_$CurrentVersion.zip"
 
-$InstallPackageBlobName = "devkit_install_" + $CurrentVersion + "_test.zip"
-Set-AzureStorageBlobContent -Context $StorageContext -Container $InstallPackageContainer -File $InstallPackageFilePath -Blob $InstallPackageBlobName -Force
+$InstallPackageBlobName = "devkit_install_" + $CurrentVersion + ".zip"
+Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $InstallPackageFilePath -Blob "$InstallPackageContainer\$InstallPackageBlobName" -Force
 
 # Upload Arduino package
 $ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\arduino_source_$CurrentVersion.zip"
-$ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + "_test.zip"
-Set-AzureStorageBlobContent -Context $StorageContext -Container $ArduinoPackageContainer -File $ArduinoPackageFilePath -Blob $ArduinoPackageBlobName -Force
+$ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
+Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
 
 #################################################################################
@@ -85,7 +85,7 @@ if (!$NewItem) {
 $MD5Json | ConvertTo-Json -Depth 10 | Out-File $MD5FileName
 
 # Update the MD5 JSON file in Azure blob storage
-Set-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -File $MD5FileName -Force
+Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $MD5FileName -Blob "$PackageInfoContainer\$MD5FileName" -Force
 
 # TODO: Check release note is updated!
 
@@ -95,7 +95,7 @@ Set-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoCont
 
 Write-Host("Step 3: Update Arduino configuration JSON file")
 
-Get-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -Blob "$Environment\$ArduinoConfigFileName" -Destination $ArduinoConfigFileName -Force
+Get-AzureStorageBlobContent -Context $StorageContext -Container $Environment -Blob "$PackageInfoContainer\$ArduinoConfigFileName" -Destination $ArduinoConfigFileName -Force
 $ArduinoConfigJson = Get-Content $ArduinoConfigFileName | Out-String | ConvertFrom-Json
 
 $totalVersions = $ArduinoConfigJson.packages[0].platforms.Count
@@ -142,10 +142,10 @@ if ($totalVersions -gt 5)
 $ArduinoConfigJson | ConvertTo-Json -Depth 10 | Out-File $ArduinoConfigFileName
 
 # Upload Arduino configuration file to Azure blob storage
-$ArduinoConfigJsonBlobName = "$Environment/package_devkit_index.json"
-Set-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -File $ArduinoConfigFileName -Blob $ArduinoConfigJsonBlobName -Force
+$ArduinoConfigJsonBlobName = "$PackageInfoContainer/$ArduinoConfigFileName"
+Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoConfigFileName -Blob $ArduinoConfigJsonBlobName -Force
 
-$ArduinoConfigJsonBlobURL = "https://azureboard.blob.core.windows.net/$PackageInfoContainer/$ArduinoConfigJsonBlobName"
+$ArduinoConfigJsonBlobURL = "https://azureboard.blob.core.windows.net/$Environment/$PackageInfoContainer/$ArduinoConfigJsonBlobName"
 Write-Host("Arduino board manager JSON file URI: $ArduinoConfigJsonBlobURL")
 
 Write-Host("$Environment deployment completed.");
