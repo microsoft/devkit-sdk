@@ -42,10 +42,13 @@ public static void Run(string myEventHubMessage, TraceWriter log)
     {
         throw new ShakeShakeException($"Failed to deserialize message:{myEventHubMessage}. Error detail: {ex.Message}");
     }
-
-    if(string.IsNullOrEmpty(deviceObject.topic))
-        throw new ShakeShakeException($"topic must not be null or empty in message : {myEventHubMessage}");
-
+    
+    if (String.IsNullOrEmpty(deviceObject.topic))
+    {
+        // No hash tag or this is a heartbeat package
+        return;
+    }
+    
     string message = string.Empty;
     try
     {

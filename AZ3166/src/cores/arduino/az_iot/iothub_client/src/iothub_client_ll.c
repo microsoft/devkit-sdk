@@ -19,7 +19,7 @@
 #include "iothub_client_options.h"
 #include "iothub_client_version.h"
 #include <stdint.h>
-#include "telemetry.h"
+#include "Telemetry.h"
 
 #ifndef DONT_USE_UPLOADTOBLOB
 #include "iothub_client_ll_uploadtoblob.h"

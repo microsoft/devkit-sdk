@@ -221,6 +221,12 @@ void iothub_client_sample_send_event(const unsigned char *text)
     (void)Serial.printf("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.\r\n");
 }
 
+void iothub_client_sample_mqtt_check(void)
+{
+    CheckConnection();
+    IoTHubClient_LL_DoWork(iotHubClientHandle);
+}
+
 void iothub_client_sample_mqtt_loop(void)
 {
     CheckConnection();

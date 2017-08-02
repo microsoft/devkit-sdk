@@ -2,7 +2,6 @@
 <project>
   <actions/>
   <description>build Arduino package for devkit</description>
-  <displayName>devkitbuild</displayName>
   <keepDependencies>false</keepDependencies>
   <properties>
     <jenkins.model.BuildDiscarderProperty>
@@ -16,11 +15,10 @@
   </properties>
   <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@3.2.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.4.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
-            <name>mbed-os</name>
             <url>https://github.com/VSChina/mbed-os</url>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
@@ -37,13 +35,12 @@
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@3.2.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.4.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
-            <name>stsafe</name>
             <url>https://mseng.visualstudio.com/VSIoT/IoT%20Dev%20Kit/_git/STSAFE</url>
-            <credentialsId>ca36251c-c2a7-4cc3-befe-ed3edb635d9d</credentialsId>
+            <credentialsId>2f270bd0-7e08-4573-a149-614dd9bfecee</credentialsId>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
         <branches>
@@ -59,7 +56,7 @@
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@3.2.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.4.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -79,30 +76,10 @@
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@3.2.0">
-        <configVersion>2</configVersion>
-        <userRemoteConfigs>
-          <hudson.plugins.git.UserRemoteConfig>
-            <url>git@github.com:Microsoft/AzureIoTDeveloperKit.git</url>
-            <credentialsId>e913f536-6bb6-449f-a62a-86a2bbf53ce5</credentialsId>
-          </hudson.plugins.git.UserRemoteConfig>
-        </userRemoteConfigs>
-        <branches>
-          <hudson.plugins.git.BranchSpec>
-            <name>*/master</name>
-          </hudson.plugins.git.BranchSpec>
-        </branches>
-        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-        <submoduleCfg class="list"/>
-        <extensions>
-          <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>AzureIoTDeveloperKit</relativeTargetDir>
-          </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-        </extensions>
-      </hudson.plugins.git.GitSCM>
     </scms>
   </scm>
-  <canRoam>true</canRoam>
+  <assignedNode>Slave1</assignedNode>
+  <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
@@ -113,7 +90,6 @@
     </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>C:\devkitbuild\${BUILD_ID}</customWorkspace>
   <builders>
     <hudson.tasks.BatchFile>
       <command>md BUILD&#xd;
