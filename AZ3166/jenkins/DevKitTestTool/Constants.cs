@@ -6,6 +6,8 @@
     {
         internal static readonly string SystemVersionFileName = "system_version.txt";
 
+        internal static readonly string ExcludedTestsFileName = "excludedTests.txt";
+
         internal static readonly string ReportLineSeperator = "-------------------------------------------";
 
         internal static readonly string ArduinoExeFilePath = @"C:\Program Files (x86)\Arduino\arduino_debug.exe";
