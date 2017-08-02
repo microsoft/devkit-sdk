@@ -53,14 +53,22 @@ void getLatestFirmwareVersion()
   const Http_Response *response = client.send(NULL, 0);
   if (response != NULL)
   {
-    sprintf(firmwareTelemetryBuff, "Local: %s, Remote: %s");
+    snprintf(firmwareTelemetryBuff, 64, "Local: %s, Remote: %s", getDevkitVersion(), response->body);
+
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products.
+    // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionSucceeded", firmwareTelemetryBuff);
+
     sprintf(firmwareBuff, "Version: %s\r\nLatest: %s\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion(), response->body);
   }
   else
   {
-    sprintf(firmwareTelemetryBuff, "Local: %s");
+    snprintf(firmwareTelemetryBuff, 64, "Local: %s", getDevkitVersion());
+
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products.
+    // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionFailed", firmwareTelemetryBuff);
+
     sprintf(firmwareBuff, "Version: %s\r\n \r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
   }
   Screen.print(firmwareBuff);
