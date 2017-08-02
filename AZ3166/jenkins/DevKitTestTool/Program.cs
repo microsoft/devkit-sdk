@@ -99,7 +99,7 @@
                     case "TestInstallationPackage":
                         InstallationPackageTest installationPackageTest = new InstallationPackageTest(workspace);
 
-                        string installPackageBlobUrl = string.Format(ConfigurationManager.AppSettings.Get("nstallPackageBlobUrl"), GetVersion());
+                        string installPackageBlobUrl = string.Format(ConfigurationManager.AppSettings.Get("InstallPackageBlobUrl"), GetVersion());
                         installationPackageTest.RunTest(installPackageBlobUrl);
                         break;
 
