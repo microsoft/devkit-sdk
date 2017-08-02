@@ -16,24 +16,25 @@
         private static readonly string workspace = ConfigurationManager.AppSettings["Workspace"];
         private static readonly string packageName = ConfigurationManager.AppSettings["PackageName"];
 
-        private static int totalCase = 0;
-        private static int passCase = 0;
-        private static int failedCase = 0;
         private static SerialPortListener _listener;
         private static string versionFile;
         private static string resultFolderPath;
 
-        private static Dictionary<string, string> failedExamples = new Dictionary<string, string>();
-        private static Dictionary<string, string> failedCases = new Dictionary<string, string>();
+        private static Dictionary<string, string> examplesTestResult = new Dictionary<string, string>();
+        private static Dictionary<string, string> unitTestResult = new Dictionary<string, string>();
         private static List<string> excludeTests = new List<string>();
 
         public static int Main(string[] args)
         {
-            excludeTests = File.ReadAllLines("excludedTests.txt").ToList();
             Stopwatch watch = new Stopwatch();
 
             try
             {
+                if (File.Exists(Constants.ExcludedTestsFileName))
+                {
+                    excludeTests = File.ReadAllLines(Constants.ExcludedTestsFileName).ToList();
+                }
+
                 resultFolderPath = Path.Combine(workspace, ConfigurationManager.AppSettings["ResultFolder"]);
                 if (!Directory.Exists(resultFolderPath))
                 {
@@ -67,6 +68,12 @@
 
                         Console.WriteLine("Generate  test report");
                         GenerateReport(logFilePath, watch.Elapsed.Minutes);
+
+                        if (unitTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
+                        {
+                            return 1;
+                        }
+
                         break;
 
                     case "VerifyExamples":
@@ -77,6 +84,12 @@
 
                         watch.Stop();
                         Console.WriteLine($"DevKit examples verification time: {watch.Elapsed.Minutes} minutes.");
+
+                        if (examplesTestResult.Count > 0)
+                        {
+                            return 1;
+                        }
+
                         break;
 
                     case "GenerateArduinoPackage":
@@ -94,12 +107,13 @@
                         Console.WriteLine("Done");
                         break;
                 }
+
                 return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return -1;
+                return 1;
             }
         }
 
@@ -166,9 +180,10 @@
             foreach (FileInfo file in files)
             {
                 if (excludeTests.Contains(file.Name))
+                {
                     continue;
+                }
 
-                totalCase++;
                 Console.WriteLine(Constants.ReportLineSeperator);
                 Console.WriteLine(string.Format("Start checking {0}...", file.Name));
 
@@ -178,9 +193,12 @@
 
                 if (!string.IsNullOrEmpty(error))
                 {
-                    failedCase++;
-                    failedCases.Add(file.FullName, error);
+                    unitTestResult.Add(file.FullName, error);
                     Console.WriteLine(error);
+                }
+                else
+                {
+                    unitTestResult.Add(file.Name, "succeed");
                 }
 
                 Console.WriteLine("END\r\n");
@@ -217,11 +235,12 @@
 
                 if (string.IsNullOrEmpty(error))
                 {
+                    examplesTestResult.Add(file.Name, "succeed");
                     Console.WriteLine($"Result: succeeded.\r\n");
                 }
                 else
                 {
-                    failedExamples.Add(file.FullName, error);
+                    examplesTestResult.Add(file.Name, error);
                     Console.WriteLine(error);
                     Console.WriteLine("Result: failed.\r\n");
                 }
@@ -247,12 +266,12 @@
                 writer.WriteLine("<html><head><title>Test Result</title><head><body>");
 
                 //check the examples folder
-                if (failedExamples.Count > 0)
+                if (examplesTestResult.Count > 0)
                 {
                     content += Constants.ReportLineSeperator;
                     content += "<p>Examples Result</p>";
 
-                    foreach (KeyValuePair<string, string> kvp in failedExamples)
+                    foreach (KeyValuePair<string, string> kvp in examplesTestResult)
                     {
                         content += Constants.ReportLineSeperator;
                         content += "<p> start testing: " + kvp.Key + "</p>";
@@ -295,19 +314,21 @@
                     }
                 }
 
-                if (failedCases.Count != 0)
+                if (unitTestResult.Count != 0)
                 {
-                    foreach (KeyValuePair<string, string> kvp in failedCases)
+                    foreach (KeyValuePair<string, string> kvp in unitTestResult)
                     {
                         content += "<p> start testing: " + kvp.Key + "</p>";
                         content += "<p> " + kvp.Value + "</p>";
                     }
                 }
 
-                passCase = totalCase - failedCase;
-                writer.WriteLine("<p>Total cases: " + totalCase + "</p>");
-                writer.WriteLine("<p>Pass cases: " + passCase + "</p>");
-                writer.WriteLine("<p>Pass Rate: " + ((double)passCase / totalCase).ToString("p") + "</p>");
+                int totalUnitTestCount = unitTestResult.Count;
+                int passUnitTestCount = unitTestResult.Where(t => string.Equals(t.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count();
+
+                writer.WriteLine("<p>Total cases: " + totalUnitTestCount + "</p>");
+                writer.WriteLine("<p>Pass cases: " + passUnitTestCount + "</p>");
+                writer.WriteLine("<p>Pass Rate: " + ((double)passUnitTestCount / unitTestResult.Count).ToString("p") + "</p>");
                 writer.WriteLine("<p>Total execution time: " + String.Format("{0:0.##}", executionTimeInMinutes) + " minutes.</p>");
                 writer.WriteLine("<p/>");
                 writer.WriteLine("<p/>");
@@ -369,7 +390,7 @@
                 }
 
                 // Sleep for 1 second to ensure the action is completed
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
                 if (proc.ExitCode != 0)
                 {
                     bPass = false;
