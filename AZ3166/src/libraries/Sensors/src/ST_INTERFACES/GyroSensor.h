@@ -70,7 +70,7 @@ public:
 
     /**
      * @brief       Get current gyroscope raw data X/Y/Z-axes values 
-     *              in device sepcific LSB units
+     *              in device specific LSB units
      * @param[out]  p_data Pointer to where to store gyroscope raw data to.
      *              p_data must point to an array of (at least) three elements, where:
      *              p_data[0] corresponds to X-axis,
