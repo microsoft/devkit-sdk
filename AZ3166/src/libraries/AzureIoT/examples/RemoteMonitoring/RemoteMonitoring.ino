@@ -3,7 +3,7 @@
 #include "AzureIotHub.h"
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 static bool isConnected = false;
 

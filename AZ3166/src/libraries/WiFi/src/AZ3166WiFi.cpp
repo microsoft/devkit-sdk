@@ -22,7 +22,7 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "mico.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 int16_t WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
 

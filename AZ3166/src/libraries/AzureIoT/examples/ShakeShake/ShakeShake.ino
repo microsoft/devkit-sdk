@@ -3,7 +3,7 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 #include "Sensor.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100

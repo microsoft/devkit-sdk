@@ -1,7 +1,7 @@
 #include <AZ3166WiFi.h>
 #include "MQTTClient.h"
 #include "MQTTNetwork.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 int status = WL_IDLE_STATUS;
 int arrivedcount = 0;

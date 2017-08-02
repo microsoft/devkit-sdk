@@ -2,7 +2,7 @@
 #include "AZ3166WiFi.h"
 #include "config.h"
 #include "iothub_client_sample_mqtt.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 static bool hasWifi = false;
 static bool ready = false;

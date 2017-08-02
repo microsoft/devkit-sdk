@@ -7,7 +7,7 @@
 #include "NetworkInterface.h"
 #include "MQTTmbed.h"
 #include "SystemWiFi.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 class MQTTNetwork {
 public:

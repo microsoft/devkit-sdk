@@ -7,7 +7,7 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "NTPClient.h"
-#include "SystemTelemetry.h"
+#include "Telemetry.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // WiFi related functions
