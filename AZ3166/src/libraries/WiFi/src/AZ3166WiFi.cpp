@@ -22,7 +22,7 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "mico.h"
-#include "telemetry.h"
+#include "Telemetry.h"
 
 int16_t WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
 
@@ -97,7 +97,7 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
         
         // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
         // We collect data about the features you use, how often you use them, and how you use them.
-        send_telemetry_data("", "wifi", "Wi-Fi connected");
+        send_telemetry_data_async("", "wifi", "Wi-Fi connected");
 
         strcpy(this->ssid, ssid);
         current_status = WL_CONNECTED;

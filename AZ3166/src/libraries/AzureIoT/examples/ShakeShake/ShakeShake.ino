@@ -3,7 +3,7 @@
 #include "AZ3166WiFi.h"
 #include "_iothub_client_sample_mqtt.h"
 #include "Sensor.h"
-#include "telemetry.h"
+#include "Telemetry.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
@@ -12,6 +12,9 @@
 #define PULL_TIMEOUT        15.0
 
 #define RECONNECT_THRESHOLD 3
+
+#define MSG_HEADER_SIZE     20
+#define MSG_BODY_SIZE       200
 
 // 0 - idle
 // 1 - shaking
@@ -24,11 +27,8 @@ LSM6DSLSensor *acc_gyro;
 
 static RGB_LED rgbLed;
 
-static char msgText[1024];
-static char temp[100];
-
-static char *msgHeader = NULL;
-static char *msgBody = NULL;
+static char msgHeader[MSG_HEADER_SIZE];
+static char msgBody[MSG_BODY_SIZE];
 static int msgStart = 0;
 
 static volatile boolean eventSent = false;
@@ -36,6 +36,7 @@ static volatile boolean eventSent = false;
 bool hasWifi = false;
 
 static const char* iot_event = "{\"topic\":\"iot\"}";
+static const char* iot_event_heartbeat = "{\"topic\":\"\"}";
 
 static time_t time_hb;
 static time_t time_sending_timeout;
@@ -47,19 +48,27 @@ void MessageSendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
   eventSent = true;
   if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
   {
-    // If get back the send confirmation msg clear the re-connect count
+    // If get back the confirmation msg then clear the re-start counter
     restart_iot_client = 0;
+    if (status == 2)
+    {
+      // Waiting for Azure Function return the tweet
+      Screen.print(2, " Retrieving...");
+    } 
   }
   else if (result == IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT)
   {
     // This should be a connection issue, re-connect
     restart_iot_client = RECONNECT_THRESHOLD;
+    
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data_async("", "ShakeShakeFailed", "IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT");
   }
 }
 
 static char printable_char(char c)
 {
-  return c;
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
 
@@ -70,25 +79,22 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
       return;
   }
   
-  if (lenTweet > 220){
-      lenTweet = 220;
-  }
-  
   int i = 0;
   int j = 0;
   // The header
-  for (; i < lenTweet; i++)
+  for (; i < min(lenTweet, sizeof(msgHeader)); i++)
   {
       if(tweet[i] == '\n')
       {
-          msgHeader[j] = 0;
+          
           break;
       }
       msgHeader[j++] = printable_char(tweet[i]);
   }
+  msgHeader[j] = 0;
   // The body
   j = 0;
-  for (; i < lenTweet; i++)
+  for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
   {
     if (tweet[i] != '\r' && tweet[i] != '\n')
     {
@@ -103,6 +109,10 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
   status = 3;
   msgStart = 0;
   restart_iot_client = 0;
+
+  // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+  // We collect data about the features you use, how often you use them, and how you use them.
+  send_telemetry_data_async("", "ShakeShakeSucceed", "");
 }
 
 static void ScrollTweet(void)
@@ -169,7 +179,7 @@ static void DoHeartBeat(void)
   eventSent = false;
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println(">>Heartbeat<<");
-  SendEventToIoTHub(iot_event);
+  SendEventToIoTHub(iot_event_heartbeat);
   for (;;)
   {
     iothub_client_sample_mqtt_loop();
@@ -182,7 +192,7 @@ static void DoHeartBeat(void)
     if (diff >= PULL_TIMEOUT)
     {
       // Not get back the send confirmation msg, increase the restart count by 1
-      Serial.println(">>Failed to retrieve the sending confirmation message: timeout.");
+      Serial.println(">>Failed to retrieve the confirmation message: timeout.");
       restart_iot_client++;
       break;
     }
@@ -193,8 +203,7 @@ static void DoHeartBeat(void)
 
 void setup()
 {
-  msgHeader = (char*) malloc(20);
-  msgBody = (char*) malloc(200);
+  msgHeader[0] = 0;
   msgBody[0] = 0;
   status = 0;
   restart_iot_client = 0;
@@ -218,7 +227,7 @@ void setup()
   {
     // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
     // We collect data about the features you use, how often you use them, and how you use them.
-    send_telemetry_data("", "ShakeShakeSetup", "");
+    send_telemetry_data_async("", "ShakeShakeSetup", "");
   }
   
   // Initialize LEDs
@@ -267,6 +276,7 @@ static void DoIdle()
       rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
       acc_gyro->resetStepCounter();
     }
+    iothub_client_sample_mqtt_check();
 }
 
 static void DoShake()
@@ -305,10 +315,14 @@ static void DoWork()
     {
       if (!eventSent)
       {
-        // If not get back the send confirmation msg then increase the restart count by 1
+        // If not get back the confirmation msg then increase the restart count by 1
         restart_iot_client ++;
       }
       
+      // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+      // We collect data about the features you use, how often you use them, and how you use them.
+      send_telemetry_data_async("", "ShakeShakeFailed", "No tweets...");
+
       // Switch back to status 0
       Screen.print(1, "No tweets...");
       Screen.print(2, "Press A to Shake!");
