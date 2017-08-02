@@ -40,7 +40,7 @@
 
             WebClient client = new WebClient();
 
-            string installationZipFile = Path.Combine(Directory.GetCurrentDirectory(), Path.GetFileName(packageUrl));
+            string installationZipFile = Path.Combine(workspace, Path.GetFileName(packageUrl));
             if (File.Exists(installationZipFile))
             {
                 File.Delete(installationZipFile);
