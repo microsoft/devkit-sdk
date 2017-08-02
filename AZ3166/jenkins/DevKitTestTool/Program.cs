@@ -85,7 +85,7 @@
                         watch.Stop();
                         Console.WriteLine($"DevKit examples verification time: {watch.Elapsed.Minutes} minutes.");
 
-                        if (examplesTestResult.Count > 0)
+                        if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
                             return 1;
                         }
