@@ -69,7 +69,7 @@ void getLatestFirmwareVersion()
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionFailed", firmwareTelemetryBuff);
 
-    sprintf(firmwareBuff, "Version: %s\r\n \r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
+    sprintf(firmwareBuff, "Version: %s\r\nLatest: N/A\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
   }
   Screen.print(firmwareBuff);
 }
