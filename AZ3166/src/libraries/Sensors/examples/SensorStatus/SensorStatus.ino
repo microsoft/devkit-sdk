@@ -59,7 +59,7 @@ void getLatestFirmwareVersion()
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionSucceeded", firmwareTelemetryBuff);
 
-    sprintf(firmwareBuff, "Version: %s\r\nLatest: %s\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion(), response->body);
+    snprintf(firmwareBuff, 128, "Version: %s\r\nLatest: %s\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion(), response->body);
   }
   else
   {
@@ -69,7 +69,7 @@ void getLatestFirmwareVersion()
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionFailed", firmwareTelemetryBuff);
 
-    sprintf(firmwareBuff, "Version: %s\r\nLatest: N/A\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
+    snprintf(firmwareBuff, 128, "Version: %s\r\nLatest: N/A\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
   }
   Screen.print(firmwareBuff);
 }
@@ -81,14 +81,14 @@ void InitWiFi()
   if(WiFi.begin() == WL_CONNECTED)
   {
     IPAddress ip = WiFi.localIP();
-    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
+    snprintf(wifiBuff, 128, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
     getLatestFirmwareVersion();
     isConnected = true;
   }
   else
   {
-    sprintf(wifiBuff, "No Valid WiFi\r\nAP mode:\r\nbutton B & reset\r\n                 \r\n");
+    snprintf(wifiBuff, 128, "No Valid WiFi\r\nAP mode:\r\nbutton B & reset\r\n                 \r\n");
     Screen.print(wifiBuff);
   }
 }
@@ -97,7 +97,7 @@ void showMotionGyroSensor()
 {
   acc_gyro->getXAxes(axes);
   char buff[128];
-  sprintf(buff, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
+  snprintf(buff, 128, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
@@ -108,7 +108,7 @@ void showPressureSensor()
   pressureSensor -> getPressure(&pressure);
   pressureSensor -> getTemperature(&temperature);
   char buff[128];
-  sprintf(buff, "Environment\r\nPressure: \r\n    %shPa\r\nTemp: %sC \r\n",f2s(pressure, 2), f2s(temperature, 1));
+  snprintf(buff, 128, "Environment\r\nPressure: \r\n    %shPa\r\nTemp: %sC \r\n",f2s(pressure, 2), f2s(temperature, 1));
   Screen.print(buff);
 }
 
@@ -123,7 +123,7 @@ void showHumidTempSensor()
   ht_sensor->getHumidity(&humidity);
   
   char buff[128];
-  sprintf(buff, "Environment \r\n Temp:%sF    \r\n Humidity:%s%% \r\n          \r\n",f2s(temperature, 1), f2s(humidity, 1));
+  snprintf(buff, 128, "Environment \r\n Temp:%sF    \r\n Humidity:%s%% \r\n          \r\n",f2s(temperature, 1), f2s(humidity, 1));
   Screen.print(buff);
 }
 
@@ -131,7 +131,7 @@ void showMagneticSensor()
 {
   magnetometer->getMAxes(axes);
   char buff[128];
-  sprintf(buff, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
+  snprintf(buff, 128, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
