@@ -11,7 +11,7 @@ Try to line up components of continuation lines with corresponding part of the l
  e.g. (T=tab, S=space):
 TTTTsome_long_func_call(arg1, arg2,
 TTTTSSSSSSSSSSSSSSSSSSSarg3, arg4);
-TTTTsome_reallly_really_long_func_name(arg1,
+TTTTsome_really_really_long_func_name(arg1,
 TTTTTarg2, arg3, arg4);
 There should be a space between "if"/"while" and the following parenthesis.
 "case" lines are indented at the same level as the "switch" statement.

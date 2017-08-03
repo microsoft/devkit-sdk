@@ -204,7 +204,7 @@ int iot_client_blob_upload_step3(bool isSuccess)
     const Http_Response *response = notificationRequest.send(temp2, postBodyLength);
     if (response == NULL)
     {
-        Serial.println("iot_client_blob_upload_step3 (send notification) faield!");
+        Serial.println("iot_client_blob_upload_step3 (send notification) failed!");
         return -1;
     }
     printf("Send notification result: <%d> message <%s>\r\n", response->status_code, response->status_message);
@@ -224,7 +224,7 @@ int iot_client_send_event(const char *event, int length)
     const Http_Response *response = request.send(event, length);
     if (response == NULL)
     {
-        Serial.println("iot_client_send_event faield.");
+        Serial.println("iot_client_send_event failed.");
         return -1;
     }
     printf("Send event result: <%d> message <%s>\r\n", response->status_code, response->status_message);
