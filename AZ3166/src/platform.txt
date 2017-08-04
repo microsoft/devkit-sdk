@@ -101,6 +101,6 @@ tools.openocd.cmd.windows=bin/openocd.exe
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
 
-tools.openocd.upload.pattern="{path}/{cmd}" -f "{path}/scripts/interface/stlink-v2-1.cfg" -c 'transport select hla_swd' -f "{path}/scripts/target/stm32f4x.cfg" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x8008000; shutdown"
+tools.openocd.upload.pattern="{path}/{cmd}" -f "{path}/scripts/interface/stlink-v2-1.cfg" -c 'transport select hla_swd' -f "{path}/scripts/target/stm32f4x.cfg" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x800C000; shutdown"
 
 
