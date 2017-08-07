@@ -26,6 +26,7 @@ static bool ready = false;
 static bool setupMode = false;
 static AudioClass& Audio = AudioClass::getInstance();
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
+static bool telemetrySent = false;
 
 enum STATUS
 {
@@ -110,7 +111,11 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE
         {
             Screen.print(1, "Translation: ");
             Screen.print(2, buffer, true);
-            send_telemetry_data("", "DevKitTranslatorSucceed", "");
+             if (!telemetrySent)
+            {
+                telemetrySent = true;
+                send_telemetry_data("", "DevKitTranslatorSucceed", "");
+            }
         }
         freeWavFile();
         enterIdleState(false);
@@ -244,7 +249,6 @@ void setup()
     }
     sprintf(azureFunctionUri, "http://%s.azurewebsites.net/api/devkit-translator", (char *)AZURE_FUNCTION_APP_NAME);
     Screen.print(1, "Hold B to talk  Chinese or Press A choose others", true);
-    send_telemetry_data("", "DevKitTranslatorSetup", "");
 }
 
 void loop()
