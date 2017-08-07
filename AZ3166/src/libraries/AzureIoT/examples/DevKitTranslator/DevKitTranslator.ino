@@ -12,7 +12,7 @@
 
 #define MAX_WORDS 12
 #define LANGUAGES_COUNT 9
-#define MAX_RECORD_DURATION 3
+#define MAX_RECORD_DURATION 2
 #define MAX_UPLOAD_SIZE (64 * 1024)
 
 static const int audioSize = ((32000 * MAX_RECORD_DURATION) + 44);
@@ -24,9 +24,9 @@ static char source[MAX_WORDS] = "Chinese";
 static char allSource[LANGUAGES_COUNT][MAX_WORDS] = {"Arabic", "Chinese", "French", "German", "Italian", "Japanese", "Portuguese", "Russian", "Spanish"};
 static bool ready = false;
 static bool setupMode = false;
+static bool telemetrySent = false;
 static AudioClass& Audio = AudioClass::getInstance();
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
-static bool telemetrySent = false;
 
 enum STATUS
 {
@@ -109,9 +109,13 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT c2dMessageCallback(IOTHUB_MESSAGE_HANDLE
         }
         else
         {
+            char *temp = (char *)malloc(size + 1);
+            memcpy(temp, buffer, size);
+            temp[size] = '\0';
             Screen.print(1, "Translation: ");
-            Screen.print(2, buffer, true);
-             if (!telemetrySent)
+            Screen.print(2, temp, true);
+            free(temp);
+            if (!telemetrySent)
             {
                 telemetrySent = true;
                 send_telemetry_data("", "DevKitTranslatorSucceed", "");
@@ -166,7 +170,7 @@ static void listenVoice()
             Audio.startRecord(waveFile, audioSize, MAX_RECORD_DURATION);
             status = Recorded;
             Screen.clean();
-            Screen.print(0, "Release to send\r\nMax duraion: 3 sec");
+            Screen.print(0, "Release to send\r\nMax duraion: 2 sec");
         }
         break;
     case Recorded:
