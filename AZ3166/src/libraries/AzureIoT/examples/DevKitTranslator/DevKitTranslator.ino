@@ -253,6 +253,7 @@ void setup()
     }
     sprintf(azureFunctionUri, "http://%s.azurewebsites.net/api/devkit-translator", (char *)AZURE_FUNCTION_APP_NAME);
     Screen.print(1, "Hold B to talk  Chinese or Press A choose others", true);
+    send_telemetry_data("", "DevKitTranslatorSetup", "");
 }
 
 void loop()
