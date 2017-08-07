@@ -109,7 +109,7 @@ namespace MQTT
         }
 
         /** MQTT Connect - send an MQTT connect packet down the network and wait for a Connack
-        *  The nework object must be connected to the network endpoint before calling this
+        *  The network object must be connected to the network endpoint before calling this
         *  Default connect options are used
         *  @return success code -
         */

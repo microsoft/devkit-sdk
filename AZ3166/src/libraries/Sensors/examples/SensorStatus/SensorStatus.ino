@@ -1,6 +1,8 @@
 #include "AZ3166WiFi.h"
 #include "Sensor.h"
 #include "SystemVersion.h"
+#include "http_client.h"
+#include "telemetry.h"
 
 #define NUMSENSORS 4  // 4 sensors to display
 
@@ -9,9 +11,8 @@
 // 2 - Humidity & Temperature Sensor
 // 3 - Magnetic Sensor
 static int status;
-static bool showWiFi;
+static bool showSensor;
 static bool isConnected;
-static bool buttonClicked;
 static unsigned char counter;
 
 static struct _tagRGB
@@ -29,7 +30,6 @@ static struct _tagRGB
 static RGB_LED rgbLed;
 static int color = 0;
 static int led = 0;
-static char title[64];
 
 DevI2C *ext_i2c;
 LSM6DSLSensor *acc_gyro;
@@ -40,6 +40,39 @@ LPS22HBSensor *pressureSensor;
 
 int axes[3];
 char wifiBuff[128];
+char firmwareBuff[128];
+char firmwareTelemetryBuff[64];
+
+const char GITHUB_CERT[] =
+"-----BEGIN CERTIFICATE-----\r\nMIIDxTCCAq2gAwIBAgIQAqxcJmoLQJuPC3nyrkYldzANBgkqhkiG9w0BAQUFADBs\r\nMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\r\nd3cuZGlnaWNlcnQuY29tMSswKQYDVQQDEyJEaWdpQ2VydCBIaWdoIEFzc3VyYW5j\r\nZSBFViBSb290IENBMB4XDTA2MTExMDAwMDAwMFoXDTMxMTExMDAwMDAwMFowbDEL\r\nMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3\r\nLmRpZ2ljZXJ0LmNvbTErMCkGA1UEAxMiRGlnaUNlcnQgSGlnaCBBc3N1cmFuY2Ug\r\nRVYgUm9vdCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMbM5XPm\r\n+9S75S0tMqbf5YE/yc0lSbZxKsPVlDRnogocsF9ppkCxxLeyj9CYpKlBWTrT3JTW\r\nPNt0OKRKzE0lgvdKpVMSOO7zSW1xkX5jtqumX8OkhPhPYlG++MXs2ziS4wblCJEM\r\nxChBVfvLWokVfnHoNb9Ncgk9vjo4UFt3MRuNs8ckRZqnrG0AFFoEt7oT61EKmEFB\r\nIk5lYYeBQVCmeVyJ3hlKV9Uu5l0cUyx+mM0aBhakaHPQNAQTXKFx01p8VdteZOE3\r\nhzBWBOURtCmAEvF5OYiiAhF8J2a3iLd48soKqDirCmTCv2ZdlYTBoSUeh10aUAsg\r\nEsxBu24LUTi4S8sCAwEAAaNjMGEwDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQF\r\nMAMBAf8wHQYDVR0OBBYEFLE+w2kD+L9HAdSYJhoIAu9jZCvDMB8GA1UdIwQYMBaA\r\nFLE+w2kD+L9HAdSYJhoIAu9jZCvDMA0GCSqGSIb3DQEBBQUAA4IBAQAcGgaX3Nec\r\nnzyIZgYIVyHbIUf4KmeqvxgydkAQV8GK83rZEWWONfqe/EW1ntlMMUu4kehDLI6z\r\neM7b41N5cdblIZQB2lWHmiRk9opmzN6cN82oNLFpmyPInngiK3BD41VHMWEZ71jF\r\nhS9OMPagMRYjyOfiZRYzy78aG6A9+MpeizGLYAiJLQwGXFK3xPkKmNEVX58Svnw2\r\nYzi9RKR/5CYrCsSXaQ3pjOLAEFe4yHYSkVXySGnYvCoCWw9E1CAx2/S6cCZdkGCe\r\nvEsXCS+0yx5DaMkHJ8HSXPfqIbloEpw8nL+e/IBcm2PN7EeqJSdnoDfzAIJ9VNep\r\n+OkuE6N36B9K\r\n-----END CERTIFICATE-----\r\n";
+static const char *FIRMWARE_VERSION_PATH = "https://microsoft.github.io/azure-iot-developer-kit/firmware.txt";
+
+void getLatestFirmwareVersion()
+{
+  HTTPClient client = HTTPClient(GITHUB_CERT, HTTP_GET, FIRMWARE_VERSION_PATH);
+  const Http_Response *response = client.send(NULL, 0);
+  if (response != NULL)
+  {
+    snprintf(firmwareTelemetryBuff, 64, "Local: %s, Remote: %s", getDevkitVersion(), response->body);
+
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products.
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "SensorStatusFirmwareVersionSucceeded", firmwareTelemetryBuff);
+
+    snprintf(firmwareBuff, 128, "Version: %s\r\nLatest: %s\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion(), response->body);
+  }
+  else
+  {
+    snprintf(firmwareTelemetryBuff, 64, "Local: %s", getDevkitVersion());
+
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products.
+    // We collect data about the features you use, how often you use them, and how you use them.
+    send_telemetry_data("", "SensorStatusFirmwareVersionFailed", firmwareTelemetryBuff);
+
+    snprintf(firmwareBuff, 128, "Version: %s\r\nLatest: N/A\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
+  }
+  Screen.print(firmwareBuff);
+}
 
 void InitWiFi()
 {
@@ -48,12 +81,14 @@ void InitWiFi()
   if(WiFi.begin() == WL_CONNECTED)
   {
     IPAddress ip = WiFi.localIP();
-    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
+    snprintf(wifiBuff, 128, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
+    getLatestFirmwareVersion();
+    isConnected = true;
   }
   else
   {
-    sprintf(wifiBuff, "WiFi  \r\n             \r\nNo connection\r\n                 \r\n");
+    snprintf(wifiBuff, 128, "No Valid WiFi\r\nAP mode:\r\nbutton B & reset\r\n                 \r\n");
     Screen.print(wifiBuff);
   }
 }
@@ -62,7 +97,7 @@ void showMotionGyroSensor()
 {
   acc_gyro->getXAxes(axes);
   char buff[128];
-  sprintf(buff, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
+  snprintf(buff, 128, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
@@ -73,7 +108,7 @@ void showPressureSensor()
   pressureSensor -> getPressure(&pressure);
   pressureSensor -> getTemperature(&temperature);
   char buff[128];
-  sprintf(buff, "Environment\r\nPressure: \r\n    %shPa\r\nTemp: %sC \r\n",f2s(pressure, 2), f2s(temperature, 1));
+  snprintf(buff, 128, "Environment\r\nPressure: \r\n    %shPa\r\nTemp: %sC \r\n",f2s(pressure, 2), f2s(temperature, 1));
   Screen.print(buff);
 }
 
@@ -88,7 +123,7 @@ void showHumidTempSensor()
   ht_sensor->getHumidity(&humidity);
   
   char buff[128];
-  sprintf(buff, "Environment \r\n Temp:%sF    \r\n Humidity:%s%% \r\n          \r\n",f2s(temperature, 1), f2s(humidity, 1));
+  snprintf(buff, 128, "Environment \r\n Temp:%sF    \r\n Humidity:%s%% \r\n          \r\n",f2s(temperature, 1), f2s(humidity, 1));
   Screen.print(buff);
 }
 
@@ -96,7 +131,7 @@ void showMagneticSensor()
 {
   magnetometer->getMAxes(axes);
   char buff[128];
-  sprintf(buff, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
+  snprintf(buff, 128, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
@@ -187,8 +222,6 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
 
 
 void setup() {
-  sprintf(title, "IoT DevKit %s\r\nbutton A: WiFi\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
-  Screen.print(title);
   pinMode(LED_WIFI, OUTPUT);
   pinMode(LED_AZURE, OUTPUT);
   pinMode(LED_USER, OUTPUT);
@@ -226,9 +259,9 @@ void setup() {
 
   status = 3;
   counter = 0;
-  showWiFi = false;
+  showSensor = false;
   isConnected = false;
-  buttonClicked = false;
+  InitWiFi();
 }
 
 
@@ -255,54 +288,30 @@ void loop() {
       counter = 0;
   }
  
-  if(IsButtonClicked(USER_BUTTON_A))
-  {
-      showWiFi = true;
-      buttonClicked = true;
-      delay(50);
-  }
-  else if(IsButtonClicked(USER_BUTTON_B))
+  if(IsButtonClicked(USER_BUTTON_B))
   {
       status = (status + 1) % NUMSENSORS;
-      showWiFi = false;
-      buttonClicked = true;
+      showSensor = true;
       delay(50);
   }
 
-  if(!buttonClicked)
-  {
-    Screen.print(title);
-    return;
-  }
-
-  if(showWiFi)
-  {
-    if(!isConnected)
-    {
-      InitWiFi();
-      isConnected = true;
-    }
-    else
-    {
-      Screen.print(wifiBuff);
-    }
-  }
-  else
+  if(showSensor && isConnected)
   {
     switch(status)
     {
-        case 0:
-            showHumidTempSensor();
-            break;
-        case 1:
-            showPressureSensor();
-            break; 
-        case 2:
-            showMagneticSensor();
-            break;
-        case 3:
-            showMotionGyroSensor();
-            break;
+      case 0:
+        showHumidTempSensor();
+        break;
+      case 1:
+        showPressureSensor();
+        break; 
+      case 2:
+        showMagneticSensor();
+        break;
+      case 3:
+        showMotionGyroSensor();
+        break;
     }
   }
+  
 }

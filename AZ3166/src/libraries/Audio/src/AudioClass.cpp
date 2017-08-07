@@ -113,7 +113,7 @@ int AudioClass::startRecord(char *audioFile, int fileSize, int durationInSeconds
 }
 
 /*
-** @brief Start playing audio data usine underlying codec
+** @brief Start playing audio data using underlying codec
 ** @param audioFile Pointer to audio file
 ** @param fileSize Size of audio file
 ** @param channels Number of channels of the audio file
