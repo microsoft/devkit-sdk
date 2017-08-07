@@ -26,12 +26,12 @@
             this.workspace = workspace;
         }
 
-        public void RunTest(string installPackageBlobUrl)
+        public int RunTest(string installPackageBlobUrl)
         {         
             string packageZipFile = DownloadZipPackage(installPackageBlobUrl);
 
             string extractFolder = ExtractZipPackage(packageZipFile);
-            InstallZipPackage(extractFolder);
+            return InstallZipPackage(extractFolder);
         }
 
         public string DownloadZipPackage(string packageUrl)
@@ -60,16 +60,17 @@
             string extractFolder = Path.Combine(workspace, Path.GetFileNameWithoutExtension(zipFilePath));
             if (Directory.Exists(extractFolder))
             {
-                Directory.Delete(extractFolder);
+                Directory.Delete(extractFolder,true);
             }
 
             ZipFile.ExtractToDirectory(zipFilePath, extractFolder);
             return extractFolder;
         }
 
-        public void InstallZipPackage(string extractFolder)
+        public int InstallZipPackage(string extractFolder)
         {
             Console.WriteLine("Start to run installation package.");
+            int retCode = 0;
 
             Process proc = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
@@ -86,7 +87,6 @@
             proc = Process.Start(psi);
 
             int timeout = 0;
-            StreamWriter sw = new StreamWriter(Path.Combine(workspace, "log.txt"));
 
             using (StreamReader sr = proc.StandardOutput)
             {
@@ -96,7 +96,10 @@
                 {
                     line = RemoveInValidChars(line);
                     Console.WriteLine(line);
-                    sw.WriteLine(line);
+
+                    // if the log contains error, return 1
+                    if (line.Contains("error") || line.Contains("exception") || line.Contains("fail"))
+                        retCode = 1;
 
                     Thread.Sleep(1000);
 
@@ -108,15 +111,14 @@
 
                     if (timeout == 60 * 5)
                     {
+                        retCode = 1;
                         proc.Kill();
                         throw new Exception("Error: The process is still running after wait for 5 minutes");
                     }
                 }
-
             }
 
-            sw.Flush();
-            sw.Close();
+            return retCode;
         }
 
         public void MonitorDialog()
