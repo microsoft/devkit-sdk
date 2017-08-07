@@ -16,6 +16,7 @@ int expectedCount = 5;
 bool initialized = false;
 bool hasWifi = false;
 bool preOpened = false;
+bool telemetrySent = false;
 
 void setup()
 {
@@ -105,11 +106,16 @@ void checkMagnetometerStatus()
             curOpened = true;
         }
         // send message when status change
-        if (curOpened != preOpened){
+        if (curOpened != preOpened)
+        {
             iothubSendMessage((const unsigned char *)message);
             iothubLoop();
             
-            send_telemetry_data("", "DoorMonitorSucceed", "");
+            if (!telemetrySent)
+            {
+                telemetrySent = true;
+                send_telemetry_data("", "DoorMonitorSucceed", "");
+            }
             preOpened = curOpened;
         }
     }
