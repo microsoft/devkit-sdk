@@ -100,7 +100,11 @@
                         InstallationPackageTest installationPackageTest = new InstallationPackageTest(workspace);
 
                         string installPackageBlobUrl = string.Format(ConfigurationManager.AppSettings.Get("InstallPackageBlobUrl"), GetVersion());
-                        installationPackageTest.RunTest(installPackageBlobUrl);
+                        int retCode = installationPackageTest.RunTest(installPackageBlobUrl);
+
+                        if (retCode == 1)
+                            return 1;
+
                         break;
 
                     default:
@@ -254,34 +258,42 @@
                 throw new ArgumentException($"Invalid log file path: {logFilePath}");
             }
 
-            string reportFilePath = Path.Combine(resultFolderPath, "Iot_TestCase_Result.htm");
+            string reportFilePath = Path.Combine(resultFolderPath, "DevKit_Unit_Test_Result.htm");
             FileStream fStream = File.OpenWrite(reportFilePath);
 
             StreamReader sr = new StreamReader(logFilePath, Encoding.Default);
             string line;
             string content = string.Empty;
 
+            int totalUnitTestCount = 0;
+            int passUnitTestCount = 0;
+
             using (TextWriter writer = new StreamWriter(fStream))
             {
-                writer.WriteLine("<html><head><title>Test Result</title><head><body>");
+                writer.WriteLine("<html><head><title>DevKit Test Case Report</title>");
+                writer.WriteLine("<style>");
+                writer.WriteLine("h4, p { font-family: verdana; }");
+                writer.WriteLine("p { line-height: 25px; font-size: small;}");
+                writer.WriteLine("</style>");
+                writer.WriteLine("</head><body>");
 
                 //check the examples folder
                 if (examplesTestResult.Count > 0)
                 {
                     content += Constants.ReportLineSeperator;
-                    content += "<p>Examples Result</p>";
+                    content += "<h4>Examples Test Result</h4>";
 
                     foreach (KeyValuePair<string, string> kvp in examplesTestResult)
                     {
                         content += Constants.ReportLineSeperator;
-                        content += "<p> start testing: " + kvp.Key + "</p>";
-                        content += "<p> " + kvp.Value + "</p>";
+                        content += "<p> start testing: " + "<strong>" + kvp.Key +"</strong>";
+                        content += "<br> " + kvp.Value + "</p>";
                     }
                 }
 
                 //check the test folder
                 content += Constants.ReportLineSeperator;
-                content += "<p>Test cases Result</p>";
+                content += "<h4>Unit Test Result</h4>";
                 string name = string.Empty;
                 string result = string.Empty;
                 string info = string.Empty;
@@ -297,41 +309,46 @@
                     if (line.EndsWith(".ino"))
                     {
                         content += Constants.ReportLineSeperator;
-                        content += "<p>start testing: " + line + "</p>";
+                        content += "<p>start testing: " + "<strong>" + line + "</strong>";
 
                         while ((line = sr.ReadLine()) != null)
                         {
                             if (line.StartsWith("Test"))
                             {
-                                content += "<p>" + line + "</p>";
+                                content += "<br>" + line ;
+
+                                totalUnitTestCount++;
+                                if (line.Contains("passed"))
+                                    passUnitTestCount++;
                             }
 
                             if (line.StartsWith("Test summary: "))
                             {
+                                content += "</p>";
+                                totalUnitTestCount--;
+                                passUnitTestCount--;
                                 break;
                             }
                         }
                     }
                 }
 
-                if (unitTestResult.Count != 0)
+                foreach (KeyValuePair<string, string> kvp in unitTestResult)
                 {
-                    foreach (KeyValuePair<string, string> kvp in unitTestResult)
+                    if (!kvp.Value.Equals("succeed"))
                     {
-                        content += "<p> start testing: " + kvp.Key + "</p>";
-                        content += "<p> " + kvp.Value + "</p>";
+                        totalUnitTestCount++;
+
+                        content += "<p> start testing: " + "<strong>" + kvp.Key + "</strong>";
+                        content += "<br> " + kvp.Value + "</p>";
                     }
                 }
 
-                int totalUnitTestCount = unitTestResult.Count;
-                int passUnitTestCount = unitTestResult.Where(t => string.Equals(t.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count();
-
-                writer.WriteLine("<p>Total cases: " + totalUnitTestCount + "</p>");
-                writer.WriteLine("<p>Pass cases: " + passUnitTestCount + "</p>");
-                writer.WriteLine("<p>Pass Rate: " + ((double)passUnitTestCount / unitTestResult.Count).ToString("p") + "</p>");
-                writer.WriteLine("<p>Total execution time: " + String.Format("{0:0.##}", executionTimeInMinutes) + " minutes.</p>");
-                writer.WriteLine("<p/>");
-                writer.WriteLine("<p/>");
+                writer.WriteLine("<p><br>Total cases: " + totalUnitTestCount);
+                writer.WriteLine("<br>Pass cases: " + passUnitTestCount );
+                writer.WriteLine("<br>Pass Rate: " + ((double)passUnitTestCount / totalUnitTestCount).ToString("p"));
+                writer.WriteLine("<br>Total execution time: " + String.Format("{0:0.##}", executionTimeInMinutes) + " minutes.</p>");
+                writer.WriteLine("<p/>");               
 
                 writer.WriteLine(content);
                 writer.WriteLine("</body>");
@@ -406,11 +423,11 @@
                 psi.RedirectStandardOutput = true;
 
                 proc = Process.Start(psi);
-                int timeout = 60;
+                int timeout = 60 * 2; 
 
                 while (timeout >= 0 && !proc.HasExited)
                 {
-                    proc.WaitForExit(5 * 1000);
+                    proc.WaitForExit(5 * 1000); // wait for 5 seconds
 
                     timeout--;
                 }
