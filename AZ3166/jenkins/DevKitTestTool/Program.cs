@@ -397,11 +397,11 @@
                 psi.RedirectStandardOutput = true;
 
                 proc = Process.Start(psi);
-                int timeout = 60;
+                int timeout = 60 * 2; 
 
                 while (timeout >= 0 && !proc.HasExited)
                 {
-                    proc.WaitForExit(5 * 1000);
+                    proc.WaitForExit(5 * 1000); // wait for 5 seconds
 
                     timeout--;
                 }
