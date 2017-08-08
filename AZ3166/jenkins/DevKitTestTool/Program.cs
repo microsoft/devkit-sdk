@@ -346,17 +346,43 @@
             Console.WriteLine("Start to generate the Arduino package for DevKit.");
 
             string versionInfo = GetVersion();
-            string sourceFolder = Path.Combine(workspace, @"AzureIoTDeveloperKit\AZ3166\src");
-            string packageFile = Path.Combine(resultFolderPath, string.Format(packageName, versionInfo));
+            string sourceFolder = Path.Combine(workspace, ConfigurationManager.AppSettings.Get("DevKitSourceRelativePath"));
+            string targetFolder = Path.Combine(resultFolderPath, "AZ3166");
 
+            DirectoryInfo sourceDir = new DirectoryInfo(sourceFolder);
+            DirectoryInfo targetDir = new DirectoryInfo(targetFolder);
+            CopyAll(sourceDir, targetDir);
+
+            string packageFile = Path.Combine(resultFolderPath, string.Format(packageName, versionInfo));
             if (File.Exists(packageFile))
             {
                 File.Delete(packageFile);
             }
 
-            ZipFile.CreateFromDirectory(sourceFolder, packageFile);
+            ZipFile.CreateFromDirectory(targetFolder, packageFile, CompressionLevel.Fastest, true);
+
+            Console.WriteLine($"Package is generated at: {packageFile}");
+            Directory.Delete(targetFolder, true);
         }
-        
+
+        private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            Directory.CreateDirectory(target.FullName);
+
+            // Copy each file into the new directory.
+            foreach (FileInfo fi in source.GetFiles())
+            {
+                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            {
+                DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
+
         private static string GetVersion()
         {
             return File.ReadAllText(versionFile).Trim();
