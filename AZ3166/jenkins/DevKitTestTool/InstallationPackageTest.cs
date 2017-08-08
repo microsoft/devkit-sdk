@@ -99,7 +99,9 @@
 
                     // if the log contains error, return 1
                     if (line.Contains("error") || line.Contains("exception") || line.Contains("fail"))
+                    {
                         retCode = 1;
+                    }
 
                     Thread.Sleep(1000);
 
