@@ -7,13 +7,19 @@
 #include <string.h>
 #include "azure_c_shared_utility/socketio.h"
 #include "azure_c_shared_utility/singlylinkedlist.h"
-#include "azure_c_shared_utility/tcpsocketconnection_c.h"
+#include "azure_c_shared_utility/tcpsocketconnection_mbed_os5.h"
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/xlogging.h"
-#include "nsapi_types.h"
+#include "azure_c_shared_utility/gballoc.h"
+
 
 #define UNABLE_TO_COMPLETE -2
 #define MBED_RECEIVE_BYTES_VALUE    128
+
+// Error code for no connection. 
+// Each WiFi driver may have different value to indicate no connection error
+// Modify the error code to match the definition in WiFi driver
+#define MBED_ERROR_NO_CONNECTION  -3004
 
 typedef enum IO_STATE_TAG
 {
@@ -59,6 +65,7 @@ static void socketio_DestroyOption(const char* name, const void* value)
     (void)(name, value);
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_001: [ The socketio_retrieveoptions shall set the options for socket_io ]*/
 static OPTIONHANDLER_HANDLE socketio_retrieveoptions(CONCRETE_IO_HANDLE socket_io)
 {
     OPTIONHANDLER_HANDLE result;
@@ -87,6 +94,7 @@ static const IO_INTERFACE_DESCRIPTION socket_io_interface_description =
     socketio_setoption
 };
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_002: [ The phrase "indicate error" means the adapter shall call the on_io_error function and pass the on_io_error_context that was supplied in socket_io. ]*/
 static void indicate_error(SOCKET_IO_INSTANCE* socket_io_instance)
 {
     if (socket_io_instance->on_io_error != NULL)
@@ -135,6 +143,7 @@ static int add_pending_io(SOCKET_IO_INSTANCE* socket_io_instance, const unsigned
     return result;
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_003: [ The socketio_create shall create a new instance of SOCKET_IO_INSTANCE. ]*/
 CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
 {
     SOCKETIO_CONFIG* socket_io_config = io_create_parameters;
@@ -146,7 +155,7 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
     }
     else
     {
-        result = malloc(sizeof(SOCKET_IO_INSTANCE));
+        result = (SOCKET_IO_INSTANCE*)malloc(sizeof(SOCKET_IO_INSTANCE));
         if (result != NULL)
         {
             result->pending_io_list = singlylinkedlist_create();
@@ -182,6 +191,7 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
     return result;
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_004: [ The socketio_destroy shall destroy a created instance of the socket_io identified by the CONCRETE_IO_HANDLE. ]*/
 void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
 {
     if (socket_io != NULL)
@@ -211,6 +221,7 @@ void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
     }
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_005: [ The socketio_open shall start the process to open and connect the underlying tcp connection. ]*/
 int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
 {
     int result;
@@ -260,6 +271,7 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
     return result;
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_006: [ The socketio_close shall close the underlying tcp connection. ]*/
 int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_close_complete, void* callback_context)
 {
     int result = 0;
@@ -312,6 +324,7 @@ int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_clos
     return result;
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_007: [ The socketio_send shall send all bytes in a buffer to tcp connection. ]*/
 int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size, ON_SEND_COMPLETE on_send_complete, void* callback_context)
 {
     int result;
@@ -347,7 +360,7 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
             else
             {
                 int send_result = tcpsocketconnection_send(socket_io_instance->tcp_socket_connection, buffer, size);
-                if (send_result != size)
+                if (send_result != (int)size)
                 {
                     if (send_result < 0)
                     {
@@ -380,6 +393,7 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
     return result;
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_008: [ The socketio_dowork shall execute the async jobs for the socket_io. ]*/
 void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 {
     if (socket_io != NULL)
@@ -401,7 +415,7 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
                 }
 
                 int send_result = tcpsocketconnection_send(socket_io_instance->tcp_socket_connection, (const char*)pending_socket_io->bytes, pending_socket_io->size);
-                if (send_result != pending_socket_io->size)
+                if (send_result != (int)pending_socket_io->size)
                 {
                     if (send_result < 0)
                     {
@@ -450,7 +464,7 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
                 else
                 {
                     received = tcpsocketconnection_receive(socket_io_instance->tcp_socket_connection, (char*)recv_bytes, MBED_RECEIVE_BYTES_VALUE);
-                    if(received == NSAPI_ERROR_NO_CONNECTION)
+                    if(received == MBED_ERROR_NO_CONNECTION)
                     {
                         socket_io_instance->io_state = IO_STATE_ERROR;
                         indicate_error(socket_io_instance);
@@ -470,12 +484,17 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
     }
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_009: [ The socketio_setoption shall do nothing and it should not be invoked. ]*/
 int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, const void* value)
 {
+    (void)optionName;
+    (void)value;
+    (void)socket_io;
     /* Not implementing any options */
     return __FAILURE__;
 }
 
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_010: [ The socketio_get_interface_description shall return the VTable IO_INTERFACE_DESCRIPTION. ]*/
 const IO_INTERFACE_DESCRIPTION* socketio_get_interface_description(void)
 {
     return &socket_io_interface_description;
