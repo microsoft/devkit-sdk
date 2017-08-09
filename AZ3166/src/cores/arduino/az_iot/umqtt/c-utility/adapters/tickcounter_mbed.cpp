@@ -5,19 +5,51 @@
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/tickcounter.h"
 
-class TICK_COUNTER_INSTANCE_TAG
+struct TICK_COUNTER_INSTANCE_TAG
 {
-public:
-    clock_t last_clock_value;
     tickcounter_ms_t current_ms;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// The tick counter from mbed OS will be overflow (go back to zero) after approximately 70 minutes (4294s).
+// So here externd the  tick counter 64bit.
+static Ticker cycle_ticker;
+static volatile uint32_t last_ticker_us = 0;
+static volatile uint64_t long_ticker_ms = 0;
+
+static uint64_t _ms_ticker_read(void)
+{
+    uint64_t result;
+    uint32_t t = us_ticker_read();
+
+    core_util_critical_section_enter();
+    if (t < last_ticker_us)
+    {
+        long_ticker_ms += 0xFFFFFFFF / 1000;
+    }
+    last_ticker_us = t;
+
+    result = long_ticker_ms + t / 1000; 
+    core_util_critical_section_exit();
+
+    return result;
+}
+
+static void cycle_accumulator(void)
+{
+    _ms_ticker_read();
+}
+
+void tickcounter_init(void)
+{
+    cycle_ticker.attach(cycle_accumulator, 60.0);
+}
 
 TICK_COUNTER_HANDLE tickcounter_create(void)
 {
     TICK_COUNTER_INSTANCE_TAG* result;
-    result = new TICK_COUNTER_INSTANCE_TAG();
-    result->last_clock_value = clock();
-    result->current_ms = result->last_clock_value * 1000 / CLOCKS_PER_SEC;
+    result = new TICK_COUNTER_INSTANCE_TAG;
+    result->current_ms = _ms_ticker_read();
     return result;
 }
 
@@ -29,7 +61,7 @@ void tickcounter_destroy(TICK_COUNTER_HANDLE tick_counter)
     }
 }
 
-int tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_t * current_ms)
+tickcounter_ms_t tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_t * current_ms)
 {
     int result;
     if (tick_counter == NULL || current_ms == NULL)
@@ -38,13 +70,8 @@ int tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_
     }
     else
     {
-        TICK_COUNTER_INSTANCE_TAG* tick_counter_instance = (TICK_COUNTER_INSTANCE_TAG*)tick_counter;
-
-        clock_t clock_value = clock();
-
-        tick_counter_instance->current_ms += (clock_value - tick_counter_instance->last_clock_value) * 1000 / CLOCKS_PER_SEC;
-        tick_counter_instance->last_clock_value = clock_value;
-        *current_ms = tick_counter_instance->current_ms;
+        tick_counter->current_ms =  _ms_ticker_read();
+        *current_ms = tick_counter->current_ms;
 
         result = 0;
     }

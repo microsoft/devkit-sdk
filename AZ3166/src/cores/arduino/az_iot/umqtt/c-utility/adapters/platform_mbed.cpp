@@ -2,17 +2,20 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include "azure_c_shared_utility/platform.h"
+#include "azure_c_shared_utility/tickcounter.h"
+#include "azure_c_shared_utility/tlsio_mbedtls.h"
+#include "azure_c_shared_utility/xio.h"
 #include "EEPROMInterface.h"
 #include "SystemWiFi.h"
 #include "SystemTime.h"
-#include "azure_c_shared_utility/xio.h"
-#include "azure_c_shared_utility/tlsio_mbedtls.h"
 
 int platform_init(void)
 {
+    tickcounter_init();
+
     SyncTime();
 
-    // turn on Azure led 
+    // Turn on Azure led 
     DigitalOut LedAzure(LED_AZURE);
     LedAzure = 1;
     
