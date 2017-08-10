@@ -5,7 +5,7 @@
 
 #include <stddef.h>
 #include "TCPSocket.h"
-#include "azure_c_shared_utility/tcpsocketconnection_mbed_os5.h"
+#include "azure_c_shared_utility/tcpsocketconnection_c.h"
 #include "SystemWiFi.h"
 
 bool tcpsocketconnection_isConnected = false;

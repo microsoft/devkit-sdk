@@ -7,7 +7,7 @@
 #include <string.h>
 #include "azure_c_shared_utility/socketio.h"
 #include "azure_c_shared_utility/singlylinkedlist.h"
-#include "azure_c_shared_utility/tcpsocketconnection_mbed_os5.h"
+#include "azure_c_shared_utility/tcpsocketconnection_c.h"
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/xlogging.h"
 #include "azure_c_shared_utility/gballoc.h"
@@ -94,7 +94,7 @@ static const IO_INTERFACE_DESCRIPTION socket_io_interface_description =
     socketio_setoption
 };
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_002: [ The phrase "indicate error" means the adapter shall call the on_io_error function and pass the on_io_error_context that was supplied in socket_io. ]*/
+
 static void indicate_error(SOCKET_IO_INSTANCE* socket_io_instance)
 {
     if (socket_io_instance->on_io_error != NULL)
@@ -143,12 +143,13 @@ static int add_pending_io(SOCKET_IO_INSTANCE* socket_io_instance, const unsigned
     return result;
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_003: [ The socketio_create shall create a new instance of SOCKET_IO_INSTANCE. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_004: [ The socketio_create shall create a new instance of SOCKET_IO_INSTANCE. ]*/
 CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
 {
     SOCKETIO_CONFIG* socket_io_config = io_create_parameters;
     SOCKET_IO_INSTANCE* result;
 
+    /* Codes_SRS_SOCKET_MBED_OS5_99_002: [ If the parameter is null, socketio_create shall return null. ]*/
     if (socket_io_config == NULL)
     {
         result = NULL;
@@ -158,6 +159,7 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
         result = (SOCKET_IO_INSTANCE*)malloc(sizeof(SOCKET_IO_INSTANCE));
         if (result != NULL)
         {
+            /* Codes_SRS_SOCKET_MBED_OS5_99_003: [ If singlylinkedlist_create failed, socketio_create shall return null. ]*/
             result->pending_io_list = singlylinkedlist_create();
             if (result->pending_io_list == NULL)
             {
@@ -191,7 +193,8 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
     return result;
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_004: [ The socketio_destroy shall destroy a created instance of the socket_io identified by the CONCRETE_IO_HANDLE. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_005: [ The socketio_destroy shall destroy a created instance of the socket_io identified by the CONCRETE_IO_HANDLE. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_009: [ If socketio is null, socketio_destroy shall still succeed. ]*/
 void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
 {
     if (socket_io != NULL)
@@ -221,18 +224,21 @@ void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
     }
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_005: [ The socketio_open shall start the process to open and connect the underlying tcp connection. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_008: [ The socketio_open shall start the process to open and connect the underlying tcp connection. ]*/
 int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
 {
     int result;
 
     SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
+
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_010: [ If socketio is null, socketio_open shall fail. ]*/
     if (socket_io == NULL)
     {
         result = __FAILURE__;
     }
     else
     {
+        /* Codes_SRS_SOCKET_MBED_OS5_99_007: [ socketio_open would return error if underlying tcpconnection create fail. ]*/
         socket_io_instance->tcp_socket_connection = tcpsocketconnection_create();
         if (socket_io_instance->tcp_socket_connection == NULL)
         {
@@ -240,6 +246,7 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
         }
         else
         {
+            /* Codes_SRS_SOCKET_MBED_OS5_99_006: [ socketio_open would return error if underlying tcpconnection open fail. ]*/
             if (tcpsocketconnection_connect(socket_io_instance->tcp_socket_connection, socket_io_instance->hostname, socket_io_instance->port) != 0)
             {
                 tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
@@ -271,11 +278,12 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
     return result;
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_006: [ The socketio_close shall close the underlying tcp connection. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_012: [socketio_close shall succeed for the correct input parameter. ]*/
 int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_close_complete, void* callback_context)
 {
     int result = 0;
 
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_011: [ If socketio is null, socketio_close shall fail. ]*/
     if (socket_io == NULL)
     {
         result = __FAILURE__;
@@ -324,11 +332,14 @@ int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_clos
     return result;
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_007: [ The socketio_send shall send all bytes in a buffer to tcp connection. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_016: [ socketio_send shall succeed for the correct input parameter ]*/
 int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size, ON_SEND_COMPLETE on_send_complete, void* callback_context)
 {
     int result;
 
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_013: [ If socketio is null, socketio_send shall fail. ]*/
+	/* Codes_SRS_SOCKETIO_MBED_OS5_99_014: [ If buffer is null, socketio_send shall fail. ]*/
+	/* Codes_SRS_SOCKETIO_MBED_OS5_99_015: [ If buffer size is 0, socketio_send shall fail. ]*/
     if ((socket_io == NULL) ||
         (buffer == NULL) ||
         (size == 0))
@@ -359,6 +370,7 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
             }
             else
             {
+                /* Codes_SRS_SOCKETIO_MBED_OS5_99_017: [ socketio_send shall succeed if tcp connection send succeed ]*/
                 int send_result = tcpsocketconnection_send(socket_io_instance->tcp_socket_connection, buffer, size);
                 if (send_result != (int)size)
                 {
@@ -393,9 +405,10 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
     return result;
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_008: [ The socketio_dowork shall execute the async jobs for the socket_io. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_020: [ The socketio_dowork shall execute the async jobs for the socket_io. ]*/
 void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 {
+	/* Codes_SRS_SOCKETIO_MBED_OS5_99_018: [ socketio_dowork shall if input socket_io is null ]*/
     if (socket_io != NULL)
     {
         SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
@@ -463,6 +476,7 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
                 }
                 else
                 {
+                    /* Codes_SRS_SOCKETIO_MBED_OS5_99_019: [ socketio_dowork shall succeed if tcp receive bytes succeed ]*/
                     received = tcpsocketconnection_receive(socket_io_instance->tcp_socket_connection, (char*)recv_bytes, MBED_RECEIVE_BYTES_VALUE);
                     if(received == MBED_ERROR_NO_CONNECTION)
                     {
@@ -484,7 +498,10 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
     }
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_009: [ The socketio_setoption shall do nothing and it should not be invoked. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_021: [ The socketio_setoption shall do nothing and return failure. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_022: [ The socketio_setoption shall return failure when option name is null. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_023: [ The socketio_setoption shall return failure when option value is null. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_024: [ The socketio_setoption shall return failure when handle is null. ]*/
 int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, const void* value)
 {
     (void)optionName;
@@ -494,7 +511,7 @@ int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, con
     return __FAILURE__;
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_010: [ The socketio_get_interface_description shall return the VTable IO_INTERFACE_DESCRIPTION. ]*/
+/* Codes_SRS_SOCKETIO_MBED_OS5_99_025: [ The socketio_get_interface_description shall return the VTable IO_INTERFACE_DESCRIPTION. ]*/
 const IO_INTERFACE_DESCRIPTION* socketio_get_interface_description(void)
 {
     return &socket_io_interface_description;

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#ifndef TCPSOCKETCONNECTION_MBED5_H
-#define TCPSOCKETCONNECTION_MBED5_H
+#ifndef TCPSOCKETCONNECTION_C_H
+#define TCPSOCKETCONNECTION_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,4 +27,4 @@ extern "C" {
 }
 #endif
 
-#endif /* TCPSOCKETCONNECTION_MBED5_H */
+#endif /* TCPSOCKETCONNECTION_C_H */
