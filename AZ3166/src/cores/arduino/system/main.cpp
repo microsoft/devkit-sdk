@@ -112,8 +112,8 @@ static void EnterAPMode()
     httpd_server_start();
     
     Screen.print(1, ap_name);
-    Screen.print(2, "Soft AP started");
-    Screen.print(3, " > 192.168.0.1");
+    Screen.print(2, "Config WiFi on");
+    Screen.print(3, "192.168.0.1");
 
     Serial.printf("Soft AP %s is running...\r\n", ap_name);
     Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the Wi-Fi settings.\r\n");
