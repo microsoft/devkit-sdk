@@ -30,7 +30,7 @@ BLOB_RESULT Blob_UploadFromSasUri(const char* SASURI, const unsigned char* sourc
             (source == NULL)
             )
         {
-            LogError("combination of source = %p and size = %zu is invalid", source, size);
+            LogError("combination of source = %p and size = %lu is invalid", source, size);
             result = BLOB_INVALID_ARG;
         }
         /*the below define avoid a "condition always false" on some compilers*/
@@ -38,7 +38,7 @@ BLOB_RESULT Blob_UploadFromSasUri(const char* SASURI, const unsigned char* sourc
         /*Codes_SRS_BLOB_02_034: [ If size is bigger than 50000*4*1024*1024 then Blob_UploadFromSasUri shall fail and return BLOB_INVALID_ARG. ]*/
         else if (size > 4 * 1024 * 1024 * 50000ULL) /*https://msdn.microsoft.com/en-us/library/azure/dd179467.aspx says "Each block can be a different size, up to a maximum of 4 MB, and a block blob can include a maximum of 50,000 blocks."*/
         {
-            LogError("size too big (%zu)", size);
+            LogError("size too big (%lu)", size);
             result = BLOB_INVALID_ARG;
         }
 #endif
