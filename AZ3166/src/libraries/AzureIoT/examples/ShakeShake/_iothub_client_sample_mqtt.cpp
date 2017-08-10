@@ -159,7 +159,13 @@ void iothub_client_sample_mqtt_init()
         (void)Serial.printf("Failed to initialize the platform.\r\n");
         return;
     }
-
+    else
+    {
+        // turn on Azure led 
+        DigitalOut LedAzure(LED_AZURE);
+        LedAzure = 1;
+    }
+    
     if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
         (void)Serial.printf("ERROR: iotHubClientHandle is NULL!\r\n");
