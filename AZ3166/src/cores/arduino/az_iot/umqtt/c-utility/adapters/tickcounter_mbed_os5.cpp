@@ -7,7 +7,7 @@
 
 struct TICK_COUNTER_INSTANCE_TAG
 {
-    tickcounter_ms_t current_ms;
+    uint64_t current_ms;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ void tickcounter_destroy(TICK_COUNTER_HANDLE tick_counter)
     }
 }
 
-tickcounter_ms_t tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_t * current_ms)
+int tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_t * current_ms)
 {
     int result;
     if (tick_counter == NULL || current_ms == NULL)
@@ -71,7 +71,7 @@ tickcounter_ms_t tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, ti
     else
     {
         tick_counter->current_ms =  _ms_ticker_read();
-        *current_ms = tick_counter->current_ms;
+        *current_ms = (tickcounter_ms_t)tick_counter->current_ms;
 
         result = 0;
     }
