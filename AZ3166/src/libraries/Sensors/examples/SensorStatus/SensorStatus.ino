@@ -59,7 +59,14 @@ void getLatestFirmwareVersion()
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionSucceeded", firmwareTelemetryBuff);
 
-    snprintf(firmwareBuff, 128, "Version: %s\r\nLatest: %s\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion(), response->body);
+    if (strcmp(response->body, getDevkitVersion()) == 0)
+    {
+      snprintf(firmwareBuff, 128, "IoT DevKit\r\nCurrent: %s\r\n \r\nBtn B: Sensors\r\n", getDevkitVersion());
+    }
+    else
+    {
+      snprintf(firmwareBuff, 128, "IoT DevKit\r\nCurrent: %s\r\nLatest: %s\r\nBtn B: Sensors\r\n", getDevkitVersion(), response->body);
+    }
   }
   else
   {
@@ -69,7 +76,7 @@ void getLatestFirmwareVersion()
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data("", "SensorStatusFirmwareVersionFailed", firmwareTelemetryBuff);
 
-    snprintf(firmwareBuff, 128, "Version: %s\r\nLatest: N/A\r\nbutton B: Sensor\r\n \r\n", getDevkitVersion());
+    snprintf(firmwareBuff, 128, "IoT DevKit\r\nCurrent: %s\r\nLatest: N/A\r\nBtn B: Sensor\r\n", getDevkitVersion());
   }
   Screen.print(firmwareBuff);
 }
@@ -81,14 +88,14 @@ void InitWiFi()
   if(WiFi.begin() == WL_CONNECTED)
   {
     IPAddress ip = WiFi.localIP();
-    snprintf(wifiBuff, 128, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
+    snprintf(wifiBuff, 128, "WiFi Connected\r\n%s\r\n%s\r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
     getLatestFirmwareVersion();
     isConnected = true;
   }
   else
   {
-    snprintf(wifiBuff, 128, "No Valid WiFi\r\nAP mode:\r\nbutton B & reset\r\n                 \r\n");
+    snprintf(wifiBuff, 128, "No WiFi\r\nEnter AP Mode\r\nto config\r\n                 \r\n");
     Screen.print(wifiBuff);
   }
 }
@@ -288,14 +295,21 @@ void loop() {
       counter = 0;
   }
  
-  if(IsButtonClicked(USER_BUTTON_B))
+  if(isConnected && IsButtonClicked(USER_BUTTON_B))
   {
       status = (status + 1) % NUMSENSORS;
       showSensor = true;
       delay(50);
   }
 
-  if(showSensor && isConnected)
+  if(isConnected && IsButtonClicked(USER_BUTTON_A))
+  {
+      showSensor = false;
+      Screen.print("Who said\r\nCogito ergo\r\nsum?\r\n \r\n");
+      delay(50);
+  }
+
+  if(showSensor)
   {
     switch(status)
     {
