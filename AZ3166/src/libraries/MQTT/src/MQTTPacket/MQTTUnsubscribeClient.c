@@ -83,7 +83,7 @@ exit:
 
 
 /**
-  * Deserializes the supplied (wire) buffer into unsuback data
+  * Deserialize the supplied (wire) buffer into unsuback data
   * @param packetid returned integer - the MQTT packet identifier
   * @param buf the raw buffer data, of the correct length determined by the remaining length field
   * @param buflen the length in bytes of the data in the supplied buffer

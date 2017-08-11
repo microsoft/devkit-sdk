@@ -19,9 +19,11 @@
 #include "iothub_client_options.h"
 #include "iothub_client_version.h"
 #include <stdint.h>
-#include "telemetry.h"
+#include "Telemetry.h"
 
-#define DONT_USE_UPLOADTOBLOB
+#ifndef DONT_USE_UPLOADTOBLOB
+#include "iothub_client_ll_uploadtoblob.h"
+#endif
 
 #define LOG_ERROR_RESULT LogError("result = %s", ENUM_TO_STRING(IOTHUB_CLIENT_RESULT, result));
 #define INDEFINITE_TIME ((time_t)(-1))

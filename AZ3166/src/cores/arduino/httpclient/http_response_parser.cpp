@@ -19,7 +19,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-// Response callback funcctions
+// Response callback functions
 static int on_message_begin_callback(http_parser* parser) 
 {
     return ((HttpResponseParser*)parser->data)->on_message_begin(parser);

@@ -1,0 +1,7 @@
+{
+  "sketch": "../WiFiUdpNtpClient.ino",
+  "tasks": {
+    "provision": ["device"],
+    "deploy": []
+  }
+}

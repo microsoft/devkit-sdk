@@ -67,7 +67,7 @@ HTS221Sensor::HTS221Sensor(DevI2C &i2c, unsigned char address) : _dev_i2c(i2c), 
 
 /**
  * @brief     Initializing the component.
- * @param[in] init pointer to device specific initalization structure.
+ * @param[in] init pointer to device specific initialization structure.
  * @retval    "0" in case of success, an error code otherwise.
  */
 int HTS221Sensor::init(void *init)

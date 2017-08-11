@@ -1496,8 +1496,8 @@ typedef enum {
 } LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t;
 
 #define       LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_MASK    0x01
-mems_status_t LSM6DSL_ACC_GYRO_W_SignifcantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t newValue);
-mems_status_t LSM6DSL_ACC_GYRO_R_SignifcantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t *value);
+mems_status_t LSM6DSL_ACC_GYRO_W_SignificantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t newValue);
+mems_status_t LSM6DSL_ACC_GYRO_R_SignificantMotion(void *handle, LSM6DSL_ACC_GYRO_SIGN_MOTION_EN_t *value);
 
 /*******************************************************************************
 * Register      : CTRL10_C

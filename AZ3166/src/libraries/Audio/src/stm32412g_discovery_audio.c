@@ -297,7 +297,6 @@ uint8_t BSP_AUDIO_STOP()
     HAL_I2S_DMAStop( &haudio_i2s );     
 }
 
-
 /**
  * @brief  Starts playing audio stream from a data buffer for a determined size.
  * @param  pBuffer: Pointer to the buffer
@@ -309,19 +308,42 @@ uint8_t BSP_AUDIO_In_Out_Transfer( uint16_t* pBuffer, uint16_t* pBuffer_read, ui
     int ret = 0;
     /* Update the Media layer and enable it for play */
     ret = HAL_I2SEx_TransmitReceive_DMA( &haudio_i2s, pBuffer, pBuffer_read, DMA_MAX( Size ) );
-//    HAL_I2SEx_TransmitReceive(&haudio_i2s,pBuffer,pBuffer_read,(Size/2),0xFFFFFF);
+
+    // HAL_I2SEx_TransmitReceive(&haudio_i2s,pBuffer,pBuffer_read,(Size/2),0xFFFFFF);
 
     return AUDIO_OK;
 }
 
 /**
- * @brief  Sends n-Bytes on the I2S interface.
- * @param  pData: pointer on data address
- * @param  Size: number of data to be written
- */
-void BSP_AUDIO_OUT_ChangeBuffer( uint16_t *pData, uint16_t* pBuffer_read, uint16_t Size )
+  * @brief  Starts playing audio stream from a data buffer for a determined size. 
+  * @param  pBuffer: Pointer to the buffer 
+  * @param  Size: Number of audio data BYTES.
+  * @retval AUDIO_OK if correct communication, else wrong communication
+  */
+uint8_t BSP_AUDIO_OUT_Play(uint16_t* pBuffer, uint32_t Size)
 {
-    HAL_I2SEx_TransmitReceive_DMA( &haudio_i2s, pData, pBuffer_read, DMA_MAX( Size / AUDIODATA_SIZE ) );
+  /* Call the audio Codec Play function */
+  if(audio_drv->Play(AUDIO_I2C_ADDRESS, pBuffer, Size) != 0)
+  {  
+    return AUDIO_ERROR;
+  }
+  else
+  {
+    /* Update the Media layer and enable it for play */  
+    HAL_I2S_Transmit_DMA(&haudio_i2s, pBuffer, DMA_MAX(Size / AUDIODATA_SIZE));
+    
+    return AUDIO_OK;
+  }
+}
+
+/**
+  * @brief  Sends n-Bytes on the I2S interface.
+  * @param  pData: pointer on data address 
+  * @param  Size: number of data to be written
+  */
+void BSP_AUDIO_OUT_ChangeBuffer(uint16_t *pData, uint16_t Size)
+{
+   HAL_I2S_Transmit_DMA(&haudio_i2s, pData, Size);
 }
 
 /**
@@ -617,7 +639,7 @@ __weak void BSP_AUDIO_OUT_MspInit( I2S_HandleTypeDef *hi2s, void *Params )
 }
 
 /**
- * @brief  Deinitializes I2S MSP.
+ * @brief  Deinitialize I2S MSP.
  * @param  Params : pointer on additional configuration parameters, can be NULL.
  * @param  hi2s: I2S handle
  */
@@ -637,7 +659,7 @@ __weak void BSP_AUDIO_OUT_MspDeInit( I2S_HandleTypeDef *hi2s, void *Params )
     /* Disable I2S peripheral */
     __HAL_I2S_DISABLE( hi2s );
 
-    /* Deactives CODEC_I2S pins MCK, SCK, WS and SD by putting them in input mode */
+    /* Deactive CODEC_I2S pins MCK, SCK, WS and SD by putting them in input mode */
     gpio_init_structure.Pin = AUDIO_OUT_I2Sx_MCK_PIN;
     HAL_GPIO_DeInit( AUDIO_OUT_I2Sx_MCK_GPIO_PORT, gpio_init_structure.Pin );
 
@@ -765,7 +787,7 @@ static void I2Sx_Out_Init( uint32_t AudiosampleBitLength,int32_t AudioFreq )
 }
 
 /**
- * @brief  Deinitializes the Audio Codec audio interface (I2S).
+ * @brief  Deinitialize the Audio Codec audio interface (I2S).
  */
 static void I2Sx_Out_DeInit( void )
 {
@@ -803,8 +825,8 @@ uint8_t BSP_AUDIO_IN_ConfigMicDefault( uint32_t InputDevice )
     uint32_t i = 0, mic_init[DFSDM_MIC_NUMBER] = { 0 };
     uint32_t filter_ch = 0, mic_num = 0;
 
-    DFSDM_Filter_TypeDef* FilterInstnace[DFSDM_MIC_NUMBER] = { AUDIO_DFSDMx_MIC1_FILTER, AUDIO_DFSDMx_MIC2_FILTER };
-    DFSDM_Channel_TypeDef* ChannelInstnace[DFSDM_MIC_NUMBER] = { AUDIO_DFSDMx_MIC1_CHANNEL,
+    DFSDM_Filter_TypeDef* FilterInstance[DFSDM_MIC_NUMBER] = { AUDIO_DFSDMx_MIC1_FILTER, AUDIO_DFSDMx_MIC2_FILTER };
+    DFSDM_Channel_TypeDef* ChannelInstance[DFSDM_MIC_NUMBER] = { AUDIO_DFSDMx_MIC1_CHANNEL,
     AUDIO_DFSDMx_MIC2_CHANNEL };
     uint32_t DigitalMicPins[DFSDM_MIC_NUMBER] = { DFSDM_CHANNEL_SAME_CHANNEL_PINS,
         DFSDM_CHANNEL_FOLLOWING_CHANNEL_PINS };
@@ -830,7 +852,7 @@ uint8_t BSP_AUDIO_IN_ConfigMicDefault( uint32_t InputDevice )
         HAL_DFSDM_FilterDeInit( &hAudioInDfsdmFilter[mic_num] );
         /* MIC filters  initialization */
         __HAL_DFSDM_FILTER_RESET_HANDLE_STATE( &hAudioInDfsdmFilter[mic_num] );
-        hAudioInDfsdmFilter[mic_num].Instance = FilterInstnace[mic_num];
+        hAudioInDfsdmFilter[mic_num].Instance = FilterInstance[mic_num];
         hAudioInDfsdmFilter[mic_num].Init.RegularParam.Trigger = DFSDM_FILTER_SW_TRIGGER;
         hAudioInDfsdmFilter[mic_num].Init.RegularParam.FastMode = ENABLE;
         hAudioInDfsdmFilter[mic_num].Init.RegularParam.DmaMode = ENABLE;
@@ -861,7 +883,7 @@ uint8_t BSP_AUDIO_IN_ConfigMicDefault( uint32_t InputDevice )
         hAudioInDfsdmChannel[mic_num].Init.Awd.Oversampling = 10;
         hAudioInDfsdmChannel[mic_num].Init.Offset = 0;
         hAudioInDfsdmChannel[mic_num].Init.RightBitShift = DFSDM_MIC_BIT_SHIFT( hAudioIn.Frequency );
-        hAudioInDfsdmChannel[mic_num].Instance = ChannelInstnace[mic_num];
+        hAudioInDfsdmChannel[mic_num].Instance = ChannelInstance[mic_num];
         hAudioInDfsdmChannel[mic_num].Init.Input.Pins = DigitalMicPins[mic_num];
         hAudioInDfsdmChannel[mic_num].Init.SerialInterface.Type = DigitalMicType[mic_num];
 
@@ -947,7 +969,7 @@ static void I2Sx_In_MspDeInit( void )
     /* Disable I2S peripheral */
     __HAL_I2S_DISABLE( &haudio_i2s );
 
-    /* Deactives CODEC_I2S pins MCK by putting them in input mode */
+    /* Deactive CODEC_I2S pins MCK by putting them in input mode */
     gpio_init_structure.Pin = AUDIO_OUT_I2Sx_MCK_PIN;
     HAL_GPIO_DeInit( AUDIO_OUT_I2Sx_MCK_GPIO_PORT, gpio_init_structure.Pin );
 

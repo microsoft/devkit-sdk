@@ -117,7 +117,7 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
         _error = _tlssocket->send(send_buf, send_size);
         if (_error < 0)
         {
-            ERROR("Failed to send the HTTP boday");
+            ERROR("Failed to send the HTTP body");
             _tlssocket->close();
             return NULL;
         }

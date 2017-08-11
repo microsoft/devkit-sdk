@@ -54,7 +54,7 @@ typedef unsigned __int64 uint64_t;
 # define HTTP_PARSER_STRICT 1
 #endif
 
-/* Maximium header size allowed. If the macro is not defined
+/* Maximum header size allowed. If the macro is not defined
  * before including this header then the default is used. To
  * change the maximum header size, define the macro in the build
  * environment (e.g. -DHTTP_MAX_HEADER_SIZE=<value>). To remove

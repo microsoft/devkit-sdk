@@ -1,6 +1,6 @@
 /**
  * @file    BufferedSerial.cpp
- * @brief   Software Buffer - Extends mbed Serial functionallity adding irq driven TX and RX
+ * @brief   Software Buffer - Extends mbed Serial functionality adding irq driven TX and RX
  * @author  sam grove
  * @version 1.0
  * @see

@@ -1,0 +1,7 @@
+{
+  "sketch": "../ConnectWithWPA.ino",
+  "tasks": {
+    "provision": ["device"],
+    "deploy": []
+  }
+}

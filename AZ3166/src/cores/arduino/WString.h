@@ -98,7 +98,7 @@ class String {
 
         // returns true on success, false on failure (in which case, the string
         // is left unchanged).  if the argument is null or invalid, the
-        // concatenation is considered unsucessful.
+        // concatenation is considered unsuccessful.
         unsigned char concat(const String &str);
         unsigned char concat(const char *cstr);
         unsigned char concat(char c);

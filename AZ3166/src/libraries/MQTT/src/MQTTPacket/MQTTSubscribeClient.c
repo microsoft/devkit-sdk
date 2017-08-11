@@ -88,7 +88,7 @@ exit:
 
 
 /**
-  * Deserializes the supplied (wire) buffer into suback data
+  * Deserialize the supplied (wire) buffer into suback data
   * @param packetid returned integer - the MQTT packet identifier
   * @param maxcount - the maximum number of members allowed in the grantedQoSs array
   * @param count returned integer - number of members in the grantedQoSs array

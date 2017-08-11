@@ -1,0 +1,13 @@
+{
+    "bindings": [
+        {
+            "type": "eventHubTrigger",
+            "name": "myEventHubTrigger",
+            "direction": "in",
+            "path": "%eventHubConnectionPath%",
+            "connection": "eventHubConnectionString",
+            "cardinality": "one"
+        }
+    ],
+    "disabled": false
+}

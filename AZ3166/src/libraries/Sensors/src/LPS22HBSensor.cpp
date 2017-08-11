@@ -66,7 +66,7 @@ LPS22HBSensor::LPS22HBSensor(DevI2C &i2c, unsigned char address) : _dev_i2c(i2c)
 
 /**
  * @brief     Initializing the component.
- * @param[in] init pointer to device specific initalization structure.
+ * @param[in] init pointer to device specific initialization structure.
  * @retval    "0" in case of success, an error code otherwise.
  */
 int LPS22HBSensor::init(void *init)
