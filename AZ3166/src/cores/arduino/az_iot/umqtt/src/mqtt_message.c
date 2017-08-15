@@ -5,16 +5,61 @@
 #include "azure_umqtt_c/mqtt_message.h"
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/gballoc.h"
+#include "azure_c_shared_utility/xlogging.h"
 
 typedef struct MQTT_MESSAGE_TAG
 {
     uint16_t packetId;
-    char* topicName;
     QOS_VALUE qosInfo;
+
+    char* topicName;
     APP_PAYLOAD appPayload;
+
+    const char* const_topic_name;
+    APP_PAYLOAD const_payload;
+
     bool isDuplicateMsg;
     bool isMessageRetained;
 } MQTT_MESSAGE;
+
+MQTT_MESSAGE_HANDLE mqttmessage_create_in_place(uint16_t packetId, const char* topicName, QOS_VALUE qosValue, const uint8_t* appMsg, size_t appMsgLength)
+{
+    /* Codes_SRS_MQTTMESSAGE_07_026: [If the parameters topicName is NULL then mqttmessage_create_in_place shall return NULL.].] */
+    MQTT_MESSAGE* result;
+    if (topicName == NULL)
+    {
+        LogError("Invalid Parameter topicName: %p, packetId: %d.", topicName, packetId);
+        result = NULL;
+    }
+    else
+    {
+        result = malloc(sizeof(MQTT_MESSAGE));
+        if (result != NULL)
+        {
+            memset(result, 0, sizeof(MQTT_MESSAGE) );
+            result->const_topic_name = topicName;
+
+            result->packetId = packetId;
+            result->isDuplicateMsg = false;
+            result->isMessageRetained = false;
+            result->qosInfo = qosValue;
+
+            /* Codes_SRS_MQTTMESSAGE_07_027: [mqttmessage_create_in_place shall use the a pointer to topicName or appMsg .] */
+            result->const_payload.length = appMsgLength;
+            if (result->const_payload.length > 0)
+            {
+                result->const_payload.message = (uint8_t*)appMsg;
+            }
+        }
+        else
+        {
+            /* Codes_SRS_MQTTMESSAGE_07_028: [If any memory allocation fails mqttmessage_create_in_place shall free any allocated memory and return NULL.] */
+            LogError("Failure unable to allocate MQTT Message.");
+        }
+    }
+    /* Codes_SRS_MQTTMESSAGE_07_029: [ Upon success, mqttmessage_create_in_place shall return a NON-NULL MQTT_MESSAGE_HANDLE value.] */
+    return (MQTT_MESSAGE_HANDLE)result;
+}
 
 MQTT_MESSAGE_HANDLE mqttmessage_create(uint16_t packetId, const char* topicName, QOS_VALUE qosValue, const uint8_t* appMsg, size_t appMsgLength)
 {
@@ -22,6 +67,7 @@ MQTT_MESSAGE_HANDLE mqttmessage_create(uint16_t packetId, const char* topicName,
     MQTT_MESSAGE* result;
     if (topicName == NULL)
     {
+        LogError("Invalid Parameter topicName: %p, packetId: %d.", topicName, packetId);
         result = NULL;
     }
     else
@@ -30,6 +76,7 @@ MQTT_MESSAGE_HANDLE mqttmessage_create(uint16_t packetId, const char* topicName,
         result = malloc(sizeof(MQTT_MESSAGE));
         if (result != NULL)
         {
+            memset(result, 0, sizeof(MQTT_MESSAGE));
             if (mallocAndStrcpy_s(&result->topicName, topicName) != 0)
             {
                 /* Codes_SRS_MQTTMESSAGE_07_003: [If any memory allocation fails mqttmessage_create shall free any allocated memory and return NULL.] */
@@ -68,7 +115,7 @@ MQTT_MESSAGE_HANDLE mqttmessage_create(uint16_t packetId, const char* topicName,
         }
     }
     /* Codes_SRS_MQTTMESSAGE_07_004: [If mqttmessage_createMessage succeeds the it shall return a NON-NULL MQTT_MESSAGE_HANDLE value.] */
-    return result;
+    return (MQTT_MESSAGE_HANDLE)result;
 }
 
 void mqttmessage_destroy(MQTT_MESSAGE_HANDLE handle)
@@ -78,7 +125,10 @@ void mqttmessage_destroy(MQTT_MESSAGE_HANDLE handle)
     if (msgInfo != NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_006: [mqttmessage_destroyMessage shall free all resources associated with the MQTT_MESSAGE_HANDLE value] */
-        free(msgInfo->topicName);
+        if (msgInfo->topicName != NULL)
+        {
+            free(msgInfo->topicName);
+        }
         if (msgInfo->appPayload.message != NULL)
         {
             free(msgInfo->appPayload.message);
@@ -93,6 +143,7 @@ MQTT_MESSAGE_HANDLE mqttmessage_clone(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_007: [If handle parameter is NULL then mqttmessage_clone shall return NULL.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = NULL;
     }
     else
@@ -115,6 +166,7 @@ uint16_t mqttmessage_getPacketId(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_010: [If handle is NULL then mqttmessage_getPacketId shall return 0.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = 0;
     }
     else
@@ -132,13 +184,21 @@ const char* mqttmessage_getTopicName(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_012: [If handle is NULL then mqttmessage_getTopicName shall return a NULL string.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = NULL;
     }
     else
     {
         /* Codes_SRS_MQTTMESSAGE_07_013: [mqttmessage_getTopicName shall return the topicName contained in MQTT_MESSAGE_HANDLE handle.] */
         MQTT_MESSAGE* msgInfo = (MQTT_MESSAGE*)handle;
-        result = msgInfo->topicName;
+        if (msgInfo->topicName == NULL)
+        {
+            result = msgInfo->const_topic_name;
+        }
+        else
+        {
+            result = msgInfo->topicName;
+        }
     }
     return result;
 }
@@ -149,6 +209,7 @@ QOS_VALUE mqttmessage_getQosType(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_014: [If handle is NULL then mqttmessage_getQosType shall return the default DELIVER_AT_MOST_ONCE value.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = DELIVER_AT_MOST_ONCE;
     }
     else
@@ -166,6 +227,7 @@ bool mqttmessage_getIsDuplicateMsg(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_016: [If handle is NULL then mqttmessage_getIsDuplicateMsg shall return false.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = false;
     }
     else
@@ -183,6 +245,7 @@ bool mqttmessage_getIsRetained(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_018: [If handle is NULL then mqttmessage_getIsRetained shall return false.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = false;
     }
     else
@@ -200,6 +263,7 @@ int mqttmessage_setIsDuplicateMsg(MQTT_MESSAGE_HANDLE handle, bool duplicateMsg)
     /* Codes_SRS_MQTTMESSAGE_07_022: [If handle is NULL then mqttmessage_setIsDuplicateMsg shall return a non-zero value.] */
     if (handle == NULL)
     {
+        LogError("Invalid Parameter handle: %p.", handle);
         result = __FAILURE__;
     }
     else
@@ -218,6 +282,7 @@ int mqttmessage_setIsRetained(MQTT_MESSAGE_HANDLE handle, bool retainMsg)
     /* Codes_SRS_MQTTMESSAGE_07_024: [If handle is NULL then mqttmessage_setIsRetained shall return a non-zero value.] */
     if (handle == NULL)
     {
+        LogError("Invalid Parameter handle: %p.", handle);
         result = __FAILURE__;
     }
     else
@@ -236,13 +301,21 @@ const APP_PAYLOAD* mqttmessage_getApplicationMsg(MQTT_MESSAGE_HANDLE handle)
     if (handle == NULL)
     {
         /* Codes_SRS_MQTTMESSAGE_07_020: [If handle is NULL or if msgLen is 0 then mqttmessage_getApplicationMsg shall return NULL.] */
+        LogError("Invalid Parameter handle: %p.", handle);
         result = NULL;
     }
     else
     {
         /* Codes_SRS_MQTTMESSAGE_07_021: [mqttmessage_getApplicationMsg shall return the applicationMsg value contained in MQTT_MESSAGE_HANDLE handle and the length of the appMsg in the msgLen parameter.] */
         MQTT_MESSAGE* msgInfo = (MQTT_MESSAGE*)handle;
-        result = &msgInfo->appPayload;
+        if (msgInfo->const_payload.length > 0)
+        {
+            result = &msgInfo->const_payload;
+        }
+        else
+        {
+            result = &msgInfo->appPayload;
+        }
     }
     return result;
 }
