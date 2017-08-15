@@ -12,6 +12,13 @@
 
 #define STACK_SIZE 0x1000
 
+#ifndef CORRELATIONID
+// Empty 64bit correlation_id
+#define CORRELATIONID "0000000000000000000000000000000000000000000000000000000000000000"
+#endif
+
+#define CORRELATION_ID_LENGTH 64
+
 static const char *EVENT = "AIEVENT";
 static const char *BODY_TEMPLATE = 
 "{"
@@ -24,7 +31,8 @@ static const char *BODY_TEMPLATE =
                 "\"mcu\": \"%s\","
                 "\"message\":\"%s\","
                 "\"hash_mac_address\": \"%s\","
-                "\"hash_iothub_name\":\"%s\""
+                "\"hash_iothub_name\":\"%s\","
+                "\"correlation_id\": \"%s\""
             "},"
             "\"name\": \"%s\""
         "}"
@@ -42,7 +50,7 @@ TelemetryClient::TelemetryClient(const char *ai_endoint, const char *ai_ikey)
 
     memset(m_hash_mac, 0, sizeof(m_hash_mac));
     memset(m_hash_iothub_name, 0, sizeof(m_hash_iothub_name));
-    m_base_size = strlen(BODY_TEMPLATE) + sizeof(BOARD_NAME) + strlen(getDevkitVersion()) + sizeof(BOARD_MCU) + strlen(EVENT) + strlen(m_ai_ikey) - 20 + sizeof(m_hash_mac) + sizeof(m_hash_iothub_name);
+    m_base_size = strlen(BODY_TEMPLATE) + sizeof(BOARD_NAME) + strlen(getDevkitVersion()) + sizeof(BOARD_MCU) + strlen(EVENT) + strlen(m_ai_ikey) - 20 + sizeof(m_hash_mac) + CORRELATION_ID_LENGTH + sizeof(m_hash_iothub_name);
 
     m_telemetry_thread.start(callback(this, &TelemetryClient::telemetry_worker));
 }
@@ -99,7 +107,7 @@ void TelemetryClient::do_trace_telemetry(const char *iothub, const char *event, 
     
     // Send
     char* data = new char[size];
-    sprintf(data, BODY_TEMPLATE, BOARD_NAME, getDevkitVersion(), BOARD_MCU, message, m_hash_mac, m_hash_iothub_name, event, _ctime, EVENT, m_ai_ikey);
+    sprintf(data, BODY_TEMPLATE, BOARD_NAME, getDevkitVersion(), BOARD_MCU, message, m_hash_mac, m_hash_iothub_name, CORRELATIONID, event, _ctime, EVENT, m_ai_ikey);
 
     if (async)
     {
