@@ -52,6 +52,8 @@
 
         public string ExtractZipPackage(string zipFilePath)
         {
+            Console.WriteLine("Extract the installation package.");
+
             if (!File.Exists(zipFilePath))
             {
                 throw new FileNotFoundException($"Installation package is not found, path: {zipFilePath}");
@@ -75,7 +77,7 @@
             Process proc = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "cmd.exe";
-            psi.Arguments = "/C " + Path.Combine(extractFolder, "install.cmd");
+            psi.Arguments = "/C \"" + Path.Combine(extractFolder, "install.cmd") + "\"";
 
             psi.Verb = "runas";
             psi.UseShellExecute = false;
