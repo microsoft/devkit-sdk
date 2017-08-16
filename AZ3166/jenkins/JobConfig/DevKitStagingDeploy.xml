@@ -4,19 +4,19 @@
   <description></description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.26.2">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
       <projectUrl>https://github.com/Microsoft/AzureIoTDeveloperKit/</projectUrl>
-      <displayName>devkit</displayName>
+      <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
   </properties>
   <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@3.2.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.4.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
             <url>git@github.com:Microsoft/AzureIoTDeveloperKit.git</url>
-            <credentialsId>e913f536-6bb6-449f-a62a-86a2bbf53ce5</credentialsId>
+            <credentialsId>d82b070b-a549-4d11-b0a6-4c86d9f7e028</credentialsId>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
         <branches>
@@ -32,12 +32,12 @@
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@3.2.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.4.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
-            <url>git@github.com:Microsoft/azureIotdevkitscript.git</url>
-            <credentialsId>e913f536-6bb6-449f-a62a-86a2bbf53ce5</credentialsId>
+            <url>https://mseng.visualstudio.com/VSIoT/IoT%20Dev%20Kit/_git/IoTDevKitInstallation.Win</url>
+            <credentialsId>dd98dacf-7605-466d-968e-684e58e0becb</credentialsId>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
         <branches>
@@ -49,24 +49,35 @@
         <submoduleCfg class="list"/>
         <extensions>
           <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>azureIotdevkitscript</relativeTargetDir>
+            <relativeTargetDir>IoTDevKitInstallation.Win</relativeTargetDir>
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
     </scms>
   </scm>
-  <canRoam>true</canRoam>
+  <assignedNode>Slave1</assignedNode>
+  <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.SCMTrigger>
-      <spec>H/10 * * * *</spec>
+      <spec>H/15 * * * *</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
     </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
+    <hudson.tasks.BatchFile>
+      <command>xcopy AzureIoTDeveloperKit\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0 /S /I /E /Q /Y&#xd;
+&#xd;
+xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0\libraries\ArduinoUnit /S /I /E /Q /Y</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>scripts\DevIotTest.exe GenerateVersion&#xd;
+scripts\DevIotTest.exe RunUnitTests&#xd;
+scripts\DevIotTest.exe GenerateArduinoPackage</command>
+    </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd AzureIoTDeveloperKit&#xd;
 git submodule init&#xd;
@@ -74,22 +85,25 @@ git submodule update --remote&#xd;
 cd ..&#xd;
 node out\index.js</command>
     </hudson.tasks.BatchFile>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>scripts\DevKitDeploy.ps1 -Environment &quot;staging&quot;</command>
+    </hudson.plugins.powershell.PowerShell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>usb_install*.zip</artifacts>
+      <artifacts>TestResult/</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
-      <onlyIfSuccessful>true</onlyIfSuccessful>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
       <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
       <patterns>
         <hudson.plugins.ws__cleanup.Pattern>
-          <pattern>usb_install_*.zip</pattern>
+          <pattern>TestResult/*</pattern>
           <type>INCLUDE</type>
         </hudson.plugins.ws__cleanup.Pattern>
       </patterns>

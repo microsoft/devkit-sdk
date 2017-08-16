@@ -4,7 +4,7 @@
   "provision_iot_hub": true,
   "provision_azure_function": true,
   "functionRelativePath": "azureFunction",
-  "functionName": "shakeshake",
+  "functionName": "shakeshake-cs",
   "tasks": {
     "provision": ["subscription", "iothub", "functionapp", "armtemplatedeployment", "device"],
     "deploy": ["functiondeploy"]

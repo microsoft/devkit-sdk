@@ -7,7 +7,7 @@
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "NTPClient.h"
-#include "telemetry.h"
+#include "Telemetry.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // WiFi related functions
@@ -64,7 +64,7 @@ bool SystemWiFiConnect(void)
 
         // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
         // We collect data about the features you use, how often you use them, and how you use them.
-        send_telemetry_data("", "wifi", "Wi-Fi connected");
+        send_telemetry_data_async("", "wifi", "Wi-Fi connected");
 
         return true;
     }

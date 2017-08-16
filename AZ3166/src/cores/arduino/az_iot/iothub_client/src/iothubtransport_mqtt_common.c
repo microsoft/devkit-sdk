@@ -1417,7 +1417,7 @@ static void mqtt_operation_complete_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLI
                     {
                         if (suback->qosReturn[index] == DELIVER_FAILURE)
                         {
-                            LogError("Subscribe delivery failure of subscribe %zu", index);
+                            LogError("Subscribe delivery failure of subscribe %lu", index);
                         }
                     }
                     // The connect packet has been acked
@@ -1818,7 +1818,7 @@ static int InitializeConnection(PMQTTTRANSPORT_HANDLE_DATA transport_data)
             }
             else
             {
-                if ((current_time - transport_data->mqtt_connect_time) / 1000 > (SAS_TOKEN_DEFAULT_LIFETIME*SAS_REFRESH_MULTIPLIER))
+                if ((uint32_t)((current_time - transport_data->mqtt_connect_time) / 1000) > (uint32_t)(SAS_TOKEN_DEFAULT_LIFETIME * SAS_REFRESH_MULTIPLIER))
                 {
                     // TODO: shall keep these commented out codes if the retry policy works 
                     //(void)mqtt_client_disconnect(transport_data->mqttClient);

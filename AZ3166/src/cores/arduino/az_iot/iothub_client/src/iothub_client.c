@@ -1816,7 +1816,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
         ((source == NULL) && (size > 0))
         )
     {
-        LogError("invalid parameters IOTHUB_CLIENT_HANDLE iotHubClientHandle = %p , const char* destinationFileName = %s, const unsigned char* source= %p, size_t size = %zu, IOTHUB_CLIENT_FILE_UPLOAD_CALLBACK iotHubClientFileUploadCallback = %p, void* context = %p",
+        LogError("invalid parameters IOTHUB_CLIENT_HANDLE iotHubClientHandle = %p , const char* destinationFileName = %s, const unsigned char* source= %p, size_t size = %lu, IOTHUB_CLIENT_FILE_UPLOAD_CALLBACK iotHubClientFileUploadCallback = %p, void* context = %p",
             iotHubClientHandle,
             destinationFileName,
             source,

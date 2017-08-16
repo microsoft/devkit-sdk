@@ -38,7 +38,7 @@ SPWFSAInterface5 spwf(D1, D0, false);
 
 const char* ssid = "[your wifi ssid]";
 const char* pwd = "[your wifi password]";
-const char* subscriptionKey = "[your subscripption key to use Microsoft Cognitive Service]";
+const char* subscriptionKey = "[your subscription key to use Microsoft Cognitive Service]";
 const char* deviceId = "[guid to use as your device identification]";
 
 int main(void)

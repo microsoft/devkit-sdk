@@ -599,7 +599,7 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                                 {
                                     if (mqtt_client->logTrace)
                                     {
-                                        STRING_sprintf(trace_log, " | PAYLOAD_LEN: %zu", length);
+                                        STRING_sprintf(trace_log, " | PAYLOAD_LEN: %lu", length);
                                         log_incoming_trace(mqtt_client, trace_log);
                                         STRING_delete(trace_log);
                                     }
@@ -1141,7 +1141,7 @@ void mqtt_client_dowork(MQTT_CLIENT_HANDLE handle)
                     mqtt_client->packetSendTimeMs = 0;
                     mqtt_client->packetState = UNKNOWN_TYPE;
                 }
-                else if ((((current_ms - mqtt_client->packetSendTimeMs) / 1000) + KEEP_ALIVE_BUFFER_SEC) > mqtt_client->keepAliveInterval)
+                else if ((uint16_t)(((current_ms - mqtt_client->packetSendTimeMs) / 1000) + KEEP_ALIVE_BUFFER_SEC) > mqtt_client->keepAliveInterval)
                 {
                     /*Codes_SRS_MQTT_CLIENT_07_026: [if keepAliveInternal is > 0 and the send time is greater than the MQTT KeepAliveInterval then it shall construct an MQTT PINGREQ packet.]*/
                     BUFFER_HANDLE pingPacket = mqtt_codec_ping();
