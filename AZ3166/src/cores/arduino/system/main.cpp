@@ -26,6 +26,18 @@ static bool Initialization(void)
     
     // Initialize the OLED screen
     Screen.init();
+
+    // Turn off WiFi led 
+    DigitalOut LedWifi(LED_WIFI);
+    LedWifi = 0;
+
+    // Turn off Azure led
+    DigitalOut LedAzure(LED_AZURE);
+    LedAzure = 0;
+
+    // Turn off User led 
+    DigitalOut LedUser(LED_USER);
+    LedUser = 0;
     
     return true;
 }
