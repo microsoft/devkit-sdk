@@ -110,6 +110,12 @@ void mbedtls_debug(void *ctx, int level, const char *file, int line, const char 
 
 static void indicate_error(TLS_IO_INSTANCE* tls_io_instance)
 {
+    if ((tls_io_instance->tlsio_state == TLSIO_STATE_NOT_OPEN)
+        || (tls_io_instance->tlsio_state == TLSIO_STATE_ERROR))
+    {
+        return;
+    }
+    tls_io_instance->tlsio_state = TLSIO_STATE_ERROR;
     if (tls_io_instance->on_io_error != NULL)
     {
         tls_io_instance->on_io_error(tls_io_instance->on_io_error_context);
@@ -213,7 +219,6 @@ static void on_underlying_io_bytes_received(void* context, const unsigned char* 
     if (new_socket_io_read_bytes == NULL)
     {
         //Unable to allocate memory
-        tls_io_instance->tlsio_state = TLSIO_STATE_ERROR;
         indicate_error(tls_io_instance);
     }
     else
@@ -241,7 +246,6 @@ static void on_underlying_io_error(void* context)
         break;
 
     case TLSIO_STATE_OPEN:
-        tls_io_instance->tlsio_state = TLSIO_STATE_ERROR;
         indicate_error(tls_io_instance);
         break;
     }
@@ -326,7 +330,6 @@ static int on_io_send(void *context, const unsigned char *buf, size_t sz)
     // Invoking xio_send to use socket_io to send data 
     if (xio_send(tls_io_instance->socket_io, buf, sz, tls_io_instance->on_send_complete, tls_io_instance->on_send_complete_callback_context) != 0)
     {
-        tls_io_instance->tlsio_state = TLSIO_STATE_ERROR;
         indicate_error(tls_io_instance);
         result = 0;
     }

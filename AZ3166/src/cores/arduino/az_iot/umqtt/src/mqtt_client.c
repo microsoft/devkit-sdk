@@ -83,7 +83,8 @@ static void set_error_callback(MQTT_CLIENT* mqtt_client, MQTT_CLIENT_EVENT_ERROR
     {
         mqtt_client->fnOnErrorCallBack(mqtt_client, error_type, mqtt_client->errorCBCtx);
     }
-    close_connection(mqtt_client);
+    // Encounter underlying network error, so here just close the connection directly.
+    xio_close(mqtt_client->xioHandle, NULL, NULL);
 }
 
 static STRING_HANDLE construct_trace_log_handle(MQTT_CLIENT* mqtt_client)
@@ -312,7 +313,7 @@ static int sendPacketItem(MQTT_CLIENT* mqtt_client, const unsigned char* data, s
 
     if (tickcounter_get_current_ms(mqtt_client->packetTickCntr, &mqtt_client->packetSendTimeMs) != 0)
     {
-        LOG(AZ_LOG_ERROR, LOG_LINE, "Failure getting current ms tickcounter");
+        LogError("Failure getting current ms tickcounter");
         result = __FAILURE__;
     }
     else
@@ -320,7 +321,7 @@ static int sendPacketItem(MQTT_CLIENT* mqtt_client, const unsigned char* data, s
         result = xio_send(mqtt_client->xioHandle, (const void*)data, length, sendComplete, mqtt_client);
         if (result != 0)
         {
-            LOG(AZ_LOG_ERROR, LOG_LINE, "%d: Failure sending control packet data", result);
+            LogError("%d: Failure sending control packet data", result);
             result = __FAILURE__;
         }
         else

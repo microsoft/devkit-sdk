@@ -48,6 +48,12 @@ typedef struct SOCKET_IO_INSTANCE_TAG
 
 static void indicate_error(SOCKET_IO_INSTANCE* socket_io_instance)
 {
+    if ((socket_io_instance->io_state == IO_STATE_NOT_OPEN)
+        || (socket_io_instance->io_state == IO_STATE_ERROR))
+    {
+        return;
+    }
+    socket_io_instance->io_state = IO_STATE_ERROR;
     if (socket_io_instance->on_io_error != NULL)
     {
         socket_io_instance->on_io_error(socket_io_instance->on_io_error_context);
@@ -123,7 +129,6 @@ static int retrieve_data(SOCKET_IO_INSTANCE* socket_io_instance)
             if(received != NSAPI_ERROR_WOULD_BLOCK)     // NSAPI_ERROR_WOULD_BLOCK is not a real error but pending.
             {
                 LogError("Socketio_Failure: underlying IO error %d.", received);
-                socket_io_instance->io_state = IO_STATE_ERROR;
                 indicate_error(socket_io_instance);
                 return -1;
             }
@@ -145,7 +150,6 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
         PENDING_SOCKET_IO* pending_socket_io = (PENDING_SOCKET_IO*)singlylinkedlist_item_get_value(first_pending_io);
         if (pending_socket_io == NULL)
         {
-            socket_io_instance->io_state = IO_STATE_ERROR;
             indicate_error(socket_io_instance);
             return -1;
         }
@@ -161,7 +165,7 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
                 if (errors++ >= 10)
                 {
                     // Treat it as a network error after try 10 times.
-                    LogInfo(">>>send_queued_data send fault");
+                    LogError("Socketio_Failure: encountered unknow connection issue, the connection will be restarted.");
                     indicate_error(socket_io_instance);
                     return -1;
                 }
@@ -173,7 +177,6 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
                 if (send_result < UNABLE_TO_COMPLETE)
                 {
                     // Bad error.  Indicate as much.
-                    socket_io_instance->io_state = IO_STATE_ERROR;
                     indicate_error(socket_io_instance);
                 }
                 return -1;
@@ -197,7 +200,6 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
             free(pending_socket_io);
             if (singlylinkedlist_remove(socket_io_instance->pending_io_list, first_pending_io) != 0)
             {
-                socket_io_instance->io_state = IO_STATE_ERROR;
                 indicate_error(socket_io_instance);
                 return -1;
             }
@@ -404,23 +406,17 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
     }
     else
     {
+        result = 0;
+
         SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
-        if (socket_io_instance->io_state != IO_STATE_OPEN)
-        {
-            result = 0;
-        }
-        else
+        if (socket_io_instance->io_state == IO_STATE_OPEN)
         {
             // Queue the data, and the socketio_dowork sends the package later
             if (add_pending_io(socket_io_instance, buffer, size, on_send_complete, callback_context) != 0)
             {
                 result = __FAILURE__;
             }
-            else
-            {
-                result = 0;
-            }
-
+            
             if (send_queued_data(socket_io_instance) < 0)
             {
                 result = __FAILURE__;

@@ -1227,7 +1227,6 @@ static void DisconnectFromClient(PMQTTTRANSPORT_HANDLE_DATA transport_data)
 
 static void mqtt_error_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLIENT_EVENT_ERROR error, void* callbackCtx)
 {
-    (void)handle;
     if (callbackCtx != NULL)
     {
         PMQTTTRANSPORT_HANDLE_DATA transport_data = (PMQTTTRANSPORT_HANDLE_DATA)callbackCtx;
