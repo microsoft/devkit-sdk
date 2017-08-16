@@ -65,7 +65,7 @@ static void close_connection(MQTT_CLIENT* mqtt_client)
 {
     size_t close_complete = 0;
     (void)xio_close(mqtt_client->xioHandle, on_connection_closed, &close_complete);
-    
+
     size_t counter = 0;
     do
     {
@@ -405,7 +405,7 @@ static void onIoError(void* context)
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)context;
     if (mqtt_client != NULL && mqtt_client->fnOperationCallback)
     {
-        /* Codes_SRS_MQTT_CLIENT_07_032: [If the actionResult parameter is of type MQTT_CLIENT_ON_DISCONNECT the the msgInfo value shall be NULL.] */
+        /* Codes_SRS_MQTT_CLIENT_07_032: [ If the actionResult parameter is of type MQTT_CLIENT_ON_DISCONNECT the the msgInfo value shall be NULL. ] */
         /* Codes_SRS_MQTT_CLIENT_07_036: [ If an error is encountered by the ioHandle the mqtt_client shall call xio_close. ] */
         set_error_callback(mqtt_client, MQTT_CLIENT_CONNECTION_ERROR);
     }
