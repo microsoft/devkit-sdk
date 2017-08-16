@@ -35,7 +35,7 @@ static const char *BODY_TEMPLATE =
 "}";
 
 TelemetryClient::TelemetryClient(const char *ai_endoint, const char *ai_ikey)
-    : m_telemetry_thread(osPriorityIdle, STACK_SIZE, NULL)
+    : m_telemetry_thread(osPriorityNormal, STACK_SIZE, NULL)
 {
     m_ai_endoint = ai_endoint;
     m_ai_ikey = ai_ikey;
