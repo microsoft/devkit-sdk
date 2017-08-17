@@ -110,7 +110,7 @@ static void ShowProgress()
   DrawCheckBox(2, 0, shake_progress >= 1 ? 1 : 0);
   DrawCheckBox(3, 0, shake_progress >= 2 ? 1 : 0);
   
-  delay(1000);
+  delay(500);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
