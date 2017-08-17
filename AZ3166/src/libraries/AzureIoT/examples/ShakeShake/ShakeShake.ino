@@ -1,8 +1,11 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "IoTHubMQTTClient.h"
 #include "OledDisplay.h"
 #include "Sensor.h"
+#include "ShakeUI.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
@@ -36,62 +39,13 @@ static const char* iot_event_heartbeat = "{\"topic\":\"\"}";
 static time_t time_hb;
 static time_t time_sending_timeout;
 
-static int animation = 0;
-const char* s1  = "  Shake!";
-const char* s2  = "     Shake!";
-const char* s3  = "        Shake!";
-const char* list[3] = { s1, s2, s3 };
+static int shake_progress;
 
-static void ShakeAnimation()
-{
-  Screen.print(1, list[(animation / 200 + 0) % 3]);
-  Screen.print(2, list[(animation / 200 + 1) % 3]);
-  Screen.print(3, list[(animation / 200 + 2) % 3]);
-  animation += LOOP_DELAY;
-}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utilities
 static char printable_char(char c)
 {
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
-}
-
-void TwitterMessageCallback(const char *tweet, int lenTweet)
-{
-  if (status < 2 || lenTweet == NULL)
-  {
-      return;
-  }
-  
-  int i = 0;
-  int j = 0;
-  // The header
-  for (; i < min(lenTweet, sizeof(msgHeader)); i++)
-  {
-      if(tweet[i] == '\n')
-      {
-          break;
-      }
-      msgHeader[j++] = printable_char(tweet[i]);
-  }
-  msgHeader[j] = 0;
-  // The body
-  j = 0;
-  for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
-  {
-    if (tweet[i] != '\r' && tweet[i] != '\n')
-    {
-      msgBody[j++] = printable_char(tweet[i]);
-    }
-  }
-  msgBody[j] = 0;
-  
-  Serial.println(msgHeader);
-  Serial.println(msgBody);
-  
-  status = 3;
-  msgStart = 0;
-  
-  LogTrace("ShakeShakeSucceed", NULL);
 }
 
 static void ScrollTweet(void)
@@ -99,12 +53,21 @@ static void ScrollTweet(void)
   if (msgBody[0] != 0 && digitalRead(USER_BUTTON_B) == LOW)
   {
     // Scroll it if Button B has been pressed
-    msgStart += 16;
-    if (msgStart >= strlen(msgBody))
+    if (msgStart < 0)
     {
-        msgStart = 0;
+      // First time
+      Screen.print(0, msgHeader);
+      msgStart = 0;
     }
-        
+    else
+    {
+      msgStart += 16;
+      if (msgStart >= strlen(msgBody))
+      {
+          msgStart = 0;
+      }
+    }
+          
     // Clean the msg screen
     Screen.print(1, " ");
     Screen.print(2, " ");
@@ -114,10 +77,12 @@ static void ScrollTweet(void)
   }
 }
 
-void InitWiFi()
+static void InitWiFi()
 {
-  Screen.print("IoT DevKit\r\n \r\nConnecting...\r\n");
-
+  Screen.clean();
+  Screen.print(0, "IoT DevKit");
+  Screen.print(2, "Connecting...");
+  
   if (WiFi.begin() == WL_CONNECTED)
   {
     IPAddress ip = WiFi.localIP();
@@ -131,6 +96,76 @@ void InitWiFi()
   }
 }
 
+static void ShowProgress()
+{
+  if (shake_progress == 0)
+  {
+    Screen.print(0, "Processing...");
+    Screen.print(1, "   DevKit");
+    Screen.print(2, "   Azure");
+    Screen.print(3, "   Twitter");
+  }
+
+  DrawCheckBox(1, 0, 1);
+  DrawCheckBox(2, 0, shake_progress >= 1 ? 1 : 0);
+  DrawCheckBox(3, 0, shake_progress >= 2 ? 1 : 0);
+  
+  delay(1000);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Callback functions
+void TwitterMessageCallback(const char *tweet, int lenTweet)
+{
+  if (status < 2 || lenTweet == NULL)
+  {
+      return;
+  }
+  
+  shake_progress = 2;
+
+  int i = 0;
+  int j = 0;
+  // The header
+  for (; i < min(lenTweet, sizeof(msgHeader)); i++)
+  {
+      if(tweet[i] == '\n')
+      {
+          break;
+      }
+      msgHeader[j++] = printable_char(tweet[i]);
+  }
+  msgHeader[j] = 0;
+  Serial.println(msgHeader);
+  if (strcmp(msgHeader, "No new tweet.") == 0)
+  {
+    // There is no new tweet from Twitter.
+    msgHeader[0] = 0;
+  }
+  else
+  {
+    // The body
+    j = 0;
+    for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
+    {
+      if (tweet[i] != '\r' && tweet[i] != '\n')
+      {
+        msgBody[j++] = printable_char(tweet[i]);
+      }
+    }
+    msgBody[j] = 0;
+
+    shake_progress = 3;
+    Serial.println(msgBody);
+  }
+  ShowProgress();
+
+  status = 3;
+  msgStart = -16;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Actions
 static void DoHeartBeat(void)
 {
   time_t cur;
@@ -152,6 +187,119 @@ static void DoHeartBeat(void)
   time(&time_hb); //  Reset the clock
 }
 
+static void DoIdle()
+{
+    if (digitalRead(USER_BUTTON_A) == LOW)
+    {
+      status = 1;
+      msgBody[0] = 0;
+      rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
+
+      Screen.print(0, " ");
+      DrawSmallTweetIcon(0, 40);
+      DrawShakeAnimation();
+
+      acc_gyro->resetStepCounter();
+    }
+    IoTHubMQTT_Check();
+}
+
+static void NoTweets()
+{
+  Screen.clean();
+  Screen.print(0, "No tweets...");
+  Screen.print(3, "Press A to Shake!");
+  DrawTweetImage(1, 20, 0);
+  rgbLed.setColor(0, 0, 0);
+
+  // Log shake failed message
+  char sz[32];
+  sprintf(sz, "progress %d", shake_progress);
+  LogTrace("ShakeShakeFailed", sz);
+
+  // Switch back to status 0
+  status = 0;
+}
+
+static void DoShake()
+{
+  int steps = 0;
+  acc_gyro->getStepCounter(&steps);
+  if (steps > 2)
+  {
+    status = 2;
+    shake_progress = 0;
+    
+    // LED
+    DigitalOut LedUser(LED_BUILTIN);
+    LedUser = 1;
+    // RGB LED
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
+    // Update the screen
+    ShowProgress();
+    
+    // Send event to IoT hub
+    if (IoTHubMQTT_SendEvent(iot_event))
+    {
+      // Waiting for the tweet
+      shake_progress = 1;
+      ShowProgress();
+      
+      time(&time_sending_timeout);  // Start retrieving tweet timeout clock
+    }
+    else
+    {
+      NoTweets();
+    }
+    LedUser = 0;
+  }
+  else
+  {
+    DrawShakeAnimation();
+  }
+}
+
+static void DoWork()
+{
+  IoTHubMQTT_Check();
+
+  if (status != 3)
+  {
+    // Not get the tweet, check the sending timeout
+    time_t cur;
+    time(&cur);
+    double diff = difftime(cur, time_sending_timeout);
+    
+    if (diff >= PULL_TIMEOUT)
+    {
+      NoTweets();
+    }
+  }
+}
+
+static void DoReceived()
+{
+  Screen.clean();
+  if (shake_progress == 3)
+  {
+    Screen.print(0, "New tweet!");
+    Screen.print(3, "Press B to read!");
+
+    DrawTweetImage(1, 20, 1);
+
+    // Log shake succeed message
+    LogTrace("ShakeShakeSucceed", "4");
+  }
+  else
+  {
+    NoTweets();
+  }
+  rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
+  status = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Arduino sketch
 void setup()
 {
   msgHeader[0] = 0;
@@ -210,98 +358,6 @@ void setup()
   Screen.print(3, " ");
 }
 
-static void DoIdle()
-{
-    if (digitalRead(USER_BUTTON_A) == LOW)
-    {
-      Screen.print(0, "IoT DevKit");
-      animation = 0;
-      ShakeAnimation();
-      status = 1;
-      msgBody[0] = 0;
-      rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
-      acc_gyro->resetStepCounter();
-    }
-    IoTHubMQTT_Check();
-}
-
-static void NoTweets()
-{
-  Screen.print(1, "No tweets...");
-  Screen.print(2, "Press A to Shake!");
-  Screen.print(3, " ");
-  rgbLed.setColor(0, 0, 0);
-
-  // Switch back to status 0
-  status = 0;
-}
-
-static void DoShake()
-{
-  int steps = 0;
-  acc_gyro->getStepCounter(&steps);
-  if (steps > 2)
-  {
-    // LED
-    DigitalOut LedUser(LED_BUILTIN);
-    LedUser = 1;
-    // RGB LED
-    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-    // Update the screen
-    Screen.print(1, " ");
-    Screen.print(2, " Processing...");
-    Screen.print(3, " ");
-    ThreadAPI_Sleep(10);
-    status = 2;
-    if (IoTHubMQTT_SendEvent(iot_event))
-    {
-      // Waiting for the tweet
-      Screen.print(2, " Retrieving...");
-      
-      time(&time_sending_timeout);  // Start retrieving tweet timeout clock
-    }
-    else
-    {
-      NoTweets();
-      LogTrace("ShakeShakeFailed", "IoT Hub");
-    }
-    LedUser = 0;
-  }
-  else
-  {
-    ShakeAnimation();
-  }
-}
-
-static void DoWork()
-{
-  IoTHubMQTT_Check();
-
-  if (status != 3)
-  {
-    // Not get the tweet, check the sending timeout
-    time_t cur;
-    time(&cur);
-    double diff = difftime(cur, time_sending_timeout);
-    
-    if (diff >= PULL_TIMEOUT)
-    {
-      NoTweets();
-      LogTrace("ShakeShakeFailed", "Function App");
-    }
-  }
-}
-
-static void DoReceived()
-{
-  Screen.clean();
-  Screen.print(0, msgHeader);
-  Screen.print(1, msgBody, true);
-  
-  rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
-  status = 0;
-}
-      
 void loop()
 {
   if (hasWifi)

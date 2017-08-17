@@ -12,7 +12,6 @@
 #include "azure_c_shared_utility/xlogging.h"
 #include "netsocket/nsapi_types.h"
 
-#define UNABLE_TO_COMPLETE -2
 #define MBED_RECEIVE_BYTES_VALUE    128
 
 typedef enum IO_STATE_TAG
@@ -170,14 +169,9 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
                 }
                 wait_ms(10);
             }
-
-            if (send_result < 0)
+            else if (send_result < 0)
             {
-                if (send_result < UNABLE_TO_COMPLETE)
-                {
-                    // Bad error.  Indicate as much.
-                    indicate_error(socket_io_instance);
-                }
+                indicate_error(socket_io_instance);
                 return -1;
             }
             else
