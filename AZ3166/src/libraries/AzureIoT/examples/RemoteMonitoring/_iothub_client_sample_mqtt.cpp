@@ -111,7 +111,7 @@ void iothub_client_sample_mqtt_init()
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
-        (void)Serial.printf("failure to set option \"TrustedCerts\"\r\n");
+        (void)Serial.printf("Failed to set option \"TrustedCerts\"\r\n");
         return;
     }
 

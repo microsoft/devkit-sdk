@@ -320,7 +320,7 @@ void IoTHubMQTT_Init(void)
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
-        LogError("failure to set option \"TrustedCerts\"");
+        LogError("Failed to set option \"TrustedCerts\"");
         return;
     }
 
