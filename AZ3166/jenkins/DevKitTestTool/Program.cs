@@ -107,6 +107,13 @@
 
                         break;
 
+                    case "GenerateActiveProgram":
+                        // Generate the SensorStatus.ino.bin
+                        string sensorStatusPath = Path.Combine(workspace, ConfigurationManager.AppSettings["SensorStatusPath"]);
+                        VerifyLibraryExamples(sensorStatusPath);
+                                                
+                        break;
+
                     default:
                         Console.WriteLine("Done");
                         break;
@@ -192,7 +199,7 @@
                 Console.WriteLine(string.Format("Start checking {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName);
+                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace, "Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (!string.IsNullOrEmpty(error))
@@ -234,7 +241,7 @@
                 Console.WriteLine(string.Format("Start verifying {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "verify", file.FullName);
+                argument = string.Format(Constants.ArduinoArgTemplate, "verify", file.FullName,Path.Combine(workspace,"Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (string.IsNullOrEmpty(error))
