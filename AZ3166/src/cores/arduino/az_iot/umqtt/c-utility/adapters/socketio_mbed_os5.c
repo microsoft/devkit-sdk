@@ -10,7 +10,6 @@
 #include "azure_c_shared_utility/tcpsocketconnection_c.h"
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/xlogging.h"
-#include "azure_c_shared_utility/gballoc.h"
 #include "netsocket/nsapi_types.h"
 
 #define UNABLE_TO_COMPLETE -2

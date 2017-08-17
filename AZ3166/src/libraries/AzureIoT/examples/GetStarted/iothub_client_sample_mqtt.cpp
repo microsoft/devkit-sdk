@@ -128,7 +128,7 @@ void iothubInit()
 
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
-        LogInfo("failure to set option \"TrustedCerts\"");
+        LogInfo("Failed to set option \"TrustedCerts\"");
         return;
     }
 

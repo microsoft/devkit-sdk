@@ -19,7 +19,6 @@
 #include "iothub_client_options.h"
 #include "iothub_client_version.h"
 #include <stdint.h>
-#include "Telemetry.h"
 
 #ifndef DONT_USE_UPLOADTOBLOB
 #include "iothub_client_ll_uploadtoblob.h"
@@ -707,17 +706,11 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                     result = initialize_iothub_client(config, NULL);
                     if (result == NULL)
                     {
-                        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-                        // We collect data about the features you use, how often you use them, and how you use them.
-                        send_telemetry_data(config->iotHubName, "Create", "IoT hub establish failed");
                         LogError("IoTHubClient_LL_Create failed");
                     }
                     else
                     {
                         /*return as is*/
-                        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-                        // We collect data about the features you use, how often you use them, and how you use them.
-                        send_telemetry_data(config->iotHubName, "Create", "IoT hub established");
                     }
                 }
             }
