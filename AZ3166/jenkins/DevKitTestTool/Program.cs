@@ -66,8 +66,8 @@
                         watch.Stop();
                         Console.WriteLine($"DevKit unit test execution time: {watch.Elapsed.Minutes} minutes");
 
-                        Console.WriteLine("Generate  test report");
-                        GenerateReport("UnitTest", watch.Elapsed.Minutes, logFilePath);                        
+                        Console.WriteLine("Generate test report");
+                        GenerateReport("UnitTestReport", watch.Elapsed.Minutes, logFilePath);                        
 
                         if (unitTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
@@ -77,7 +77,7 @@
                         break;
 
                     case "VerifyExamples":
-                        Console.WriteLine("Run Example Test for IoT DevKit.");
+                        Console.WriteLine("Verify the Examples for IoT DevKit.");
                         watch.Start();
 
                         string exampleFolderPath = Path.Combine(workspace, ConfigurationManager.AppSettings["ExampleFolderPath"]);
@@ -86,8 +86,8 @@
                         watch.Stop();
                         Console.WriteLine($"DevKit examples verification time: {watch.Elapsed.Minutes} minutes.");
 
-                        Console.WriteLine("Generate  test report");
-                        GenerateReport("ExampleTest", watch.Elapsed.Minutes);
+                        Console.WriteLine("Generate test report");
+                        GenerateReport("ExampleReport", watch.Elapsed.Minutes);
 
                         if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
@@ -262,10 +262,10 @@
 
             switch (type)
             {
-                case "UnitTest":
+                case "UnitTestReport":
                     content = GenerateReportContentForUnitTest(logFilePath, executionTimeInMinutes);
                     break;
-                case "ExampleTest":
+                case "ExampleReport":
                     content = GenerateReportContentForExampleTest(executionTimeInMinutes);
                     break;
             }            
@@ -492,11 +492,11 @@
                 psi.RedirectStandardOutput = true;
 
                 proc = Process.Start(psi);
-                int timeout = 60 * 2 * 3; // updated as some cases are not stable that running time beyond 10 mintues
+                int timeout = Constants.Timeout;
 
                 while (timeout >= 0 && !proc.HasExited)
                 {
-                    proc.WaitForExit(5 * 1000); // wait for 5 seconds
+                    proc.WaitForExit(1000); // wait for 1 seconds
 
                     timeout--;
                 }
