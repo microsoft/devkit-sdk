@@ -379,7 +379,7 @@ bool IoTHubMQTT_SendEvent(const char *text)
             }
             else if (resetClient)
             {
-                // Disconnected, res-send the message
+                // Disconnected, re-send the message
                 break;
             }
             
