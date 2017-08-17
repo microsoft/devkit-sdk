@@ -107,8 +107,7 @@
 
                         break;
 
-                    case "GenerateActiveProgram":
-                        // Generate the SensorStatus.ino.bin
+                    case "GenerateActiveProgramFireware":
                         string sensorStatusPath = Path.Combine(workspace, ConfigurationManager.AppSettings["SensorStatusPath"]);
                         VerifyLibraryExamples(sensorStatusPath);
                                                 
@@ -199,7 +198,7 @@
                 Console.WriteLine(string.Format("Start checking {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace, "Build"));
+                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace,"Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (!string.IsNullOrEmpty(error))
@@ -218,7 +217,7 @@
 
         private static void VerifyLibraryExamples(string exampleFolderPath)
         {
-            Console.WriteLine("Start to verify libary examples.\r\n");
+            Console.WriteLine("Start to verify library examples.\r\n");
 
             if (!Directory.Exists(exampleFolderPath))
             {
@@ -241,7 +240,7 @@
                 Console.WriteLine(string.Format("Start verifying {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "verify", file.FullName,Path.Combine(workspace,"Build"));
+                argument = string.Format(Constants.ArduinoArgTemplate, "verify", file.FullName, Path.Combine(workspace, "Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (string.IsNullOrEmpty(error))
