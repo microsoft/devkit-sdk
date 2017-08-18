@@ -1248,7 +1248,6 @@ static void mqtt_error_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLIENT_EVENT_ERR
             case MQTT_CLIENT_NO_PING_RESPONSE:
             {
                 LogError("Mqtt Ping Response was not encountered.  Reconnecting device...");
-                DisconnectFromClient(transport_data);
                 break;
             }
             case MQTT_CLIENT_PARSE_ERROR:
