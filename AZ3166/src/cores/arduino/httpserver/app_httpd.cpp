@@ -132,15 +132,45 @@ int web_send_wifisetting_page(httpd_request_t *req)
   int ssidLen = 0;
   
   // scan network
-  WiFiAccessPoint wifiScanResult[15];
-  int wifiCount = ((EMW10xxInterface*)network)->scan(wifiScanResult, 15);
+  WiFiAccessPoint wifiScanResult[100];
+  int validWifiIndex[100];
+  int wifiCount = ((EMW10xxInterface*)network)->scan(wifiScanResult, 100);
+  int validWifiCount = 0;
 
   setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + 1;
   for (int i = 0; i < wifiCount; ++i) 
   {
+    // too weak
+    if (wifiScanResult[i].get_rssi() < -100)
+    {
+      continue;
+    }
+    
+    bool shouldSkip = false;
+    for (int j = 0; j < i; ++j)
+    {
+      // this ap has been skipped before
+      if (wifiScanResult[j].get_rssi() < -100)
+      {
+        continue;
+      }
+      else if (strcmp(wifiScanResult[i].get_ssid(), wifiScanResult[j].get_ssid()) == 0)
+      {
+        // duplicate ap name
+        shouldSkip = true;
+        break;
+      }
+    }
+    
+    if (shouldSkip)
+    {
+      continue;
+    }
+    
     ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
     if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) 
     {
+      validWifiIndex[validWifiCount++] = i;
       setting_page_len += 26 + 2 * ssidLen;
     }
   }
@@ -149,10 +179,10 @@ int web_send_wifisetting_page(httpd_request_t *req)
 
   snprintf(p, strlen(page_head) + strlen(wifi_setting_a) + 1, "%s%s", page_head, wifi_setting_a);
   p += strlen(page_head) + strlen(wifi_setting_a);
-  for(int i = 0; i < wifiCount; ++i) 
+  for(int i = 0; i < validWifiCount; ++i) 
   {
-    ssid = (char *)wifiScanResult[i].get_ssid();
-    ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
+    ssid = (char *)wifiScanResult[validWifiIndex[i]].get_ssid();
+    ssidLen = strlen((char *)wifiScanResult[validWifiIndex[i]].get_ssid());
     if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) 
     {
       snprintf(p, 27 + 2 * ssidLen, "<option value=\"%s\">%s</option>", ssid, ssid);
