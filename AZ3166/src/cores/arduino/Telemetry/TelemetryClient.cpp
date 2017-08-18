@@ -81,6 +81,17 @@ void TelemetryClient::send_data_to_ai(const char* data, int size)
     HTTPClient client(HTTP_POST, m_ai_endoint);
     client.set_header("mem","good");
     const Http_Response *response = client.send(data, size);
+    if (response != NULL)
+    {
+        if(response->status_code >= 400)
+        {
+            Serial.printf(">>> Failed to send telemetry data: %d.\r\n", response->status_code);
+        }
+    }
+    else
+    {
+        Serial.printf(">>> Failed to send telemetry data: Http fault.\r\n");
+    }
 }
 
 void TelemetryClient::do_trace_telemetry(const char *iothub, const char *event, const char *message, bool async)
