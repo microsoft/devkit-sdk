@@ -1,6 +1,6 @@
-# MXChip Developer Kit
+# MXChip IoT DevKit
 
-The MXChip Developer Kit (a.k.a DevKit) is used to develop and prototype Internet of Things (IoT) solutions leveraging Microsoft Azure services. It includes an Arduino compatible board with rich peripherals and sensors, an open-source board package and a growing projects catalog.
+The MXChip IoT DevKit (a.k.a DevKit) is used to develop and prototype Internet of Things (IoT) solutions leveraging Microsoft Azure services. It includes an Arduino compatible board with rich peripherals and sensors, an open-source board package and a growing projects catalog.
 
 With DevKit, you can use [Visual Studio Code](https://code.visualstudio.com/) with [Arduino Extension](https://marketplace.visualstudio.com) to rapidly build a full-fledged IoT application that integrates multiple services like Azure IoT Hub, Logic Apps and Cognitive Services.
 
@@ -8,17 +8,15 @@ The DevKit board features ARM Cortex-M processors. At its core, it comes with a 
 
 ## Documentation
 
-* [Github Page](http://microsoft.github.io/azure-iot-developer-kit/) - DevKit home
-* [Getting Started Guide](https://microsoft.github.io/azure-iot-developer-kit/docs/getting-started/) - Setup guide
+* [Github Page](https://github.com/Microsoft/AzureIoTDeveloperKit/) - DevKit SDK home
+* [Getting Started Guide](https://microsoft.github.io/azure-iot-developer-kit/docs/get-started/) - Setup guide
 * [Projects Catalog](https://microsoft.github.io/azure-iot-developer-kit/docs/projects/) - Learn and build IoT apps powered by Microsoft Azure within minutes
 * [Specs & Schematics](http://www.mxchip.com/az3166) - Datasheet, schematic, all about the kit hardware
 
-## Release Notes
 
-### April 2017
 
-This is our first release of the Microsoft Azure IoT Developer Kit.
+## April 25, 2017
 
-### Release Summary
+This is our first release of the MXChip IoT DevKit.
 
-Everything is brand new!
+**EVERYTHING IS BRAND NEW!**
