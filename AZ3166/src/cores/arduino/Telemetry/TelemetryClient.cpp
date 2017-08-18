@@ -119,7 +119,7 @@ void TelemetryClient::do_trace_telemetry(const char *iothub, const char *event, 
     }
     else
     {
-        send_data_to_ai(data, size);
+        send_data_to_ai(data, strlen(data));
         delete [] data;
     }
 }
@@ -151,7 +151,7 @@ void TelemetryClient::telemetry_worker(void)
         char* msg = pop_msg();
         if (msg != NULL)
         {
-            send_data_to_ai(msg, strlen(msg) + 1);
+            send_data_to_ai(msg, strlen(msg));
             delete [] msg;
         }
         else
