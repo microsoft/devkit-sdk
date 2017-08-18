@@ -598,10 +598,10 @@ int tlsio_mbedtls_send(CONCRETE_IO_HANDLE tls_io, const void* buffer, size_t siz
     }
 
     TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)tls_io;
-    /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_020: [ If the tlsio state is not TLSIO_STATE_OPEN, the tlsio_mbedtls_send shall return 0. ]*/
+    /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_020: [ If the tlsio state is not TLSIO_STATE_OPEN, the tlsio_mbedtls_send shall return fail. ]*/
     if (tls_io_instance->tlsio_state != TLSIO_STATE_OPEN)
     {
-        return 0;
+        return __FAILURE__;
     }
 
     tls_io_instance->on_send_complete = on_send_complete;

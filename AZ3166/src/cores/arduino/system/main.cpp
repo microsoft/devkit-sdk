@@ -7,8 +7,9 @@
 #include "mbed.h"
 #include "mbed_stats.h"
 #include "mico_system.h"
-#include "SystemWiFi.h"
 #include "SystemLock.h"
+#include "SystemTickCounter.h"
+#include "SystemWiFi.h"
 
 static bool Initialization(void)
 {
@@ -25,6 +26,9 @@ static bool Initialization(void)
     Serial.print("\r\n** MXChip - Microsoft IoT Developer Kit **");
     Serial.print("\r\n************************************************\r\n");
     
+    // Initialize the system tickcounter
+    SystemTickCounterInit();
+
     // Initialize the OLED screen
     Screen.init();
 
@@ -44,6 +48,9 @@ static bool Initialization(void)
     PwmOut _red(PB_4);
     PwmOut _green(PB_3);
     PwmOut _blue(PC_7);
+    _red.period(0.001);
+    _green.period(0.001);
+    _blue.period(0.001);
     _red.write(0.0f);
     _green.write(0.0f);
     _blue.write(0.0f);

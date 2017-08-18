@@ -11,8 +11,6 @@
 
 int platform_init(void)
 {
-    tickcounter_init();
-
     SyncTime();
 
     return 0;
