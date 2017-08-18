@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
+      <projectUrl>https://github.com/Microsoft/AzureIoTDeveloperKit/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.4.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@github.com:Microsoft/AzureIoTDeveloperKit.git</url>
+        <credentialsId>d82b070b-a549-4d11-b0a6-4c86d9f7e028</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>AzureIoTDeveloperKit</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <assignedNode>Slave1</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>rd %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1 /S /Q&#xd;
+&#xd;
+xcopy AzureIoTDeveloperKit\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1 /S /I /E /Q /Y&#xd;
+&#xd;
+xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1\libraries\ArduinoUnit /S /I /E /Q /Y</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe GenerateVersion</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe GenerateActiveProgramFireware</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>python bin.py Build\SensorStatus.ino.bin&#xd;
+&#xd;
+set /p version=&lt; system_version.txt&#xd;
+ren Build\SensorStatus.ino.ota.bin devkit-fireware-%version%.bin</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>Build\devkit-fireware*.bin</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
+      <patterns>
+        <hudson.plugins.ws__cleanup.Pattern>
+          <pattern>Build\devkit-fireware*.bin</pattern>
+          <type>INCLUDE</type>
+        </hudson.plugins.ws__cleanup.Pattern>
+      </patterns>
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.8"/>
+  </buildWrappers>
+</project>
