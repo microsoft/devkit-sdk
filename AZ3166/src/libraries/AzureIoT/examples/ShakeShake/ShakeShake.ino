@@ -48,7 +48,7 @@ static char printable_char(char c)
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
 
-static void ScrollTweet(void)
+static void ScrollTweet()
 {
   if (msgBody[0] != 0 && digitalRead(USER_BUTTON_B) == LOW)
   {
@@ -113,6 +113,13 @@ static void ShowProgress()
   delay(500);
 }
 
+static void LogShakeResult(const char* result)
+{
+  char sz[32];
+  sprintf(sz, "progress-%d", shake_progress);
+  LogTrace(result, sz);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Callback functions
 void TwitterMessageCallback(const char *tweet, int lenTweet)
@@ -166,7 +173,7 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Actions
-static void DoHeartBeat(void)
+static void DoHeartBeat()
 {
   time_t cur;
   
@@ -213,10 +220,8 @@ static void NoTweets()
   rgbLed.setColor(0, 0, 0);
 
   // Log shake failed message
-  char sz[32];
-  sprintf(sz, "progress %d", shake_progress);
-  LogTrace("ShakeShakeFailed", sz);
-
+  LogShakeResult("ShakeShakeFailed");
+  
   // Switch back to status 0
   status = 0;
 }
@@ -288,7 +293,7 @@ static void DoReceived()
     DrawTweetImage(1, 20, 1);
 
     // Log shake succeed message
-    LogTrace("ShakeShakeSucceed", "4");
+    LogShakeResult("ShakeShakeSucceed");
   }
   else
   {
@@ -305,6 +310,7 @@ void setup()
   msgHeader[0] = 0;
   msgBody[0] = 0;
   status = 0;
+  shake_progress = 0;
   
   Screen.init();
   Screen.print(0, "IoT DevKit");
@@ -322,8 +328,8 @@ void setup()
     return;
   }
   
-  LogTrace("ShakeShakeSetup", NULL);
-  
+  LogShakeResult("ShakeShakeSetup");
+    
   // Initialize LEDs
   Screen.print(3, " > LEDs");
   rgbLed.turnOff();
