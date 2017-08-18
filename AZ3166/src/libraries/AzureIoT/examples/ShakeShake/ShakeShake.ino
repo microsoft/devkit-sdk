@@ -17,6 +17,8 @@
 #define MSG_HEADER_SIZE     20
 #define MSG_BODY_SIZE       200
 
+#define SCROOL_OFFSET       16
+
 // 0 - idle
 // 1 - shaking
 // 2 - do work
@@ -62,7 +64,7 @@ static void ScrollTweet()
     }
     else
     {
-      msgStart += 16;
+      msgStart += SCROOL_OFFSET;
       if (msgStart >= strlen(msgBody))
       {
           msgStart = 0;
@@ -125,51 +127,61 @@ static void LogShakeResult(const char* result)
 // Callback functions
 void TwitterMessageCallback(const char *tweet, int lenTweet)
 {
-  if (status < 2 || lenTweet == NULL)
+  if (status != 2 || tweet == NULL)
   {
       return;
   }
-  
+
   shake_progress = 2;
 
-  int i = 0;
-  int j = 0;
-  // The header
-  for (; i < min(lenTweet, sizeof(msgHeader)); i++)
+  if (lenTweet == 0)
   {
-      if(tweet[i] == '\n')
-      {
-          break;
-      }
-      msgHeader[j++] = printable_char(tweet[i]);
-  }
-  msgHeader[j] = 0;
-  Serial.println(msgHeader);
-  if (strcmp(msgHeader, "No new tweet.") == 0)
-  {
-    // There is no new tweet from Twitter.
     msgHeader[0] = 0;
+    msgBody[0] = 0;
   }
   else
   {
-    // The body
-    j = 0;
-    for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
+    // Split into header and body
+    int i = 0;
+    int j = 0;
+    // The header
+    for (; i < min(lenTweet, sizeof(msgHeader)); i++)
     {
-      if (tweet[i] != '\r' && tweet[i] != '\n')
-      {
-        msgBody[j++] = printable_char(tweet[i]);
-      }
+        if(tweet[i] == '\n')
+        {
+            break;
+        }
+        msgHeader[j++] = printable_char(tweet[i]);
     }
-    msgBody[j] = 0;
+    msgHeader[j] = 0;
+    Serial.println(msgHeader);
+    if (strcmp(msgHeader, "No new tweet.") == 0)
+    {
+      // There is no new tweet from Twitter.
+      msgHeader[0] = 0;
+      msgBody[0] = 0;
+    }
+    else
+    {
+      // The body
+      j = 0;
+      for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
+      {
+        if (tweet[i] != '\r' && tweet[i] != '\n')
+        {
+          msgBody[j++] = printable_char(tweet[i]);
+        }
+      }
+      msgBody[j] = 0;
+    }
 
     shake_progress = 3;
     Serial.println(msgBody);
   }
+  
   ShowProgress();
-
   status = 3;
-  msgStart = -16;
+  msgStart = -SCROOL_OFFSET;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

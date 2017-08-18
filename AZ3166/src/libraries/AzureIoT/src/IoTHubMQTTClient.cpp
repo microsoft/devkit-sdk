@@ -394,7 +394,7 @@ bool IoTHubMQTT_SendEvent(const char *text)
             ThreadAPI_Sleep(100);
         }
     }
-    return false;
+    return true;
 }
 
 void IoTHubMQTT_Check(void)
