@@ -1157,37 +1157,40 @@ int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
     }
     else
     {
-        BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
-        if (disconnectPacket == NULL)
+        if (mqtt_client->xioHandle != NULL)
         {
-            /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
-            LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect failed");
-            mqtt_client->packetState = PACKET_TYPE_ERROR;
-            result = __FAILURE__;
-        }
-        else
-        {
-            mqtt_client->packetState = DISCONNECT_TYPE;
-
-            size_t size = BUFFER_length(disconnectPacket);
-            /*Codes_SRS_MQTT_CLIENT_07_012: [On success mqtt_client_disconnect shall send the MQTT DISCONNECT packet to the endpoint.]*/
-            if (sendPacketItem(mqtt_client, BUFFER_u_char(disconnectPacket), size) != 0)
+            BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
+            if (disconnectPacket == NULL)
             {
                 /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
-                LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect send failed");
+                LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect failed");
+                mqtt_client->packetState = PACKET_TYPE_ERROR;
                 result = __FAILURE__;
             }
             else
             {
-                if (mqtt_client->logTrace)
+                mqtt_client->packetState = DISCONNECT_TYPE;
+
+                size_t size = BUFFER_length(disconnectPacket);
+                /*Codes_SRS_MQTT_CLIENT_07_012: [On success mqtt_client_disconnect shall send the MQTT DISCONNECT packet to the endpoint.]*/
+                if (sendPacketItem(mqtt_client, BUFFER_u_char(disconnectPacket), size) != 0)
                 {
-                    STRING_HANDLE trace_log = STRING_construct("DISCONNECT");
-                    log_outgoing_trace(mqtt_client, trace_log);
-                    STRING_delete(trace_log);
+                    /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
+                    LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect send failed");
+                    result = __FAILURE__;
                 }
-                result = 0;
+                else
+                {
+                    if (mqtt_client->logTrace)
+                    {
+                        STRING_HANDLE trace_log = STRING_construct("DISCONNECT");
+                        log_outgoing_trace(mqtt_client, trace_log);
+                        STRING_delete(trace_log);
+                    }
+                    result = 0;
+                }
+                BUFFER_delete(disconnectPacket);
             }
-            BUFFER_delete(disconnectPacket);
             clear_mqtt_options(mqtt_client);
             mqtt_client->xioHandle = NULL;
         }

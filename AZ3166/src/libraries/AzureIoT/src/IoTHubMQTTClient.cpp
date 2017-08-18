@@ -7,7 +7,7 @@
 #include "Telemetry.h"
 
 #define CHECK_INTERVAL_SECOND   1000
-#define MESSAGE_SEND_TIMEOUT    30000
+#define MESSAGE_SEND_TIMEOUT    10000
 #define MESSAGE_CONFIRMED       -2
 
 static int callbackCounter;
@@ -394,7 +394,7 @@ bool IoTHubMQTT_SendEvent(const char *text)
             ThreadAPI_Sleep(100);
         }
     }
-    return false;
+    return true;
 }
 
 void IoTHubMQTT_Check(void)
