@@ -6,12 +6,13 @@
 #include "OledDisplay.h"
 #include "Sensor.h"
 #include "ShakeUI.h"
+#include "SystemTickCounter.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
 
-#define HEARTBEAT_INTERVAL  300.0
-#define PULL_TIMEOUT        15.0
+#define HEARTBEAT_INTERVAL  300000
+#define PULL_TIMEOUT        15000
 
 #define MSG_HEADER_SIZE     20
 #define MSG_BODY_SIZE       200
@@ -36,8 +37,8 @@ bool hasWifi = false;
 static const char* iot_event = "{\"topic\":\"iot\"}";
 static const char* iot_event_heartbeat = "{\"topic\":\"\"}";
 
-static time_t time_hb;
-static time_t time_sending_timeout;
+static uint64_t hb_interval_ms;
+static uint64_t sending_timeout_ms;
 
 static int shake_progress;
 
@@ -175,10 +176,7 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
 // Actions
 static void DoHeartBeat()
 {
-  time_t cur;
-  
-  time(&cur);
-  if (difftime(cur, time_hb) < HEARTBEAT_INTERVAL)
+  if ((int)(SystemTickCounterRead() - hb_interval_ms) < HEARTBEAT_INTERVAL)
   {
     return;
   }
@@ -191,7 +189,9 @@ static void DoHeartBeat()
   IoTHubMQTT_SendEvent(iot_event_heartbeat);
   
   LedUser = 0;
-  time(&time_hb); //  Reset the clock
+  
+  // Reset
+  hb_interval_ms = SystemTickCounterRead();
 }
 
 static void DoIdle()
@@ -250,7 +250,8 @@ static void DoShake()
       shake_progress = 1;
       ShowProgress();
       
-      time(&time_sending_timeout);  // Start retrieving tweet timeout clock
+      // Start retrieving tweet timeout clock
+      sending_timeout_ms = SystemTickCounterRead();
     }
     else
     {
@@ -271,11 +272,7 @@ static void DoWork()
   if (status != 3)
   {
     // Not get the tweet, check the sending timeout
-    time_t cur;
-    time(&cur);
-    double diff = difftime(cur, time_sending_timeout);
-    
-    if (diff >= PULL_TIMEOUT)
+    if ((int)(SystemTickCounterRead() - sending_timeout_ms) >= PULL_TIMEOUT)
     {
       NoTweets();
     }
@@ -356,7 +353,7 @@ void setup()
   IoTHubMQTT_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-  time_hb = 0;
+  hb_interval_ms = -(HEARTBEAT_INTERVAL);   // Trigger heart beat immediately
   DoHeartBeat();
   rgbLed.setColor(0, 0, 0);
   
@@ -395,7 +392,7 @@ void loop()
     }
     else
     {
-      time(&time_hb); //  Reset the clock
+      hb_interval_ms = SystemTickCounterRead();
     }
   }
 

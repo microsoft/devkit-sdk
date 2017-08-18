@@ -16,7 +16,7 @@ TICK_COUNTER_HANDLE tickcounter_create(void)
 {
     TICK_COUNTER_INSTANCE_TAG* result;
     result = new TICK_COUNTER_INSTANCE_TAG;
-    result->current_ms = SystemTckCounterRead();
+    result->current_ms = SystemTickCounterRead();
     return result;
 }
 
@@ -37,7 +37,7 @@ int tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_
     }
     else
     {
-        tick_counter->current_ms =  SystemTckCounterRead();
+        tick_counter->current_ms =  SystemTickCounterRead();
         *current_ms = (tickcounter_ms_t)tick_counter->current_ms;
 
         result = 0;

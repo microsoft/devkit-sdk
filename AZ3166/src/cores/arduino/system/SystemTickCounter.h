@@ -8,8 +8,8 @@
 extern "C"{
 #endif  // __cplusplus
 
-void SystemTckCounterInit(void);
-uint64_t SystemTckCounterRead(void);
+void SystemTickCounterInit(void);
+uint64_t SystemTickCounterRead(void);
 
 #ifdef __cplusplus
 }

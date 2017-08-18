@@ -13,15 +13,15 @@ static volatile uint64_t long_ticker_ms = 0;
 
 static void cycle_accumulator(void)
 {
-    SystemTckCounterRead();
+    SystemTickCounterRead();
 }
 
-void SystemTckCounterInit(void)
+void SystemTickCounterInit(void)
 {
     cycle_ticker.attach(cycle_accumulator, 60.0);
 }
 
-uint64_t SystemTckCounterRead(void)
+uint64_t SystemTickCounterRead(void)
 {
     uint64_t result;
     uint32_t t = us_ticker_read();

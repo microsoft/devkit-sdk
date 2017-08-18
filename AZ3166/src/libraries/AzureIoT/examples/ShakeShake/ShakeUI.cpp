@@ -30,7 +30,7 @@ const char* list[3] = { s1, s2, s3 };
 
 void DrawShakeAnimation(void)
 {
-    int idx = ((int)SystemTckCounterRead()) / 300;
+    int idx = ((int)SystemTickCounterRead()) / 300;
     Screen.print(1, list[(idx + 0) % 3]);
     Screen.print(2, list[(idx + 1) % 3]);
     Screen.print(3, list[(idx + 2) % 3]);
