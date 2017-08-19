@@ -14,9 +14,12 @@ static const unsigned char smallTweet [] =
     0x01,0x00,
 };
 
-void DrawSmallTweetIcon(int line, int col)
+void DrawAppTitle(char* text)
 {
-    Screen.draw(col, line * 2, col + 18, line * 2 + 2, (unsigned char*)smallTweet);
+    char sz[32];
+    snprintf(sz, 32, "   %s", text);
+    Screen.print(0, sz);
+    Screen.draw(0, 0, 18, 2, (unsigned char*)smallTweet);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

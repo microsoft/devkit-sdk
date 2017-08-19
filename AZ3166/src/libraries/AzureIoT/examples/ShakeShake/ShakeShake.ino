@@ -59,7 +59,7 @@ static void ScrollTweet()
     if (msgStart < 0)
     {
       // First time
-      Screen.print(0, msgHeader);
+      DrawAppTitle(msgHeader);
       msgStart = 0;
     }
     else
@@ -83,7 +83,7 @@ static void ScrollTweet()
 static void InitWiFi()
 {
   Screen.clean();
-  Screen.print(0, "IoT DevKit");
+  DrawAppTitle("IoT DevKit");
   Screen.print(2, "Connecting...");
   
   if (WiFi.begin() == WL_CONNECTED)
@@ -103,7 +103,7 @@ static void ShowProgress()
 {
   if (shake_progress == 1)
   {
-    Screen.print(0, "Processing...");
+    DrawAppTitle("Processing...");
     Screen.print(1, "   DevKit");
     Screen.print(2, "   Azure");
     Screen.print(3, "   Twitter");
@@ -219,9 +219,7 @@ static void DoIdle()
       rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
 
       Screen.clean();
-      Screen.print(0, "   Shake Shake!");
-      DrawSmallTweetIcon(0, 0);
-      DrawShakeAnimation();
+      DrawAppTitle("Shake Shake!");
 
       acc_gyro->resetStepCounter();
     }
@@ -231,7 +229,7 @@ static void DoIdle()
 static void NoTweets()
 {
   Screen.clean();
-  Screen.print(0, "No tweets...");
+  DrawAppTitle("No tweets...");
   Screen.print(3, "Press A to Shake!");
   DrawTweetImage(1, 20, 0);
   rgbLed.setColor(0, 0, 0);
@@ -301,7 +299,7 @@ static void DoReceived()
   Screen.clean();
   if (shake_progress == 4)
   {
-    Screen.print(0, "New tweet!");
+    DrawAppTitle("New tweet!");
     Screen.print(3, "Press B to read!");
 
     DrawTweetImage(1, 20, 1);
@@ -327,7 +325,7 @@ void setup()
   shake_progress = 0;
   
   Screen.init();
-  Screen.print(0, "IoT DevKit");
+  DrawAppTitle("IoT DevKit");
   Screen.print(2, "Initializing...");
   
   Screen.print(3, " > Serial");
