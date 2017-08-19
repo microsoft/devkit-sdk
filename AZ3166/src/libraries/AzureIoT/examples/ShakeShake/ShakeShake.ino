@@ -101,7 +101,7 @@ static void InitWiFi()
 
 static void ShowProgress()
 {
-  if (shake_progress == 0)
+  if (shake_progress == 1)
   {
     Screen.print(0, "Processing...");
     Screen.print(1, "   DevKit");
@@ -109,9 +109,9 @@ static void ShowProgress()
     Screen.print(3, "   Twitter");
   }
 
-  DrawCheckBox(1, 0, 1);
-  DrawCheckBox(2, 0, shake_progress >= 1 ? 1 : 0);
-  DrawCheckBox(3, 0, shake_progress >= 2 ? 1 : 0);
+  DrawCheckBox(1, 0, (shake_progress >= 1) ? 1 : 0);
+  DrawCheckBox(2, 0, (shake_progress >= 2) ? 1 : 0);
+  DrawCheckBox(3, 0, (shake_progress == 4) ? 1 : 0);
   
   delay(500);
 }
@@ -132,7 +132,7 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
       return;
   }
 
-  shake_progress = 2;
+  shake_progress = 3;
 
   if (lenTweet == 0)
   {
@@ -173,10 +173,10 @@ void TwitterMessageCallback(const char *tweet, int lenTweet)
         }
       }
       msgBody[j] = 0;
-    }
+      Serial.println(msgBody);
 
-    shake_progress = 3;
-    Serial.println(msgBody);
+      shake_progress = 4;
+    }
   }
   
   ShowProgress();
@@ -210,12 +210,17 @@ static void DoIdle()
 {
     if (digitalRead(USER_BUTTON_A) == LOW)
     {
+      // Enter Shake mode
       status = 1;
+      msgHeader[0] = 0;
       msgBody[0] = 0;
+      shake_progress = 0;
+
       rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
 
-      Screen.print(0, " ");
-      DrawSmallTweetIcon(0, 40);
+      Screen.clean();
+      Screen.print(0, "   Shake Shake!");
+      DrawSmallTweetIcon(0, 0);
       DrawShakeAnimation();
 
       acc_gyro->resetStepCounter();
@@ -245,8 +250,8 @@ static void DoShake()
   if (steps > 2)
   {
     status = 2;
-    shake_progress = 0;
-    
+    shake_progress = 1;
+
     // LED
     DigitalOut LedUser(LED_BUILTIN);
     LedUser = 1;
@@ -259,7 +264,7 @@ static void DoShake()
     if (IoTHubMQTT_SendEvent(iot_event))
     {
       // Waiting for the tweet
-      shake_progress = 1;
+      shake_progress = 2;
       ShowProgress();
       
       // Start retrieving tweet timeout clock
@@ -294,7 +299,7 @@ static void DoWork()
 static void DoReceived()
 {
   Screen.clean();
-  if (shake_progress == 3)
+  if (shake_progress == 4)
   {
     Screen.print(0, "New tweet!");
     Screen.print(3, "Press B to read!");
