@@ -386,7 +386,9 @@ bool IoTHubMQTT_SendEvent(const char *text)
             int diff = (int)(SystemTickCounterRead() - start_ms);
             if (diff >= MESSAGE_SEND_TIMEOUT)
             {
-                // Time out
+                // Time out, reset the client
+                resetClient = true;
+                CheckConnection();
                 return false;
             }
 
