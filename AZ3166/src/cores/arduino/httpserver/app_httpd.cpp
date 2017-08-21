@@ -133,7 +133,7 @@ int web_send_wifisetting_page(httpd_request_t *req)
   
   // scan network
   WiFiAccessPoint wifiScanResult[100];
-  int validWifiIndex[100];
+  int validWifiIndex[15];
   int wifiCount = ((EMW10xxInterface*)network)->scan(wifiScanResult, 100);
   int validWifiCount = 0;
 
@@ -168,10 +168,14 @@ int web_send_wifisetting_page(httpd_request_t *req)
     }
     
     ssidLen = strlen((char *)wifiScanResult[i].get_ssid());
-    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN) 
+    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN)
     {
       validWifiIndex[validWifiCount++] = i;
       setting_page_len += 26 + 2 * ssidLen;
+    }
+
+    if (validWifiCount >= 15) {
+      break;
     }
   }
   setting_page = (char *)malloc(setting_page_len);
