@@ -19,7 +19,6 @@
 #include "iothub_client_options.h"
 #include "iothub_client_version.h"
 #include <stdint.h>
-#include "Telemetry.h"
 
 #ifndef DONT_USE_UPLOADTOBLOB
 #include "iothub_client_ll_uploadtoblob.h"
@@ -326,6 +325,11 @@ static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIEN
                 if (create_blob_upload_module(result, config) != 0)
                 {
                     LogError("unable to create blob upload");
+                    // Codes_SRS_IOTHUBCLIENT_LL_09_010: [ If any failure occurs `IoTHubClient_LL_Create` shall destroy the `transportHandle` only if it has created it ]
+                    if (!result->isSharedTransport)
+                    {
+                        result->IoTHubTransport_Destroy(result->transportHandle);
+                    }
                     IoTHubClient_Auth_Destroy(result->authorization_module);
                     STRING_delete(product_info);
                     free(result);
@@ -336,6 +340,11 @@ static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIEN
                     if ((result->tickCounter = tickcounter_create()) == NULL)
                     {
                         LogError("unable to get a tickcounter");
+                        // Codes_SRS_IOTHUBCLIENT_LL_09_010: [ If any failure occurs `IoTHubClient_LL_Create` shall destroy the `transportHandle` only if it has created it ]
+                        if (!result->isSharedTransport)
+                        {
+                            result->IoTHubTransport_Destroy(result->transportHandle);
+                        }
                         destroy_blob_upload_module(result);
                         IoTHubClient_Auth_Destroy(result->authorization_module);
                         STRING_delete(product_info);
@@ -364,7 +373,11 @@ static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIEN
                         {
                             LogError("Registering device in transport failed");
                             IoTHubClient_Auth_Destroy(result->authorization_module);
-                            result->IoTHubTransport_Destroy(result->transportHandle);
+                            // Codes_SRS_IOTHUBCLIENT_LL_09_010: [ If any failure occurs `IoTHubClient_LL_Create` shall destroy the `transportHandle` only if it has created it ]
+                            if (!result->isSharedTransport)
+                            {
+                                result->IoTHubTransport_Destroy(result->transportHandle);
+                            }
                             destroy_blob_upload_module(result);
                             tickcounter_destroy(result->tickCounter);
                             STRING_delete(product_info);
@@ -382,7 +395,11 @@ static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIEN
                                 LogError("Setting default retry policy in transport failed");
                                 result->IoTHubTransport_Unregister(result->deviceHandle);
                                 IoTHubClient_Auth_Destroy(result->authorization_module);
-                                result->IoTHubTransport_Destroy(result->transportHandle);
+                                // Codes_SRS_IOTHUBCLIENT_LL_09_010: [ If any failure occurs `IoTHubClient_LL_Create` shall destroy the `transportHandle` only if it has created it ]
+                                if (!result->isSharedTransport)
+                                {
+                                    result->IoTHubTransport_Destroy(result->transportHandle);
+                                }
                                 destroy_blob_upload_module(result);
                                 tickcounter_destroy(result->tickCounter);
                                 STRING_delete(product_info);
@@ -444,6 +461,8 @@ static IOTHUB_DEVICE_TWIN* dev_twin_data_create(IOTHUB_CLIENT_LL_HANDLE_DATA* ha
             result->ms_timesOutAfter = 0;
             result->context = userContextCallback;
             result->reported_state_callback = reportedStateCallback;
+			result->client_handle = handleData;
+			result->device_handle = handleData->deviceHandle;
         }
     }
     else
@@ -687,17 +706,11 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                     result = initialize_iothub_client(config, NULL);
                     if (result == NULL)
                     {
-                        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-                        // We collect data about the features you use, how often you use them, and how you use them.
-                        send_telemetry_data(config->iotHubName, "Create", "IoT hub establish failed");
                         LogError("IoTHubClient_LL_Create failed");
                     }
                     else
                     {
                         /*return as is*/
-                        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-                        // We collect data about the features you use, how often you use them, and how you use them.
-                        send_telemetry_data(config->iotHubName, "Create", "IoT hub established");
                     }
                 }
             }
@@ -1534,7 +1547,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SetOption(IOTHUB_CLIENT_LL_HANDLE iotHubCli
         IOTHUB_CLIENT_LL_HANDLE_DATA* handleData = (IOTHUB_CLIENT_LL_HANDLE_DATA*)iotHubClientHandle;
 
         /*Codes_SRS_IOTHUBCLIENT_LL_02_039: [ "messageTimeout" - once IoTHubClient_LL_SendEventAsync is called the message shall timeout after value miliseconds. Value is a pointer to a uint64. ]*/
-        if (strcmp(optionName, "messageTimeout") == 0)
+        if (strcmp(optionName, OPTION_MESSAGE_TIMEOUT) == 0)
         {
             /*this is an option handled by IoTHubClient_LL*/
             /*Codes_SRS_IOTHUBCLIENT_LL_02_043: [ Calling IoTHubClient_LL_SetOption with value set to "0" shall disable the timeout mechanism for all new messages. ]*/
@@ -1578,7 +1591,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SetOption(IOTHUB_CLIENT_LL_HANDLE iotHubCli
             uploadToBlob_result = IOTHUB_CLIENT_INVALID_ARG; /*harmless value (IOTHUB_CLIENT_INVALID_ARG)in the case when uploadtoblob is not compiled in, otherwise whatever IoTHubClient_LL_UploadToBlob_SetOption returned*/
 #endif /*DONT_USE_UPLOADTOBLOB*/
 
-                
+            /*Codes_SRS_IOTHUBCLIENT_LL_12_023: [** `c2d_keep_alive_freq_secs` - shall set the cloud to device keep alive frequency(in seconds) for the connection. Zero means keep alive will not be sent. ]*/
             result =
                 /*based on uploadToBlob_result value this is what happens:*/
                 /*IOTHUB_CLIENT_INVALID_ARG always returns what IoTHubTransport_SetOption returns*/
@@ -1670,7 +1683,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SendReportedState(IOTHUB_CLIENT_LL_HANDLE i
     if (iotHubClientHandle == NULL || (reportedState == NULL || size == 0) )
     {
         result = IOTHUB_CLIENT_INVALID_ARG;
-        LogError("Invalid argument specified iothubClientHandle=%p, reportedState=%p, size=%zu", iotHubClientHandle, reportedState, size);
+        LogError("Invalid argument specified iothubClientHandle=%p, reportedState=%p, size=%lu", iotHubClientHandle, reportedState, size);
     }
     else
     {
@@ -1889,7 +1902,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_UploadToBlob(IOTHUB_CLIENT_LL_HANDLE iotHub
         ((source == NULL) && (size >0))
         )
     {
-        LogError("invalid parameters IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle=%p, const char* destinationFileName=%s, const unsigned char* source=%p, size_t size=%zu", iotHubClientHandle, destinationFileName, source, size);
+        LogError("invalid parameters IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle=%p, const char* destinationFileName=%s, const unsigned char* source=%p, size_t size=%lu", iotHubClientHandle, destinationFileName, source, size);
         result = IOTHUB_CLIENT_INVALID_ARG;
     }
     else
@@ -1898,5 +1911,4 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_UploadToBlob(IOTHUB_CLIENT_LL_HANDLE iotHub
     }
     return result;
 }
-
 #endif

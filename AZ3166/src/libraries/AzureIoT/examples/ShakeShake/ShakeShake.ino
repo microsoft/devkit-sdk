@@ -1,144 +1,102 @@
-#include "AzureIotHub.h"
-#include "OledDisplay.h"
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. 
 #include "AZ3166WiFi.h"
-#include "_iothub_client_sample_mqtt.h"
+#include "AzureIotHub.h"
+#include "IoTHubMQTTClient.h"
+#include "OledDisplay.h"
 #include "Sensor.h"
-#include "Telemetry.h"
+#include "ShakeUI.h"
+#include "SystemTickCounter.h"
 
 #define RGB_LED_BRIGHTNESS  32
 #define LOOP_DELAY          100
 
-#define HEARTBEAT_INTERVAL  120.0
-#define PULL_TIMEOUT        15.0
-
-#define RECONNECT_THRESHOLD 3
+#define HEARTBEAT_INTERVAL  300000
+#define PULL_TIMEOUT        15000
 
 #define MSG_HEADER_SIZE     20
 #define MSG_BODY_SIZE       200
 
+#define SCROLL_OFFSET       16
+
+static const char* iot_event = "{\"topic\":\"iot\"}"; // The #hashtag is 'iot' here, you can change to other keyword you want
+static const char* iot_event_heartbeat = "{\"topic\":\"\"}";  // Empty for heart beat
+
+// Application running status
 // 0 - idle
 // 1 - shaking
 // 2 - do work
-// 3 - received
-static volatile int status;
+static int app_status;
 
-DevI2C *ext_i2c;
-LSM6DSLSensor *acc_gyro;
-
+// Peripherals 
+static DevI2C *ext_i2c;
+static LSM6DSLSensor *acc_gyro;
 static RGB_LED rgbLed;
 
+// Tweet message
 static char msgHeader[MSG_HEADER_SIZE];
 static char msgBody[MSG_BODY_SIZE];
 static int msgStart = 0;
 
-static volatile boolean eventSent = false;
+// Indicate whether WiFi is ready
+static bool hasWifi = false;
 
-bool hasWifi = false;
+// Time interval check for heart beat
+static uint64_t hb_interval_ms;
+// Time interval check for retrieving the tweet
+static uint64_t tweet_timeout_ms;
 
-static const char* iot_event = "{\"topic\":\"iot\"}";
-static const char* iot_event_heartbeat = "{\"topic\":\"\"}";
+// Shake shake processing status
+// 0 - Not Start
+// 1 - Shaked and sending message to IoT hub
+// 2 - Message has sent to IoT hub (get confirmed)
+// 3 - Got tweet message, sometime it's empty
+// 4 - The twee is OK and show it on the screen
+static int shake_progress;
 
-static time_t time_hb;
-static time_t time_sending_timeout;
-
-static int restart_iot_client = 0;
-
-void MessageSendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
-{
-  eventSent = true;
-  if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
-  {
-    // If get back the confirmation msg then clear the re-start counter
-    restart_iot_client = 0;
-    if (status == 2)
-    {
-      // Waiting for Azure Function return the tweet
-      Screen.print(2, " Retrieving...");
-    } 
-  }
-  else if (result == IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT)
-  {
-    // This should be a connection issue, re-connect
-    restart_iot_client = RECONNECT_THRESHOLD;
-    
-    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-    // We collect data about the features you use, how often you use them, and how you use them.
-    send_telemetry_data_async("", "ShakeShakeFailed", "IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT");
-  }
-}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utilities
 static char printable_char(char c)
 {
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
 
-void TwitterMessageCallback(const char *tweet, int lenTweet)
+static void ScrollTweet()
 {
-  if (status < 2 || lenTweet == NULL)
+  if (msgBody[0] == 0)
   {
-      return;
+    return;
   }
   
-  int i = 0;
-  int j = 0;
-  // The header
-  for (; i < min(lenTweet, sizeof(msgHeader)); i++)
+  if (msgStart < 0)
   {
-      if(tweet[i] == '\n')
-      {
-          
-          break;
-      }
-      msgHeader[j++] = printable_char(tweet[i]);
+    // First time
+    DrawAppTitle(msgHeader);
+    msgStart = 0;
   }
-  msgHeader[j] = 0;
-  // The body
-  j = 0;
-  for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
+  else
   {
-    if (tweet[i] != '\r' && tweet[i] != '\n')
-    {
-      msgBody[j++] = printable_char(tweet[i]);
-    }
-  }
-  msgBody[j] = 0;
-  
-  Serial.println(msgHeader);
-  Serial.println(msgBody);
-  
-  status = 3;
-  msgStart = 0;
-  restart_iot_client = 0;
-
-  // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-  // We collect data about the features you use, how often you use them, and how you use them.
-  send_telemetry_data_async("", "ShakeShakeSucceed", "");
-}
-
-static void ScrollTweet(void)
-{
-  if (msgBody[0] != 0 && digitalRead(USER_BUTTON_B) == LOW)
-  {
-    // Scroll it if Button B has been pressed
-    msgStart += 16;
+    msgStart += SCROLL_OFFSET;
     if (msgStart >= strlen(msgBody))
     {
         msgStart = 0;
     }
-        
-    // Clean the msg screen
-    Screen.print(1, " ");
-    Screen.print(2, " ");
-    Screen.print(3, " ");
-    // Update it
-    Screen.print(1, &msgBody[msgStart], true);
   }
+        
+  // Clean the msg screen
+  Screen.print(1, " ");
+  Screen.print(2, " ");
+  Screen.print(3, " ");
+  // Update it
+  Screen.print(1, &msgBody[msgStart], true);
 }
 
-void InitWiFi()
+static void InitWiFi()
 {
-  Screen.print("IoT DevKit\r\n \r\nConnecting...\r\n");
-
+  Screen.clean();
+  DrawAppTitle("IoT DevKit");
+  Screen.print(2, "Connecting...");
+  
   if (WiFi.begin() == WL_CONNECTED)
   {
     IPAddress ip = WiFi.localIP();
@@ -148,68 +106,268 @@ void InitWiFi()
   }
   else
   {
+    hasWifi = false;
     Screen.print(1, "No Wi-Fi\r\n ");
   }
 }
 
-static void SendEventToIoTHub(const char* msg)
+static void HeartBeat()
 {
-  // Check connection first
-  if (restart_iot_client >= RECONNECT_THRESHOLD)
-  {
-    iothub_client_sample_mqtt_close();
-    iothub_client_sample_mqtt_init();
-    restart_iot_client = 0;
-  }
-  // Then send
-  iothub_client_sample_send_event((const unsigned char *)msg);
-}
-
-static void DoHeartBeat(void)
-{
-  time_t start;
-  time_t cur;
-  
-  time(&start);
-  if (difftime(start, time_hb) < HEARTBEAT_INTERVAL)
+  if ((int)(SystemTickCounterRead() - hb_interval_ms) < HEARTBEAT_INTERVAL)
   {
     return;
   }
-  
-  eventSent = false;
-  digitalWrite(LED_BUILTIN, HIGH);
+
   Serial.println(">>Heartbeat<<");
-  SendEventToIoTHub(iot_event_heartbeat);
-  for (;;)
-  {
-    iothub_client_sample_mqtt_loop();
-    if (eventSent)
-    {
-      break;
-    }
-    time(&cur);
-    double diff = difftime(cur, start);
-    if (diff >= PULL_TIMEOUT)
-    {
-      // Not get back the send confirmation msg, increase the restart count by 1
-      Serial.println(">>Failed to retrieve the confirmation message: timeout.");
-      restart_iot_client++;
-      break;
-    }
-  }
-  time(&time_hb);
-  digitalWrite(LED_BUILTIN, LOW);
+
+  DigitalOut LedUser(LED_BUILTIN);
+  LedUser = 1;
+  // Send heart beat message
+  IoTHubMQTT_SendEvent(iot_event_heartbeat);
+  LedUser = 0;
+  
+  // Reset
+  hb_interval_ms = SystemTickCounterRead();
 }
 
+static bool ParseTweet(const char *tweet, int lenTweet)
+{
+  if (lenTweet == 0)
+  {
+    msgHeader[0] = 0;
+    msgBody[0] = 0;
+    return false;
+  }
+  
+  // Split into header and body
+  int i = 0;
+  int j = 0;
+  // The header
+  for (; i < min(lenTweet, sizeof(msgHeader)); i++)
+  {
+      if(tweet[i] == '\n')
+      {
+          break;
+      }
+      msgHeader[j++] = printable_char(tweet[i]);
+  }
+  msgHeader[j] = 0;
+  Serial.println(msgHeader);
+  if (strcmp(msgHeader, "No new tweet.") == 0)
+  {
+    // Not a tweet from Twitter, there must be something wrong on the Service side.
+    msgHeader[0] = 0;
+    msgBody[0] = 0;
+    return false;
+  }
+  else
+  {
+    // The body
+    j = 0;
+    for (; i < min(lenTweet, sizeof(msgHeader) + sizeof(msgBody)); i++)
+    {
+      if (tweet[i] != '\r' && tweet[i] != '\n')
+      {
+        msgBody[j++] = printable_char(tweet[i]);
+      }
+    }
+    msgBody[j] = 0;
+    Serial.println(msgBody);
+    return true;
+  }
+}
+
+static void ShowShakeProgress()
+{
+  if (shake_progress == 1)
+  {
+    DrawAppTitle("Processing...");
+    Screen.print(1, "   DevKit");
+    Screen.print(2, "   Azure");
+    Screen.print(3, "   Twitter");
+  }
+
+  DrawCheckBox(1, 0, (shake_progress >= 1) ? 1 : 0);
+  DrawCheckBox(2, 0, (shake_progress >= 2) ? 1 : 0);
+  DrawCheckBox(3, 0, (shake_progress == 4) ? 1 : 0);
+  
+  delay(500);
+}
+
+static void NoTweets()
+{
+  Screen.clean();
+  DrawAppTitle("No tweets...");
+  Screen.print(3, "Press A to Shake!");
+  DrawTweetImage(1, 20, 0);
+
+  // Turn off the RGB LED
+  rgbLed.setColor(0, 0, 0);
+
+  // Log shake failed message
+  LogShakeResult("ShakeShakeFailed");
+  
+  // Switch back to idle mode
+  app_status = 0;
+}
+
+static void LogShakeResult(const char* result)
+{
+  char sz[32];
+  sprintf(sz, "progress-%d", shake_progress);
+  LogTrace(result, sz);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Callback functions
+static void TwitterMessageCallback(const char *tweet, int lenTweet)
+{
+  if (app_status != 2 || tweet == NULL)
+  {
+    // Return if not under do work mode or the tweet is empty.
+    return;
+  }
+
+  if (ParseTweet(tweet, lenTweet))
+  {
+    // The tweet message is OK
+    shake_progress = 4;
+  }
+  else
+  {
+    // Got message from Azure, but not a tweet from Twitter.
+    // There must be something wrong on the Service side.
+    shake_progress = 3;
+  }
+  
+  // Update the progress
+  ShowShakeProgress();
+
+  if (shake_progress == 4)
+  {
+    Screen.clean();
+    // Got the tweet
+    // Show the action UI and let user to choose read or shake again
+    DrawAppTitle("New tweet!");
+    Screen.print(3, "Press B to read!");
+    DrawTweetImage(1, 20, 1);
+
+    // Prepare for reading and scrolling
+    msgStart = -SCROLL_OFFSET;
+
+    // Set RGB LED to blue, means for reading
+    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
+    // Switch back to idle mode
+    app_status = 0;
+
+    // Log shake succeed message
+    LogShakeResult("ShakeShakeSucceed");
+  }
+  else
+  {
+    // No tweet
+    NoTweets();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Actions
+static void DoIdle()
+{
+    if (digitalRead(USER_BUTTON_A) == LOW)
+    {
+      // Enter Shake mode
+      app_status = 1;
+      
+      msgHeader[0] = 0;
+      msgBody[0] = 0;
+      shake_progress = 0;
+
+      // Set the RGB LED to green
+      rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
+
+      Screen.clean();
+      DrawAppTitle("Shake Shake!");
+
+      acc_gyro->resetStepCounter();
+    }
+    else if (digitalRead(USER_BUTTON_B) == LOW)
+    {
+      // Show / scroll the tweet
+      ScrollTweet();
+    }
+    
+    // Heart beat
+    HeartBeat();
+    
+    // Check with the IoT hub
+    IoTHubMQTT_Check();
+}
+
+static void DoShake()
+{
+  int steps = 0;
+  acc_gyro->getStepCounter(&steps);
+  if (steps > 2)
+  {
+    // Enter the do work mode
+    app_status = 2;
+    // Shake detected
+    shake_progress = 1;
+
+    // LED
+    DigitalOut LedUser(LED_BUILTIN);
+    LedUser = 1;
+    // Set RGB LED to red
+    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
+    // Update the screen
+    ShowShakeProgress();
+    // Send to IoT hub
+    if (IoTHubMQTT_SendEvent(iot_event))
+    {
+      // IoT hub has got the message
+      shake_progress = 2;
+      // Update the screen
+      ShowShakeProgress();
+      // Start retrieving tweet timeout clock
+      tweet_timeout_ms = SystemTickCounterRead();
+    }
+    else
+    {
+      // Failed to send message to IoT hub
+      NoTweets();
+    }
+    LedUser = 0;
+  }
+  else
+  {
+    // Draw the animation
+    DrawShakeAnimation();
+  }
+}
+
+static void DoWork()
+{
+  if ((int)(SystemTickCounterRead() - tweet_timeout_ms) >= PULL_TIMEOUT)
+  {
+    // Timeout
+    NoTweets();
+  }
+  // Check with the IoT hub
+  IoTHubMQTT_Check();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Arduino sketch
 void setup()
 {
   msgHeader[0] = 0;
   msgBody[0] = 0;
-  status = 0;
-  restart_iot_client = 0;
+  app_status = 0;
+  shake_progress = 0;
   
   Screen.init();
-  Screen.print(0, "IoT DevKit");
+  DrawAppTitle("IoT DevKit");
   Screen.print(2, "Initializing...");
   
   Screen.print(3, " > Serial");
@@ -223,13 +381,9 @@ void setup()
   {
     return;
   }
-  else
-  {
-    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-    // We collect data about the features you use, how often you use them, and how you use them.
-    send_telemetry_data_async("", "ShakeShakeSetup", "");
-  }
   
+  LogShakeResult("ShakeShakeSetup");
+    
   // Initialize LEDs
   Screen.print(3, " > LEDs");
   rgbLed.turnOff();
@@ -244,7 +398,7 @@ void setup()
   Screen.print(3, " > Motion sensor     ");
   ext_i2c = new DevI2C(D14, D15);
   acc_gyro = new LSM6DSLSensor(*ext_i2c, D4, D5);
-  acc_gyro->init(NULL);
+  acc_gyro->init(NULL); 
   acc_gyro->enableAccelerator();
   acc_gyro->enableGyroscope();
   acc_gyro->enablePedometer();
@@ -252,106 +406,23 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   
-  iothub_client_sample_mqtt_init();
+  IoTHubMQTT_Init();
+  IoTHubMQTT_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-  time_hb = 0;
-  DoHeartBeat();
+  hb_interval_ms = -(HEARTBEAT_INTERVAL);   // Trigger heart beat immediately
+  HeartBeat();
   rgbLed.setColor(0, 0, 0);
   
   Screen.print(2, "Press A to Shake!");
   Screen.print(3, " ");
 }
 
-static void DoIdle()
-{
-    if (digitalRead(USER_BUTTON_A) == LOW)
-    {
-      Screen.print(0, "IoT DevKit");
-      Screen.print(1, "  Shake!");
-      Screen.print(2, "     Shake!");
-      Screen.print(3, "        Shake!");
-      status = 1;
-      msgBody[0] = 0;
-      rgbLed.setColor(0, RGB_LED_BRIGHTNESS, 0);
-      acc_gyro->resetStepCounter();
-    }
-    iothub_client_sample_mqtt_check();
-}
-
-static void DoShake()
-{
-  int steps = 0;
-  acc_gyro->getStepCounter(&steps);
-  if (steps > 2)
-  {
-    time(&time_hb); // Reset the heartbeat clock
-
-    // Trigger the twitter
-    eventSent = false;
-    SendEventToIoTHub(iot_event);
-    status = 2;
-    time(&time_sending_timeout);  // Start sending timeout clock
-    rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
-    Screen.print(1, " ");
-    Screen.print(2, " Processing...");
-    Screen.print(3, " ");
-  }
-}
-
-static void DoWork()
-{
-  time(&time_hb); // Reset the heartbeat clock
-
-  iothub_client_sample_mqtt_loop();
-
-  if (status != 3)
-  {
-    // Not get the tweet, check the sending timeout
-    time_t cur;
-    time(&cur);
-    double diff = difftime(cur, time_sending_timeout);
-    if (diff >= PULL_TIMEOUT)
-    {
-      if (!eventSent)
-      {
-        // If not get back the confirmation msg then increase the restart count by 1
-        restart_iot_client ++;
-      }
-      
-      // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-      // We collect data about the features you use, how often you use them, and how you use them.
-      send_telemetry_data_async("", "ShakeShakeFailed", "No tweets...");
-
-      // Switch back to status 0
-      Screen.print(1, "No tweets...");
-      Screen.print(2, "Press A to Shake!");
-      Screen.print(3, " ");
-      rgbLed.setColor(0, 0, 0);
-      status = 0;
-    }
-  }
-
-  time(&time_hb);
-}
-
-static void DoReceived()
-{
-  time(&time_hb); // Reset the heartbeat clock
-
-  Screen.clean();
-  Screen.print(0, msgHeader);
-  Screen.print(1, msgBody, true);
-  
-  rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
-  status = 0;
-}
-      
 void loop()
 {
   if (hasWifi)
   {
-    switch(status)
+    switch(app_status)
     {
       case 0:
         DoIdle();
@@ -364,16 +435,8 @@ void loop()
       case 2:
         DoWork();
         break;
-        
-      case 3:
-        DoReceived();
-        break;
     }
-    
-    ScrollTweet();
-    
-    DoHeartBeat();
   }
-    
+
   delay(LOOP_DELAY);
 }

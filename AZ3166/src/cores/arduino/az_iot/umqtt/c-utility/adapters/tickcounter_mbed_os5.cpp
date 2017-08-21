@@ -2,22 +2,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include "mbed.h"
+#include "SystemTickCounter.h"
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/tickcounter.h"
 
-class TICK_COUNTER_INSTANCE_TAG
+struct TICK_COUNTER_INSTANCE_TAG
 {
-public:
-    clock_t last_clock_value;
-    tickcounter_ms_t current_ms;
+    uint64_t current_ms;
 };
+
 
 TICK_COUNTER_HANDLE tickcounter_create(void)
 {
     TICK_COUNTER_INSTANCE_TAG* result;
-    result = new TICK_COUNTER_INSTANCE_TAG();
-    result->last_clock_value = clock();
-    result->current_ms = result->last_clock_value * 1000 / CLOCKS_PER_SEC;
+    result = new TICK_COUNTER_INSTANCE_TAG;
+    result->current_ms = SystemTickCounterRead();
     return result;
 }
 
@@ -38,13 +37,8 @@ int tickcounter_get_current_ms(TICK_COUNTER_HANDLE tick_counter, tickcounter_ms_
     }
     else
     {
-        TICK_COUNTER_INSTANCE_TAG* tick_counter_instance = (TICK_COUNTER_INSTANCE_TAG*)tick_counter;
-
-        clock_t clock_value = clock();
-
-        tick_counter_instance->current_ms += (clock_value - tick_counter_instance->last_clock_value) * 1000 / CLOCKS_PER_SEC;
-        tick_counter_instance->last_clock_value = clock_value;
-        *current_ms = tick_counter_instance->current_ms;
+        tick_counter->current_ms =  SystemTickCounterRead();
+        *current_ms = (tickcounter_ms_t)tick_counter->current_ms;
 
         result = 0;
     }
