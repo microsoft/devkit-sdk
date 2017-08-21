@@ -8,7 +8,7 @@
 extern "C"{
 #endif // __cplusplus
 
-void DrawSmallTweetIcon(int line, int col);
+void DrawAppTitle(char* text);
 
 void DrawShakeAnimation(void);
 
