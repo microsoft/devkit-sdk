@@ -47,16 +47,16 @@ static uint64_t hb_interval_ms;
 static uint64_t tweet_timeout_ms;
 
 // Shake shake processing status
-// 0 - Not Start
+// 0 - Not start
 // 1 - Shaked and sending message to IoT hub
-// 2 - Message has sent to IoT hub (get confirmed)
-// 3 - Got tweet message, sometime it's empty
-// 4 - The twee is OK and show it on the screen
+// 2 - Message has been sent to IoT hub (get confirmed)
+// 3 - Got the tweet message, sometime it's empty
+// 4 - The tweet is OK and show it on the screen
 static int shake_progress;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
-static char printable_char(char c)
+static char PrintableChar(char c)
 {
   return (c >= 0x20 and c != 0x7f) ? c : '?';  
 }
@@ -149,7 +149,7 @@ static bool ParseTweet(const char *tweet, int lenTweet)
       {
           break;
       }
-      msgHeader[j++] = printable_char(tweet[i]);
+      msgHeader[j++] = PrintableChar(tweet[i]);
   }
   msgHeader[j] = 0;
   Serial.println(msgHeader);
@@ -168,7 +168,7 @@ static bool ParseTweet(const char *tweet, int lenTweet)
     {
       if (tweet[i] != '\r' && tweet[i] != '\n')
       {
-        msgBody[j++] = printable_char(tweet[i]);
+        msgBody[j++] = PrintableChar(tweet[i]);
       }
     }
     msgBody[j] = 0;
@@ -204,7 +204,7 @@ static void NoTweets()
   // Turn off the RGB LED
   rgbLed.setColor(0, 0, 0);
 
-  // Log shake failed message
+  // Log the shake failed message
   LogShakeResult("ShakeShakeFailed");
   
   // Switch back to idle mode
@@ -238,35 +238,6 @@ static void TwitterMessageCallback(const char *tweet, int lenTweet)
     // Got message from Azure, but not a tweet from Twitter.
     // There must be something wrong on the Service side.
     shake_progress = 3;
-  }
-  
-  // Update the progress
-  ShowShakeProgress();
-
-  if (shake_progress == 4)
-  {
-    Screen.clean();
-    // Got the tweet
-    // Show the action UI and let user to choose read or shake again
-    DrawAppTitle("New tweet!");
-    Screen.print(3, "Press B to read!");
-    DrawTweetImage(1, 20, 1);
-
-    // Prepare for reading and scrolling
-    msgStart = -SCROLL_OFFSET;
-
-    // Set RGB LED to blue, means for reading
-    rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
-    // Switch back to idle mode
-    app_status = 0;
-
-    // Log shake succeed message
-    LogShakeResult("ShakeShakeSucceed");
-  }
-  else
-  {
-    // No tweet
-    NoTweets();
   }
 }
 
@@ -355,6 +326,39 @@ static void DoWork()
   }
   // Check with the IoT hub
   IoTHubMQTT_Check();
+
+  if (shake_progress > 2)
+  {
+    // Got the tweet message
+    // Update the progress
+    ShowShakeProgress();
+
+    if (shake_progress == 4)
+    {
+      Screen.clean();
+      // Got the tweet
+      // Show the action UI and let user to choose read or shake again
+      DrawAppTitle("New tweet!");
+      Screen.print(3, "Press B to read!");
+      DrawTweetImage(1, 20, 1);
+
+      // Prepare for reading and scrolling
+      msgStart = -SCROLL_OFFSET;
+
+      // Set RGB LED to blue, means for reading
+      rgbLed.setColor(0, 0, RGB_LED_BRIGHTNESS);
+      // Switch back to idle mode
+      app_status = 0;
+
+      // Log shake succeed message
+      LogShakeResult("ShakeShakeSucceed");
+    }
+    else
+    {
+      // No tweet
+      NoTweets();
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
