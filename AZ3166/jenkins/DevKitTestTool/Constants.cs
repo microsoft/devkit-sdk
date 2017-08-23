@@ -14,5 +14,6 @@
 
         internal static readonly string ArduinoArgTemplate = "--board AZ3166:stm32f4:MXCHIP_AZ3166:upload_method=OpenOCDMethod --{0} \"{1}\"";
 
+        internal static readonly int Timeout = 60 * 30;
     }
 }
