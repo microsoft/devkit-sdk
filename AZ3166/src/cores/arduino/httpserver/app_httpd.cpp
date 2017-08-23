@@ -174,7 +174,8 @@ int web_send_wifisetting_page(httpd_request_t *req)
       setting_page_len += 26 + 2 * ssidLen;
     }
 
-    if (validWifiCount >= 15) {
+    if (validWifiCount >= 15)
+	{
       break;
     }
   }
