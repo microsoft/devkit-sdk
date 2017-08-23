@@ -3,10 +3,11 @@
 #include "EEPROMInterface.h"
 #include "IoTHubMQTTClient.h"
 #include "SerialLog.h"
+#include "SystemTickCounter.h"
 #include "Telemetry.h"
 
-#define CHECK_INTERVAL_SECOND   1.0
-#define MESSAGE_SEND_TIMEOUT    30.0
+#define CHECK_INTERVAL_SECOND   1000
+#define MESSAGE_SEND_TIMEOUT    10000
 #define MESSAGE_CONFIRMED       -2
 
 static int callbackCounter;
@@ -20,7 +21,7 @@ static CONNECTION_STATUS_CALLBACK _connection_status_callback = NULL;
 static SEND_CONFIRMATION_CALLBACK _send_confirmation_callback = NULL;
 static MESSAGE_CALLBACK _message_callback = NULL;
 
-static time_t tm_iothub_check;
+static uint64_t iothub_check_ms;
 
 static char* iothub_hostname = NULL;
 
@@ -336,7 +337,7 @@ void IoTHubMQTT_Init(void)
         LogError("IoTHubClient_LL_SetConnectionStatusCallback..........FAILED!");
         return;
     }
-    time(&tm_iothub_check);
+    iothub_check_ms = SystemTickCounterRead();
 }
 
 bool IoTHubMQTT_SendEvent(const char *text)
@@ -346,9 +347,8 @@ bool IoTHubMQTT_SendEvent(const char *text)
         return false;
     }
 
-    time_t tm_start;
-    time(&tm_start); // Reset the heartbeat clock
-
+    uint64_t start_ms = SystemTickCounterRead();
+    
     while(true)
     {
         CheckConnection();
@@ -382,22 +382,21 @@ bool IoTHubMQTT_SendEvent(const char *text)
                 // Disconnected, re-send the message
                 break;
             }
-            
-            // Sleep a while
-            ThreadAPI_Sleep(10);
-
             // Check timeout
-            time_t cur;
-            time(&cur);
-            double diff = difftime(cur, tm_start);
-            if (diff > MESSAGE_SEND_TIMEOUT)
+            int diff = (int)(SystemTickCounterRead() - start_ms);
+            if (diff >= MESSAGE_SEND_TIMEOUT)
             {
-                // Time out
+                // Time out, reset the client
+                resetClient = true;
+                CheckConnection();
                 return false;
             }
+
+            // Sleep a while
+            ThreadAPI_Sleep(100);
         }
     }
-    return false;
+    return true;
 }
 
 void IoTHubMQTT_Check(void)
@@ -407,15 +406,12 @@ void IoTHubMQTT_Check(void)
         return;
     }
 
-    time_t cur;
-    
-    time(&cur);
-    double diff = difftime(cur, tm_iothub_check);
+    int diff = (int)(SystemTickCounterRead() - iothub_check_ms);
     if (diff >= CHECK_INTERVAL_SECOND)
     {
         CheckConnection();
         IoTHubClient_LL_DoWork(iotHubClientHandle);
-        time(&tm_iothub_check);
+        iothub_check_ms = SystemTickCounterRead();
     }
 }
 

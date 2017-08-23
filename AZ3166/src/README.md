@@ -13,6 +13,7 @@ The DevKit board features ARM Cortex-M processors. At its core, it comes with a 
 * [Projects Catalog](https://microsoft.github.io/azure-iot-developer-kit/docs/projects/) - Learn and build IoT apps powered by Microsoft Azure within minutes
 * [Specs & Schematics](http://www.mxchip.com/az3166) - Datasheet, schematic, all about the kit hardware
 
-## Purchase
+## Get a kit
 
 You can purchase the DevKit from: **[https://aka.ms/iot-devkit-purchase](https://aka.ms/iot-devkit-purchase)**. We have opened purchase channel on [DFRotobt](https://www.dfrobot.com/), [SeeedStudio](https://www.seeedstudio.com/) and [Plugable](http://plugable.com/)
+

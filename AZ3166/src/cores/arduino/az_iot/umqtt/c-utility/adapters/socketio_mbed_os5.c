@@ -12,7 +12,6 @@
 #include "azure_c_shared_utility/xlogging.h"
 #include "netsocket/nsapi_types.h"
 
-#define UNABLE_TO_COMPLETE -2
 #define MBED_RECEIVE_BYTES_VALUE    128
 
 typedef enum IO_STATE_TAG
@@ -170,14 +169,9 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
                 }
                 wait_ms(10);
             }
-
-            if (send_result < 0)
+            else if (send_result < 0)
             {
-                if (send_result < UNABLE_TO_COMPLETE)
-                {
-                    // Bad error.  Indicate as much.
-                    indicate_error(socket_io_instance);
-                }
+                indicate_error(socket_io_instance);
                 return -1;
             }
             else
@@ -215,9 +209,12 @@ static void close_tcp_connection(SOCKET_IO_INSTANCE* socket_io_instance)
 {
     if (socket_io_instance->io_state != IO_STATE_NOT_OPEN)
     {
-        tcpsocketconnection_close(socket_io_instance->tcp_socket_connection);
-        tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
-        socket_io_instance->tcp_socket_connection = NULL;
+        if (socket_io_instance->tcp_socket_connection != NULL)
+        {
+            tcpsocketconnection_close(socket_io_instance->tcp_socket_connection);
+            tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
+            socket_io_instance->tcp_socket_connection = NULL;
+        }
         socket_io_instance->io_state = IO_STATE_NOT_OPEN;
     }
 }
@@ -302,9 +299,12 @@ void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
         (void)singlylinkedlist_remove(socket_io_instance->pending_io_list, first_pending_io);
         first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
     }
-
     singlylinkedlist_destroy(socket_io_instance->pending_io_list);
-    free(socket_io_instance->hostname);
+    
+    if(socket_io_instance->hostname != NULL)
+    {
+        free(socket_io_instance->hostname);
+    }
     free(socket_io);
 }
 

@@ -1248,7 +1248,6 @@ static void mqtt_error_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLIENT_EVENT_ERR
             case MQTT_CLIENT_NO_PING_RESPONSE:
             {
                 LogError("Mqtt Ping Response was not encountered.  Reconnecting device...");
-                DisconnectFromClient(transport_data);
                 break;
             }
             case MQTT_CLIENT_PARSE_ERROR:
@@ -2289,11 +2288,7 @@ void IoTHubTransport_MQTT_Common_DoWork(TRANSPORT_LL_HANDLE handle, IOTHUB_CLIEN
                             (void)DList_RemoveEntryList(currentListEntry);
                             sendMsgComplete(mqttMsgEntry->iotHubMessageEntry, transport_data, IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT);
                             free(mqttMsgEntry);
-
-                            transport_data->currPacketState = PACKET_TYPE_ERROR;
-                            transport_data->device_twin_get_sent = false;
-                            DisconnectFromClient(transport_data);
-
+                                                        
                             /* Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_07_057: [ ... then go through all the rest of the waiting messages and reset the retryCount on the message. ]*/
                             current_entry = transport_data->telemetry_waitingForAck.Flink;
                             while (current_entry != &transport_data->telemetry_waitingForAck)
@@ -2303,6 +2298,11 @@ void IoTHubTransport_MQTT_Common_DoWork(TRANSPORT_LL_HANDLE handle, IOTHUB_CLIEN
                                 msg_reset_entry->retryCount = 0;
                                 current_entry = current_entry->Flink;
                             }
+
+                            transport_data->currPacketState = PACKET_TYPE_ERROR;
+                            transport_data->device_twin_get_sent = false;
+                            DisconnectFromClient(transport_data);
+                            return;
                         }
                         else
                         {

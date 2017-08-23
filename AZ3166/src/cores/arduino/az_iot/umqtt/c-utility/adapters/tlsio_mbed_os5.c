@@ -75,7 +75,7 @@ typedef struct TLS_IO_INSTANCE_TAG
     
     char* hostname;
 
-    bool tls_ready;
+    int tls_status;
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     mbedtls_ssl_context ssl;
@@ -356,12 +356,34 @@ static int tlsio_entropy_poll(void *v, unsigned char *output, size_t len, size_t
     return(0);
 }
 
+// Un-initialize mbedTLS
+static void mbedtls_uninit(TLS_IO_INSTANCE* tls_io_instance)
+{
+    if (tls_io_instance->tls_status > 0)
+    {
+        // mbedTLS cleanup...
+        mbedtls_ssl_free(&tls_io_instance->ssl);
+        mbedtls_ssl_config_free(&tls_io_instance->config);
+        mbedtls_x509_crt_free(&tls_io_instance->cacert);
+        mbedtls_ctr_drbg_free(&tls_io_instance->ctr_drbg);
+        mbedtls_entropy_free(&tls_io_instance->entropy);
+
+        tls_io_instance->tls_status = 0;
+    }
+}
+
 // Initialize mbedTLS
 static void mbedtls_init(TLS_IO_INSTANCE* tls_io_instance)
 {
-    if (tls_io_instance->tls_ready)
+    if (tls_io_instance->tls_status == 1)
     {
+        // Already initialized
         return;
+    }
+    else if (tls_io_instance->tls_status == 2)
+    {
+        // The underlying connection has been closed, so here un-initialize first
+        mbedtls_uninit(tls_io_instance);
     }
     
     const char *pers = "azure_iot_client";
@@ -394,24 +416,7 @@ static void mbedtls_init(TLS_IO_INSTANCE* tls_io_instance)
     mbedtls_ssl_set_session(&tls_io_instance->ssl, &tls_io_instance->ssn);
     mbedtls_ssl_setup(&tls_io_instance->ssl, &tls_io_instance->config);
 
-    tls_io_instance->tls_ready = true;
-}
-
-// Un-initialize mbedTLS
-static void mbedtls_uninit(TLS_IO_INSTANCE* tls_io_instance)
-{
-    if (tls_io_instance->tls_ready)
-    {
-        // mbedTLS cleanup...
-        mbedtls_ssl_close_notify(&tls_io_instance->ssl);
-        mbedtls_ssl_free(&tls_io_instance->ssl);
-        mbedtls_ssl_config_free(&tls_io_instance->config);
-        mbedtls_x509_crt_free(&tls_io_instance->cacert);
-        mbedtls_ctr_drbg_free(&tls_io_instance->ctr_drbg);
-        mbedtls_entropy_free(&tls_io_instance->entropy);
-
-        tls_io_instance->tls_ready = false;
-    }
+    tls_io_instance->tls_status = 1;
 }
 
 /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_003: [ The tlsio_mbedtls_retrieveoptions shall not do anything, and return NULL. ]*/
@@ -476,7 +481,7 @@ CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
             free(result);
             return NULL;
         }
-        result->tls_ready = false;
+        result->tls_status = 0;
         mbedtls_init(result);
                 
         result->tlsio_state = TLSIO_STATE_NOT_OPEN;
@@ -581,7 +586,11 @@ int tlsio_mbedtls_close(CONCRETE_IO_HANDLE tls_io, ON_IO_CLOSE_COMPLETE on_io_cl
         return __FAILURE__;
     }
     
-    mbedtls_uninit(tls_io_instance);
+    if (tls_io_instance->tls_status == 1)
+    {
+        mbedtls_ssl_close_notify(&tls_io_instance->ssl);
+        tls_io_instance->tls_status = 2;
+    }
 
     return 0;
 }
@@ -598,10 +607,10 @@ int tlsio_mbedtls_send(CONCRETE_IO_HANDLE tls_io, const void* buffer, size_t siz
     }
 
     TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)tls_io;
-    /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_020: [ If the tlsio state is not TLSIO_STATE_OPEN, the tlsio_mbedtls_send shall return 0. ]*/
+    /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_020: [ If the tlsio state is not TLSIO_STATE_OPEN, the tlsio_mbedtls_send shall return fail. ]*/
     if (tls_io_instance->tlsio_state != TLSIO_STATE_OPEN)
     {
-        return 0;
+        return __FAILURE__;
     }
 
     tls_io_instance->on_send_complete = on_send_complete;
