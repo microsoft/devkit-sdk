@@ -40,27 +40,32 @@
 
         public void Stop()
         {
-            m_serialPort.Close();
+            try
+            {
+                m_serialPort.Close();
 
-            m_sw.Flush();
-            m_sw.Close();
+                m_sw.Flush();
+                m_sw.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: Failed to stop serial port", ex);
+            }
         }
 
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            PrintResult();
-        }
+            try
+            {
+                SerialPort sp = (SerialPort)sender;
+                string data = sp.ReadExisting();
 
-        void PrintResult()
-        {
-            string info = m_serialPort.ReadLine();
-            
-            m_sw.WriteLine(info);
-        }
-
-        public void writeToPort(string text)
-        {
-            m_serialPort.WriteLine(text);
+                m_sw.Write(data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error: Failed to get the data from serial port", ex);
+            }
         }
     }
 }
