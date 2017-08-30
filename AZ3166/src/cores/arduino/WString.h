@@ -293,5 +293,8 @@ class StringSumHelper: public String {
         }
 };
 
+char *f2s(float f, int p);
+
+char* dtostrf (double val, signed char width, unsigned char prec, char *s);
 #endif  // __cplusplus
 #endif  // String_class_h

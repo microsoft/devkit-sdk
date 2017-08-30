@@ -20,17 +20,12 @@ static bool resetClient = false;
 static CONNECTION_STATUS_CALLBACK _connection_status_callback = NULL;
 static SEND_CONFIRMATION_CALLBACK _send_confirmation_callback = NULL;
 static MESSAGE_CALLBACK _message_callback = NULL;
+static DEVICE_TWIN_CALLBACK _device_twin_callback = NULL;
+static DEVICE_METHOD_CALLBACK _device_method_callback = NULL;
 
 static uint64_t iothub_check_ms;
 
 static char* iothub_hostname = NULL;
-
-typedef struct EVENT_INSTANCE_TAG
-{
-    IOTHUB_MESSAGE_HANDLE messageHandle;
-    int messageTrackingId; // For tracking the messages within the user callback.
-} EVENT_INSTANCE;
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
@@ -142,7 +137,7 @@ static char* GetHostNameFromConnectionString(char* connectionString)
     return NULL;
 }
 
-static EVENT_INSTANCE* GenerateMessage(const char *text)
+EVENT_INSTANCE* GenerateMessage(const char *text)
 {
     EVENT_INSTANCE *currentMessage = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
     currentMessage->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)text, strlen(text));
@@ -167,6 +162,13 @@ static EVENT_INSTANCE* GenerateMessage(const char *text)
     }
 
     return currentMessage;
+}
+
+void AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
+{
+    if (message == NULL) return;
+    MAP_HANDLE propMap = IoTHubMessage_Properties(message->messageHandle);
+    Map_AddOrUpdate(propMap, key, value);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,19 +258,52 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     if (IoTHubMessage_GetByteArray(message, (const unsigned char **)&buffer, &size) != IOTHUB_MESSAGE_OK)
     {
         LogError("unable to retrieve the message data");
+        return IOTHUBMESSAGE_REJECTED;
     }
     else
     {
-        LogInfo("Received Message [%d], Size=%d", *counter, (int)size);
+        char *temp = (char *)malloc(size + 1);
+        if (temp == NULL)
+        {
+            LogInfo("Failed to malloc for command");
+            return IOTHUBMESSAGE_REJECTED;
+        }
+        memcpy(temp, buffer, size);
+        temp[size] = '\0';
+        LogInfo("Received Message [%d], Size=%d Message %s", *counter, (int)size, temp);
         if (_message_callback)
         {
-            _message_callback(buffer, size);
+            _message_callback(temp, size);
         }
+        free(temp);
     }
 
     /* Some device specific action code goes here... */
     (*counter)++;
     return IOTHUBMESSAGE_ACCEPTED;
+}
+
+static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, size_t size, void *userContextCallback)
+{
+    if (_device_twin_callback)
+    {
+        _device_twin_callback(updateState, payLoad, size);
+    }
+}
+
+static int DeviceMethodCallback(const char *methodName, const unsigned char *payload, size_t size, unsigned char **response, size_t *response_size, void *userContextCallback)
+{
+    if (_device_method_callback)
+    {
+        return _device_method_callback(methodName, payload, size, response, (int *)response_size);
+    }
+
+    const char *responseMessage = "\"No method found\"";
+    *response_size = strlen(responseMessage);
+    *response = (unsigned char *)malloc(*response_size);
+    strncpy((char *)(*response), responseMessage, *response_size);
+
+    return 404;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -337,10 +372,23 @@ void IoTHubMQTT_Init(void)
         LogError("IoTHubClient_LL_SetConnectionStatusCallback..........FAILED!");
         return;
     }
+
+    if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
+    {
+        LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
+        return;
+    }
+
+    if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
+    {
+        LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
+        return;
+    }
+
     iothub_check_ms = SystemTickCounterRead();
 }
 
-bool IoTHubMQTT_SendEvent(const char *text)
+bool IoTHubMQTT_SendEvent(EVENT_INSTANCE *message)
 {
     if (iotHubClientHandle == NULL)
     {
@@ -353,17 +401,11 @@ bool IoTHubMQTT_SendEvent(const char *text)
     {
         CheckConnection();
 
-        EVENT_INSTANCE *currentMessage = GenerateMessage(text);
-        if (currentMessage == NULL)
-        {
-            return false;
-        }
-
-        if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, currentMessage->messageHandle, SendConfirmationCallback, currentMessage) != IOTHUB_CLIENT_OK)
+        if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, message->messageHandle, SendConfirmationCallback, message) != IOTHUB_CLIENT_OK)
         {
             LogError("IoTHubClient_LL_SendEventAsync..........FAILED!");
-            IoTHubMessage_Destroy(currentMessage->messageHandle);
-            free(currentMessage);
+            IoTHubMessage_Destroy(message->messageHandle);
+            free(message);
             return false;
         }
         LogInfo("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.");
@@ -434,6 +476,16 @@ void IoTHubMQTT_SetSendConfirmationCallback(SEND_CONFIRMATION_CALLBACK send_conf
 void IoTHubMQTT_SetMessageCallback(MESSAGE_CALLBACK message_callback)
 {
     _message_callback = message_callback;
+}
+
+void IoTHubMQTT_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_callback)
+{
+    _device_twin_callback = device_twin_callback;
+}
+
+void IoTHubMQTT_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback)
+{
+    _device_method_callback = device_method_callback;
 }
 
 void LogTrace(const char *event, const char *message)

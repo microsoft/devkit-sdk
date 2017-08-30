@@ -599,7 +599,7 @@ struct json_object* json_object_new_int(int32_t i)
 
 int32_t json_object_get_int(const struct json_object *jso)
 {
-  int64_t cint64;
+  int32_t cint64;
   enum json_type o_type;
 
   if(!jso) return 0;

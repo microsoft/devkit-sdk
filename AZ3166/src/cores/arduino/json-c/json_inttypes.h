@@ -11,8 +11,8 @@
 #else
 #include <stdint.h>
 
-#define PRId64 "I64d"
-#define SCNd64 "I64d"
+#define PRId64 "d"
+#define SCNd64 "d"
 
 #endif
 

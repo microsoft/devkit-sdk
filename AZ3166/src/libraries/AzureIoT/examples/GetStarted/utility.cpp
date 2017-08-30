@@ -4,7 +4,9 @@
 #include "HTS221Sensor.h"
 #include "AzureIotHub.h"
 #include "Arduino.h"
-#include <ArduinoJson.h>
+#include "json_object.h"
+#include "json_tokener.h"
+#include <assert.h>
 #include "config.h"
 #include "RGB_LED.h"
 
@@ -38,25 +40,36 @@ void blinkSendConfirmation()
 
 void parseTwinMessage(const char *message)
 {
-    StaticJsonBuffer<MESSAGE_MAX_LEN> jsonBuffer;
-    JsonObject &root = jsonBuffer.parseObject(message);
-    if (!root.success())
+    json_object *jsonObject, *desiredObject, *intervalObject;
+	if ((jsonObject = json_tokener_parse(message)) != NULL) {
+        bool success = false;
+        json_object_object_get_ex(jsonObject, "desired", &desiredObject);
+        if (desiredObject != NULL && json_object_get_type(desiredObject) == json_type_object)
+        {
+            json_object_object_get_ex(desiredObject, "interval", &intervalObject);
+            if (intervalObject != NULL)
+            {
+                interval = json_object_get_int(intervalObject);
+                success = true;
+            }
+        }
+        if (success == false) {
+            json_object_object_get_ex(jsonObject, "interval", &intervalObject);
+            if (intervalObject != NULL)
+            {
+                interval = json_object_get_int(intervalObject);
+            }
+        }
+    }
+    else
     {
         LogError("parse %s failed", message);
         return;
     }
-
-    if (root["desired"]["interval"].success())
-    {
-        interval = root["desired"]["interval"];
-    }
-    else if (root.containsKey("interval"))
-    {
-        interval = root["interval"];
-    }
+    json_object_put(jsonObject);
 }
 
-void sensorInit()
+void SensorInit()
 {
     i2c = new DevI2C(D14, D15);
     sensor = new HTS221Sensor(*i2c);
@@ -85,21 +98,22 @@ float readHumidity()
 
 bool readMessage(int messageId, char *payload)
 {
+    json_object *jsonObject, *tmpObject;
+    jsonObject = json_object_new_object();
+    json_object_object_add(jsonObject, "deviceId", json_object_new_string(DEVICE_ID));
+    json_object_object_add(jsonObject, "messageId", json_object_new_int(messageId));
+
     float temperature = readTemperature();
     float humidity = readHumidity();
-    StaticJsonBuffer<MESSAGE_MAX_LEN> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
-    root["deviceId"] = DEVICE_ID;
-    root["messageId"] = messageId;
     bool temperatureAlert = false;
 
     if(temperature != temperature)
     {
-        root["temperature"] = NULL;
+        json_object_object_add(jsonObject, "temperature", NULL);
     }
     else
     {
-        root["temperature"] = temperature;
+        json_object_object_add(jsonObject, "temperature", json_object_new_string(f2s(temperature, 2)));
         if(temperature > TEMPERATURE_ALERT)
         {
             temperatureAlert = true;
@@ -108,12 +122,13 @@ bool readMessage(int messageId, char *payload)
 
     if(humidity != humidity)
     {
-        root["humidity"] = NULL;
+        json_object_object_add(jsonObject, "humidity", NULL);
     }
     else
     {
-        root["humidity"] = humidity;
+        json_object_object_add(jsonObject, "humidity", json_object_new_string(f2s(humidity, 2)));
     }
-    root.printTo(payload, MESSAGE_MAX_LEN);
+    snprintf(payload, MESSAGE_MAX_LEN, "%s", json_object_to_json_string(jsonObject));
+    json_object_put(jsonObject);
     return temperatureAlert;
 }
