@@ -8,15 +8,12 @@ The DevKit board features ARM Cortex-M processors. At its core, it comes with a 
 
 ## Documentation
 
-* [Github Page](https://github.com/Microsoft/AzureIoTDeveloperKit/) - DevKit SDK home
+* [Github Page](http://microsoft.github.io/azure-iot-developer-kit/) - All DevKit documentations
 * [Getting Started Guide](https://microsoft.github.io/azure-iot-developer-kit/docs/get-started/) - Setup guide
 * [Projects Catalog](https://microsoft.github.io/azure-iot-developer-kit/docs/projects/) - Learn and build IoT apps powered by Microsoft Azure within minutes
 * [Specs & Schematics](http://www.mxchip.com/az3166) - Datasheet, schematic, all about the kit hardware
 
+## Get a kit
 
+You can purchase the DevKit from: **[https://aka.ms/iot-devkit-purchase](https://aka.ms/iot-devkit-purchase)**. We have opened purchase channel on [DFRotobt](https://www.dfrobot.com/), [SeeedStudio](https://www.seeedstudio.com/) and [Plugable](http://plugable.com/)
 
-## April 25, 2017
-
-This is our first release of the MXChip IoT DevKit.
-
-**EVERYTHING IS BRAND NEW!**
