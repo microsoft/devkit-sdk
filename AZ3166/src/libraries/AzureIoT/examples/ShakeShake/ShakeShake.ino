@@ -296,8 +296,13 @@ static void DoShake()
     // Send to IoT hub
     if (IoTHubMQTT_SendEvent(iot_event))
     {
-      // IoT hub has got the message
-      shake_progress = 2;
+      if (shake_progress < 2)
+      {
+        // Because the tweet may return quickly and the TwitterMessageCallback be executed before run to here,
+        // So check the shake_progress to avoid set the wrong value.
+        // IoT hub has got the message
+        shake_progress = 2;
+      }
       // Update the screen
       ShowShakeProgress();
       // Start retrieving tweet timeout clock
