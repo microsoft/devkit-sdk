@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
+// To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/shake-shake/?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "IoTHubMQTTClient.h"
@@ -197,7 +198,14 @@ static void ShowShakeProgress()
 static void NoTweets()
 {
   Screen.clean();
-  DrawAppTitle("No tweets...");
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    DrawAppTitle("No tweets...");
+  }
+  else
+  {
+    DrawAppTitle("No Wi-Fi...");
+  }
   Screen.print(3, "Press A to Shake!");
   DrawTweetImage(1, 20, 0);
 
