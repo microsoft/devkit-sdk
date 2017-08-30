@@ -294,6 +294,10 @@ int WiFiClass::encryptionType(unsigned char networkItem)
 
 unsigned char WiFiClass::status()
 {
+    if (SystemWiFiRSSI() == 0)
+    {
+        return ((current_status == WL_CONNECTED) ? WL_CONNECTION_LOST : WL_DISCONNECTED);
+    }
     return current_status;
 }
 

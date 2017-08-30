@@ -4,9 +4,10 @@
 #include "IoTHubMQTTClient.h"
 #include "SerialLog.h"
 #include "SystemTickCounter.h"
+#include "SystemWiFi.h"
 #include "Telemetry.h"
 
-#define CHECK_INTERVAL_SECOND   1000
+#define CHECK_INTERVAL_MS       5000
 #define MESSAGE_SEND_TIMEOUT    10000
 #define MESSAGE_CONFIRMED       -2
 
@@ -38,11 +39,18 @@ static void CheckConnection()
 {
     if (resetClient)
     {
-        LogInfo(">>>Re-connect");
-        // Re-connect the IoT Hub
-        IoTHubMQTT_Close();
-        IoTHubMQTT_Init();
-        resetClient = false;
+        if (SystemWiFiRSSI() == 0)
+        {
+            LogInfo(">>>No Wi-Fi.");
+        }
+        else
+        {
+            LogInfo(">>>Re-connect.");
+            // Re-connect the IoT Hub
+            IoTHubMQTT_Close();
+            IoTHubMQTT_Init();
+            resetClient = false;
+        }
     }
 }
 
@@ -342,7 +350,7 @@ void IoTHubMQTT_Init(void)
 
 bool IoTHubMQTT_SendEvent(const char *text)
 {
-    if (iotHubClientHandle == NULL)
+    if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
         return false;
     }
@@ -377,11 +385,7 @@ bool IoTHubMQTT_SendEvent(const char *text)
                 // IoT Hub got this message
                 return true;
             }
-            else if (resetClient)
-            {
-                // Disconnected, re-send the message
-                break;
-            }
+            
             // Check timeout
             int diff = (int)(SystemTickCounterRead() - start_ms);
             if (diff >= MESSAGE_SEND_TIMEOUT)
@@ -390,6 +394,12 @@ bool IoTHubMQTT_SendEvent(const char *text)
                 resetClient = true;
                 CheckConnection();
                 return false;
+            }
+
+            if (resetClient)
+            {
+                // Disconnected, re-send the message
+                break;
             }
 
             // Sleep a while
@@ -401,13 +411,13 @@ bool IoTHubMQTT_SendEvent(const char *text)
 
 void IoTHubMQTT_Check(void)
 {
-    if (iotHubClientHandle == NULL)
+    if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
         return;
     }
 
     int diff = (int)(SystemTickCounterRead() - iothub_check_ms);
-    if (diff >= CHECK_INTERVAL_SECOND)
+    if (diff >= CHECK_INTERVAL_MS)
     {
         CheckConnection();
         IoTHubClient_LL_DoWork(iotHubClientHandle);
