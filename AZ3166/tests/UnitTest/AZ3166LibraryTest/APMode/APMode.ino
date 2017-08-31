@@ -3,7 +3,6 @@
 
 void setup() { 
     Serial.println(__FILE__);
-    pinMode(USER_BUTTON_B, INPUT);
 }
 
 void loop() {
