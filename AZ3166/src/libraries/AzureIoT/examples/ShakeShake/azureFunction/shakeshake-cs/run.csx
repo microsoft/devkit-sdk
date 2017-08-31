@@ -25,35 +25,33 @@ public class ShakeShakeException : Exception
     }
 }
 
-static ServiceClient serviceClient;
-
 public static void Run(string myEventHubMessage, TraceWriter log)
 {
     log.Info($"C# Event Hub trigger function processed a message: {myEventHubMessage}");
-    string deviceId = "AZ3166";
-
-    DeviceObject deviceObject;
+    
+    // Get the hash tag
+    string hashTag = string.Empty;
     try
     {
-        deviceObject =
-            Newtonsoft.Json.JsonConvert.DeserializeObject<DeviceObject>(myEventHubMessage);
+        DeviceObject deviceObject = Newtonsoft.Json.JsonConvert.DeserializeObject<DeviceObject>(myEventHubMessage);
+        if (String.IsNullOrEmpty(deviceObject.topic))
+        {
+            // No hash tag or this is a heartbeat package
+            return;
+        }
+        hashTag = deviceObject.topic;
     }
     catch (Exception ex)
     {
         throw new ShakeShakeException($"Failed to deserialize message:{myEventHubMessage}. Error detail: {ex.Message}");
     }
-    
-    if (String.IsNullOrEmpty(deviceObject.topic))
-    {
-        // No hash tag or this is a heartbeat package
-        return;
-    }
-    
+
+    // Retrieve the tweet according to the given hash tag
     string message = string.Empty;
     try
     {
         string tweet = string.Empty;
-        string url = "https://api.twitter.com/1.1/search/tweets.json" + "?count=3&q=%23" + HttpUtility.UrlEncode(deviceObject.topic);
+        string url = "https://api.twitter.com/1.1/search/tweets.json" + "?count=3&q=%23" + HttpUtility.UrlEncode(hashTag);
         string authHeader = "Bearer " + "AAAAAAAAAAAAAAAAAAAAAGVU0AAAAAAAucpxA9aXc2TO6rNMnTcVit1P3YM%3DrQpyFeQ6LOwyvy7cqW5djhLPnFfjEK8H3hA1qfGDh93JRbI1le";
 
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -61,10 +59,15 @@ public static void Run(string myEventHubMessage, TraceWriter log)
         request.Method = "GET";
         request.ContentType = "application/x-www-form-urlencoded;charset=UTF-8";
 
-        var response = (HttpWebResponse)request.GetResponse();
-        var reader = new StreamReader(response.GetResponseStream());
-        string objText = reader.ReadToEnd();
-
+        string objText = string.Empty;
+        using(HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        {
+            using(StreamReader reader = new StreamReader(response.GetResponseStream()))
+            {
+                objText = reader.ReadToEnd();
+            }
+        }
+        
         try
         {
             JObject o = JObject.Parse(objText);
@@ -82,15 +85,18 @@ public static void Run(string myEventHubMessage, TraceWriter log)
     {
         throw new ShakeShakeException($"Failed to call twitter API: {ex.Message}");
     }
-
     log.Info($"Twitter: {message}");
-
+    
+    // Send back to device
+    string deviceId = "AZ3166";
     try
     {
-        var connectionString = ConfigurationManager.AppSettings["iotHubConnectionString"];
-        serviceClient = ServiceClient.CreateFromConnectionString(connectionString);
-        var commandMessage = new Message(Encoding.ASCII.GetBytes(message));
-        serviceClient.SendAsync(deviceId, commandMessage);
+        string connectionString = ConfigurationManager.AppSettings["iotHubConnectionString"];
+        using(ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(connectionString))
+        {
+            Message commandMessage = new Message(Encoding.UTF8.GetBytes(message));
+            serviceClient.SendAsync(deviceId, commandMessage).Wait();
+        }
     }
     catch(Exception ex)
     {
