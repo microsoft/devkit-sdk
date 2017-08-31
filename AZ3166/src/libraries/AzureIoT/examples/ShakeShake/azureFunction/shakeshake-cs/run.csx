@@ -46,7 +46,7 @@ public static void Run(string myEventHubMessage, TraceWriter log)
         throw new ShakeShakeException($"Failed to deserialize message:{myEventHubMessage}. Error detail: {ex.Message}");
     }
 
-    // Retrieve the tweet by the given hash tag
+    // Retrieve the tweet according to the given hash tag
     string message = string.Empty;
     try
     {
