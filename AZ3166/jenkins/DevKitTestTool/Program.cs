@@ -67,7 +67,7 @@
                         Console.WriteLine($"DevKit unit test execution time: {watch.Elapsed.Minutes} minutes");
 
                         Console.WriteLine("Generate test report");
-                        GenerateReport("UnitTestReport", watch.Elapsed.Minutes, logFilePath);                        
+                        GenerateReport("UnitTestReport", watch.Elapsed.Minutes, logFilePath);
 
                         if (unitTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
@@ -111,10 +111,14 @@
 
                         break;
 
-                    case "GenerateActiveProgramFireware":
+                    case "GenerateActiveProgramFirmware":
                         string sensorStatusPath = Path.Combine(workspace, ConfigurationManager.AppSettings["SensorStatusPath"]);
                         VerifyLibraryExamples(sensorStatusPath);
-                                                
+
+                        break;
+
+                    case "UpdateFirmwareVersion":
+                        UpdateFirmwareVersion();
                         break;
 
                     default:
@@ -202,7 +206,7 @@
                 Console.WriteLine(string.Format("Start checking {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace,"Build"));
+                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace, "Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (!string.IsNullOrEmpty(error))
@@ -274,7 +278,7 @@
                 case "ExampleReport":
                     content = GenerateReportContentForExampleTest(executionTimeInMinutes);
                     break;
-            }            
+            }
 
             if (File.Exists(reportFilePath)) // add the related result to report
             {
@@ -287,7 +291,7 @@
                         list.Add(line);
 
                         line = sr.ReadLine();
-                    }                    
+                    }
                 }
 
                 StreamWriter sw = new StreamWriter(reportFilePath);
@@ -349,7 +353,7 @@
                 if (line.EndsWith(".ino"))
                 {
                     content += "<p>" + Constants.ReportLineSeperator;
-                    content += "<br>start testing: " + "<strong>" +Path.GetFileName(line) + "</strong>";
+                    content += "<br>start testing: " + "<strong>" + Path.GetFileName(line) + "</strong>";
 
                     while ((line = sr.ReadLine()) != null)
                     {
@@ -385,7 +389,7 @@
                 }
             }
 
-            
+
             retStr += Constants.ReportLineSeperator;
             retStr += "<h4>Unit Test Result</h4>";
             retStr += "<p><br>Total cases: " + totalUnitTestCount;
@@ -532,6 +536,23 @@
             }
 
             return bPass;
+        }
+
+        private static void UpdateFirmwareVersion()
+        {
+            string filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["TelemetryFilePath"]);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Failed to find the telemetry.js, file path: {filePath}");
+            }
+
+            string versionInfo = GetVersion();
+            string content = File.ReadAllText(filePath);
+
+            Console.WriteLine($"Change firmware version to {versionInfo}");
+            content = content.Replace(Constants.FirmwareVersionString, versionInfo);
+
+            File.WriteAllText(filePath, content);
         }
     }
 }

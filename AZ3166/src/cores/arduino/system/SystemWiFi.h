@@ -12,6 +12,7 @@ extern "C"{
 
 bool InitSystemWiFi(void);
 bool SystemWiFiConnect(void);
+int SystemWiFiRSSI(void);
 const char* SystemWiFiSSID(void);
 NetworkInterface* WiFiInterface(void);
 

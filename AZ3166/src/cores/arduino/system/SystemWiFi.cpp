@@ -80,6 +80,11 @@ NetworkInterface* WiFiInterface(void)
     return network;
 }
 
+int SystemWiFiRSSI(void)
+{
+    return (int)((EMW10xxInterface*)network)->get_rssi();
+}
+
 int WiFiScan(WiFiAccessPoint *res, unsigned count)
 {
     if (network != NULL)

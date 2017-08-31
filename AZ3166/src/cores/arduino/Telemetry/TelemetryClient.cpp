@@ -10,14 +10,15 @@
 #include "SystemWiFi.h"
 #include "TelemetryClient.h"
 
-#define STACK_SIZE 0x1000
+#define STACK_SIZE              0x1000
 
 #ifndef CORRELATIONID
 // Empty 64bit correlation_id
-#define CORRELATIONID "0000000000000000000000000000000000000000000000000000000000000000"
+#define CORRELATIONID           "0000000000000000000000000000000000000000000000000000000000000000"
 #endif
 
-#define CORRELATION_ID_LENGTH 64
+#define CORRELATION_ID_LENGTH   64
+#define CHECK_INTERVAL_MS       5000
 
 static const char *EVENT = "AIEVENT";
 static const char *BODY_TEMPLATE = 
@@ -159,6 +160,13 @@ void TelemetryClient::telemetry_worker(void)
 {
     while (true)
     {
+        if (SystemWiFiRSSI() == 0)
+        {
+            // Cache telemetry data until it's restored
+            wait_ms(CHECK_INTERVAL_MS);
+            continue;
+        }
+        
         char* msg = pop_msg();
         if (msg != NULL)
         {
@@ -167,7 +175,7 @@ void TelemetryClient::telemetry_worker(void)
         }
         else
         {
-            wait_ms(5000);
+            wait_ms(CHECK_INTERVAL_MS);
         }
     }
 }

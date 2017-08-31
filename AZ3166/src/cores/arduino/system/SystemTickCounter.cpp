@@ -6,7 +6,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // The tick counter from mbed OS will be overflow (go back to zero) after approximately 70 minutes (4294s).
-// So here externd the  tick counter 64bit.
+// So here extend the  tick counter 64bit.
 static Ticker cycle_ticker;
 static volatile uint32_t last_ticker_us = 0;
 static volatile uint64_t long_ticker_ms = 0;
