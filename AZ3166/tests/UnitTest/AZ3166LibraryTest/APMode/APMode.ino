@@ -1,5 +1,6 @@
 #include <ArduinoUnit.h>
 #include "AZ3166WiFi.h"
+#include "SystemWiFi.h"
 
 void setup() { 
     Serial.println(__FILE__);
@@ -20,7 +21,14 @@ test(Enter_APmode)
     int ret = WiFi.beginAP(ap_name, "");
     assertEqual(ret, WL_CONNECTED);  
     assertEqual(ap_name, WiFi.SSID());
-    assertEqual(WL_CONNECTED, WiFi.status());
+    if(SystemWiFiRSSI() == 0)
+    {
+        assertEqual(WL_CONNECTION_LOST, WiFi.status());
+    }
+    else
+    {
+        assertEqual(WL_CONNECTED, WiFi.status());
+    }    
     
     ret = WiFi.disconnectAP();
     assertEqual(ret, 1);  
