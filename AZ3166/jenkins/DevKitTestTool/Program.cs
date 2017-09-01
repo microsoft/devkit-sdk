@@ -571,9 +571,6 @@
             string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString();
             string originalUrl = "https://raw.githubusercontent.com/VSChina/azureiotdevkit_tools/master/package_azureboard_index.json";
 
-            Console.WriteLine(env);
-            Console.WriteLine(newUrl);
-
             // Maybe we can use a placeholder in the sciprt file, then replace the placeholder with actual url according to the environment
             if (string.Equals(env, "staging", StringComparison.OrdinalIgnoreCase))
             {
