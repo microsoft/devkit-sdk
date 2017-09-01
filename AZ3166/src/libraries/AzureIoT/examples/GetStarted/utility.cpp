@@ -113,7 +113,7 @@ bool readMessage(int messageId, char *payload)
     }
     else
     {
-        json_object_object_add(jsonObject, "temperature", json_object_new_string(f2s(temperature, 2)));
+        json_object_object_add(jsonObject, "temperature", json_object_new_double(temperature));
         if(temperature > TEMPERATURE_ALERT)
         {
             temperatureAlert = true;
@@ -126,7 +126,7 @@ bool readMessage(int messageId, char *payload)
     }
     else
     {
-        json_object_object_add(jsonObject, "humidity", json_object_new_string(f2s(humidity, 2)));
+        json_object_object_add(jsonObject, "humidity", json_object_new_double(humidity));
     }
     snprintf(payload, MESSAGE_MAX_LEN, "%s", json_object_to_json_string(jsonObject));
     json_object_put(jsonObject);

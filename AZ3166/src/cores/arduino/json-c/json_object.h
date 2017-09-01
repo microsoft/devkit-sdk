@@ -718,7 +718,7 @@ extern int json_object_set_int64(struct json_object *obj,int64_t new_value);
  * @param d the double
  * @returns a json_object of type json_type_double
  */
-extern struct json_object* json_object_new_double(double d);
+extern struct json_object* json_object_new_double(float d);
 
 /**
  * Create a new json_object of type json_type_double, using
@@ -746,7 +746,7 @@ extern struct json_object* json_object_new_double(double d);
  * @param d the numeric value of the double.
  * @param ds the string representation of the double.  This will be copied.
  */
-extern struct json_object* json_object_new_double_s(double d, const char *ds);
+extern struct json_object* json_object_new_double_s(float d, const char *ds);
 
 
 /** Serialize a json_object of type json_type_double to a string.
@@ -796,7 +796,7 @@ extern int json_object_double_to_json_string(struct json_object* jso,
  * @param obj the json_object instance
  * @returns a double floating point number
  */
-extern double json_object_get_double(const struct json_object *obj);
+extern float json_object_get_double(const struct json_object *obj);
 
 
 /** Set the double value of a json_object

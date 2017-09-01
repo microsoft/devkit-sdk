@@ -27,6 +27,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <pgmspace.h>
+#include "floatIO.h"
 
 // An inherited class for holding the result of a concatenation.  These
 // result objects are assumed to be writable by subsequent concatenations.
@@ -292,9 +293,5 @@ class StringSumHelper: public String {
                 String(num) {
         }
 };
-
-char *f2s(float f, int p);
-
-char* dtostrf (double val, signed char width, unsigned char prec, char *s);
 #endif  // __cplusplus
 #endif  // String_class_h

@@ -763,7 +763,7 @@ struct json_object* json_tokener_parse_ex(struct json_tokener *tok,
       }
       {
 	int64_t num64;
-	double  numd;
+	float numd;
 	if (!tok->is_double && json_parse_int64(tok->pb->buf, &num64) == 0) {
 		if (num64 && tok->pb->buf[0]=='0' &&
 		    (tok->flags & JSON_TOKENER_STRICT)) {
@@ -775,8 +775,9 @@ struct json_object* json_tokener_parse_ex(struct json_tokener *tok,
 		if(current == NULL)
 		    goto out;
 	}
-	else if(tok->is_double && json_parse_double(tok->pb->buf, &numd) == 0)
+	else if(tok->is_double)
 	{
+		numd = atof(tok->pb->buf);
           current = json_object_new_double_s(numd, tok->pb->buf);
 	  if(current == NULL)
 		goto out;

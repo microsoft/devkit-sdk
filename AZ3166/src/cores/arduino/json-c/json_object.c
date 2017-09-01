@@ -30,6 +30,7 @@
 #include "json_util.h"
 #include "math_compat.h"
 #include "strdup_compat.h"
+#include "floatIO.h"
 
 // Don't define this.  It's not thread-safe.
 /* #define REFCOUNT_DEBUG 1 */
@@ -697,18 +698,8 @@ static int json_object_double_to_json_string_format(struct json_object* jso,
      NaN or Infinity as numeric values
      ECMA 262 section 9.8.1 defines
      how to handle these cases as strings */
-  if(isnan(jso->o.c_double))
-    size = snprintf(buf, sizeof(buf), "NaN");
-  else if(isinf(jso->o.c_double))
-    if(jso->o.c_double > 0)
-      size = snprintf(buf, sizeof(buf), "Infinity");
-    else
-      size = snprintf(buf, sizeof(buf), "-Infinity");
-  else
-    size = snprintf(buf, sizeof(buf),
-        format ? format : 
-          (modf(jso->o.c_double, &dummy) == 0) ? "%.17g.0" : "%.17g",
-          jso->o.c_double);
+ 
+    size = snprintf(buf, sizeof(buf), f2s(jso->o.c_double, 5));
 
   p = strchr(buf, ',');
   if (p) {
@@ -748,7 +739,7 @@ int json_object_double_to_json_string(struct json_object* jso,
 							(const char *)jso->_userdata);
 }
 
-struct json_object* json_object_new_double(double d)
+struct json_object* json_object_new_double(float d)
 {
 	struct json_object *jso = json_object_new(json_type_double);
 	if (!jso)
@@ -758,7 +749,7 @@ struct json_object* json_object_new_double(double d)
 	return jso;
 }
 
-struct json_object* json_object_new_double_s(double d, const char *ds)
+struct json_object* json_object_new_double_s(float d, const char *ds)
 {
 	struct json_object *jso = json_object_new_double(d);
 	if (!jso)
@@ -789,9 +780,9 @@ void json_object_free_userdata(struct json_object *jso, void *userdata)
 	free(userdata);
 }
 
-double json_object_get_double(const struct json_object *jso)
+float json_object_get_double(const struct json_object *jso)
 {
-  double cdouble;
+  float cdouble;
   char *errPtr = NULL;
 
   if(!jso) return 0.0;
@@ -804,19 +795,7 @@ double json_object_get_double(const struct json_object *jso)
     return jso->o.c_boolean;
   case json_type_string:
     errno = 0;
-    cdouble = strtod(get_string_component(jso), &errPtr);
-
-    /* if conversion stopped at the first character, return 0.0 */
-    if (errPtr == get_string_component(jso))
-        return 0.0;
-
-    /*
-     * Check that the conversion terminated on something sensible
-     *
-     * For example, { "pay" : 123AB } would parse as 123.
-     */
-    if (*errPtr != '\0')
-        return 0.0;
+    cdouble = atof(get_string_component(jso));
 
     /*
      * If strtod encounters a string which would exceed the
