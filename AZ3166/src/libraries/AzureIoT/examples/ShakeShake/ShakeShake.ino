@@ -308,9 +308,9 @@ static void DoShake()
     {
       if (shake_progress < 2)
       {
-        // Because the tweet may return quickly and the TwitterMessageCallback be executed before run to here,
-        // So check the shake_progress to avoid set the wrong value.
         // IoT hub has got the message
+        // The tweet may return in the TwitterMessageCallback.
+        // So check the shake_progress to avoid set the wrong value.
         shake_progress = 2;
       }
       // Update the screen

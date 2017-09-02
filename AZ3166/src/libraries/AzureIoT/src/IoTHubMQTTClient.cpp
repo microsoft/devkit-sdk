@@ -7,9 +7,11 @@
 #include "SystemWiFi.h"
 #include "Telemetry.h"
 
-#define CHECK_INTERVAL_MS       5000
-#define MESSAGE_SEND_TIMEOUT    10000
-#define MESSAGE_CONFIRMED       -2
+#define CHECK_INTERVAL_MS           5000
+#define MQTT_KEEPALIVE_INTERVAL_S   120
+#define MESSAGE_SEND_RETRY_COUNT    2
+#define MESSAGE_SEND_TIMEOUT_MS     3000
+#define MESSAGE_CONFIRMED           -2
 
 static int callbackCounter;
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
@@ -324,12 +326,8 @@ void IoTHubMQTT_Init(void)
         send_telemetry_data(iothub_hostname, "Create", "IoT hub establish failed");
         return;
     }
-
-    // Set the interval of 'Keepalive' to 15, the reason is an underlying defect of the Wi-Fi socket interface:
-    //   the telemetry sending is running in another thread, if the current thread can't send a message (socket send) 
-    //   within about 30s after sending a telemetry message, this socket is closed and no API to detect it's status.
-    // Here the workaround is just let the keepalive message be sent more frequently which can bring the socket back.
-    int keepalive = 15;
+	
+    int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
     bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
@@ -356,15 +354,20 @@ void IoTHubMQTT_Init(void)
 
 bool IoTHubMQTT_SendEvent(const char *text)
 {
-    if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
+    if (iotHubClientHandle == NULL || text == NULL)
     {
         return false;
     }
 
-    uint64_t start_ms = SystemTickCounterRead();
-    
-    while(true)
+    for (int i = 0; i < MESSAGE_SEND_RETRY_COUNT; i++)
     {
+        if (SystemWiFiRSSI() == 0)
+        {
+            return false;
+        }
+
+        uint64_t start_ms = SystemTickCounterRead();
+
         CheckConnection();
 
         EVENT_INSTANCE *currentMessage = GenerateMessage(text);
@@ -394,12 +397,10 @@ bool IoTHubMQTT_SendEvent(const char *text)
             
             // Check timeout
             int diff = (int)(SystemTickCounterRead() - start_ms);
-            if (diff >= MESSAGE_SEND_TIMEOUT)
+            if (diff >= MESSAGE_SEND_TIMEOUT_MS)
             {
                 // Time out, reset the client
                 resetClient = true;
-                CheckConnection();
-                return false;
             }
 
             if (resetClient)
@@ -407,12 +408,14 @@ bool IoTHubMQTT_SendEvent(const char *text)
                 // Disconnected, re-send the message
                 break;
             }
-
-            // Sleep a while
-            ThreadAPI_Sleep(100);
+            else
+            {
+                // Sleep a while
+                ThreadAPI_Sleep(100);
+            }
         }
     }
-    return true;
+    return false;
 }
 
 void IoTHubMQTT_Check(void)
