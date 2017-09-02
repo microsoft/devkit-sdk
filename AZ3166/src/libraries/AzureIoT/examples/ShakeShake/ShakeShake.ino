@@ -42,6 +42,9 @@ static int msgStart = 0;
 // Indicate whether WiFi is ready
 static bool hasWifi = false;
 
+// Indicate whether IoT Hub is ready
+static bool hasIoTHub = false;
+
 // The interval time of heart beat
 static uint64_t hb_interval_ms;
 // The timeout for retrieving the tweet
@@ -425,7 +428,15 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   
-  IoTHubMQTT_Init();
+  if (!IoTHubMQTT_Init())
+  {
+    Screen.clean();
+    DrawAppTitle("IoT DevKit");
+    Screen.print(2, "No IoT Hub");
+    hasIoTHub = false;
+    return;
+  }
+  hasIoTHub = true;
   IoTHubMQTT_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
@@ -439,7 +450,7 @@ void setup()
 
 void loop()
 {
-  if (hasWifi)
+  if (hasWifi && hasIoTHub)
   {
     switch(app_status)
     {
