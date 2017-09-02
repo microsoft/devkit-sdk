@@ -316,6 +316,7 @@ void IoTHubMQTT_Init(void)
         return;
     }
     
+    // Create the IoTHub client
     if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
         // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
@@ -323,7 +324,12 @@ void IoTHubMQTT_Init(void)
         send_telemetry_data(iothub_hostname, "Create", "IoT hub establish failed");
         return;
     }
-    int keepalive = 120;
+
+    // Set the interval of 'Keepalive' to 15, the reason is an underlying defect of the Wi-Fi socket interface:
+    //   the telemetry sending is running in another thread, if the current thread can't send a message (socket send) 
+    //   within about 30s after sending a telemetry message, this socket is closed and no API to detect it's status.
+    // Here the workaround is just let the keepalive message be sent more frequently which can bring the socket back.
+    int keepalive = 15;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
     bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);

@@ -42,9 +42,9 @@ static int msgStart = 0;
 // Indicate whether WiFi is ready
 static bool hasWifi = false;
 
-// Time interval check for heart beat
+// The interval time of heart beat
 static uint64_t hb_interval_ms;
-// Time interval check for retrieving the tweet
+// The timeout for retrieving the tweet
 static uint64_t tweet_timeout_ms;
 
 // Shake shake processing status
@@ -289,6 +289,8 @@ static void DoShake()
   acc_gyro->getStepCounter(&steps);
   if (steps > 2)
   {
+    hb_interval_ms = SystemTickCounterRead();
+    
     // Enter the do work mode
     app_status = 2;
     // Shake detected
