@@ -64,7 +64,7 @@ bool SystemWiFiConnect(void)
 
         // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
         // We collect data about the features you use, how often you use them, and how you use them.
-        send_telemetry_data_async("", "wifi", "Wi-Fi connected");
+        send_telemetry_data_sync("", "wifi", "Wi-Fi connected");
 
         return true;
     }
@@ -78,6 +78,11 @@ const char* SystemWiFiSSID(void)
 NetworkInterface* WiFiInterface(void)
 {
     return network;
+}
+
+int SystemWiFiRSSI(void)
+{
+    return (int)((EMW10xxInterface*)network)->get_rssi();
 }
 
 int WiFiScan(WiFiAccessPoint *res, unsigned count)

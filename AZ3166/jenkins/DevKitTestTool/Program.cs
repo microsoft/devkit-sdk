@@ -66,8 +66,8 @@
                         watch.Stop();
                         Console.WriteLine($"DevKit unit test execution time: {watch.Elapsed.Minutes} minutes");
 
-                        Console.WriteLine("Generate  test report");
-                        GenerateReport(logFilePath, watch.Elapsed.Minutes);
+                        Console.WriteLine("Generate test report");
+                        GenerateReport("UnitTestReport", watch.Elapsed.Minutes, logFilePath);
 
                         if (unitTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
@@ -77,6 +77,7 @@
                         break;
 
                     case "VerifyExamples":
+                        Console.WriteLine("Verify the Examples for IoT DevKit.");
                         watch.Start();
 
                         string exampleFolderPath = Path.Combine(workspace, ConfigurationManager.AppSettings["ExampleFolderPath"]);
@@ -84,6 +85,9 @@
 
                         watch.Stop();
                         Console.WriteLine($"DevKit examples verification time: {watch.Elapsed.Minutes} minutes.");
+
+                        Console.WriteLine("Generate test report");
+                        GenerateReport("ExampleReport", watch.Elapsed.Minutes);
 
                         if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
@@ -100,7 +104,21 @@
                         InstallationPackageTest installationPackageTest = new InstallationPackageTest(workspace);
 
                         string installPackageBlobUrl = string.Format(ConfigurationManager.AppSettings.Get("InstallPackageBlobUrl"), GetVersion());
-                        installationPackageTest.RunTest(installPackageBlobUrl);
+                        int retCode = installationPackageTest.RunTest(installPackageBlobUrl);
+
+                        if (retCode == 1)
+                            return 1;
+
+                        break;
+
+                    case "GenerateActiveProgramFirmware":
+                        string sensorStatusPath = Path.Combine(workspace, ConfigurationManager.AppSettings["SensorStatusPath"]);
+                        VerifyLibraryExamples(sensorStatusPath);
+
+                        break;
+
+                    case "UpdateFirmwareVersion":
+                        UpdateFirmwareVersion();
                         break;
 
                     default:
@@ -188,7 +206,7 @@
                 Console.WriteLine(string.Format("Start checking {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName);
+                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace, "Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (!string.IsNullOrEmpty(error))
@@ -207,7 +225,7 @@
 
         private static void VerifyLibraryExamples(string exampleFolderPath)
         {
-            Console.WriteLine("Start to verify libary examples.\r\n");
+            Console.WriteLine("Start to verify library examples.\r\n");
 
             if (!Directory.Exists(exampleFolderPath))
             {
@@ -230,7 +248,7 @@
                 Console.WriteLine(string.Format("Start verifying {0}...", file.Name));
 
                 error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "verify", file.FullName);
+                argument = string.Format(Constants.ArduinoArgTemplate, "verify", file.FullName, Path.Combine(workspace, "Build"));
                 RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
                 if (string.IsNullOrEmpty(error))
@@ -247,98 +265,190 @@
             }
         }
 
-        private static void GenerateReport(string logFilePath, int executionTimeInMinutes)
+        private static void GenerateReport(string type, int executionTimeInMinutes, string logFilePath = "")
+        {
+            string content = string.Empty;
+            string reportFilePath = Path.Combine(resultFolderPath, "DevKit_Unit_Test_Result.htm");
+
+            switch (type)
+            {
+                case "UnitTestReport":
+                    content = GenerateReportContentForUnitTest(logFilePath, executionTimeInMinutes);
+                    break;
+                case "ExampleReport":
+                    content = GenerateReportContentForExampleTest(executionTimeInMinutes);
+                    break;
+            }
+
+            if (File.Exists(reportFilePath)) // add the related result to report
+            {
+                List<string> list = new List<string>();
+                using (StreamReader sr = new StreamReader(reportFilePath))
+                {
+                    string line = sr.ReadLine();
+                    while (!line.Equals("</body>"))
+                    {
+                        list.Add(line);
+
+                        line = sr.ReadLine();
+                    }
+                }
+
+                StreamWriter sw = new StreamWriter(reportFilePath);
+
+                foreach (string str in list)
+                {
+                    sw.WriteLine(str);
+                }
+                sw.WriteLine(content);
+                sw.WriteLine("</body>");
+                sw.Flush();
+                sw.Close();
+            }
+            else
+            {
+                StreamWriter sw = new StreamWriter(reportFilePath);
+
+                // if no report, generate it
+                sw.WriteLine("<html><head><title>DevKit Test Case Report</title>");
+                sw.WriteLine("<style>");
+                sw.WriteLine("h4, p { font-family: verdana; }");
+                sw.WriteLine("p { line-height: 25px; font-size: small; padding-left: 30px;}");
+                sw.WriteLine("</style>");
+                sw.WriteLine("</head><body>");
+                sw.WriteLine(content);
+                sw.WriteLine("</body>");
+                sw.Flush();
+                sw.Close();
+            }
+        }
+
+        private static string GenerateReportContentForUnitTest(string logFilePath, int executionTimeInMinutes)
         {
             if (string.IsNullOrEmpty(logFilePath) || !File.Exists(logFilePath))
             {
                 throw new ArgumentException($"Invalid log file path: {logFilePath}");
             }
 
-            string reportFilePath = Path.Combine(resultFolderPath, "Iot_TestCase_Result.htm");
-            FileStream fStream = File.OpenWrite(reportFilePath);
-
             StreamReader sr = new StreamReader(logFilePath, Encoding.Default);
             string line;
             string content = string.Empty;
+            string retStr = string.Empty;
 
-            using (TextWriter writer = new StreamWriter(fStream))
+            int totalUnitTestCount = 0;
+            int passUnitTestCount = 0;
+
+            string fileName = string.Empty;
+            string result = string.Empty;
+            string info = string.Empty;
+            string summary = string.Empty;
+
+
+            while ((line = sr.ReadLine()) != null)
             {
-                writer.WriteLine("<html><head><title>Test Result</title><head><body>");
+                fileName = string.Empty;
+                result = string.Empty;
+                info = string.Empty;
+                summary = string.Empty;
 
-                //check the examples folder
-                if (examplesTestResult.Count > 0)
+                if (line.EndsWith(".ino"))
                 {
-                    content += Constants.ReportLineSeperator;
-                    content += "<p>Examples Result</p>";
+                    content += "<p>" + Constants.ReportLineSeperator;
+                    fileName = Path.GetFileName(line);
+                    content += "<br>start testing: " + "<strong>" + fileName + "</strong>";
 
-                    foreach (KeyValuePair<string, string> kvp in examplesTestResult)
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        content += Constants.ReportLineSeperator;
-                        content += "<p> start testing: " + kvp.Key + "</p>";
-                        content += "<p> " + kvp.Value + "</p>";
-                    }
-                }
-
-                //check the test folder
-                content += Constants.ReportLineSeperator;
-                content += "<p>Test cases Result</p>";
-                string name = string.Empty;
-                string result = string.Empty;
-                string info = string.Empty;
-                string summary = string.Empty;
-
-                while ((line = sr.ReadLine()) != null)
-                {
-                    name = string.Empty;
-                    result = string.Empty;
-                    info = string.Empty;
-                    summary = string.Empty;
-
-                    if (line.EndsWith(".ino"))
-                    {
-                        content += Constants.ReportLineSeperator;
-                        content += "<p>start testing: " + line + "</p>";
-
-                        while ((line = sr.ReadLine()) != null)
+                        if (line.StartsWith("Test"))
                         {
-                            if (line.StartsWith("Test"))
-                            {
-                                content += "<p>" + line + "</p>";
-                            }
+                            content += "<br>" + line;
 
-                            if (line.StartsWith("Test summary: "))
+                            totalUnitTestCount++;
+                            if (line.Contains("passed"))
                             {
-                                break;
+                                passUnitTestCount++;
                             }
+                            else if (line.Contains("failed"))
+                            {
+                                if (unitTestResult.ContainsKey(fileName))
+                                {
+                                    unitTestResult[fileName] = "failed";
+                                }
+                                else
+                                {
+                                    unitTestResult.Add(fileName, "failed");
+                                }
+                            }
+                        }
+
+                        if (line.StartsWith("Test summary: "))
+                        {
+                            content += "</p>";
+                            totalUnitTestCount--;
+                            passUnitTestCount--;
+                            break;
                         }
                     }
                 }
-
-                if (unitTestResult.Count != 0)
-                {
-                    foreach (KeyValuePair<string, string> kvp in unitTestResult)
-                    {
-                        content += "<p> start testing: " + kvp.Key + "</p>";
-                        content += "<p> " + kvp.Value + "</p>";
-                    }
-                }
-
-                int totalUnitTestCount = unitTestResult.Count;
-                int passUnitTestCount = unitTestResult.Where(t => string.Equals(t.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count();
-
-                writer.WriteLine("<p>Total cases: " + totalUnitTestCount + "</p>");
-                writer.WriteLine("<p>Pass cases: " + passUnitTestCount + "</p>");
-                writer.WriteLine("<p>Pass Rate: " + ((double)passUnitTestCount / unitTestResult.Count).ToString("p") + "</p>");
-                writer.WriteLine("<p>Total execution time: " + String.Format("{0:0.##}", executionTimeInMinutes) + " minutes.</p>");
-                writer.WriteLine("<p/>");
-                writer.WriteLine("<p/>");
-
-                writer.WriteLine(content);
-                writer.WriteLine("</body>");
-                writer.Flush();
             }
 
-            fStream.Dispose();
+            foreach (KeyValuePair<string, string> kvp in unitTestResult)
+            {
+                if (!kvp.Value.Equals("succeed"))
+                {
+                    totalUnitTestCount++;
+
+                    content += "<p>" + Constants.ReportLineSeperator;
+                    content += "<br>start testing: " + "<strong>" + kvp.Key + "</strong>";
+                    content += "<br>" + kvp.Value + "</p>";
+                }
+            }
+
+            retStr += Constants.ReportLineSeperator;
+            retStr += "<h4>Unit Test Result</h4>";
+            retStr += "<p><br>Total cases: " + totalUnitTestCount;
+            retStr += "<br>Pass cases: " + passUnitTestCount;
+            retStr += "<br>Pass Rate: " + ((double)passUnitTestCount / totalUnitTestCount).ToString("p");
+            retStr += "<br>Total execution time: " + String.Format("{0:0.##}", executionTimeInMinutes) + " minutes.</p>";
+            retStr += "<p/>";
+            retStr += content;
+
+            return retStr;
+        }
+
+        private static string GenerateReportContentForExampleTest(int executionTimeInMinutes)
+        {
+            string content = string.Empty;
+            string retStr = string.Empty;
+
+            int totalUnitTestCount = examplesTestResult.Count;
+            int passUnitTestCount = 0;
+
+            if (examplesTestResult.Count > 0)
+            {
+                foreach (KeyValuePair<string, string> kvp in examplesTestResult)
+                {
+                    content += "<p>" + Constants.ReportLineSeperator;
+                    content += "<br>start testing: " + "<strong>" + kvp.Key + "</strong>";
+                    content += "<br>" + kvp.Value + "</p>";
+
+                    if (kvp.Value.Equals("succeed"))
+                    {
+                        passUnitTestCount++;
+                    }
+                }
+            }
+
+            retStr += Constants.ReportLineSeperator;
+            retStr += "<h4>Examples Test Result</h4>";
+            retStr += "<p><br>Total cases: " + totalUnitTestCount;
+            retStr += "<br>Pass cases: " + passUnitTestCount;
+            retStr += "<br>Pass Rate: " + ((double)passUnitTestCount / totalUnitTestCount).ToString("p");
+            retStr += "<br>Total execution time: " + String.Format("{0:0.##}", executionTimeInMinutes) + " minutes.</p>";
+            retStr += "<p/>";
+            retStr += content;
+
+            return retStr;
         }
 
         private static void GenerateArduinoPackage()
@@ -406,11 +516,11 @@
                 psi.RedirectStandardOutput = true;
 
                 proc = Process.Start(psi);
-                int timeout = 60;
+                int timeout = Constants.Timeout;
 
                 while (timeout >= 0 && !proc.HasExited)
                 {
-                    proc.WaitForExit(5 * 1000);
+                    proc.WaitForExit(1000); // wait for 1 seconds
 
                     timeout--;
                 }
@@ -440,6 +550,23 @@
             }
 
             return bPass;
+        }
+
+        private static void UpdateFirmwareVersion()
+        {
+            string filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["TelemetryFilePath"]);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Failed to find the telemetry.js, file path: {filePath}");
+            }
+
+            string versionInfo = GetVersion();
+            string content = File.ReadAllText(filePath);
+
+            Console.WriteLine($"Change firmware version to {versionInfo}");
+            content = content.Replace(Constants.FirmwareVersionString, versionInfo);
+
+            File.WriteAllText(filePath, content);
         }
     }
 }

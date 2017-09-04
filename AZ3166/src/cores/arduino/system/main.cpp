@@ -2,12 +2,14 @@
 // Licensed under the MIT license. 
 
 #include "Arduino.h"
-#include "mico_system.h"
 #include "console_cli.h"
-#include "SystemWiFi.h"
-#include "mbed_stats.h"
-#include "SystemLock.h"
 #include "EMW10xxInterface.h"
+#include "mbed.h"
+#include "mbed_stats.h"
+#include "mico_system.h"
+#include "SystemLock.h"
+#include "SystemTickCounter.h"
+#include "SystemWiFi.h"
 
 static bool Initialization(void)
 {
@@ -24,8 +26,34 @@ static bool Initialization(void)
     Serial.print("\r\n** MXChip - Microsoft IoT Developer Kit **");
     Serial.print("\r\n************************************************\r\n");
     
+    // Initialize the system tickcounter
+    SystemTickCounterInit();
+
     // Initialize the OLED screen
     Screen.init();
+
+    // Turn off WiFi led 
+    DigitalOut LedWifi(LED_WIFI);
+    LedWifi = 0;
+
+    // Turn off Azure led
+    DigitalOut LedAzure(LED_AZURE);
+    LedAzure = 0;
+
+    // Turn off User led 
+    DigitalOut LedUser(LED_USER);
+    LedUser = 0;
+
+    // Turn off RGB led
+    PwmOut _red(PB_4);
+    PwmOut _green(PB_3);
+    PwmOut _blue(PC_7);
+    _red.period(0.001);
+    _green.period(0.001);
+    _blue.period(0.001);
+    _red.write(0.0f);
+    _green.write(0.0f);
+    _blue.write(0.0f);
     
     return true;
 }

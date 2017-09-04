@@ -35,13 +35,13 @@ void iothubInit()
 
     if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
-        LogInfo("iotHubClientHandle is NULL!");
+        LogInfo("The iotHubClientHandle is NULL!");
         return;
     }
 
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
-        LogInfo("failure to set option \"TrustedCerts\"");
+        LogInfo("Failed to set option \"TrustedCerts\"");
         return;
     }
 }

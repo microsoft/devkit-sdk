@@ -10,7 +10,15 @@
 #include "SystemWiFi.h"
 #include "TelemetryClient.h"
 
-#define STACK_SIZE 0x1000
+#define STACK_SIZE              0x1000
+
+#ifndef CORRELATIONID
+// Empty 64bit correlation_id
+#define CORRELATIONID           "0000000000000000000000000000000000000000000000000000000000000000"
+#endif
+
+#define CORRELATION_ID_LENGTH   64
+#define CHECK_INTERVAL_MS       5000
 
 static const char *EVENT = "AIEVENT";
 static const char *BODY_TEMPLATE = 
@@ -24,7 +32,8 @@ static const char *BODY_TEMPLATE =
                 "\"mcu\": \"%s\","
                 "\"message\":\"%s\","
                 "\"hash_mac_address\": \"%s\","
-                "\"hash_iothub_name\":\"%s\""
+                "\"hash_iothub_name\":\"%s\","
+                "\"correlation_id\": \"%s\""
             "},"
             "\"name\": \"%s\""
         "}"
@@ -35,14 +44,14 @@ static const char *BODY_TEMPLATE =
 "}";
 
 TelemetryClient::TelemetryClient(const char *ai_endoint, const char *ai_ikey)
-    : m_telemetry_thread(osPriorityIdle, STACK_SIZE, NULL)
+    : m_telemetry_thread(osPriorityNormal, STACK_SIZE, NULL)
 {
     m_ai_endoint = ai_endoint;
     m_ai_ikey = ai_ikey;
 
     memset(m_hash_mac, 0, sizeof(m_hash_mac));
     memset(m_hash_iothub_name, 0, sizeof(m_hash_iothub_name));
-    m_base_size = strlen(BODY_TEMPLATE) + sizeof(BOARD_NAME) + strlen(getDevkitVersion()) + sizeof(BOARD_MCU) + strlen(EVENT) + strlen(m_ai_ikey) - 20 + sizeof(m_hash_mac) + sizeof(m_hash_iothub_name);
+    m_base_size = strlen(BODY_TEMPLATE) + sizeof(BOARD_NAME) + strlen(getDevkitVersion()) + sizeof(BOARD_MCU) + strlen(EVENT) + strlen(m_ai_ikey) - 20 + sizeof(m_hash_mac) + CORRELATION_ID_LENGTH + sizeof(m_hash_iothub_name);
 
     m_telemetry_thread.start(callback(this, &TelemetryClient::telemetry_worker));
 }
@@ -73,6 +82,17 @@ void TelemetryClient::send_data_to_ai(const char* data, int size)
     HTTPClient client(HTTP_POST, m_ai_endoint);
     client.set_header("mem","good");
     const Http_Response *response = client.send(data, size);
+    if (response != NULL)
+    {
+        if(response->status_code >= 400)
+        {
+            Serial.printf(">>> Failed to send telemetry data: %d.\r\n", response->status_code);
+        }
+    }
+    else
+    {
+        Serial.printf(">>> Failed to send telemetry data: Http fault.\r\n");
+    }
 }
 
 void TelemetryClient::do_trace_telemetry(const char *iothub, const char *event, const char *message, bool async)
@@ -99,7 +119,7 @@ void TelemetryClient::do_trace_telemetry(const char *iothub, const char *event, 
     
     // Send
     char* data = new char[size];
-    sprintf(data, BODY_TEMPLATE, BOARD_NAME, getDevkitVersion(), BOARD_MCU, message, m_hash_mac, m_hash_iothub_name, event, _ctime, EVENT, m_ai_ikey);
+    sprintf(data, BODY_TEMPLATE, BOARD_NAME, getDevkitVersion(), BOARD_MCU, message, m_hash_mac, m_hash_iothub_name, CORRELATIONID, event, _ctime, EVENT, m_ai_ikey);
 
     if (async)
     {
@@ -111,7 +131,7 @@ void TelemetryClient::do_trace_telemetry(const char *iothub, const char *event, 
     }
     else
     {
-        send_data_to_ai(data, size);
+        send_data_to_ai(data, strlen(data));
         delete [] data;
     }
 }
@@ -140,15 +160,22 @@ void TelemetryClient::telemetry_worker(void)
 {
     while (true)
     {
+        if (SystemWiFiRSSI() == 0)
+        {
+            // Cache telemetry data until it's restored
+            wait_ms(CHECK_INTERVAL_MS);
+            continue;
+        }
+        
         char* msg = pop_msg();
         if (msg != NULL)
         {
-            send_data_to_ai(msg, strlen(msg) + 1);
+            send_data_to_ai(msg, strlen(msg));
             delete [] msg;
         }
         else
         {
-            wait_ms(5000);
+            wait_ms(CHECK_INTERVAL_MS);
         }
     }
 }
