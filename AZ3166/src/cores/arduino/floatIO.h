@@ -1,3 +1,5 @@
+// Copyright (c) 2015 Volodymyr Shymanskyy. All rights reserved.
+// Licensed under the MIT license.
 #ifndef __FLOAT_IO_H__
 #define __FLOAT_IO_H__
 

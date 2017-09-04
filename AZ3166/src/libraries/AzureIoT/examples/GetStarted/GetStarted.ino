@@ -45,7 +45,7 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result)
 static void MessageCallback(const char* payLoad, int size)
 {
   blinkLED();
-  Screen.print(1, payLoad, 1);
+  Screen.print(1, payLoad, true);
 }
 
 static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, int size)

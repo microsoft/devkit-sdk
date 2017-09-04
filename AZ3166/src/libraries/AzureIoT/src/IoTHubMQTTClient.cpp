@@ -174,7 +174,7 @@ EVENT_INSTANCE* GenerateMessage(const char *text)
 
 void AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
 {
-    if (message == NULL) return;
+    if (message == NULL || key == NULL) return;
     MAP_HANDLE propMap = IoTHubMessage_Properties(message->messageHandle);
     Map_AddOrUpdate(propMap, key, value);
 }

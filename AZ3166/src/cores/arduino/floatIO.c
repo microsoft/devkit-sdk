@@ -1,3 +1,5 @@
+// Copyright (c) 2015 Volodymyr Shymanskyy. All rights reserved.
+// Licensed under the MIT license.
 #include "floatIO.h"
 #define iSize 10                 // number of bufffers, one for each float before wrapping around
  
