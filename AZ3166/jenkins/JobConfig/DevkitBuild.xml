@@ -98,13 +98,13 @@ md stsafe&#xd;
 cd..&#xd;
 copy stsafe\STSAFE .\mbed-os\stsafe /Y&#xd;
 cd mbed-os&#xd;
-python ./tools/build.py -t GCC_ARM -m AZ3166 -j 1 --source . --build ./BUILD&#xd;
+python ./tools/build.py -t GCC_ARM -m AZ3166 -j 1 --source . --build ./BUILD -DUSE_HAL_DRIVER, -DSTM32_DPALH_FILE=&quot;&lt;stm32f4xx.h&gt;&quot;&#xd;
 cd ..&#xd;
 copy mbed-os\build\libmbed-os.a .\BUILD /Y&#xd;
 rmdir .\mbed-os\BUILD /S /Q&#xd;
 xcopy emw10xx-driver .\mbed-os\emw10xx-driver\ /e /Y&#xd;
 cd mbed-os&#xd;
-python ./tools/build.py -t GCC_ARM -m AZ3166 -j 1 --source . --build ./BUILD -DLWIP_TIMEVAL_PRIVATE=0 -DOLED_I2C_PORT=MICO_I2C_1&#xd;
+python ./tools/build.py -t GCC_ARM -m AZ3166 -j 1 --source . --build ./BUILD -DLWIP_TIMEVAL_PRIVATE=0 -DOLED_I2C_PORT=MICO_I2C_1 -DUSE_HAL_DRIVER, -DSTM32_DPALH_FILE=&quot;&lt;stm32f4xx.h&gt;&quot;&#xd;
 &quot;C:\Program Files (x86)\GNU Tools ARM Embedded\6.2 2016q4\bin\arm-none-eabi-ar&quot; rcs libwifi.a @wifiFiles.txt&#xd;
 copy libwifi.a ..\BUILD /Y</command>
     </hudson.tasks.BatchFile>

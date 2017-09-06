@@ -64,14 +64,49 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.BatchFile>
-      <command>xcopy AzureIoTDeveloperKit\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0 /S /I /E /Q /Y&#xd;
+      <command>rd %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1 /S /Q&#xd;
 &#xd;
-xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0\libraries\ArduinoUnit /S /I /E /Q /Y</command>
+xcopy AzureIoTDeveloperKit\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1 /S /I /E /Q /Y&#xd;
+&#xd;
+xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1\libraries\ArduinoUnit /S /I /E /Q /Y&#xd;
+&#xd;
+xcopy AzureIoTDeveloperKit\AZ3166\src\bootloader\boot.bin  /S /I /E /Q /Y</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
-      <command>scripts\DevIotTest.exe GenerateVersion&#xd;
-scripts\DevIotTest.exe RunUnitTests&#xd;
-scripts\DevIotTest.exe GenerateArduinoPackage</command>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe GenerateVersion</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe RunUnitTests</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe VerifyExamples</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe UpdateBoardManagerUrl</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe GenerateArduinoPackage</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe GenerateActiveProgramFirmware</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>python bin.py Build\SensorStatus.ino.bin&#xd;
+&#xd;
+xcopy Build\SensorStatus.ino.bin TestResult /S /I /E /Q /Y&#xd;
+&#xd;
+set /p version=&lt; system_version.txt&#xd;
+ren TestResult\SensorStatus.ino.bin devkit-firmware-%version%.bin</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>cd scripts&#xd;
+DevKitTestTool.exe UpdateFirmwareVersion</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd AzureIoTDeveloperKit&#xd;
@@ -98,11 +133,19 @@ node out\index.js</command>
     <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
       <patterns>
         <hudson.plugins.ws__cleanup.Pattern>
-          <pattern>TestResult/*</pattern>
+          <pattern>TestResult\*</pattern>
+          <type>INCLUDE</type>
+        </hudson.plugins.ws__cleanup.Pattern>
+        <hudson.plugins.ws__cleanup.Pattern>
+          <pattern>Build\*</pattern>
+          <type>INCLUDE</type>
+        </hudson.plugins.ws__cleanup.Pattern>
+        <hudson.plugins.ws__cleanup.Pattern>
+          <pattern>boot.bin</pattern>
           <type>INCLUDE</type>
         </hudson.plugins.ws__cleanup.Pattern>
       </patterns>
-      <deleteDirs>false</deleteDirs>
+      <deleteDirs>true</deleteDirs>
       <cleanupParameter></cleanupParameter>
       <externalDelete></externalDelete>
     </hudson.plugins.ws__cleanup.PreBuildCleanup>
