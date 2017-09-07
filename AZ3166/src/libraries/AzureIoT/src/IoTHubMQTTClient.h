@@ -18,12 +18,25 @@ typedef struct EVENT_INSTANCE_TAG
     int messageTrackingId; // For tracking the messages within the user callback.
 } EVENT_INSTANCE;
 
+typedef struct STATE_INSTANCE_TAG
+{
+    const char* stateString;
+    int stateTrackingId;
+} STATE_INSTANCE;
+
 /**
 * @brief	Generate a message with the text specified by @p text.
 *
 * @param	text		   	The text of new message.
 */
 EVENT_INSTANCE* GenerateMessage(const char *text);
+
+/**
+* @brief	Generate a state with the state string specified by @p stateString.
+*
+* @param	stateString		The JSON string of reported state.
+*/
+STATE_INSTANCE* GenerateState(const char* stateString);
 
 /**
 * @brief	Add new property value for message.
@@ -53,6 +66,20 @@ bool IoTHubMQTT_SendEvent(const char *text);
 * @param	message		   	The message instance.
 */
 bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message);
+
+/**
+* @brief	Synchronous call to report the state specified by @p stateString.
+*
+* @param	stateString		The JSON string of reported state.
+*/
+bool IoTHubMQTT_ReportState(const char *stateString);
+
+/**
+* @brief	Synchronous call to report the state specified by @p state.
+*
+* @param	state		   	The state instance.
+*/
+bool IoTHubMQTT_ReportStateInstance(STATE_INSTANCE *state);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.

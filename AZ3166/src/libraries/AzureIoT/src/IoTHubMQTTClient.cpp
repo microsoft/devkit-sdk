@@ -13,6 +13,9 @@
 #define MESSAGE_SEND_RETRY_COUNT    2
 #define MESSAGE_SEND_TIMEOUT_MS     3000
 #define MESSAGE_CONFIRMED           -2
+#define STATE_REPORT_RETRY_COUNT    2
+#define STATE_REPORT_TIMEOUT_MS     3000
+#define STATE_CONFIRMED             -2
 
 static int callbackCounter;
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
@@ -27,6 +30,7 @@ static SEND_CONFIRMATION_CALLBACK _send_confirmation_callback = NULL;
 static MESSAGE_CALLBACK _message_callback = NULL;
 static DEVICE_TWIN_CALLBACK _device_twin_callback = NULL;
 static DEVICE_METHOD_CALLBACK _device_method_callback = NULL;
+static REPORT_CONFIRMATION_CALLBACK _report_confirmation_callback = NULL;
 
 static uint64_t iothub_check_ms;
 
@@ -176,6 +180,20 @@ EVENT_INSTANCE* GenerateMessage(const char *text)
     return currentMessage;
 }
 
+STATE_INSTANCE* GenerateState(const char *stateString)
+{
+    if (stateString == NULL)
+    {
+        return NULL;
+    }
+
+    STATE_INSTANCE *currentState = (STATE_INSTANCE*)malloc(sizeof(STATE_INSTANCE));
+    currentState->stateString = stateString;
+    currentState->stateTrackingId = trackingId++;
+    currentTrackingId = currentState->stateTrackingId;
+    return currentState;
+}
+
 void AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
 {
     if (message == NULL || key == NULL) return;
@@ -319,6 +337,28 @@ static int DeviceMethodCallback(const char *methodName, const unsigned char *pay
     return 404;
 }
 
+static void ReportConfirmationCallback(int statusCode, void *userContextCallback)
+{
+    STATE_INSTANCE *stateInstance = (STATE_INSTANCE *)userContextCallback;
+    LogInfo("Confirmation[%d] received for state tracking id = %d with state code = %d", callbackCounter++, stateInstance->stateTrackingId, statusCode);
+    
+    if (statusCode == 204)
+    {
+        if (currentTrackingId == stateInstance->stateTrackingId)
+        {
+            currentTrackingId = STATE_CONFIRMED;
+        }
+    }
+    
+    // Free the state
+    free(stateInstance);
+    
+    if (_report_confirmation_callback)
+    {
+        _report_confirmation_callback(statusCode);
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MQTT APIs
 bool IoTHubMQTT_Init(void)
@@ -389,13 +429,13 @@ bool IoTHubMQTT_Init(void)
     if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
-        return;
+        return false;
     }
 
     if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
-        return;
+        return false;
     }
 
     iothub_check_ms = SystemTickCounterRead();
@@ -491,6 +531,72 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message)
     return false;
 }
 
+bool IoTHubMQTT_ReportState(const char *stateString)
+{
+    if (iotHubClientHandle == NULL || stateString == NULL)
+    {
+        return false;
+    }
+    IoTHubMQTT_ReportStateInstance(GenerateState(stateString));
+}
+
+bool IoTHubMQTT_ReportStateInstance(STATE_INSTANCE *state)
+{
+    if (iotHubClientHandle == NULL || state == NULL)
+    {
+        return false;
+    }
+
+    for (int i = 0; i < STATE_REPORT_RETRY_COUNT; i++)
+    {
+        if (SystemWiFiRSSI() == 0)
+        {
+            return false;
+        }
+
+        uint64_t start_ms = SystemTickCounterRead();
+
+        CheckConnection();
+        
+        if (IoTHubClient_LL_SendReportedState(iotHubClientHandle, (const unsigned char*)state->stateString, strlen(state->stateString), ReportConfirmationCallback, state) != IOTHUB_CLIENT_OK)
+        {
+            return false;
+        }
+        LogInfo("IoTHubClient_LL_SendReportedState accepted state for transmission to IoT Hub.");
+
+        while(true)
+        {
+            IoTHubClient_LL_DoWork(iotHubClientHandle);
+            
+            if (currentTrackingId == STATE_CONFIRMED)
+            {
+                // IoT Hub got this state
+                return true;
+            }
+            
+            // Check timeout
+            int diff = (int)(SystemTickCounterRead() - start_ms);
+            if (diff >= STATE_REPORT_TIMEOUT_MS)
+            {
+                // Time out, reset the client
+                resetClient = true;
+            }
+
+            if (resetClient)
+            {
+                // Disconnected, re-report the state
+                break;
+            }
+            else
+            {
+                // Sleep a while
+                ThreadAPI_Sleep(100);
+            }
+        }
+    }
+    return false;
+}
+
 void IoTHubMQTT_Check(void)
 {
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
@@ -536,6 +642,11 @@ void IoTHubMQTT_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_callback)
 void IoTHubMQTT_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback)
 {
     _device_method_callback = device_method_callback;
+}
+
+void IoTHubMQTT_SetReportConfirmationCallback(REPORT_CONFIRMATION_CALLBACK report_confirmation_callback)
+{
+    _report_confirmation_callback = report_confirmation_callback;
 }
 
 void LogTrace(const char *event, const char *message)

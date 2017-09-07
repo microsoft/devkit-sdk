@@ -16,5 +16,5 @@ typedef void (*SEND_CONFIRMATION_CALLBACK)(IOTHUB_CLIENT_CONFIRMATION_RESULT res
 typedef void (*MESSAGE_CALLBACK)(const char* message, int length);
 typedef void (*DEVICE_TWIN_CALLBACK)(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, int length);
 typedef int  (*DEVICE_METHOD_CALLBACK)(const char *methodName, const unsigned char *payload, int length, unsigned char **response, int *responseLength);
-
+typedef void (*REPORT_CONFIRMATION_CALLBACK)(int status_code);
 #endif // __AZURE_IOTHUB_H__
