@@ -338,14 +338,15 @@
             int totalUnitTestCount = 0;
             int passUnitTestCount = 0;
 
-            string name = string.Empty;
+            string fileName = string.Empty;
             string result = string.Empty;
             string info = string.Empty;
             string summary = string.Empty;
 
+
             while ((line = sr.ReadLine()) != null)
             {
-                name = string.Empty;
+                fileName = string.Empty;
                 result = string.Empty;
                 info = string.Empty;
                 summary = string.Empty;
@@ -353,7 +354,8 @@
                 if (line.EndsWith(".ino"))
                 {
                     content += "<p>" + Constants.ReportLineSeperator;
-                    content += "<br>start testing: " + "<strong>" + Path.GetFileName(line) + "</strong>";
+                    fileName = Path.GetFileName(line);
+                    content += "<br>start testing: " + "<strong>" + fileName + "</strong>";
 
                     while ((line = sr.ReadLine()) != null)
                     {
@@ -363,7 +365,20 @@
 
                             totalUnitTestCount++;
                             if (line.Contains("passed"))
+                            {
                                 passUnitTestCount++;
+                            }
+                            else if (line.Contains("failed"))
+                            {
+                                if (unitTestResult.ContainsKey(fileName))
+                                {
+                                    unitTestResult[fileName] = "failed";
+                                }
+                                else
+                                {
+                                    unitTestResult.Add(fileName, "failed");
+                                }
+                            }
                         }
 
                         if (line.StartsWith("Test summary: "))
@@ -388,7 +403,6 @@
                     content += "<br>" + kvp.Value + "</p>";
                 }
             }
-
 
             retStr += Constants.ReportLineSeperator;
             retStr += "<h4>Unit Test Result</h4>";

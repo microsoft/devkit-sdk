@@ -7,9 +7,12 @@
 #include "SystemWiFi.h"
 #include "Telemetry.h"
 
-#define CHECK_INTERVAL_MS       5000
-#define MESSAGE_SEND_TIMEOUT    10000
-#define MESSAGE_CONFIRMED       -2
+#define CONNECT_TIMEOUT_MS          30000
+#define CHECK_INTERVAL_MS           5000
+#define MQTT_KEEPALIVE_INTERVAL_S   120
+#define MESSAGE_SEND_RETRY_COUNT    2
+#define MESSAGE_SEND_TIMEOUT_MS     3000
+#define MESSAGE_CONFIRMED           -2
 
 static int callbackCounter;
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
@@ -17,6 +20,7 @@ static int receiveContext = 0;
 static int statusContext = 0;
 static int trackingId = 0;
 static int currentTrackingId = -1;
+static bool clientConnected = false;
 static bool resetClient = false;
 static CONNECTION_STATUS_CALLBACK _connection_status_callback = NULL;
 static SEND_CONFIRMATION_CALLBACK _send_confirmation_callback = NULL;
@@ -183,7 +187,6 @@ void AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
 // Event handlers
 static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void* userContextCallback)
 {
-    LogInfo(">>>ConnectionStatusCallback %d, %d", result, reason);
     switch(reason)
     {
     case IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN:
@@ -209,6 +212,7 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
             DigitalOut LedAzure(LED_AZURE);
             LedAzure = 0;
             resetClient = true;
+            clientConnected = false;
             LogInfo(">>>Connection status: disconnected");
         }
         break;
@@ -220,9 +224,10 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
             // Turn on Azure led 
             DigitalOut LedAzure(LED_AZURE);
             LedAzure = 1;
-            // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-            // We collect data about the features you use, how often you use them, and how you use them.
-            send_telemetry_data(iothub_hostname, "Create", "IoT hub established");
+            clientConnected = true;
+            LogInfo(">>>Connection status: connected");
+            
+            LogTrace("Create", "IoT hub established");
         }
         break;
     }
@@ -316,11 +321,11 @@ static int DeviceMethodCallback(const char *methodName, const unsigned char *pay
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MQTT APIs
-void IoTHubMQTT_Init(void)
+bool IoTHubMQTT_Init(void)
 {
     if (iotHubClientHandle != NULL)
     {
-        return;
+        return true;
     }
 
     callbackCounter = 0;
@@ -337,7 +342,7 @@ void IoTHubMQTT_Init(void)
     if (ret < 0)
     { 
         LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
-        return;
+        return false;
     }
     else if (ret == 0)
     {
@@ -348,37 +353,37 @@ void IoTHubMQTT_Init(void)
     if (platform_init() != 0)
     {
         LogError("Failed to initialize the platform.");
-        return;
+        return false;
     }
     
+    // Create the IoTHub client
     if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
     {
-        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-        // We collect data about the features you use, how often you use them, and how you use them.
-        send_telemetry_data(iothub_hostname, "Create", "IoT hub establish failed");
-        return;
+        LogTrace("Create", "IoT hub establish failed");
+        return false;
     }
-    int keepalive = 120;
+	
+    int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
     bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"TrustedCerts\"");
-        return;
+        return false;
     }
 
     /* Setting Message call back, so we can receive Commands. */
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, ReceiveMessageCallback, &receiveContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetMessageCallback..........FAILED!");
-        return;
+        return false;
     }
 
     if (IoTHubClient_LL_SetConnectionStatusCallback(iotHubClientHandle, ConnectionStatusCallback, &statusContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetConnectionStatusCallback..........FAILED!");
-        return;
+        return false;
     }
 
     if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
@@ -394,24 +399,54 @@ void IoTHubMQTT_Init(void)
     }
 
     iothub_check_ms = SystemTickCounterRead();
+
+    // Waiting for the confirmation 
+    uint64_t start_ms = SystemTickCounterRead();
+    while (true)
+    {
+        IoTHubClient_LL_DoWork(iotHubClientHandle);
+        if (clientConnected)
+        {
+            break;
+        }
+        int diff = (int)(SystemTickCounterRead() - start_ms);
+        if (diff >= CONNECT_TIMEOUT_MS)
+        {
+            // Time out, reset the client
+            resetClient = true;
+            return false;
+        }
+        ThreadAPI_Sleep(500);
+    }
+    
+    return true;
 }
 
 bool IoTHubMQTT_SendEvent(const char *text)
 {
+    if (iotHubClientHandle == NULL || text == NULL)
+    {
+        return false;
+    }
     IoTHubMQTT_SendEventInstance(GenerateMessage(text));
 }
 
 bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message)
 {
-    if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
+    if (iotHubClientHandle == NULL || message == NULL)
     {
         return false;
     }
 
-    uint64_t start_ms = SystemTickCounterRead();
-    
-    while(true)
+    for (int i = 0; i < MESSAGE_SEND_RETRY_COUNT; i++)
     {
+        if (SystemWiFiRSSI() == 0)
+        {
+            return false;
+        }
+
+        uint64_t start_ms = SystemTickCounterRead();
+
         CheckConnection();
 
         if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, message->messageHandle, SendConfirmationCallback, message) != IOTHUB_CLIENT_OK)
@@ -435,12 +470,10 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message)
             
             // Check timeout
             int diff = (int)(SystemTickCounterRead() - start_ms);
-            if (diff >= MESSAGE_SEND_TIMEOUT)
+            if (diff >= MESSAGE_SEND_TIMEOUT_MS)
             {
                 // Time out, reset the client
                 resetClient = true;
-                CheckConnection();
-                return false;
             }
 
             if (resetClient)
@@ -448,12 +481,14 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message)
                 // Disconnected, re-send the message
                 break;
             }
-
-            // Sleep a while
-            ThreadAPI_Sleep(100);
+            else
+            {
+                // Sleep a while
+                ThreadAPI_Sleep(100);
+            }
         }
     }
-    return true;
+    return false;
 }
 
 void IoTHubMQTT_Check(void)

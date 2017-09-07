@@ -38,7 +38,7 @@ void AddProp(EVENT_INSTANCE *message, const char * key, const char * value);
 * @brief	Initialize a IoT Hub MQTT client for communication with an existing IoT hub.
 *           The connection string is load from the EEPROM.
 */
-void IoTHubMQTT_Init(void);
+bool IoTHubMQTT_Init(void);
 
 /**
 * @brief	Asynchronous call to send the message specified by @p text.

@@ -42,9 +42,12 @@ static int msgStart = 0;
 // Indicate whether WiFi is ready
 static bool hasWifi = false;
 
-// Time interval check for heart beat
+// Indicate whether IoT Hub is ready
+static bool hasIoTHub = false;
+
+// The interval time of heart beat
 static uint64_t hb_interval_ms;
-// Time interval check for retrieving the tweet
+// The timeout for retrieving the tweet
 static uint64_t tweet_timeout_ms;
 
 // Shake shake processing status
@@ -289,6 +292,8 @@ static void DoShake()
   acc_gyro->getStepCounter(&steps);
   if (steps > 2)
   {
+    hb_interval_ms = SystemTickCounterRead();
+    
     // Enter the do work mode
     app_status = 2;
     // Shake detected
@@ -306,9 +311,9 @@ static void DoShake()
     {
       if (shake_progress < 2)
       {
-        // Because the tweet may return quickly and the TwitterMessageCallback be executed before run to here,
-        // So check the shake_progress to avoid set the wrong value.
         // IoT hub has got the message
+        // The tweet may return in the TwitterMessageCallback.
+        // So check the shake_progress to avoid set the wrong value.
         shake_progress = 2;
       }
       // Update the screen
@@ -423,7 +428,15 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   
-  IoTHubMQTT_Init();
+  if (!IoTHubMQTT_Init())
+  {
+    Screen.clean();
+    DrawAppTitle("IoT DevKit");
+    Screen.print(2, "No IoT Hub");
+    hasIoTHub = false;
+    return;
+  }
+  hasIoTHub = true;
   IoTHubMQTT_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
@@ -437,7 +450,7 @@ void setup()
 
 void loop()
 {
-  if (hasWifi)
+  if (hasWifi && hasIoTHub)
   {
     switch(app_status)
     {
