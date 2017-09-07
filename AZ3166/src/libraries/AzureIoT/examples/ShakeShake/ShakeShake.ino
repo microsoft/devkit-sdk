@@ -124,7 +124,7 @@ static void HeartBeat()
   DigitalOut LedUser(LED_BUILTIN);
   LedUser = 1;
   // Send heart beat message
-  IoTHubMQTT_SendEvent(GenerateMessage(iot_event_heartbeat));
+  IoTHubMQTT_SendEvent(iot_event_heartbeat);
   LedUser = 0;
   
   // Reset
@@ -302,7 +302,7 @@ static void DoShake()
     // Update the screen
     ShowShakeProgress();
     // Send to IoT hub
-    if (IoTHubMQTT_SendEvent(GenerateMessage(iot_event)))
+    if (IoTHubMQTT_SendEvent(iot_event))
     {
       if (shake_progress < 2)
       {

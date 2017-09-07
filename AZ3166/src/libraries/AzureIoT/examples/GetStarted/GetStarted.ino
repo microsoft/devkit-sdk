@@ -3,7 +3,6 @@
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/connect-iot-hub?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
-#include "GetStartedUI.h"
 #include "IoTHubMQTTClient.h"
 
 #include "config.h"
@@ -97,7 +96,7 @@ static int  DeviceMethodCallback(const char *methodName, const unsigned char *pa
 void setup()
 {
   Screen.init();
-  DrawAppTitle("IoT DevKit");
+  Screen.print(0, "IoT DevKit");
   Screen.print(2, "Initializing...");
   
   Screen.print(3, " > Serial");
@@ -134,7 +133,7 @@ void loop()
     bool temperatureAlert = readMessage(messageCount++, messagePayload);
     EVENT_INSTANCE* message = GenerateMessage(messagePayload);
     AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
-    IoTHubMQTT_SendEvent(message);
+    IoTHubMQTT_SendEventInstance(message);
     delay(getInterval());
   }
   IoTHubMQTT_Check();

@@ -396,7 +396,12 @@ void IoTHubMQTT_Init(void)
     iothub_check_ms = SystemTickCounterRead();
 }
 
-bool IoTHubMQTT_SendEvent(EVENT_INSTANCE *message)
+bool IoTHubMQTT_SendEvent(const char *text)
+{
+    IoTHubMQTT_SendEventInstance(GenerateMessage(text));
+}
+
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message)
 {
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {

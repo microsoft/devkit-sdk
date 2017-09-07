@@ -41,11 +41,18 @@ void AddProp(EVENT_INSTANCE *message, const char * key, const char * value);
 void IoTHubMQTT_Init(void);
 
 /**
+* @brief	Asynchronous call to send the message specified by @p text.
+*
+* @param	text		   	The text message.
+*/
+bool IoTHubMQTT_SendEvent(const char *text);
+
+/**
 * @brief	Asynchronous call to send the message specified by @p message.
 *
 * @param	message		   	The message instance.
 */
-bool IoTHubMQTT_SendEvent(EVENT_INSTANCE *message);
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.
