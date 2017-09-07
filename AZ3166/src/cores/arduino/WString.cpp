@@ -37,8 +37,6 @@ char* ltoa (long val, char *s, int radix);
 char* utoa (unsigned int val, char *s, int radix);
 
 char* ultoa (unsigned long val, char *s, int radix);
- 
-char* dtostrf (double val, signed char width, unsigned char prec, char *s);
 
 void reverse(char* begin, char* end);
 

@@ -196,9 +196,9 @@ static void sscanf_is_broken_test()
 	}
 }
 
-int json_parse_int64(const char *buf, int64_t *retval)
+int json_parse_int64(const char *buf, int32_t *retval)
 {
-	int64_t num64;
+	int32_t num64;
 	const char *buf_sig_digits;
 	int orig_has_neg;
 	int saved_errno;

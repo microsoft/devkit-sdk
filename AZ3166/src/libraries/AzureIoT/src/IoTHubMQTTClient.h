@@ -11,6 +11,29 @@ extern "C"
 {
 #endif
 
+
+typedef struct EVENT_INSTANCE_TAG
+{
+    IOTHUB_MESSAGE_HANDLE messageHandle;
+    int messageTrackingId; // For tracking the messages within the user callback.
+} EVENT_INSTANCE;
+
+/**
+* @brief	Generate a message with the text specified by @p text.
+*
+* @param	text		   	The text of new message.
+*/
+EVENT_INSTANCE* GenerateMessage(const char *text);
+
+/**
+* @brief	Add new property value for message.
+*
+* @param	message		   	The message need to be modified.
+* @param	key		   	    The property name.
+* @param	value		   	The property value.
+*/
+void AddProp(EVENT_INSTANCE *message, const char * key, const char * value);
+
 /**
 * @brief	Initialize a IoT Hub MQTT client for communication with an existing IoT hub.
 *           The connection string is load from the EEPROM.
@@ -23,6 +46,13 @@ bool IoTHubMQTT_Init(void);
 * @param	text		   	The text message.
 */
 bool IoTHubMQTT_SendEvent(const char *text);
+
+/**
+* @brief	Asynchronous call to send the message specified by @p message.
+*
+* @param	message		   	The message instance.
+*/
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.
@@ -48,6 +78,16 @@ void IoTHubMQTT_SetSendConfirmationCallback(SEND_CONFIRMATION_CALLBACK send_conf
 * @brief	Sets up the message callback to be invoked when IoT Hub issues a message to the device.
 */
 void IoTHubMQTT_SetMessageCallback(MESSAGE_CALLBACK message_callback);
+
+/**
+* @brief	Sets up the device twin callback to be invoked when IoT Hub update device twin of the device.
+*/
+void IoTHubMQTT_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_callback);
+
+/**
+* @brief	Sets up the device method callback to be invoked when IoT Hub call method on the device.
+*/
+void IoTHubMQTT_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback);
 
 /**
 * @brief	Log the trace to Microsoft Application Insights

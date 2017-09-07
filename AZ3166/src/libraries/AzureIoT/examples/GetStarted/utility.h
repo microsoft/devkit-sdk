@@ -6,7 +6,9 @@
 
 void parseTwinMessage(const char *);
 bool readMessage(int, char *);
-void sensorInit(void);
+
+void SensorInit(void);
+
 void blinkLED(void);
 void blinkSendConfirmation(void);
 int getInterval(void);
