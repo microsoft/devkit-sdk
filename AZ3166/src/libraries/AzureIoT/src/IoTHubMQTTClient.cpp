@@ -466,7 +466,7 @@ bool IoTHubMQTT_SendEvent(const char *text)
         return false;
     }
 
-    SendEvent(GenerateEvent(text, MESSAGE));
+    IoTHubMQTT_SendEventInstance(GenerateEvent(text, MESSAGE));
 }
 
 bool IoTHubMQTT_ReportState(const char *stateString)
@@ -476,10 +476,10 @@ bool IoTHubMQTT_ReportState(const char *stateString)
         return false;
     }
 
-    SendEvent(GenerateEvent(stateString, STATE));
+    IoTHubMQTT_SendEventInstance(GenerateEvent(stateString, STATE));
 }
 
-bool SendEvent(EVENT_INSTANCE *event)
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
 {
     if (iotHubClientHandle == NULL || event == NULL)
     {

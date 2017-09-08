@@ -53,13 +53,6 @@ bool IoTHubMQTT_Init(void);
 bool IoTHubMQTT_SendEvent(const char *text);
 
 /**
-* @brief	Asynchronous call to send the message specified by @p event.
-*
-* @param	event           The event instance.
-*/
-bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event);
-
-/**
 * @brief	Synchronous call to report the state specified by @p stateString.
 *
 * @param	stateString		The JSON string of reported state.
@@ -67,18 +60,11 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event);
 bool IoTHubMQTT_ReportState(const char *stateString);
 
 /**
-* @brief	Synchronous call to report the state specified by @p event.
-*
-* @param	event           The event instance.
-*/
-bool IoTHubMQTT_ReportStateInstance(EVENT_INSTANCE *event);
-
-/**
 * @brief	Synchronous call to report the event specified by @p event.
 *
 * @param	event           The event instance.
 */
-bool SendEvent(EVENT_INSTANCE *event);
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.
