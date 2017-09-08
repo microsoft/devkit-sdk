@@ -9,7 +9,7 @@ const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
     usbDir: path.join(__dirname, '../usb_install'),
-    packageOrigin: path.join(__dirname, '../AzureIoTDeveloperKit/AZ3166/src'),
+    packageOrigin: path.join(__dirname, '../devkit-sdk/AZ3166/src'),
     packageDest: path.join(__dirname, '../AZ3166/AZ3166/hardware/stm32f4'),
     finalZip: path.join(__dirname, `../TestResult/usb_install_{version}.zip`),
 	versionFile: path.join(__dirname, `../system_version.txt`),
