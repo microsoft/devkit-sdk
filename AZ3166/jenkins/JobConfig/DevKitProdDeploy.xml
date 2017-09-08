@@ -5,7 +5,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.27.0">
-      <projectUrl>https://github.com/Microsoft/AzureIoTDeveloperKit/</projectUrl>
+      <projectUrl>https://github.com/Microsoft/devkit-sdk/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
   </properties>
@@ -15,7 +15,7 @@
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
-            <url>git@github.com:Microsoft/AzureIoTDeveloperKit.git</url>
+            <url>git@github.com:Microsoft/devkit-sdk.git</url>
             <credentialsId>d82b070b-a549-4d11-b0a6-4c86d9f7e028</credentialsId>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
@@ -28,7 +28,7 @@
         <submoduleCfg class="list"/>
         <extensions>
           <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>AzureIoTDeveloperKit</relativeTargetDir>
+            <relativeTargetDir>devkit-sdk</relativeTargetDir>
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
@@ -64,7 +64,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.BatchFile>
-      <command>xcopy AzureIoTDeveloperKit\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0 /S /I /E /Q /Y&#xd;
+      <command>xcopy devkit-sdk\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0 /S /I /E /Q /Y&#xd;
 &#xd;
 xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.0\libraries\ArduinoUnit /S /I /E /Q /Y</command>
     </hudson.tasks.BatchFile>
@@ -74,7 +74,7 @@ scripts\DevIotTest.exe RunUnitTests&#xd;
 scripts\DevIotTest.exe GenerateArduinoPackage</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
-      <command>cd AzureIoTDeveloperKit&#xd;
+      <command>cd devkit-sdk&#xd;
 git submodule init&#xd;
 git submodule update --remote&#xd;
 cd ..&#xd;
