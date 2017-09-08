@@ -10,12 +10,9 @@
 #define CONNECT_TIMEOUT_MS          30000
 #define CHECK_INTERVAL_MS           5000
 #define MQTT_KEEPALIVE_INTERVAL_S   120
-#define MESSAGE_SEND_RETRY_COUNT    2
-#define MESSAGE_SEND_TIMEOUT_MS     3000
-#define MESSAGE_CONFIRMED           -2
-#define STATE_REPORT_RETRY_COUNT    2
-#define STATE_REPORT_TIMEOUT_MS     3000
-#define STATE_CONFIRMED             -2
+#define EVENT_RETRY_COUNT           2
+#define EVENT_TIMEOUT_MS            3000
+#define EVENT_CONFIRMED             -2
 
 static int callbackCounter;
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
@@ -155,43 +152,41 @@ static char* GetHostNameFromConnectionString(char* connectionString)
 
 EVENT_INSTANCE* GenerateMessage(const char *text)
 {
-    EVENT_INSTANCE *currentMessage = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
-    currentMessage->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)text, strlen(text));
-    if (currentMessage->messageHandle == NULL)
+    EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
+    event->type = MESSAGE;
+    event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)text, strlen(text));
+    if (event->messageHandle == NULL)
     {
         LogError("iotHubMessageHandle is NULL!");
-        free(currentMessage);
+        free(event);
         return NULL;
     }
-    currentMessage->messageTrackingId = trackingId++;
-    currentTrackingId = currentMessage->messageTrackingId;
 
-    MAP_HANDLE propMap = IoTHubMessage_Properties(currentMessage->messageHandle);
+    MAP_HANDLE propMap = IoTHubMessage_Properties(event->messageHandle);
     
     char propText[32];
-    sprintf_s(propText, sizeof(propText), "PropMsg_%d", currentMessage->messageTrackingId);
+    sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
     if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
     {
          LogError("Map_AddOrUpdate Failed!");
-         free(currentMessage);
+         free(event);
          return NULL;
     }
 
-    return currentMessage;
+    return event;
 }
 
-STATE_INSTANCE* GenerateState(const char *stateString)
+EVENT_INSTANCE* GenerateState(const char *stateString)
 {
     if (stateString == NULL)
     {
         return NULL;
     }
 
-    STATE_INSTANCE *currentState = (STATE_INSTANCE*)malloc(sizeof(STATE_INSTANCE));
-    currentState->stateString = stateString;
-    currentState->stateTrackingId = trackingId++;
-    currentTrackingId = currentState->stateTrackingId;
-    return currentState;
+    EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
+    event->type = STATE;
+    event->stateString = stateString;
+    return event;
 }
 
 void AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
@@ -258,20 +253,20 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
 
 static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
 {
-    EVENT_INSTANCE *eventInstance = (EVENT_INSTANCE *)userContextCallback;
-    LogInfo("Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, eventInstance->messageTrackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
+    EVENT_INSTANCE *event = (EVENT_INSTANCE *)userContextCallback;
+    LogInfo("Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, event->trackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
     
     if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
     {
-        if (currentTrackingId == eventInstance->messageTrackingId)
+        if (currentTrackingId == event->trackingId)
         {
-            currentTrackingId = MESSAGE_CONFIRMED;
+            currentTrackingId = EVENT_CONFIRMED;
         }
     }
     
     // Free the message
-    IoTHubMessage_Destroy(eventInstance->messageHandle);
-    free(eventInstance);
+    IoTHubMessage_Destroy(event->messageHandle);
+    free(event);
     
     if (_send_confirmation_callback)
     {
@@ -339,19 +334,19 @@ static int DeviceMethodCallback(const char *methodName, const unsigned char *pay
 
 static void ReportConfirmationCallback(int statusCode, void *userContextCallback)
 {
-    STATE_INSTANCE *stateInstance = (STATE_INSTANCE *)userContextCallback;
-    LogInfo("Confirmation[%d] received for state tracking id = %d with state code = %d", callbackCounter++, stateInstance->stateTrackingId, statusCode);
+    EVENT_INSTANCE *event = (EVENT_INSTANCE *)userContextCallback;
+    LogInfo("Confirmation[%d] received for state tracking id = %d with state code = %d", callbackCounter++, event->trackingId, statusCode);
     
     if (statusCode == 204)
     {
-        if (currentTrackingId == stateInstance->stateTrackingId)
+        if (currentTrackingId == event->trackingId)
         {
-            currentTrackingId = STATE_CONFIRMED;
+            currentTrackingId = EVENT_CONFIRMED;
         }
     }
     
     // Free the state
-    free(stateInstance);
+    free(event);
     
     if (_report_confirmation_callback)
     {
@@ -471,64 +466,13 @@ bool IoTHubMQTT_SendEvent(const char *text)
     IoTHubMQTT_SendEventInstance(GenerateMessage(text));
 }
 
-bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message)
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
 {
-    if (iotHubClientHandle == NULL || message == NULL)
+    if (event->type != MESSAGE)
     {
-        return false;
+        event->type = MESSAGE;
     }
-
-    for (int i = 0; i < MESSAGE_SEND_RETRY_COUNT; i++)
-    {
-        if (SystemWiFiRSSI() == 0)
-        {
-            return false;
-        }
-
-        uint64_t start_ms = SystemTickCounterRead();
-
-        CheckConnection();
-
-        if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, message->messageHandle, SendConfirmationCallback, message) != IOTHUB_CLIENT_OK)
-        {
-            LogError("IoTHubClient_LL_SendEventAsync..........FAILED!");
-            IoTHubMessage_Destroy(message->messageHandle);
-            free(message);
-            return false;
-        }
-        LogInfo("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.");
-
-        while(true)
-        {
-            IoTHubClient_LL_DoWork(iotHubClientHandle);
-            
-            if (currentTrackingId == MESSAGE_CONFIRMED)
-            {
-                // IoT Hub got this message
-                return true;
-            }
-            
-            // Check timeout
-            int diff = (int)(SystemTickCounterRead() - start_ms);
-            if (diff >= MESSAGE_SEND_TIMEOUT_MS)
-            {
-                // Time out, reset the client
-                resetClient = true;
-            }
-
-            if (resetClient)
-            {
-                // Disconnected, re-send the message
-                break;
-            }
-            else
-            {
-                // Sleep a while
-                ThreadAPI_Sleep(100);
-            }
-        }
-    }
-    return false;
+    return IoTHubMQTT_SendEventOrReportStateInstance(event);
 }
 
 bool IoTHubMQTT_ReportState(const char *stateString)
@@ -540,14 +484,26 @@ bool IoTHubMQTT_ReportState(const char *stateString)
     IoTHubMQTT_ReportStateInstance(GenerateState(stateString));
 }
 
-bool IoTHubMQTT_ReportStateInstance(STATE_INSTANCE *state)
+bool IoTHubMQTT_ReportStateInstance(EVENT_INSTANCE *event)
 {
-    if (iotHubClientHandle == NULL || state == NULL)
+    if (event->type != STATE)
+    {
+        event->type = STATE;
+    }
+    return IoTHubMQTT_SendEventOrReportStateInstance(event);
+}
+
+bool IoTHubMQTT_SendEventOrReportStateInstance(EVENT_INSTANCE *event)
+{
+    if (iotHubClientHandle == NULL || event == NULL)
     {
         return false;
     }
 
-    for (int i = 0; i < STATE_REPORT_RETRY_COUNT; i++)
+    event->trackingId = trackingId++;
+    currentTrackingId = event->trackingId;
+
+    for (int i = 0; i < EVENT_RETRY_COUNT; i++)
     {
         if (SystemWiFiRSSI() == 0)
         {
@@ -557,26 +513,44 @@ bool IoTHubMQTT_ReportStateInstance(STATE_INSTANCE *state)
         uint64_t start_ms = SystemTickCounterRead();
 
         CheckConnection();
-        
-        if (IoTHubClient_LL_SendReportedState(iotHubClientHandle, (const unsigned char*)state->stateString, strlen(state->stateString), ReportConfirmationCallback, state) != IOTHUB_CLIENT_OK)
+
+        if (event->type == MESSAGE)
         {
-            return false;
+            if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, event->messageHandle, SendConfirmationCallback, event) != IOTHUB_CLIENT_OK)
+            {
+                LogError("IoTHubClient_LL_SendEventAsync..........FAILED!");
+                IoTHubMessage_Destroy(event->messageHandle);
+                free(event);
+                return false;
+            }
+            LogInfo("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.");
         }
-        LogInfo("IoTHubClient_LL_SendReportedState accepted state for transmission to IoT Hub.");
+
+        if (event->type == STATE)
+        {
+            if (IoTHubClient_LL_SendReportedState(iotHubClientHandle, (const unsigned char*)event->stateString, strlen(event->stateString), ReportConfirmationCallback, event) != IOTHUB_CLIENT_OK)
+            {
+                LogError("IoTHubClient_LL_SendReportedState..........FAILED!");
+                IoTHubMessage_Destroy(event->messageHandle);
+                free(event);
+                return false;
+            }
+            LogInfo("IoTHubClient_LL_SendReportedState accepted state for transmission to IoT Hub.");
+        }
 
         while(true)
         {
             IoTHubClient_LL_DoWork(iotHubClientHandle);
             
-            if (currentTrackingId == STATE_CONFIRMED)
+            if (currentTrackingId == EVENT_CONFIRMED)
             {
-                // IoT Hub got this state
+                // IoT Hub got this event
                 return true;
             }
             
             // Check timeout
             int diff = (int)(SystemTickCounterRead() - start_ms);
-            if (diff >= STATE_REPORT_TIMEOUT_MS)
+            if (diff >= EVENT_TIMEOUT_MS)
             {
                 // Time out, reset the client
                 resetClient = true;
@@ -584,7 +558,7 @@ bool IoTHubMQTT_ReportStateInstance(STATE_INSTANCE *state)
 
             if (resetClient)
             {
-                // Disconnected, re-report the state
+                // Disconnected, re-send the message
                 break;
             }
             else

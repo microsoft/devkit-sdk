@@ -11,18 +11,17 @@ extern "C"
 {
 #endif
 
+enum EVENT_TYPE {
+    MESSAGE, STATE
+};
 
 typedef struct EVENT_INSTANCE_TAG
 {
+    EVENT_TYPE type;
     IOTHUB_MESSAGE_HANDLE messageHandle;
-    int messageTrackingId; // For tracking the messages within the user callback.
-} EVENT_INSTANCE;
-
-typedef struct STATE_INSTANCE_TAG
-{
     const char* stateString;
-    int stateTrackingId;
-} STATE_INSTANCE;
+    int trackingId; // For tracking the events within the user callback.
+} EVENT_INSTANCE;
 
 /**
 * @brief	Generate a message with the text specified by @p text.
@@ -36,7 +35,7 @@ EVENT_INSTANCE* GenerateMessage(const char *text);
 *
 * @param	stateString		The JSON string of reported state.
 */
-STATE_INSTANCE* GenerateState(const char* stateString);
+EVENT_INSTANCE* GenerateState(const char* stateString);
 
 /**
 * @brief	Add new property value for message.
@@ -61,11 +60,11 @@ bool IoTHubMQTT_Init(void);
 bool IoTHubMQTT_SendEvent(const char *text);
 
 /**
-* @brief	Asynchronous call to send the message specified by @p message.
+* @brief	Asynchronous call to send the message specified by @p event.
 *
-* @param	message		   	The message instance.
+* @param	event           The event instance.
 */
-bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message);
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event);
 
 /**
 * @brief	Synchronous call to report the state specified by @p stateString.
@@ -75,11 +74,18 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message);
 bool IoTHubMQTT_ReportState(const char *stateString);
 
 /**
-* @brief	Synchronous call to report the state specified by @p state.
+* @brief	Synchronous call to report the state specified by @p event.
 *
-* @param	state		   	The state instance.
+* @param	event           The event instance.
 */
-bool IoTHubMQTT_ReportStateInstance(STATE_INSTANCE *state);
+bool IoTHubMQTT_ReportStateInstance(EVENT_INSTANCE *event);
+
+/**
+* @brief	Synchronous call to report the event specified by @p event.
+*
+* @param	event           The event instance.
+*/
+bool IoTHubMQTT_SendEventOrReportStateInstance(EVENT_INSTANCE *event);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.
