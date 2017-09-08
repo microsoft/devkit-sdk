@@ -121,6 +121,10 @@
                         UpdateFirmwareVersion();
                         break;
 
+                    case "UpdateBoardManagerUrl":
+                        UpdateBoardManagerUrl();
+                        break;
+
                     default:
                         Console.WriteLine("Done");
                         break;
@@ -567,6 +571,28 @@
             content = content.Replace(Constants.FirmwareVersionString, versionInfo);
 
             File.WriteAllText(filePath, content);
+        }
+
+        private static void UpdateBoardManagerUrl()
+        {
+            string filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["TaskInstallationScriptFilePath"]);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Failed to find the task-installation.js, file path: {filePath}");
+            }
+
+            string env = ConfigurationManager.AppSettings["Environment"].ToString();
+            string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString();
+
+            // Maybe we can use a placeholder in the sciprt file, then replace the placeholder with actual url according to the environment
+            if (string.Equals(env, "staging", StringComparison.OrdinalIgnoreCase))
+            {
+                string content = File.ReadAllText(filePath);
+                content = content.Replace("BOARD_URL_PLACEHOLDER", newUrl);
+                Console.WriteLine($"Set board manager URL to {newUrl}");
+
+                File.WriteAllText(filePath, content);
+            }
         }
     }
 }
