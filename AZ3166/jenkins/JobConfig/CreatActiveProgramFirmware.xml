@@ -43,26 +43,28 @@
 &#xd;
 xcopy AzureIoTDeveloperKit\AZ3166\src %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1 /S /I /E /Q /Y&#xd;
 &#xd;
-xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1\libraries\ArduinoUnit /S /I /E /Q /Y</command>
+xcopy \\devdivcn\Shared\Personal\ToolsForJenkins\ArduinoUnit %LOCALAPPDATA%\Arduino15\packages\AZ3166\hardware\stm32f4\1.0.1\libraries\ArduinoUnit /S /I /E /Q /Y&#xd;
+&#xd;
+xcopy AzureIoTDeveloperKit\AZ3166\src\bootloader\boot.bin  /S /I /E /Q /Y&#xd;
+&#xd;
+</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>cd scripts&#xd;
-DevKitTestTool.exe GenerateVersion</command>
-    </hudson.tasks.BatchFile>
-    <hudson.tasks.BatchFile>
-      <command>cd scripts&#xd;
-DevKitTestTool.exe GenerateActiveProgramFireware</command>
+DevKitTestTool.exe GenerateVersion&#xd;
+DevKitTestTool.exe GenerateActiveProgramFireware&#xd;
+</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
       <command>python bin.py Build\SensorStatus.ino.bin&#xd;
 &#xd;
 set /p version=&lt; system_version.txt&#xd;
-ren Build\SensorStatus.ino.ota.bin devkit-fireware-%version%.bin</command>
+ren Build\SensorStatus.ino.bin devkit-firmware-%version%.bin</command>
     </hudson.tasks.BatchFile>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>Build\devkit-fireware*.bin</artifacts>
+      <artifacts>Build\devkit-firmware*.bin</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
@@ -74,7 +76,11 @@ ren Build\SensorStatus.ino.ota.bin devkit-fireware-%version%.bin</command>
     <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
       <patterns>
         <hudson.plugins.ws__cleanup.Pattern>
-          <pattern>Build\devkit-fireware*.bin</pattern>
+          <pattern>Build\*</pattern>
+          <type>INCLUDE</type>
+        </hudson.plugins.ws__cleanup.Pattern>
+        <hudson.plugins.ws__cleanup.Pattern>
+          <pattern>boot.bin</pattern>
           <type>INCLUDE</type>
         </hudson.plugins.ws__cleanup.Pattern>
       </patterns>
