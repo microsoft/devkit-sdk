@@ -150,42 +150,44 @@ static char* GetHostNameFromConnectionString(char* connectionString)
     return NULL;
 }
 
-EVENT_INSTANCE* GenerateMessage(const char *text)
+EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
 {
     EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
-    event->type = MESSAGE;
-    event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)text, strlen(text));
-    if (event->messageHandle == NULL)
+    event->type = type;
+    if (type == MESSAGE)
     {
-        LogError("iotHubMessageHandle is NULL!");
-        free(event);
-        return NULL;
-    }
-
-    MAP_HANDLE propMap = IoTHubMessage_Properties(event->messageHandle);
+        event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)eventString, strlen(eventString));
+        if (event->messageHandle == NULL)
+        {
+            LogError("iotHubMessageHandle is NULL!");
+            free(event);
+            return NULL;
+        }
     
-    char propText[32];
-    sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
-    if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
-    {
-         LogError("Map_AddOrUpdate Failed!");
-         free(event);
-         return NULL;
+        MAP_HANDLE propMap = IoTHubMessage_Properties(event->messageHandle);
+        
+        char propText[32];
+        sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
+        if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
+        {
+             LogError("Map_AddOrUpdate Failed!");
+             free(event);
+             return NULL;
+        }
     }
 
-    return event;
-}
-
-EVENT_INSTANCE* GenerateState(const char *stateString)
-{
-    if (stateString == NULL)
+    if (type == STATE)
     {
-        return NULL;
+        if (eventString == NULL)
+        {
+            free(event);
+            return NULL;
+        }
+    
+        event->type = STATE;
+        event->stateString = eventString;
     }
 
-    EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
-    event->type = STATE;
-    event->stateString = stateString;
     return event;
 }
 
@@ -463,16 +465,8 @@ bool IoTHubMQTT_SendEvent(const char *text)
     {
         return false;
     }
-    IoTHubMQTT_SendEventInstance(GenerateMessage(text));
-}
 
-bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
-{
-    if (event->type != MESSAGE)
-    {
-        event->type = MESSAGE;
-    }
-    return IoTHubMQTT_SendEventOrReportStateInstance(event);
+    SendEvent(GenerateEvent(text, MESSAGE));
 }
 
 bool IoTHubMQTT_ReportState(const char *stateString)
@@ -481,19 +475,11 @@ bool IoTHubMQTT_ReportState(const char *stateString)
     {
         return false;
     }
-    IoTHubMQTT_ReportStateInstance(GenerateState(stateString));
+
+    SendEvent(GenerateEvent(stateString, STATE));
 }
 
-bool IoTHubMQTT_ReportStateInstance(EVENT_INSTANCE *event)
-{
-    if (event->type != STATE)
-    {
-        event->type = STATE;
-    }
-    return IoTHubMQTT_SendEventOrReportStateInstance(event);
-}
-
-bool IoTHubMQTT_SendEventOrReportStateInstance(EVENT_INSTANCE *event)
+bool SendEvent(EVENT_INSTANCE *event)
 {
     if (iotHubClientHandle == NULL || event == NULL)
     {

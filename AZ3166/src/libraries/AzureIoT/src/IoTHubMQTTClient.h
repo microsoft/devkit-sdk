@@ -24,18 +24,11 @@ typedef struct EVENT_INSTANCE_TAG
 } EVENT_INSTANCE;
 
 /**
-* @brief	Generate a message with the text specified by @p text.
+* @brief	Generate an evnet with the event string specified by @p eventString.
 *
-* @param	text		   	The text of new message.
+* @param	eventString		   	The string of event.
 */
-EVENT_INSTANCE* GenerateMessage(const char *text);
-
-/**
-* @brief	Generate a state with the state string specified by @p stateString.
-*
-* @param	stateString		The JSON string of reported state.
-*/
-EVENT_INSTANCE* GenerateState(const char* stateString);
+EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type);
 
 /**
 * @brief	Add new property value for message.
@@ -85,7 +78,7 @@ bool IoTHubMQTT_ReportStateInstance(EVENT_INSTANCE *event);
 *
 * @param	event           The event instance.
 */
-bool IoTHubMQTT_SendEventOrReportStateInstance(EVENT_INSTANCE *event);
+bool SendEvent(EVENT_INSTANCE *event);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.

@@ -131,9 +131,9 @@ void loop()
   if (messageSending)
   {
     bool temperatureAlert = readMessage(messageCount++, messagePayload);
-    EVENT_INSTANCE* message = GenerateMessage(messagePayload);
+    EVENT_INSTANCE* message = GenerateEvent(messagePayload, MESSAGE);
     AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
-    IoTHubMQTT_SendEventInstance(message);
+    SendEvent(message);
     delay(getInterval());
   }
   IoTHubMQTT_Check();
