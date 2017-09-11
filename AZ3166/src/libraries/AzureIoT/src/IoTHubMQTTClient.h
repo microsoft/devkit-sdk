@@ -11,19 +11,25 @@ extern "C"
 {
 #endif
 
+enum EVENT_TYPE
+{
+    MESSAGE, STATE
+};
 
 typedef struct EVENT_INSTANCE_TAG
 {
+    EVENT_TYPE type;
     IOTHUB_MESSAGE_HANDLE messageHandle;
-    int messageTrackingId; // For tracking the messages within the user callback.
+    const char* stateString;
+    int trackingId; // For tracking the events within the user callback.
 } EVENT_INSTANCE;
 
 /**
-* @brief	Generate a message with the text specified by @p text.
+* @brief	Generate an event with the event string specified by @p eventString.
 *
-* @param	text		   	The text of new message.
+* @param	eventString		   	The string of event.
 */
-EVENT_INSTANCE* GenerateMessage(const char *text);
+EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type);
 
 /**
 * @brief	Add new property value for message.
@@ -48,11 +54,18 @@ bool IoTHubMQTT_Init(void);
 bool IoTHubMQTT_SendEvent(const char *text);
 
 /**
-* @brief	Asynchronous call to send the message specified by @p message.
+* @brief	Synchronous call to report the state specified by @p stateString.
 *
-* @param	message		   	The message instance.
+* @param	stateString		The JSON string of reported state.
 */
-bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *message);
+bool IoTHubMQTT_ReportState(const char *stateString);
+
+/**
+* @brief	Synchronous call to report the event specified by @p event.
+*
+* @param	event           The event instance.
+*/
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.
