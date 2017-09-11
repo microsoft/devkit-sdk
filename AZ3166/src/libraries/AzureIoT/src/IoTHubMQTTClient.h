@@ -11,7 +11,8 @@ extern "C"
 {
 #endif
 
-enum EVENT_TYPE {
+enum EVENT_TYPE
+{
     MESSAGE, STATE
 };
 

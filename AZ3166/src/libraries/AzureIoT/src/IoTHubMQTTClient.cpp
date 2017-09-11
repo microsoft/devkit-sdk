@@ -10,7 +10,7 @@
 #define CONNECT_TIMEOUT_MS          30000
 #define CHECK_INTERVAL_MS           5000
 #define MQTT_KEEPALIVE_INTERVAL_S   120
-#define EVENT_RETRY_COUNT           2
+#define SEND_EVENT_RETRY_COUNT      2
 #define EVENT_TIMEOUT_MS            3000
 #define EVENT_CONFIRMED             -2
 
@@ -496,7 +496,7 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
     event->trackingId = trackingId++;
     currentTrackingId = event->trackingId;
 
-    for (int i = 0; i < EVENT_RETRY_COUNT; i++)
+    for (int i = 0; i < SEND_EVENT_RETRY_COUNT; i++)
     {
         if (SystemWiFiRSSI() == 0)
         {
