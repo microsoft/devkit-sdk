@@ -159,7 +159,7 @@ EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
 
     EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
     event->type = type;
-    
+
     if (type == MESSAGE)
     {
         event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)eventString, strlen(eventString));
@@ -264,6 +264,10 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
             currentTrackingId = EVENT_CONFIRMED;
         }
     }
+    else
+    {
+        LogError("Send confirmation failed");
+    }
     
     // Free the message
     IoTHubMessage_Destroy(event->messageHandle);
@@ -344,6 +348,10 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
         {
             currentTrackingId = EVENT_CONFIRMED;
         }
+    }
+    else
+    {
+        LogError("Report confirmation failed with state code %d", statusCode);
     }
     
     // Free the state
