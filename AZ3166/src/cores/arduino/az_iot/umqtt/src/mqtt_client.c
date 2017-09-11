@@ -44,6 +44,8 @@ typedef struct MQTT_CLIENT_TAG
     void* ctx;
     ON_MQTT_ERROR_CALLBACK fnOnErrorCallBack;
     void* errorCBCtx;
+    ON_MQTT_DISCONNECTED_CALLBACK disconnect_cb;
+    void* disconnect_ctx;
     QOS_VALUE qosValue;
     uint16_t keepAliveInterval;
     MQTT_CLIENT_OPTIONS mqttOptions;
@@ -57,24 +59,31 @@ typedef struct MQTT_CLIENT_TAG
 
 static void on_connection_closed(void* context)
 {
-    size_t* close_complete = (size_t*)context;
-    *close_complete = 1;
+    MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)context;
+    if (mqtt_client != NULL)
+    {
+        mqtt_client->socketConnected = false;
+        mqtt_client->clientConnected = false;
+        if (mqtt_client->disconnect_cb)
+        {
+            mqtt_client->disconnect_cb(mqtt_client->disconnect_ctx);
+        }
+    }
 }
 
 static void close_connection(MQTT_CLIENT* mqtt_client)
 {
-    size_t close_complete = 0;
-    (void)xio_close(mqtt_client->xioHandle, on_connection_closed, &close_complete);
-
-    size_t counter = 0;
-    do
+    (void)xio_close(mqtt_client->xioHandle, on_connection_closed, mqtt_client);
+    if (mqtt_client->disconnect_cb == NULL)
     {
-        xio_dowork(mqtt_client->xioHandle);
-        counter++;
-        ThreadAPI_Sleep(10);
-    } while (close_complete == 0 && counter < MAX_CLOSE_RETRIES);
-    mqtt_client->socketConnected = false;
-    mqtt_client->clientConnected = false;
+        size_t counter = 0;
+        do
+        {
+            xio_dowork(mqtt_client->xioHandle);
+            counter++;
+            ThreadAPI_Sleep(2);
+        } while (mqtt_client->clientConnected && counter < MAX_CLOSE_RETRIES);
+    }
 }
 
 static void set_error_callback(MQTT_CLIENT* mqtt_client, MQTT_CLIENT_EVENT_ERROR error_type)
@@ -877,28 +886,16 @@ MQTT_CLIENT_HANDLE mqtt_client_init(ON_MQTT_MESSAGE_RECV_CALLBACK msgRecv, ON_MQ
         }
         else
         {
+            memset(result, 0, sizeof(MQTT_CLIENT));
             /*Codes_SRS_MQTT_CLIENT_07_003: [mqttclient_init shall allocate MQTTCLIENT_DATA_INSTANCE and return the MQTTCLIENT_HANDLE on success.]*/
-            result->xioHandle = NULL;
             result->packetState = UNKNOWN_TYPE;
-            result->packetSendTimeMs = 0;
             result->fnOperationCallback = opCallback;
             result->ctx = opCallbackCtx;
             result->fnMessageRecv = msgRecv;
             result->fnOnErrorCallBack = onErrorCallBack;
             result->errorCBCtx = errorCBCtx;
             result->qosValue = DELIVER_AT_MOST_ONCE;
-            result->keepAliveInterval = 0;
             result->packetTickCntr = tickcounter_create();
-            result->mqttOptions.clientId = NULL;
-            result->mqttOptions.willTopic = NULL;
-            result->mqttOptions.willMessage = NULL;
-            result->mqttOptions.username = NULL;
-            result->mqttOptions.password = NULL;
-            result->socketConnected = false;
-            result->clientConnected = false;
-            result->logTrace = false;
-            result->rawBytesTrace = false;
-            result->timeSincePing = 0;
             result->maxPingRespTime = DEFAULT_MAX_PING_RESPONSE_TIME;
             if (result->packetTickCntr == NULL)
             {
@@ -1169,6 +1166,9 @@ int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
             }
             else
             {
+                /* Codes_SRS_MQTT_CLIENT_07_037: [ if callback is not NULL callback shall be called once the mqtt connection has been disconnected ] */
+                mqtt_client->disconnect_cb = callback;
+                mqtt_client->disconnect_ctx = ctx;
                 mqtt_client->packetState = DISCONNECT_TYPE;
 
                 size_t size = BUFFER_length(disconnectPacket);
