@@ -24,7 +24,7 @@ typedef struct EVENT_INSTANCE_TAG
 } EVENT_INSTANCE;
 
 /**
-* @brief	Generate an evnet with the event string specified by @p eventString.
+* @brief	Generate an event with the event string specified by @p eventString.
 *
 * @param	eventString		   	The string of event.
 */
