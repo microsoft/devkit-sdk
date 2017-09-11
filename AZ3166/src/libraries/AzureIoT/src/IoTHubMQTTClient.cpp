@@ -152,8 +152,14 @@ static char* GetHostNameFromConnectionString(char* connectionString)
 
 EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
 {
+    if (eventString == NULL)
+    {
+        return NULL;
+    }
+
     EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
     event->type = type;
+    
     if (type == MESSAGE)
     {
         event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)eventString, strlen(eventString));
@@ -178,13 +184,6 @@ EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
 
     if (type == STATE)
     {
-        if (eventString == NULL)
-        {
-            free(event);
-            return NULL;
-        }
-    
-        event->type = STATE;
         event->stateString = eventString;
     }
 
