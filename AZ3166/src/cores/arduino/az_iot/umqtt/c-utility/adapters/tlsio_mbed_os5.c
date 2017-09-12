@@ -332,7 +332,7 @@ static void mbedtls_uninit(TLS_IO_INSTANCE* tls_io_instance)
         // mbedTLS cleanup...
         mbedtls_ssl_free(&tls_io_instance->ssl);
         mbedtls_ssl_config_free(&tls_io_instance->config);
-        mbedtls_x509_crt_free(&tls_io_instance->cacert);
+        mbedtls_x509_crt_free(&tls_io_instance->trusted_certificates_parsed);
         mbedtls_ctr_drbg_free(&tls_io_instance->ctr_drbg);
         mbedtls_entropy_free(&tls_io_instance->entropy);
 
@@ -357,7 +357,7 @@ static void mbedtls_init(TLS_IO_INSTANCE* tls_io_instance)
     const char *pers = "azure_iot_client";
 
     // mbedTLS initialize...
-    mbedtls_x509_crt_init(&tls_io_instance->cacert);
+    mbedtls_x509_crt_init(&tls_io_instance->trusted_certificates_parsed);
 
     mbedtls_entropy_init(&tls_io_instance->entropy);
     mbedtls_entropy_add_source(&tls_io_instance->entropy, tlsio_entropy_poll, NULL, 128, 0);
@@ -402,6 +402,7 @@ CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
     result = calloc(1, sizeof(TLS_IO_INSTANCE));
     if (result != NULL)
     {
+        SOCKETIO_CONFIG socketio_config;
         const IO_INTERFACE_DESCRIPTION* underlying_io_interface;
         void* io_interface_parameters;
 
@@ -412,8 +413,6 @@ CONCRETE_IO_HANDLE tlsio_mbedtls_create(void* io_create_parameters)
         }
         else
         {
-            SOCKETIO_CONFIG socketio_config;
-
             socketio_config.hostname = tls_io_config->hostname;
             socketio_config.port = tls_io_config->port;
             socketio_config.accepted_socket = NULL;
@@ -538,7 +537,7 @@ int tlsio_mbedtls_close(CONCRETE_IO_HANDLE tls_io, ON_IO_CLOSE_COMPLETE on_io_cl
     tls_io_instance->tlsio_state = TLSIO_STATE_CLOSING;
     tls_io_instance->on_io_close_complete = on_io_close_complete;
     tls_io_instance->on_io_close_complete_context = callback_context;
-    if (xio_close(tls_io_instance->socket_io, on_underlying_io_close_complete, tls_io_instance) != 0)
+    if (xio_close(tls_io_instance->socket_io, on_underlying_io_close_complete_during_close, tls_io_instance) != 0)
     {
         return __FAILURE__;
     }
@@ -736,7 +735,7 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
         if (parse_result != 0)
         {
             LogInfo("Malformed pem certificate");
-            result = __FAILURE__;
+            return __FAILURE__;
         }
         else
         {

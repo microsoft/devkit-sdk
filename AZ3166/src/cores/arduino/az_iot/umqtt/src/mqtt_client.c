@@ -1143,7 +1143,7 @@ int mqtt_client_unsubscribe(MQTT_CLIENT_HANDLE handle, uint16_t packetId, const 
     return result;
 }
 
-int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
+int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle, ON_MQTT_DISCONNECTED_CALLBACK callback, void* ctx)
 {
     int result = 0;
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)handle;
