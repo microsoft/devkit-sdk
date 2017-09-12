@@ -42,6 +42,8 @@ public:
 
     const char* get_body();
 
+    int get_body_length();
+
     void set_message_complete();
 
     bool is_message_complete();
@@ -57,5 +59,6 @@ private:
     bool is_message_completed;
 
     char* body;
+    int body_length = 0;
 };
 #endif  // __HTTP_C_RESPONSE_2017_4_29__

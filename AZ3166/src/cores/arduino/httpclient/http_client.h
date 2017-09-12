@@ -22,6 +22,7 @@
 typedef struct
 {
     int status_code;
+    int body_length;
     const char* status_message;
     const char* body;
     const KEYVALUE* headers;
