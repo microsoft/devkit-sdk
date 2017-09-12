@@ -34,6 +34,7 @@ $StorageContext = New-AzureStorageContext -StorageAccountName $StorageAccountNam
 # Get current package version
 $CurrentVersion =  Get-Content '.\system_version.txt' | Out-String
 $CurrentVersion = $CurrentVersion.ToString().Trim()
+$CurrentVersion += "." + $env:BUILD_NUMBER
 
 # Upload installation package
 $InstallPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\usb_install_$CurrentVersion.zip"
