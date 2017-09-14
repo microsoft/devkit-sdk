@@ -37,6 +37,8 @@
 #include "azure_c_shared_utility/shared_util_options.h"
 
 #define OPTION_UNDERLYING_IO_OPTIONS        "underlying_io_options"
+#define HANDSHAKE_TIMEOUT_MS                5000
+#define HANDSHAKE_WAIT_INTERVAL_MS          10
 
 // DEPRECATED: debug functions do not belong in the tree.
 #define MBED_TLS_DEBUG_ENABLE
@@ -242,7 +244,8 @@ static int on_io_recv(void *context, unsigned char *buf, size_t sz)
     int result;
     TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)context;
     unsigned char* new_socket_io_read_bytes;
-
+    int pending = 0;
+    
     while (tls_io_instance->socket_io_read_byte_count == 0)
     {
         xio_dowork(tls_io_instance->socket_io);
@@ -257,6 +260,21 @@ static int on_io_recv(void *context, unsigned char *buf, size_t sz)
         {
             // Underlying io error, exit.
             return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
+        }
+        else
+        {
+            // Handkshake
+            if (tls_io_instance->socket_io_read_byte_count == 0)
+            {
+                if (pending++ >= HANDSHAKE_TIMEOUT_MS / HANDSHAKE_WAIT_INTERVAL_MS)
+                {
+                    // The IoT connection is close from server side and no response.
+                    LogError("Tlsio_Failure: encountered unknow connection issue, the connection will be restarted %d.");
+                    indicate_error(tls_io_instance);
+                    return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
+                }
+                wait_ms(HANDSHAKE_WAIT_INTERVAL_MS);
+            }
         }
     }
 
