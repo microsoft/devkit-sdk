@@ -13,7 +13,7 @@
 #define LOOP_DELAY          100
 
 #define HEARTBEAT_INTERVAL  300000
-#define PULL_TIMEOUT        15000
+#define PULL_TIMEOUT        20000
 
 #define MSG_HEADER_SIZE     20
 #define MSG_BODY_SIZE       200
