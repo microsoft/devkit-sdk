@@ -269,7 +269,7 @@ static int on_io_recv(void *context, unsigned char *buf, size_t sz)
                 if (pending++ >= HANDSHAKE_TIMEOUT_MS / HANDSHAKE_WAIT_INTERVAL_MS)
                 {
                     // The IoT connection is close from server side and no response.
-                    LogError("Tlsio_Failure: encountered unknow connection issue, the connection will be restarted %d.");
+                    LogError("Tlsio_Failure: encountered unknow connection issue, the connection will be restarted.");
                     indicate_error(tls_io_instance);
                     return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
                 }
@@ -650,6 +650,7 @@ void tlsio_mbedtls_dowork(CONCRETE_IO_HANDLE tls_io)
             || tls_io_instance->tlsio_state == TLSIO_STATE_OPEN)
         {
             decode_ssl_received_bytes(tls_io_instance);
+            // No need to call xio_dowork here because it's called in on_io_recv which is the callback function of decode_ssl_received_bytes
         }
     }
 }
