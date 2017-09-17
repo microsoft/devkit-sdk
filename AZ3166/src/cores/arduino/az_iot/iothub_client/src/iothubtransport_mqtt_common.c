@@ -1290,38 +1290,15 @@ static void mqtt_operation_complete_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLI
 
 static void DisconnectFromClient(PMQTTTRANSPORT_HANDLE_DATA transport_data)
 {
-    if (transport_data->xioTransport != NULL)
-    {
-        OPTIONHANDLER_HANDLE options = xio_retrieveoptions(transport_data->xioTransport);
-        set_saved_tls_options(transport_data, options);
+    OPTIONHANDLER_HANDLE options = xio_retrieveoptions(transport_data->xioTransport);
+    set_saved_tls_options(transport_data, options);
 
-        (void)mqtt_client_disconnect(transport_data->mqttClient, NULL, NULL);
-        xio_destroy(transport_data->xioTransport);
-        transport_data->xioTransport = NULL;
+    (void)mqtt_client_disconnect(transport_data->mqttClient, NULL, NULL);
+    xio_destroy(transport_data->xioTransport);
+    transport_data->xioTransport = NULL;
 
-        transport_data->mqttClientStatus = MQTT_CLIENT_STATUS_NOT_CONNECTED;
-        transport_data->currPacketState = DISCONNECT_TYPE;
-    }
-}
-
-static void UpdateSubscribeFlag(PMQTTTRANSPORT_HANDLE_DATA transport_data)
-{
-    if (transport_data->topic_MqttMessage != NULL)
-    {
-        transport_data->topics_ToSubscribe |= SUBSCRIBE_TELEMETRY_TOPIC;
-    }
-    if (transport_data->topic_GetState != NULL)
-    {
-        transport_data->topics_ToSubscribe |= SUBSCRIBE_GET_REPORTED_STATE_TOPIC;
-    }
-    if (transport_data->topic_NotifyState != NULL)
-    {
-        transport_data->topics_ToSubscribe |= SUBSCRIBE_NOTIFICATION_STATE_TOPIC;
-    }
-    if (transport_data->topic_DeviceMethods != NULL)
-    {
-        transport_data->topics_ToSubscribe |= SUBSCRIBE_DEVICE_METHOD_TOPIC;
-    }
+    transport_data->mqttClientStatus = MQTT_CLIENT_STATUS_NOT_CONNECTED;
+    transport_data->currPacketState = DISCONNECT_TYPE;
 }
 
 static void mqtt_error_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLIENT_EVENT_ERROR error, void* callbackCtx)
@@ -1344,7 +1321,6 @@ static void mqtt_error_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLIENT_EVENT_ERR
             case MQTT_CLIENT_NO_PING_RESPONSE:
             {
                 LogError("Mqtt Ping Response was not encountered.  Reconnecting device...");
-                DisconnectFromClient(transport_data);
                 break;
             }
             case MQTT_CLIENT_PARSE_ERROR:
@@ -1358,7 +1334,22 @@ static void mqtt_error_callback(MQTT_CLIENT_HANDLE handle, MQTT_CLIENT_EVENT_ERR
         transport_data->mqttClientStatus = MQTT_CLIENT_STATUS_NOT_CONNECTED;
         transport_data->currPacketState = PACKET_TYPE_ERROR;
         transport_data->device_twin_get_sent = false;
-        UpdateSubscribeFlag(transport_data);
+        if (transport_data->topic_MqttMessage != NULL)
+        {
+            transport_data->topics_ToSubscribe |= SUBSCRIBE_TELEMETRY_TOPIC;
+        }
+        if (transport_data->topic_GetState != NULL)
+        {
+            transport_data->topics_ToSubscribe |= SUBSCRIBE_GET_REPORTED_STATE_TOPIC;
+        }
+        if (transport_data->topic_NotifyState != NULL)
+        {
+            transport_data->topics_ToSubscribe |= SUBSCRIBE_NOTIFICATION_STATE_TOPIC;
+        }
+        if (transport_data->topic_DeviceMethods != NULL)
+        {
+            transport_data->topics_ToSubscribe |= SUBSCRIBE_DEVICE_METHOD_TOPIC;
+        }
     }
     else
     {
@@ -1749,16 +1740,35 @@ static int InitializeConnection(PMQTTTRANSPORT_HANDLE_DATA transport_data)
             }
             else
             {
-                if ((current_time - transport_data->mqtt_connect_time) / 1000 > (SAS_TOKEN_DEFAULT_LIFETIME * SAS_REFRESH_MULTIPLIER))
+                if ((current_time - transport_data->mqtt_connect_time) / 1000 > (SAS_TOKEN_DEFAULT_LIFETIME*SAS_REFRESH_MULTIPLIER))
                 {
                     /* Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_07_058: [ If the sas token has timed out IoTHubTransport_MQTT_Common_DoWork shall disconnect from the mqtt client and destroy the transport information and wait for reconnect. ] */
-                    DisconnectFromClient(transport_data);
-                    
+                    OPTIONHANDLER_HANDLE options = xio_retrieveoptions(transport_data->xioTransport);
+                    set_saved_tls_options(transport_data, options);
+                    (void)mqtt_client_disconnect(transport_data->mqttClient, NULL, NULL);
+                    xio_destroy(transport_data->xioTransport);
+                    transport_data->xioTransport = NULL;
+
                     IoTHubClient_LL_ConnectionStatusCallBack(transport_data->llClientHandle, IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED, IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN);
-                    
+                    transport_data->mqttClientStatus = MQTT_CLIENT_STATUS_NOT_CONNECTED;
+                    transport_data->currPacketState = UNKNOWN_TYPE;
                     transport_data->device_twin_get_sent = false;
-                    UpdateSubscribeFlag(transport_data);
-                    result = __FAILURE__;
+                    if (transport_data->topic_MqttMessage != NULL)
+                    {
+                        transport_data->topics_ToSubscribe |= SUBSCRIBE_TELEMETRY_TOPIC;
+                    }
+                    if (transport_data->topic_GetState != NULL)
+                    {
+                        transport_data->topics_ToSubscribe |= SUBSCRIBE_GET_REPORTED_STATE_TOPIC;
+                    }
+                    if (transport_data->topic_NotifyState != NULL)
+                    {
+                        transport_data->topics_ToSubscribe |= SUBSCRIBE_NOTIFICATION_STATE_TOPIC;
+                    }
+                    if (transport_data->topic_DeviceMethods != NULL)
+                    {
+                        transport_data->topics_ToSubscribe |= SUBSCRIBE_DEVICE_METHOD_TOPIC;
+                    }
                 }
             }
         }

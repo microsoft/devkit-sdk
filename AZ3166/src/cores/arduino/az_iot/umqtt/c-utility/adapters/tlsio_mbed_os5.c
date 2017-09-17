@@ -124,6 +124,7 @@ static void indicate_open_complete(TLS_IO_INSTANCE* tls_io_instance, IO_OPEN_RES
 {
     if (tls_io_instance->on_io_open_complete != NULL)
     {
+        LogInfo(">>>tls_io_instance->on_io_open_complete");
         tls_io_instance->on_io_open_complete(tls_io_instance->on_io_open_complete_context, open_result);
     }
 }
@@ -137,6 +138,7 @@ static int decode_ssl_received_bytes(TLS_IO_INSTANCE* tls_io_instance)
     while (rcv_bytes > 0)
     {
         rcv_bytes = mbedtls_ssl_read(&tls_io_instance->ssl, buffer, sizeof(buffer));
+        //rcv_bytes = 1;
         if (rcv_bytes > 0)
         {
             if (tls_io_instance->on_bytes_received != NULL)
@@ -171,6 +173,7 @@ static void on_underlying_io_open_complete(void* context, IO_OPEN_RESULT open_re
         if (result == 0)
         {
             tls_io_instance->tlsio_state = TLSIO_STATE_OPEN;
+            LogInfo(">>>on_underlying_io_open_complete - indicate_open_complete");
             indicate_open_complete(tls_io_instance, IO_OPEN_OK);
         }
         else
@@ -184,6 +187,7 @@ static void on_underlying_io_open_complete(void* context, IO_OPEN_RESULT open_re
 
 static void on_underlying_io_bytes_received(void* context, const unsigned char* buffer, size_t size)
 {
+    (void)printf("Entered on_underlying_io_bytes_received.\r\n");
     TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)context;
 
     unsigned char* new_socket_io_read_bytes = (unsigned char*)realloc(tls_io_instance->socket_io_read_bytes, tls_io_instance->socket_io_read_byte_count + size);
@@ -198,6 +202,12 @@ static void on_underlying_io_bytes_received(void* context, const unsigned char* 
         tls_io_instance->socket_io_read_bytes = new_socket_io_read_bytes;
         (void)memcpy(tls_io_instance->socket_io_read_bytes + tls_io_instance->socket_io_read_byte_count, buffer, size);
         tls_io_instance->socket_io_read_byte_count += size;
+        
+        // Call io complete call back function
+        /*if (tls_io_instance->on_io_open_complete != NULL)
+        {
+            tls_io_instance->on_io_open_complete(tls_io_instance->on_io_open_complete_context, IO_OPEN_OK);
+        }*/
     }
 }
 
@@ -269,7 +279,7 @@ static int on_io_recv(void *context, unsigned char *buf, size_t sz)
                 if (pending++ >= HANDSHAKE_TIMEOUT_MS / HANDSHAKE_WAIT_INTERVAL_MS)
                 {
                     // The IoT connection is close from server side and no response.
-                    LogError("Tlsio_Failure: encountered unknow connection issue, the connection will be restarted.");
+                    LogError("Tlsio_Failure: encountered unknow connection issue, the connection will be restarted %d.");
                     indicate_error(tls_io_instance);
                     return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
                 }
@@ -390,7 +400,7 @@ static void mbedtls_init(TLS_IO_INSTANCE* tls_io_instance)
     mbedtls_ssl_config_init(&tls_io_instance->config);
     mbedtls_ssl_config_defaults(&tls_io_instance->config, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
     mbedtls_ssl_conf_rng(&tls_io_instance->config, mbedtls_ctr_drbg_random, &tls_io_instance->ctr_drbg);
-    mbedtls_ssl_conf_authmode(&tls_io_instance->config, MBEDTLS_SSL_VERIFY_REQUIRED);
+    mbedtls_ssl_conf_authmode(&tls_io_instance->config, MBEDTLS_SSL_VERIFY_OPTIONAL);
     mbedtls_ssl_conf_min_version(&tls_io_instance->config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);          // v1.2
 #if defined (MBED_TLS_DEBUG_ENABLE)
     mbedtls_ssl_conf_dbg(&tls_io_instance->config, mbedtls_debug, stdout);
@@ -650,7 +660,8 @@ void tlsio_mbedtls_dowork(CONCRETE_IO_HANDLE tls_io)
             || tls_io_instance->tlsio_state == TLSIO_STATE_OPEN)
         {
             decode_ssl_received_bytes(tls_io_instance);
-            // No need to call xio_dowork here because it's called in on_io_recv which is the callback function of decode_ssl_received_bytes
+
+            //xio_dowork(tls_io_instance->socket_io);
         }
     }
 }
@@ -765,7 +776,7 @@ OPTIONHANDLER_HANDLE tlsio_mbedtls_retrieveoptions(CONCRETE_IO_HANDLE handle)
                 /*return as is*/
             }
         }
-    }
+    } 
     return result;
 }
 
@@ -813,7 +824,7 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
         }
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_029: [ The tlsio_mbedtls_setoption shall set the option on mbedtls connection when the optionName = x509certificate. ]*/
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_030: [ The tlsio_mbedtls_setoption shall fail when the optionName = x509certificate but mbedtls_x509_crt_parse() fails. ]*/
-        else if (strcmp(SU_OPTION_X509_CERT, optionName) == 0)
+        else if (strcmp(SU_OPTION_X509_CERT, optionName) == 0 || strcmp(OPTION_X509_ECC_CERT, optionName) == 0)
         {
             if (mbedtls_x509_crt_parse(&tls_io_instance->owncert, (const unsigned char *)value, (int)(strlen(value) + 1)) != 0)
             {
@@ -826,7 +837,7 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
         }
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_031: [ The tlsio_mbedtls_setoption shall set the option on mbedtls connection when the optionName = x509privatekey. ]*/
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_032: [ The tlsio_mbedtls_setoption shall fail when the optionName = x509privatekey but mbedtls_pk_parse_key() fails. ]*/
-        else if (strcmp(SU_OPTION_X509_PRIVATE_KEY, optionName) == 0)
+        else if (strcmp(SU_OPTION_X509_PRIVATE_KEY, optionName) == 0 || strcmp(OPTION_X509_ECC_KEY, optionName) == 0)
         {
             if (mbedtls_pk_parse_key(&tls_io_instance->pKey, (const unsigned char *)value, (int)(strlen(value) + 1), NULL, 0) != 0)
             {
