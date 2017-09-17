@@ -343,7 +343,7 @@ static void DoWork()
     NoTweets();
   }
   // Check with the IoT hub
-  IoTHubMQTT_Check();
+  IoTHubMQTT_Check(false);
 
   if (shake_progress > 2)
   {

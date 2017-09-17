@@ -593,14 +593,14 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
     return SendEventOnce(event);
 }
 
-void IoTHubMQTT_Check(void)
+void IoTHubMQTT_Check(bool hasDelay)
 {
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
         return;
     }
 
-    int diff = (int)(SystemTickCounterRead() - iothub_check_ms);
+    int diff = hasDelay ? ((int)(SystemTickCounterRead() - iothub_check_ms)) : CHECK_INTERVAL_MS;
     if (diff >= CHECK_INTERVAL_MS)
     {
         CheckConnection();
