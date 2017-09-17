@@ -61,6 +61,7 @@ const Http_Response* HTTPClient::send(const void* body, int body_size)
             _response->status_message = response->get_status_message();
             _response->body = response->get_body();
             _response->headers = response->get_headers();
+            _response->body_length = response -> get_body_length();
             return _response;
         }
     }

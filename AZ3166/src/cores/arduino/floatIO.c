@@ -1,7 +1,7 @@
 // Copyright (c) 2015 Volodymyr Shymanskyy. All rights reserved.
 // Licensed under the MIT license.
 #include "floatIO.h"
-#define iSize 10                 // number of bufffers, one for each float before wrapping around
+#define iSize 10                 // number of buffers, one for each float before wrapping around
  
 /* float to string
  * f is the float to turn into a string

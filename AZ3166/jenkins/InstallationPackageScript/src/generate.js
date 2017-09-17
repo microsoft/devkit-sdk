@@ -11,7 +11,7 @@ const constants = {
     usbDir: path.join(__dirname, '../usb_install'),
     packageOrigin: path.join(__dirname, '../devkit-sdk/AZ3166/src'),
     packageDest: path.join(__dirname, '../AZ3166/AZ3166/hardware/stm32f4'),
-    finalZip: path.join(__dirname, `../TestResult/usb_install_{version}.zip`),
+    finalZip: path.join(__dirname, `../TestResult/usb_install_{version}.${process.env.BUILD_NUMBER}.zip`),
 	versionFile: path.join(__dirname, `../system_version.txt`),
 };
 
@@ -19,7 +19,7 @@ const command = {
     npmInstall: 'npm install',
     gulpBabel: 'gulp babel',
     zipPackage: '7z a -r ../usb_install/tools/AZ3166.zip ../AZ3166/*',
-    zipFinal: `7z a -r ../TestResult/usb_install_{version}.zip ../usb_install/*`
+    zipFinal: `7z a -r ../TestResult/usb_install_{version}.${process.env.BUILD_NUMBER}.zip ../usb_install/*`
 };
 
 const timeout = 600 * 1000;
