@@ -70,8 +70,10 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event);
 
 /**
 * @brief	The function is called to try receiving message from IoT hub.
+*
+* @param	hasDelay        Indicate whether check with IoT hub immediately or has delay, default is delay check (true).
 */
-void IoTHubMQTT_Check(void);
+void IoTHubMQTT_Check(bool hasDelay = true);
 
 /**
 * @brief	Disposes of resources allocated by the IoT Hub client.
