@@ -49,7 +49,7 @@ static void CheckConnection()
             LogInfo(">>>Re-connect.");
             // Re-connect the IoT Hub
             IoTHubMQTT_Close();
-            IoTHubMQTT_Init();
+            IoTHubMQTT_Init(enableDeviceTwin);
             resetClient = false;
         }
     }
