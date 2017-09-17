@@ -28,6 +28,7 @@ static MESSAGE_CALLBACK _message_callback = NULL;
 static DEVICE_TWIN_CALLBACK _device_twin_callback = NULL;
 static DEVICE_METHOD_CALLBACK _device_method_callback = NULL;
 static REPORT_CONFIRMATION_CALLBACK _report_confirmation_callback = NULL;
+static bool enableDeviceTwin = false;
 
 static uint64_t iothub_check_ms;
 
@@ -48,7 +49,7 @@ static void CheckConnection()
             LogInfo(">>>Re-connect.");
             // Re-connect the IoT Hub
             IoTHubMQTT_Close();
-            IoTHubMQTT_Init();
+            IoTHubMQTT_Init(enableDeviceTwin);
             resetClient = false;
         }
     }
@@ -365,13 +366,13 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MQTT APIs
-bool IoTHubMQTT_Init(void)
+bool IoTHubMQTT_Init(bool hasDeviceTwin)
 {
     if (iotHubClientHandle != NULL)
     {
         return true;
     }
-
+    enableDeviceTwin = hasDeviceTwin;
     callbackCounter = 0;
     
     xlogging_set_log_function(AZIoTLog);
@@ -430,16 +431,19 @@ bool IoTHubMQTT_Init(void)
         return false;
     }
 
-    if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
+    if (enableDeviceTwin)
     {
-        LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
-        return false;
-    }
+        if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
+        {
+            LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
+            return false;
+        }
 
-    if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
-    {
-        LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
-        return false;
+        if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
+        {
+            LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
+            return false;
+        }
     }
 
     iothub_check_ms = SystemTickCounterRead();
@@ -564,18 +568,26 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
     return false;
 }
 
-void IoTHubMQTT_Check(void)
+void IoTHubMQTT_Check(bool hasDelay)
 {
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
         return;
     }
 
-    int diff = (int)(SystemTickCounterRead() - iothub_check_ms);
+    int diff = hasDelay ? ((int)(SystemTickCounterRead() - iothub_check_ms)) : CHECK_INTERVAL_MS;
     if (diff >= CHECK_INTERVAL_MS)
     {
         CheckConnection();
-        IoTHubClient_LL_DoWork(iotHubClientHandle);
+        for (int i = 0; i < 5; i++)
+        {
+            IoTHubClient_LL_DoWork(iotHubClientHandle);
+            if (resetClient || SystemWiFiRSSI() == 0)
+            {
+                // Disconnected
+                break;
+            }
+        }
         iothub_check_ms = SystemTickCounterRead();
     }
 }

@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "myBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "voiceclips/{name}",
+      "connection": "voicetotwitter_STORAGE"
+    }
+  ],
+  "disabled": false
+}
