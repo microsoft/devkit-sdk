@@ -564,18 +564,26 @@ bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
     return false;
 }
 
-void IoTHubMQTT_Check(void)
+void IoTHubMQTT_Check(bool hasDelay)
 {
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
         return;
     }
 
-    int diff = (int)(SystemTickCounterRead() - iothub_check_ms);
+    int diff = hasDelay ? ((int)(SystemTickCounterRead() - iothub_check_ms)) : CHECK_INTERVAL_MS;
     if (diff >= CHECK_INTERVAL_MS)
     {
         CheckConnection();
-        IoTHubClient_LL_DoWork(iotHubClientHandle);
+        for (int i = 0; i < 5; i++)
+        {
+            IoTHubClient_LL_DoWork(iotHubClientHandle);
+            if (resetClient || SystemWiFiRSSI() == 0)
+            {
+                // Disconnected
+                break;
+            }
+        }
         iothub_check_ms = SystemTickCounterRead();
     }
 }
