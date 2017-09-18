@@ -1,7 +1,5 @@
 #include "DiceCore.h"
 
-#define __GNUC__
-
 #if defined(__GNUC__)
 const DICE_UDS __attribute__((section(".nvdata_protected_data"))) DiceUDS = { DICE_UDS_TAG,
                                                                             { 0x19, 0xe2, 0x5a, 0x25, 0x9d, 0x0c, 0x2b, 0xe0,

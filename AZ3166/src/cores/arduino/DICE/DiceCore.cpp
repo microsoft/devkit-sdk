@@ -44,7 +44,6 @@ DiceCore(
         // Enter remediation
         goto Remediate;
     }
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, rDigest[0]=%x.\r\n", __FUNCTION__, __FILE__, __LINE__, rDigest[0]);
 		
     // Derive CDI based on measurement of RIoT Core and UDS.
    if (_DiceDeriveCDI(rDigest, DICE_DIGEST_LENGTH)) {

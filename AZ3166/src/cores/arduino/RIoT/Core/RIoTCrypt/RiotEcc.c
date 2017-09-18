@@ -1399,12 +1399,6 @@ ECDH_generate(affine_point_t *P1, bigval_t *k)
         return (-1);
     }
 
-	(void)printf("\r\nIn ECDH_generate, k: \r\n");
-	for (int i = 0; i < 9; i++)
-	{
-		(void)printf("%x ", k->data[i]);
-	}
-
     pointMpyP(P1, k, &base_point);
 
     return (0);
@@ -1500,22 +1494,10 @@ startpoint:
         return (rv);
     }
 
-	(void)printf("\r\nIn ECDSA_sign, P1.x: \r\n");
-	for (int i = 0; i < 9; i++)
-	{
-		(void)printf("%x ", P1.x.data[i]);
-	}
-
     big_precise_reduce(&sig->r, &P1.x, &orderP);
     if (big_is_zero(&sig->r)) {
         goto startpoint;
     }
-
-	(void)printf("\r\nIn ECDSA_sign, sig.r: \r\n");
-	for (int i = 0; i < 9; i++)
-	{
-		(void)printf("%x ", sig->r.data[i]);
-	}
 
     big_mpyP(&t, privkey, &sig->r, MOD_ORDER);
     big_add(&t, &t, msgdgst);

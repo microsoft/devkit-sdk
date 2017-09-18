@@ -75,13 +75,6 @@ SECTIONS
         *(.riot_fw)
         __stop_riot_fw = .;
     } > FLASH
-	
-    .nvdata_protected_data 0x080E4000 :
-    {
-        __start_nvdata_protected_data = .;
-        *(.nvdata_protected_data)
-        __stop_nvdata_protected_data = .;
-    } > FLASH	
 
     .ARM.extab :
     {

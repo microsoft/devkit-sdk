@@ -28,12 +28,6 @@ unsigned int g_DICertLen;
 // We don't do CSRs on this device
 static bool SelfSignedDeviceCert = true;
 
-// Location of FW image
-/*#define FW_BASE_ADDR  Load$$ER_IROM2$$Base
-#define FW_LIMIT_ADDR Load$$ER_IROM2$$Limit
-extern uint8_t FW_BASE_ADDR[];
-extern uint8_t FW_LIMIT_ADDR[];*/
-
 extern void* __start_riot_fw;
 extern void* __stop_riot_fw;
 
@@ -152,13 +146,10 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     // It must be the address of DPS code
     base = (uint8_t*)&__start_riot_fw;
     length = (uint8_t*)&__stop_riot_fw - base;
-    (void)printf("show info of FW image\r\n");
-    (void)printf("base = %x, length = %d\r\n", base, length);
 
     // Measure FW, i.e., calculate FWID
     RiotCrypt_Hash(FWID, RIOT_DIGEST_LENGTH, base, length);
     FWID[RIOT_DIGEST_LENGTH] = "\0";
-    (void)printf("FWID = %x \r\n", FWID);
 
     // Combine CDI and FWID, result in cDigest
     RiotCrypt_Hash2(cDigest, RIOT_DIGEST_LENGTH,
@@ -166,7 +157,6 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
                     FWID, RIOT_DIGEST_LENGTH);
 
     cDigest[RIOT_DIGEST_LENGTH] = "\0";
-    (void)printf("cDigest = %x \r\n", cDigest);
 
     // Derive Alias key pair from CDI and FWID
     RiotCrypt_DeriveEccKey(&aliasKeyPub,
@@ -184,54 +174,11 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
                         &aliasKeyPub, &deviceIDPub,
                         FWID, RIOT_DIGEST_LENGTH);
 
-    (void)printf("After X509GetAliasCertTBS: \r\n");
-    for (int i = 0; i < derCtx.Length; i++)
-    {
-        (void)printf("%x ", derCtx.Buffer[i]);
-    }
-
-    (void)printf("\r\nderCtx.Position = %d \r\n", derCtx.Position);
-
-    (void)printf("Before RiotCrypt_Sign, deviceIDPriv: \r\n");
-    for (int i = 0; i < 9; i++)
-    {
-        (void)printf("%x ", deviceIDPriv.data[i]);
-    }
-
     // Sign the Alias Key Certificate's TBS region
     RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv);
 
-    (void)printf("\r\nAfter RiotCrypt_Sign: \r\n");
-    for (int i = 0; i < derCtx.Length; i++)
-    {
-        (void)printf("%x ", derCtx.Buffer[i]);
-    }
-
-    (void)printf("\r\nderCtx.Position = %d \r\n", derCtx.Position);
-
-    (void)printf("After RiotCrypt_Sign, tbsSig.r: \r\n");
-    for (int i = 0; i < 9; i++)
-    {
-        (void)printf("%x ", tbsSig.r.data[i]);
-    }
-
-    (void)printf("\r\nAfter RiotCrypt_Sign, tbsSig.s: \r\n");
-
-    for (int i = 0; i < 9; i++)
-    {
-        (void)printf("%x ", tbsSig.s.data[i]);
-    }
-
     // Generate Alias Key Certificate
     X509MakeAliasCert(&derCtx, &tbsSig);
-
-    (void)printf("\r\nAfter X509MakeAliasCert: \r\n");
-    for (int i = 0; i < derCtx.Length; i++)
-    {
-        (void)printf("%x ", derCtx.Buffer[i]);
-    }
-
-    (void)printf("\r\nderCtx.Position = %d \r\n", derCtx.Position);
 
     // Copy Alias Key Certificate
     length = sizeof(g_AKCert);
