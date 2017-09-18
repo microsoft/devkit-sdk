@@ -37,22 +37,6 @@ extern uint8_t FW_LIMIT_ADDR[];*/
 extern void* __start_riot_fw;
 extern void* __stop_riot_fw;
 
-/*char *devID = "-----BEGIN PUBLIC KEY-----\n"
-"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZegFpxcakc33TTv8EQFN32wPObeJCMa3yG2t5iWeyNJvIS1L+6gA+bOnUeliqt89pA/vqDiXzB8WQ495/aDVeA==\n"
-"-----END PUBLIC KEY-----";
-
-char *devsi = "-----BEGIN CERTIFICATE-----\n"
-"MIIBbTCCARSgAwIBAgIFDg0MCwowCgYIKoZIzj0EAwIwNDESMBAGA1UEAwwJUklvVCBDb3JlMQswCQYDVQQGDAJVUzERMA8GA1UECgwITVNSX1RFU1QwHhcNMTcwMTAxMDAwMDAwWhcNMzcwMTAxMDAwMDAwWjA0MRIwEAYDVQQDDAlSSW9UIENvcmUxCzAJBgNVBAYMAlVTMREwDwYDVQQKDAhNU1JfVEVTVDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGXoBacXGpHN9007/BEBTd9sDzm3iQjGt8htreYlnsjSbyEtS/uoAPmzp1HpYqrfPaQP76g4l8wfFkOPef2g1XijEzARMA8GA1UdEwQIMAYBAf8CAQIwCgYIKoZIzj0EAwIDRwAwRAIgCQa7BBKKjpGvnyPgmzqH5gWQD9wwCOo6+sdKvNHk9IUCIB8Vxpg4ShdPWP/8gp6eU1Gba5W8ySMYbb2SbtNUmWWd\n"
-"-----END CERTIFICATE-----";
-
-char *aliascer = "-----BEGIN CERTIFICATE-----\n"
-"MIICKTCCAdCgAwIBAgIFCgsMDQ4wCgYIKoZIzj0EAwIwNDESMBAGA1UEAwwJUklvVCBDb3JlMQswCQYDVQQGDAJVUzERMA8GA1UECgwITVNSX1RFU1QwHhcNMTcwMTAxMDAwMDAwWhcNMzcwMTAxMDAwMDAwWjA3MRUwEwYDVQQDDAxSSW9UX0Rldl90bXAxCzAJBgNVBAYMAlVTMREwDwYDVQQKDAhNU1JfVEVTVDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABNsHBaEi+XYmN4CitbE6bUGOB+Hi34xPv0f8NmrQvsOs3b2m9Of+jYNHgKBUjzT2Va6bgOa19W+N0ZMw5IitmRCjgcswgcgwFgYDVR0lAQH/BAwwCgYIKwYBBQUHAwIwga0GA1UdEQEB/wSBojCBn6CBnAYKKwYBBAGCN1kDATCBjQIBATBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGXoBacXGpHN9007/BEBTd9sDzm3iQjGt8htreYlnsjSbyEtS/uoAPmzp1HpYqrfPaQP76g4l8wfFkOPef2g1XgwLQYJYIZIAWUDBAIBBCDMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzDAKBggqhkjOPQQDAgNHADBEAiAJBrsEEoqOka+fI+CbOofmBZAP3DAI6jr6x0q80eT0hQIgTdKHdGOOFk/DUyLZrOnHHQD6AuaA1emhcVaFzS7y+hA=\n"
-"-----END CERTIFICATE-----";
-
-char *aliaspri = "-----BEGIN EC PRIVATE KEY-----\n"
-"MHcCAQEEIHHaibHDezGS1JpKGtpMoBK5EG1FcpI3RbqxkEwGkGNboAoGCCqGSM49AwEHoUQDQgAE2wcFoSL5diY3gKK1sTptQY4H4eLfjE+/R/w2atC+w6zdvab05/6Ng0eAoFSPNPZVrpuA5rX1b43RkzDkiK2ZEA==\n"
-"-----END EC PRIVATE KEY-----";*/
-
 char *
 RIoTGetDeviceID(
 	unsigned int *len
@@ -96,15 +80,15 @@ RIoTGetDeviceCert(
 
 // The static data fields that make up the Alias Cert "to be signed" region
 RIOT_X509_TBS_DATA x509AliasTBSData = { { 0x0A, 0x0B, 0x0C, 0x0D, 0x0E },
-                                       "stm32f4dice", "MSR_TEST", "US",
+                                       "devkitdice", "DEVKIT_TEST", "US",
                                        "170101000000Z", "370101000000Z",
-                                       "stm32f4riotcore", "MSR_TEST", "US" };
+                                       "devkitriotcore", "DEVKIT_TEST", "US" };
 
 // The static data fields that make up the DeviceID Cert "to be signed" region
 RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
-                                       "stm32f4dice", "MSR_TEST", "US",
+                                       "devkitdice", "DEVKIT_TEST", "US",
                                        "170101000000Z", "370101000000Z",
-                                       "stm32f4dice", "MSR_TEST", "US" };
+                                       "devkitdice", "DEVKIT_TEST", "US" };
 
 extern int
 AppStart(

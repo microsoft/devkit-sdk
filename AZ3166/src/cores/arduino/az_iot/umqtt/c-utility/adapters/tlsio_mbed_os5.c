@@ -124,7 +124,6 @@ static void indicate_open_complete(TLS_IO_INSTANCE* tls_io_instance, IO_OPEN_RES
 {
     if (tls_io_instance->on_io_open_complete != NULL)
     {
-        LogInfo(">>>tls_io_instance->on_io_open_complete");
         tls_io_instance->on_io_open_complete(tls_io_instance->on_io_open_complete_context, open_result);
     }
 }
@@ -138,7 +137,6 @@ static int decode_ssl_received_bytes(TLS_IO_INSTANCE* tls_io_instance)
     while (rcv_bytes > 0)
     {
         rcv_bytes = mbedtls_ssl_read(&tls_io_instance->ssl, buffer, sizeof(buffer));
-        //rcv_bytes = 1;
         if (rcv_bytes > 0)
         {
             if (tls_io_instance->on_bytes_received != NULL)
@@ -173,7 +171,6 @@ static void on_underlying_io_open_complete(void* context, IO_OPEN_RESULT open_re
         if (result == 0)
         {
             tls_io_instance->tlsio_state = TLSIO_STATE_OPEN;
-            LogInfo(">>>on_underlying_io_open_complete - indicate_open_complete");
             indicate_open_complete(tls_io_instance, IO_OPEN_OK);
         }
         else
@@ -187,7 +184,6 @@ static void on_underlying_io_open_complete(void* context, IO_OPEN_RESULT open_re
 
 static void on_underlying_io_bytes_received(void* context, const unsigned char* buffer, size_t size)
 {
-    (void)printf("Entered on_underlying_io_bytes_received.\r\n");
     TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)context;
 
     unsigned char* new_socket_io_read_bytes = (unsigned char*)realloc(tls_io_instance->socket_io_read_bytes, tls_io_instance->socket_io_read_byte_count + size);
@@ -202,12 +198,6 @@ static void on_underlying_io_bytes_received(void* context, const unsigned char* 
         tls_io_instance->socket_io_read_bytes = new_socket_io_read_bytes;
         (void)memcpy(tls_io_instance->socket_io_read_bytes + tls_io_instance->socket_io_read_byte_count, buffer, size);
         tls_io_instance->socket_io_read_byte_count += size;
-        
-        // Call io complete call back function
-        /*if (tls_io_instance->on_io_open_complete != NULL)
-        {
-            tls_io_instance->on_io_open_complete(tls_io_instance->on_io_open_complete_context, IO_OPEN_OK);
-        }*/
     }
 }
 

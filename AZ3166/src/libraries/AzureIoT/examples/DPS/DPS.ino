@@ -48,10 +48,13 @@ void setup() {
   Serial.println("Start to run Dice+RIoT application.\r\n");
   delay(100);
   status = StartDiceInit();
-  delay(100);
-  Serial.println(status);
+  delay(10);
   if (status == 0){
-    Serial.println("Finish Dice+RIoT application successfully.\r\n");
+    Serial.println("Finish Dice+RIoT+DPS application successfully.\r\n");
+    Screen.print(2, "DPS connected!\r\n");
+  }
+  else{
+    Screen.print(2, "DPS Failed!\r\n");
   }
 }
 

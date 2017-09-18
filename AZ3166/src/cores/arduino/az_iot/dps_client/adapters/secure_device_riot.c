@@ -83,13 +83,7 @@ static int produce_device_cert(DPS_SECURE_DEVICE_INFO* riot_info)
 
 static int produce_alias_key_cert(DPS_SECURE_DEVICE_INFO* riot_info)
 {
-	unsigned int len;
-    char * buf;
-    buf = RIoTGetAliasCert(&riot_info->alias_cert_length);
-    (void)printf("DPS Get Alias Key Certificate\r\n%s\r\n", buf);
-    
-    //memcpy(riot_info->alias_cert_pem, RIoTGetAliasCert(&riot_info->alias_cert_length), riot_info->alias_cert_length);
-    memcpy(riot_info->alias_cert_pem, buf, riot_info->alias_cert_length);
+    memcpy(riot_info->alias_cert_pem, RIoTGetAliasCert(&riot_info->alias_cert_length), riot_info->alias_cert_length);
     return 0;
 }
 

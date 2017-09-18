@@ -41,6 +41,7 @@ void DiceRemediate(void)
 
 int StartDiceInit(void)
 {
+    int result = 0;
     (void)printf("The riot_core start address: %p\r\n", &__start_riot_core);
     (void)printf("The riot_core end address: %p\r\n", &__stop_riot_core);
 
@@ -74,11 +75,11 @@ int StartDiceInit(void)
     RiotStart(DiceCDI.bytes, (uint16_t)DICE_DIGEST_LENGTH);
 
     // Transfer control to firmware
-    IoTHubClientStart();
+    result = IoTHubClientStart();
 
     // Whould not return, enter remediation on return. This MUST force system reset.
     //DiceRemediate();
-    return 0;
+    return result;
 }
 
 void DiceInit(void)

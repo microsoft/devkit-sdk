@@ -28,8 +28,8 @@
 DEFINE_ENUM_STRINGS(DPS_ERROR, DPS_ERROR_VALUES);
 DEFINE_ENUM_STRINGS(DPS_REGISTRATION_STATUS, DPS_REGISTRATION_STATUS_VALUES);
 
-static const char* dps_uri = "global.azure-devices-provisioning.net";
-static const char* dps_scope_id = "0ne00000045";
+static const char* dps_uri = "[Global device endpoint]";
+static const char* dps_scope_id = "[ID Scope]";
 
 static bool g_trace_on = true;
 
@@ -330,9 +330,6 @@ int __attribute__((section(".riot_fw"))) IoTHubClientStart()
         free(dps_user_ctx.iothub_uri);
         free(dps_user_ctx.device_id);
     }
-
-    (void)printf("Press any key to continue:\r\n");
-    (void)getchar();
-
+    
     return result;
 }

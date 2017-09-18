@@ -155,11 +155,6 @@ static int retrieve_data(SOCKET_IO_INSTANCE* socket_io_instance)
     {
         /* Codes_SRS_SOCKETIO_MBED_OS5_99_005: [ retrieve_data shall succeed if tcp receive bytes succeed ]*/
         received = tcpsocketconnection_receive(socket_io_instance->tcp_socket_connection, (char*)recv_bytes, MBED_RECEIVE_BYTES_VALUE);
-        if (received != -3001)(void)printf("received = %d \r\n", received);
-        if (received == 51) {
-            printf("%s\r\n", recv_bytes);
-            for (int i = 0; i < 51; ++i) printf("%x ", recv_bytes[i]); printf("\r\n");
-        }
         if (received > 0)
         {
             total_received += received;

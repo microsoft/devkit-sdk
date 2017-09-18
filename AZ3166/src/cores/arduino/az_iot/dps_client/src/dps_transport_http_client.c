@@ -138,7 +138,6 @@ static void on_http_error(void* callback_ctx, HTTP_CALLBACK_REASON error_result)
 
 static void on_http_reply_recv(void* callback_ctx, HTTP_CALLBACK_REASON request_result, const unsigned char* content, size_t content_len, unsigned int status_code, HTTP_HEADERS_HANDLE responseHeadersHandle)
 {
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, entering on_http_reply_recv.\r\n", __FUNCTION__, __FILE__, __LINE__);
     (void)responseHeadersHandle;
     if (callback_ctx != NULL)
     {
@@ -204,7 +203,6 @@ static void on_http_reply_recv(void* callback_ctx, HTTP_CALLBACK_REASON request_
 
 static void on_http_connected(void* callback_ctx, HTTP_CALLBACK_REASON open_result)
 {
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, open_result == %d.\r\n", __FUNCTION__, __FILE__, __LINE__, open_result);
     if (callback_ctx != NULL)
     {
         DPS_TRANSPORT_HTTP_INFO* http_info = (DPS_TRANSPORT_HTTP_INFO*)callback_ctx;
@@ -884,7 +882,6 @@ void dps_transport_http_dowork(DPS_TRANSPORT_HANDLE handle)
         /* Codes_DPS_TRANSPORT_HTTP_CLIENT_07_036: [ dps_transport_http_dowork shall call the underlying http client do work method. ] */
         uhttp_client_dowork(http_info->http_client);
 
-        //(void)printf("#DEBUG: func: %s, file: %s, line: %d, http_info->http_connected = %d, http_info->transport_state = %d.\r\n", __FUNCTION__, __FILE__, __LINE__, http_info->http_connected, http_info->transport_state);
         if (http_info->http_connected || http_info->transport_state == TRANSPORT_CLIENT_STATE_ERROR)
         {
             switch (http_info->transport_state)
@@ -916,7 +913,6 @@ void dps_transport_http_dowork(DPS_TRANSPORT_HANDLE handle)
                     {
                         case DPS_TRANSPORT_STATUS_ASSIGNED:
                             http_info->register_data_cb(DPS_TRANSPORT_RESULT_OK, parse_info->authorization_key, parse_info->iothub_uri, parse_info->device_id, http_info->user_ctx);
-                            (void)printf("#DEBUG: func: %s, file: %s, line: %d, TRANSPORT_CLIENT_STATE_IDLE.\r\n", __FUNCTION__, __FILE__, __LINE__);
                             http_info->transport_state = TRANSPORT_CLIENT_STATE_IDLE;
                             break;
 
@@ -956,7 +952,6 @@ void dps_transport_http_dowork(DPS_TRANSPORT_HANDLE handle)
                                 {
                                     http_info->status_cb(parse_info->dps_status, http_info->status_ctx);
                                 }
-                                (void)printf("#DEBUG: func: %s, file: %s, line: %d, TRANSPORT_CLIENT_STATE_IDLE.\r\n", __FUNCTION__, __FILE__, __LINE__);
                                 http_info->transport_state = TRANSPORT_CLIENT_STATE_IDLE;
                             }
                             break;
@@ -975,7 +970,6 @@ void dps_transport_http_dowork(DPS_TRANSPORT_HANDLE handle)
             case TRANSPORT_CLIENT_STATE_ERROR:
                 /* Codes_DPS_TRANSPORT_HTTP_CLIENT_07_039: [ If the state is Error, dps_transport_http_dowork shall call the registration_data callback with DPS_TRANSPORT_RESULT_ERROR and NULL payload_data. ] */
                 http_info->register_data_cb(DPS_TRANSPORT_RESULT_ERROR, NULL, NULL, NULL, http_info->user_ctx);
-                (void)printf("#DEBUG: func: %s, file: %s, line: %d, TRANSPORT_CLIENT_STATE_IDLE.\r\n", __FUNCTION__, __FILE__, __LINE__);
                 http_info->transport_state = TRANSPORT_CLIENT_STATE_IDLE;
                 break;
 

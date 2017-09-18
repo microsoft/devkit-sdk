@@ -467,7 +467,6 @@ static void on_transport_registration_data(DPS_TRANSPORT_RESULT transport_result
 
 static void on_transport_status(DPS_TRANSPORT_STATUS transport_status, void* user_ctx)
 {
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, entered the func.\r\n", __FUNCTION__, __FILE__, __LINE__);
     if (user_ctx == NULL)
     {
         LogError("user_ctx was unexpectatly NULL");

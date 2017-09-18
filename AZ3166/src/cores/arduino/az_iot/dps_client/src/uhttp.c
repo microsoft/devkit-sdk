@@ -375,7 +375,6 @@ static int convert_char_to_hex(const unsigned char* hexText, size_t len)
 
 static void on_bytes_received(void* context, const unsigned char* buffer, size_t len)
 {
-    (void)printf("#DEBUG: func: %s, file: %s, line: %d, entered on_bytes_received.\r\n", __FUNCTION__, __FILE__, __LINE__);
     HTTP_CLIENT_HANDLE_DATA* http_data = (HTTP_CLIENT_HANDLE_DATA*)context;
 
     if (http_data != NULL && buffer != NULL && len > 0 && http_data->recv_msg.recv_state != state_error)
@@ -819,7 +818,6 @@ static int construct_http_headers(HTTP_HEADERS_HANDLE http_header, size_t conten
 
 static STRING_HANDLE construct_http_data(HTTP_CLIENT_REQUEST_TYPE request_type, const char* relative_path, STRING_HANDLE http_line)
 {
-    (void)printf("entered construct_http_data\r\n");
     STRING_HANDLE result;
 
     const char* method = (request_type == HTTP_CLIENT_REQUEST_GET) ? "GET"
