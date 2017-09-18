@@ -117,11 +117,6 @@ _DiceDeriveCDI(
                       rDigest, DICE_DIGEST_LENGTH,
                       DiceCDI.bytes);
 
-    (void)printf("DiceCDI bytes: ");
-    for (int i = 0; i < 32; i++){
-        (void)printf("%x ", DiceCDI.bytes[i]);
-    }
-    (void)printf("\r\n");
     // Success
     return 0;
 
