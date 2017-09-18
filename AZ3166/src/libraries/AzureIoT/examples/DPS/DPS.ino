@@ -44,7 +44,7 @@ void setup() {
     return;
   }
 
-  delay(1000);
+  delay(100);
   Serial.println("Start to run Dice+RIoT application.\r\n");
   delay(100);
   status = StartDiceInit();

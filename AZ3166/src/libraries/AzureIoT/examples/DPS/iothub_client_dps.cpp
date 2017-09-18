@@ -289,7 +289,7 @@ int __attribute__((section(".riot_fw"))) IoTHubClientStart()
                         if ((current_tick - last_send_time) / 1000 > TIME_BETWEEN_MESSAGES)
                         {
                             static char msgText[1024];
-                            sprintf_s(msgText, sizeof(msgText), "{ \"message_index\" : \"%zu\" }", msg_count++);
+                            sprintf_s(msgText, sizeof(msgText), "{ \"message_index\" : \"%lu\" }", msg_count++);
 
                             IOTHUB_MESSAGE_HANDLE msg_handle = IoTHubMessage_CreateFromByteArray((const unsigned char*)msgText, strlen(msgText));
                             if (msg_handle == NULL)
