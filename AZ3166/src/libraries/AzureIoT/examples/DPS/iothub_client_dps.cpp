@@ -305,7 +305,7 @@ int __attribute__((section(".riot_fw"))) IoTHubClientStart()
                                 else
                                 {
                                     (void)tickcounter_get_current_ms(tick_counter_handle, &last_send_time);
-                                    (void)printf("IoTHubClient_LL_SendEventAsync accepted message [%zu] for transmission to IoT Hub.\r\n", msg_count);
+                                    (void)printf("IoTHubClient_LL_SendEventAsync accepted message [%lu] for transmission to IoT Hub.\r\n", msg_count);
 
                                 }
                                 IoTHubMessage_Destroy(msg_handle);
