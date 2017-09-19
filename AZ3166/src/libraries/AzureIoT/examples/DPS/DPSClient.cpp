@@ -22,14 +22,17 @@
 #include "azure_hub_modules/secure_device_factory.h"
 #include "azure_hub_modules/dps_transport_http_client.h"
 
-#include "certs.h"
+#include "azureiotcerts.h"
 #include "iothub_client_version.h"
 
 DEFINE_ENUM_STRINGS(DPS_ERROR, DPS_ERROR_VALUES);
 DEFINE_ENUM_STRINGS(DPS_REGISTRATION_STATUS, DPS_REGISTRATION_STATUS_VALUES);
 
-static const char* dps_uri = "[Global device endpoint]";
-static const char* dps_scope_id = "[ID Scope]";
+extern char* Global_Device_Endpoint;
+extern char* ID_Scope;
+
+static const char* dps_uri = Global_Device_Endpoint;
+static const char* dps_scope_id = ID_Scope;
 
 static bool g_trace_on = true;
 
@@ -42,7 +45,6 @@ static bool g_trace_on = true;
 #endif // USE_OPENSSL
 
 static bool g_use_proxy = false;
-//static bool g_use_proxy = true;
 static const char* PROXY_ADDRESS = "192.168.137.1";
 
 #define PROXY_PORT                  8888
@@ -156,7 +158,7 @@ static void on_dps_error_callback(DPS_ERROR error_type, void* user_context)
     }
 }
 
-int __attribute__((section(".riot_fw"))) IoTHubClientStart()
+int __attribute__((section(".riot_fw"))) DPSClientStart()
 {
     int result;
     if (platform_init() != 0)

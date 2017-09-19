@@ -28,49 +28,38 @@ unsigned int g_DICertLen;
 // We don't do CSRs on this device
 static bool SelfSignedDeviceCert = true;
 
+// attribute section info from AZ3166.ld
 extern void* __start_riot_fw;
 extern void* __stop_riot_fw;
+extern char* Registration_Id;
 
-char *
-RIoTGetDeviceID(
-	unsigned int *len
-)
+char * RIoTGetDeviceID(unsigned int *len)
 {
-	if (len)
-		*len = g_DeviceIDPubLen;
-	return g_DeviceIDPub;
+    if (len)
+        *len = g_DeviceIDPubLen;
+    return g_DeviceIDPub;
 }
 
-char *
-RIoTGetAliasKey(
-	unsigned int *len
-)
+char * RIoTGetAliasKey(unsigned int *len)
 { 
-	if (len)
-		*len = g_AliasKeyLen;
-	return g_AliasKey;
+    if (len)
+        *len = g_AliasKeyLen;
+    return g_AliasKey;
 }
 
-char *
-RIoTGetAliasCert(
-	unsigned int *len
-)
+char * RIoTGetAliasCert(unsigned int *len)
 {
-	if (len)
-		*len = g_AKCertLen;
-	return g_AKCert;
+    if (len)
+        *len = g_AKCertLen;
+    return g_AKCert;
 }
 
-char *
-RIoTGetDeviceCert(
-	unsigned int *len
-)
+char * RIoTGetDeviceCert(unsigned int *len)
 {
-	if (len)
-		*len = g_DICertLen;
-	return g_DICert;
+    if (len)
+        *len = g_DICertLen;
+    return g_DICert;
 }
-	
 
 // The static data fields that make up the Alias Cert "to be signed" region
 RIOT_X509_TBS_DATA x509AliasTBSData = { { 0x0A, 0x0B, 0x0C, 0x0D, 0x0E },
@@ -84,15 +73,7 @@ RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
                                        "170101000000Z", "370101000000Z",
                                        "devkitdice", "DEVKIT_TEST", "US" };
 
-extern int
-AppStart(
-void
-);
-
-static bool
-RiotCore_Remediate(
-    RIOT_STATUS status
-)
+static bool RiotCore_Remediate(RIOT_STATUS status)
 // This is the remediation "handler" for RIoT Invariant Code.
 {
     switch (status) {
@@ -125,6 +106,9 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     uint8_t             *base;
     uint32_t            length;
     uint32_t            dcType;
+
+    // Update subject common of alias certificate TBD data to input registration Id
+    x509AliasTBSData.SubjectCommon = Registration_Id;
 
     // Validate Compound Device Identifier, pointer and length
     if (!(CDI) || (CDILen != RIOT_DIGEST_LENGTH)) {
@@ -219,7 +203,8 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
         
         // DeviceID Cert type
         dcType = CERT_TYPE;
-		} else {            
+        } 
+    else {
         // Initialize, create CSR TBS region
         DERInitContext(&derCtx, derBuffer, DER_MAX_TBS);
         X509GetDERCsrTbs(&derCtx, &x509AliasTBSData, &deviceIDPub);
@@ -229,12 +214,12 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
 
         // Create CSR for DeviceID
         X509GetDERCsr(&derCtx, &tbsSig);
-			
-			  // DeviceID CSR type
-			  dcType = CERT_REQ_TYPE;
-		}
 
-		// Copy CSR/self-signed Cert
+        // DeviceID CSR type
+        dcType = CERT_REQ_TYPE;
+        }
+
+    // Copy CSR/self-signed Cert
     length = sizeof(g_DICert);
     DERtoPEM(&derCtx, dcType, g_DICert, &length);
     g_DICert[length] = '\0';
@@ -243,16 +228,19 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     // Clean up sensative data
     memset(&deviceIDPriv, 0, sizeof(RIOT_ECC_PRIVATE));
 
-    // Display info for Alias Key and Device ID
+    // Display info for Alias Key Certificate
     char *buf;
-    buf = RIoTGetDeviceID(NULL);
-    (void)printf("\r\nDeviceID Public\r\n%s\r\n", buf);
-    buf = RIoTGetAliasKey(NULL);
-    (void)printf("Alias Key Pair\r\n%s\r\n", buf);
     buf = RIoTGetAliasCert(NULL);
     (void)printf("Alias Key Certificate\r\n%s\r\n", buf);
-    buf = RIoTGetDeviceCert(NULL);
-    (void)printf("Device Certificate\r\n%s\r\n", buf);
+
+    #ifdef MORE_CERT_INFO
+        buf = RIoTGetDeviceID(NULL);
+        (void)printf("\r\nDeviceID Public\r\n%s\r\n", buf);
+        buf = RIoTGetAliasKey(NULL);
+        (void)printf("Alias Key Pair\r\n%s\r\n", buf);
+        buf = RIoTGetDeviceCert(NULL);
+        (void)printf("Device Certificate\r\n%s\r\n", buf);
+    #endif
 
     // Must not return. If we do, DICE will trigger reset.
     return;

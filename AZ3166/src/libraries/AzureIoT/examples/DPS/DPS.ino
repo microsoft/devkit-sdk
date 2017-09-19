@@ -1,6 +1,7 @@
-#include "DiceInit.h"
+#include "DiceRIoT.h"
 #include "AZ3166WiFi.h"
 #include "OledDisplay.h"
+#include "DPSClient.h"
 
 static int status;
 
@@ -44,17 +45,17 @@ void setup() {
     return;
   }
 
-  delay(100);
-  Serial.println("Start to run Dice+RIoT application.\r\n");
-  delay(100);
-  status = StartDiceInit();
-  delay(10);
-  if (status == 0){
-    Serial.println("Finish Dice+RIoT+DPS application successfully.\r\n");
-    Screen.print(2, "DPS connected!\r\n");
+  // Transfer code to DICE|RIoT
+  if(DiceRIoTStart() != 0){
+    return;
+  }
+
+  // Transfer control to firmware
+  if(DPSClientStart() != 0){
+    Screen.print(2, "DPS Failed!\r\n");
   }
   else{
-    Screen.print(2, "DPS Failed!\r\n");
+    Screen.print(2, "DPS connected!\r\n");
   }
 }
 

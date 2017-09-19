@@ -6,17 +6,11 @@ Confidential Information
 */
 #ifndef __DICE_CORE_H
 #define __DICE_CORE_H
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdint.h>
 #include <string.h>
-
-#ifndef MIN
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#endif
-
-#ifndef MAX
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#endif
 
 #define DICE_DIGEST_LENGTH  0x20
 
@@ -60,17 +54,12 @@ typedef struct DICE_DATA {
     uint32_t        riotSize;
 } DICE_DATA;
 
-void
-DiceCore(
-    void
-);
-
-//#define RIOT_BASE_ADDR  Load$$ER_IROM4$$Base
-//#define RIOT_BASE_ADDR  (0x08070800)
-//#define RIOT_LIMIT_ADDR Load$$ER_IROM4$$Limit
-//#define RIOT_LIMIT_ADDR (0x08073478)
-
-//extern uint8_t RIOT_BASE_ADDR[];
-//extern uint8_t RIOT_LIMIT_ADDR[];
-
+// Functions
+int DiceCore(void);
+static uint32_t _DiceMeasure(uint8_t *data, size_t dataSize, uint8_t *digest, size_t digestSize);
+static uint32_t _DiceDeriveCDI(uint8_t *digest, size_t digestSize);
+static void _BZERO(void *p, uint32_t l);
+#ifdef __cplusplus
+}
+#endif
 #endif
