@@ -111,7 +111,7 @@
 
                         break;
 
-                    case "GenerateActiveProgramFirmware":
+                    case "GenerateSensorStatusBinFile":
                         string sensorStatusPath = Path.Combine(workspace, ConfigurationManager.AppSettings["SensorStatusPath"]);
                         VerifyLibraryExamples(sensorStatusPath);
 
@@ -584,7 +584,7 @@
             string env = ConfigurationManager.AppSettings["Environment"].ToString();
             string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString();
 
-            // Maybe we can use a placeholder in the sciprt file, then replace the placeholder with actual url according to the environment
+            // Maybe we can use a placeholder in the script file, then replace the placeholder with actual url according to the environment
             if (string.Equals(env, "staging", StringComparison.OrdinalIgnoreCase))
             {
                 string content = File.ReadAllText(filePath);
