@@ -45,7 +45,7 @@ void setup() {
     return;
   }
 
-  // Transfer code to DICE|RIoT
+  // Transfer control to DICE|RIoT
   if(DiceRIoTStart() != 0){
     return;
   }

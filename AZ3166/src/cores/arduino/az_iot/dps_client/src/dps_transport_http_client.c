@@ -720,7 +720,7 @@ int dps_transport_http_open(DPS_TRANSPORT_HANDLE handle, BUFFER_HANDLE ek, BUFFE
     }
     else
     {
-        // Move the call back before create_connection
+        // Set call back before create_connection
         http_info->register_data_cb = data_callback;
         http_info->user_ctx = user_ctx;
         http_info->status_cb = status_cb;
