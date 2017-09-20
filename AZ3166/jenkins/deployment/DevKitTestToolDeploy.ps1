@@ -11,7 +11,6 @@ $FileExist = Test-Path $AppConfig
 if($FileExist -eq $false) 
 {
     Write-Host $AppConfig + "does not exist!"
-    $AppConfig + "does not exist" >> c:\windows\temp\mtmlog.txt
     return
 }
 
