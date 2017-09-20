@@ -4,8 +4,7 @@
 #include "HTS221Sensor.h"
 #include "AzureIotHub.h"
 #include "Arduino.h"
-#include "json_object.h"
-#include "json_tokener.h"
+#include "parson.h"
 #include <assert.h>
 #include "config.h"
 #include "RGB_LED.h"
@@ -38,35 +37,40 @@ void blinkSendConfirmation()
     rgbLed.turnOff();
 }
 
-void parseTwinMessage(const char *message)
+void parseTwinMessage(DEVICE_TWIN_UPDATE_STATE updateState, const char *message)
 {
-    json_object *jsonObject, *desiredObject, *intervalObject;
-	if ((jsonObject = json_tokener_parse(message)) != NULL) {
-        bool success = false;
-        json_object_object_get_ex(jsonObject, "desired", &desiredObject);
-        if (desiredObject != NULL && json_object_get_type(desiredObject) == json_type_object)
+    JSON_Value *root_value;
+    root_value = json_parse_string(message);
+    if (json_value_get_type(root_value) != JSONObject)
+    {
+        if (root_value != NULL)
         {
-            json_object_object_get_ex(desiredObject, "interval", &intervalObject);
-            if (intervalObject != NULL)
-            {
-                interval = json_object_get_int(intervalObject);
-                success = true;
-            }
+            json_value_free(root_value);
         }
-        if (success == false) {
-            json_object_object_get_ex(jsonObject, "interval", &intervalObject);
-            if (intervalObject != NULL)
-            {
-                interval = json_object_get_int(intervalObject);
-            }
+        LogError("parse %s failed", message);
+        return;
+    }
+    JSON_Object *root_object = json_value_get_object(root_value);
+
+    double val = 0;
+    if (updateState == DEVICE_TWIN_UPDATE_COMPLETE)
+    {
+        JSON_Object *desired_object = json_object_get_object(root_object, "desired");
+        if (desired_object != NULL)
+        {
+            val = json_object_get_number(desired_object, "interval");
         }
     }
     else
     {
-        LogError("parse %s failed", message);
-        return;
+        val = json_object_get_number(root_object, "interval");
     }
-    json_object_put(jsonObject);
+    if (val > 500)
+    {
+        interval = (int)val;
+        LogInfo(">>>Device twin updated: set interval to %d", interval);
+    }
+    json_value_free(root_value);
 }
 
 void SensorInit()
@@ -98,22 +102,23 @@ float readHumidity()
 
 bool readMessage(int messageId, char *payload)
 {
-    json_object *jsonObject, *tmpObject;
-    jsonObject = json_object_new_object();
-    json_object_object_add(jsonObject, "deviceId", json_object_new_string(DEVICE_ID));
-    json_object_object_add(jsonObject, "messageId", json_object_new_int(messageId));
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *root_object = json_value_get_object(root_value);
+    char *serialized_string = NULL;
+
+    json_object_set_string(root_object, "deviceId", DEVICE_ID);
+    json_object_set_number(root_object, "messageId", messageId);
 
     float temperature = readTemperature();
     float humidity = readHumidity();
     bool temperatureAlert = false;
-
     if(temperature != temperature)
     {
-        json_object_object_add(jsonObject, "temperature", NULL);
+        json_object_set_null(root_object, "temperature");
     }
     else
     {
-        json_object_object_add(jsonObject, "temperature", json_object_new_double(temperature));
+        json_object_set_number(root_object, "temperature", temperature);
         if(temperature > TEMPERATURE_ALERT)
         {
             temperatureAlert = true;
@@ -122,13 +127,16 @@ bool readMessage(int messageId, char *payload)
 
     if(humidity != humidity)
     {
-        json_object_object_add(jsonObject, "humidity", NULL);
+        json_object_set_null(root_object, "humidity");
     }
     else
     {
-        json_object_object_add(jsonObject, "humidity", json_object_new_double(humidity));
+        json_object_set_number(root_object, "humidity", humidity);
     }
-    snprintf(payload, MESSAGE_MAX_LEN, "%s", json_object_to_json_string(jsonObject));
-    json_object_put(jsonObject);
+    serialized_string = json_serialize_to_string_pretty(root_value);
+
+    snprintf(payload, MESSAGE_MAX_LEN, "%s", serialized_string);
+    json_free_serialized_string(serialized_string);
+    json_value_free(root_value);
     return temperatureAlert;
 }
