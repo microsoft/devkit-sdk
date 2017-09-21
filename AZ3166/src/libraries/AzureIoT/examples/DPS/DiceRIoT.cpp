@@ -23,7 +23,6 @@ DICE_CMPND_ID DiceCDI = { DICE_CMPND_TAG , { 0x00 } };
 
 int DiceRIoTStart(void)
 {
-    int result = 0;
     (void)printf("The riot_core start address: %p\r\n", &__start_riot_core);
     (void)printf("The riot_core end address: %p\r\n", &__stop_riot_core);
 
@@ -43,9 +42,11 @@ int DiceRIoTStart(void)
     // the volatile storage segment. This attempt to transfer control to RIoT
     // will trigger a system reset. We will not be able to proceed.
     // TODO: DETECT WHEN A RESET HAS OCCURRED AND TAKE SOME ACTION.
-    RiotStart(DiceCDI.bytes, (uint16_t)DICE_DIGEST_LENGTH);
+    if (RiotStart(DiceCDI.bytes, (uint16_t)DICE_DIGEST_LENGTH) != 0){
+        return -1;
+    }
 
-    return result;
+    return 0;
 }
 
 int DiceInit(void)

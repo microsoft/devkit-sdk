@@ -7,6 +7,7 @@ Confidential Information
 
 #include "RiotCore.h"
 #include <stdio.h>
+#include "azure_c_shared_utility/xlogging.h"
 
 // RIoT Core data
 static uint8_t cDigest[RIOT_DIGEST_LENGTH+1];
@@ -73,31 +74,12 @@ RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
                                        "170101000000Z", "370101000000Z",
                                        "devkitdice", "DEVKIT_TEST", "US" };
 
-static bool RiotCore_Remediate(RIOT_STATUS status)
-// This is the remediation "handler" for RIoT Invariant Code.
-{
-    switch (status) {
-        case RIOT_INVALID_STATE:
-        case RIOT_INVALID_BOOT_MODE:
-        case RIOT_INVALID_DEVICE_ID:
-        case RIOT_INVALID_METADATA:
-        case RIOT_LOAD_MODULE_FAILED:
-            while (1) {
-            }
-        default:
-            break;
-    }
-
-    // Indicate that this error is unhandled and we should reboot.
-    return true;
-}
-
-void RiotStart(uint8_t *CDI, uint16_t CDILen)
 // Entry point for RIoT Invariant Code
+int RiotStart(uint8_t *CDI, uint16_t CDILen)
 {
-
-    (void)printf("The riot_fw start address: %p\r\n", &__start_riot_fw);
-    (void)printf("The riot_fw end address: %p\r\n", &__stop_riot_fw);
+    int status;
+    LogInfo("The riot_fw start address: %p", &__start_riot_fw);
+    LogInfo("The riot_fw end address: %p", &__stop_riot_fw);
 
     RIOT_ECC_PUBLIC     deviceIDPub, aliasKeyPub;
     RIOT_ECC_PRIVATE    deviceIDPriv, aliasKeyPriv;
@@ -113,18 +95,22 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     // Validate Compound Device Identifier, pointer and length
     if (!(CDI) || (CDILen != RIOT_DIGEST_LENGTH)) {
         // Invalid state, remediate.
-        Riot_Remediate(RiotCore, RIOT_INVALID_STATE);
+        LogError("Failure: Invalid CDI information from DICE.");
+        return RIOT_INVALID_PARAMETER;
     }
 
     // Don't use CDI directly
-    RiotCrypt_Hash(cDigest, RIOT_DIGEST_LENGTH, CDI, CDILen);
+    if ((status = RiotCrypt_Hash(cDigest, RIOT_DIGEST_LENGTH, CDI, CDILen)) != RIOT_SUCCESS){
+        LogError("Failure: RiotCrypt_Hash returned invalid status %d.", status);
+        return status;
+    }
 
     // Derive DeviceID key pair from CDI
-    RiotCrypt_DeriveEccKey(&deviceIDPub,
-                           &deviceIDPriv,
-                           cDigest, RIOT_DIGEST_LENGTH,
-                           (const uint8_t *)RIOT_LABEL_IDENTITY,
-                           lblSize(RIOT_LABEL_IDENTITY));
+    if ((status = RiotCrypt_DeriveEccKey(&deviceIDPub, &deviceIDPriv, cDigest, RIOT_DIGEST_LENGTH,
+        (const uint8_t *)RIOT_LABEL_IDENTITY, lblSize(RIOT_LABEL_IDENTITY))) != RIOT_SUCCESS){
+        LogError("Failure: RiotCrypt_DeriveEccKey returned invalid status %d.", status);
+        return status;
+    }
 
     // Pickup start of FW image and calculate its length
     // It must be the address of DPS code
@@ -132,41 +118,56 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     length = (uint8_t*)&__stop_riot_fw - base;
 
     // Measure FW, i.e., calculate FWID
-    RiotCrypt_Hash(FWID, RIOT_DIGEST_LENGTH, base, length);
+    if ((status = RiotCrypt_Hash(FWID, RIOT_DIGEST_LENGTH, base, length)) != RIOT_SUCCESS){
+        LogError("Failure: RiotCrypt_Hash returned invalid status %d.", status);
+        return status;
+    }
     FWID[RIOT_DIGEST_LENGTH] = "\0";
 
     // Combine CDI and FWID, result in cDigest
-    RiotCrypt_Hash2(cDigest, RIOT_DIGEST_LENGTH,
-                    cDigest, RIOT_DIGEST_LENGTH,
-                    FWID, RIOT_DIGEST_LENGTH);
-
+    if ((status = RiotCrypt_Hash2(cDigest, RIOT_DIGEST_LENGTH, cDigest, RIOT_DIGEST_LENGTH, 
+    FWID, RIOT_DIGEST_LENGTH)) != RIOT_SUCCESS){
+        LogError("Failure: RiotCrypt_Hash2 returned invalid status %d.", status);
+        return status;
+    }
     cDigest[RIOT_DIGEST_LENGTH] = "\0";
 
     // Derive Alias key pair from CDI and FWID
-    RiotCrypt_DeriveEccKey(&aliasKeyPub,
-                           &aliasKeyPriv,
-                           cDigest, RIOT_DIGEST_LENGTH,
-                           (const uint8_t *)RIOT_LABEL_ALIAS,
-                           lblSize(RIOT_LABEL_ALIAS));
+    if ((status = RiotCrypt_DeriveEccKey(&aliasKeyPub, &aliasKeyPriv, cDigest, RIOT_DIGEST_LENGTH, 
+    (const uint8_t *)RIOT_LABEL_ALIAS,lblSize(RIOT_LABEL_ALIAS))) != RIOT_SUCCESS){
+        LogError("Failure: RiotCrypt_DeriveEccKey returned invalid status %d.", status);
+        return status;
+    }
 
     // Clean up potentially sensative data
     memset(cDigest, 0x00, RIOT_DIGEST_LENGTH);
 
     // Build the TBS (to be signed) region of Alias Key Certificate
     DERInitContext(&derCtx, derBuffer, DER_MAX_TBS);
-    X509GetAliasCertTBS(&derCtx, &x509AliasTBSData,
-                        &aliasKeyPub, &deviceIDPub,
-                        FWID, RIOT_DIGEST_LENGTH);
+    if ((status = X509GetAliasCertTBS(&derCtx, &x509AliasTBSData, &aliasKeyPub, &deviceIDPub, 
+    FWID, RIOT_DIGEST_LENGTH)) != 0){
+        LogError("Failure: X509GetAliasCertTBS returned invalid status %d.", status);
+        return status;
+    }
 
     // Sign the Alias Key Certificate's TBS region
-    RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv);
+    if ((status = RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv)) != RIOT_SUCCESS){
+        LogError("Failure: RiotCrypt_Sign returned invalid status %d.", status);
+        return status;
+    }
 
     // Generate Alias Key Certificate
-    X509MakeAliasCert(&derCtx, &tbsSig);
+    if ((status = X509MakeAliasCert(&derCtx, &tbsSig)) != 0){
+        LogError("Failure: X509MakeAliasCert returned invalid status %d.", status);
+        return status;
+    }
 
     // Copy Alias Key Certificate
     length = sizeof(g_AKCert);
-    DERtoPEM(&derCtx, CERT_TYPE, g_AKCert, &length);
+    if ((status = DERtoPEM(&derCtx, CERT_TYPE, g_AKCert, &length)) != 0){
+        LogError("Failure: DERtoPEM returned invalid status %d.", status);
+        return status;
+    }
     g_AKCert[length] = '\0';
     g_AKCertLen = length;
 
@@ -175,17 +176,29 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
 
     // Copy DeviceID Public
     DERInitContext(&derCtx, derBuffer, DER_MAX_TBS);
-    X509GetDEREccPub(&derCtx, deviceIDPub);
+    if ((status = X509GetDEREccPub(&derCtx, deviceIDPub)) != 0){
+        LogError("Failure: X509GetDEREccPub returned invalid status %d.", status);
+        return status;
+    }
     length = sizeof(g_DeviceIDPub);
-    DERtoPEM(&derCtx, PUBLICKEY_TYPE, g_DeviceIDPub, &length);
+    if ((status = DERtoPEM(&derCtx, PUBLICKEY_TYPE, g_DeviceIDPub, &length)) != 0){
+        LogError("Failure: DERtoPEM returned invalid status %d.", status);
+        return status;
+    }
     g_DeviceIDPub[length] = '\0';
     g_DeviceIDPubLen = length;
 
     // Copy Alias Key Pair
     DERInitContext(&derCtx, derBuffer, DER_MAX_TBS);
-    X509GetDEREcc(&derCtx, aliasKeyPub, aliasKeyPriv);
+    if ((status = X509GetDEREcc(&derCtx, aliasKeyPub, aliasKeyPriv)) != 0){
+        LogError("Failure: X509GetDEREcc returned invalid status %d.", status);
+        return status;
+    }
     length = sizeof(g_AliasKey);
-    DERtoPEM(&derCtx, ECC_PRIVATEKEY_TYPE, g_AliasKey, &length);
+    if ((status = DERtoPEM(&derCtx, ECC_PRIVATEKEY_TYPE, g_AliasKey, &length)) != 0){
+        LogError("Failure: DERtoPEM returned invalid status %d.", status);
+        return status;
+    }
     g_AliasKey[length] = '\0';
     g_AliasKeyLen = length;
 
@@ -193,13 +206,22 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     if(SelfSignedDeviceCert) {
         // Build the TBS (to be signed) region of DeviceID Certificate
         DERInitContext(&derCtx, derBuffer, DER_MAX_TBS);
-        X509GetDeviceCertTBS(&derCtx, &x509DeviceTBSData, &deviceIDPub);
+        if ((status = X509GetDeviceCertTBS(&derCtx, &x509DeviceTBSData, &deviceIDPub)) != 0){
+            LogError("Failure: X509GetDeviceCertTBS returned invalid status %d.", status);
+            return status;
+        }
 
         // Sign the DeviceID Certificate's TBS region
-        RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv);
+        if ((status = RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv)) != RIOT_SUCCESS){
+            LogError("Failure: RiotCrypt_Sign returned invalid status %d.", status);
+            return status;
+        }
 
         // Generate DeviceID Certificate
-        X509MakeDeviceCert(&derCtx, &tbsSig);
+        if ((status = X509MakeDeviceCert(&derCtx, &tbsSig)) != 0){
+            LogError("Failure: X509MakeDeviceCert returned invalid status %d.", status);
+            return status;
+        }
         
         // DeviceID Cert type
         dcType = CERT_TYPE;
@@ -207,13 +229,22 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     else {
         // Initialize, create CSR TBS region
         DERInitContext(&derCtx, derBuffer, DER_MAX_TBS);
-        X509GetDERCsrTbs(&derCtx, &x509AliasTBSData, &deviceIDPub);
+        if ((status = X509GetDERCsrTbs(&derCtx, &x509AliasTBSData, &deviceIDPub)) != 0){
+            LogError("Failure: X509GetDERCsrTbs returned invalid status %d.", status);
+            return status;
+        }
 
         // Sign the Alias Key Certificate's TBS region
-        RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv);
+        if ((status = RiotCrypt_Sign(&tbsSig, derCtx.Buffer, derCtx.Position, &deviceIDPriv)) != RIOT_SUCCESS){
+            LogError("Failure: RiotCrypt_Sign returned invalid status %d.", status);
+            return status;
+        }
 
         // Create CSR for DeviceID
-        X509GetDERCsr(&derCtx, &tbsSig);
+        if ((status = X509GetDERCsr(&derCtx, &tbsSig)) != 0){
+            LogError("Failure: X509GetDERCsr returned invalid status %d.", status);
+            return status;
+        }
 
         // DeviceID CSR type
         dcType = CERT_REQ_TYPE;
@@ -221,7 +252,10 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
 
     // Copy CSR/self-signed Cert
     length = sizeof(g_DICert);
-    DERtoPEM(&derCtx, dcType, g_DICert, &length);
+    if ((status = DERtoPEM(&derCtx, dcType, g_DICert, &length)) != 0){
+        LogError("Failure: DERtoPEM returned invalid status %d.", status);
+        return status;
+    }
     g_DICert[length] = '\0';
     g_DICertLen = length;
     
@@ -243,5 +277,5 @@ void RiotStart(uint8_t *CDI, uint16_t CDILen)
     #endif
 
     // Must not return. If we do, DICE will trigger reset.
-    return;
+    return 0;
 }

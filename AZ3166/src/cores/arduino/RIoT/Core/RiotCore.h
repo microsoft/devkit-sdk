@@ -20,13 +20,8 @@ char * __attribute__((section(".riot_core"))) RIoTGetAliasKey(unsigned int *len)
 char * __attribute__((section(".riot_core"))) RIoTGetAliasCert(unsigned int *len);
 char * __attribute__((section(".riot_core"))) RIoTGetDeviceCert(unsigned int *len);
 
-static bool __attribute__((section(".riot_core"))) RiotCore_Remediate(RIOT_STATUS status);
-void __attribute__((section(".riot_core"))) RiotStart(uint8_t *CDI, uint16_t CDILen);
+int __attribute__((section(".riot_core"))) RiotStart(uint8_t *CDI, uint16_t CDILen);
 
-#define Riot_Remediate(SM, ERR)     \
-    if (SM##_Remediate(ERR)) {      \
-        return;                     \
-    }
 #ifdef __cplusplus
 }
 #endif
