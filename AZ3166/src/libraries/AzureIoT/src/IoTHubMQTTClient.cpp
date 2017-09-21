@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 #include "EEPROMInterface.h"
+#include "iothub_client_dps_ll.h"
 #include "IoTHubMQTTClient.h"
 #include "SerialLog.h"
 #include "SystemTickCounter.h"
 #include "SystemWiFi.h"
 #include "Telemetry.h"
+#include "DPSClient.h"
 
 #define CONNECT_TIMEOUT_MS          30000
 #define CHECK_INTERVAL_MS           5000
@@ -34,6 +36,8 @@ static bool enableDeviceTwin = false;
 static uint64_t iothub_check_ms;
 
 static char* iothub_hostname = NULL;
+
+extern bool is_iothub_from_dps;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
@@ -459,31 +463,42 @@ bool IoTHubMQTT_Init(bool hasDeviceTwin)
     
     srand((unsigned int)time(NULL));
     trackingId = 0;
-
-    // Load connection from EEPROM
-    EEPROMInterface eeprom;
-    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
-    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
-    if (ret < 0)
-    { 
-        LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
-        return false;
-    }
-    else if (ret == 0)
-    {
-        LogError("The connection string is empty.\r\nPlease set the value in configuration mode.");
-        return false;
-    }
-    iothub_hostname = GetHostNameFromConnectionString((char*)connString);
-    
-    if (platform_init() != 0)
-    {
-        LogError("Failed to initialize the platform.");
-        return false;
-    }
     
     // Create the IoTHub client
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
+    if (is_iothub_from_dps)
+    {
+        // Use DPS
+        iothub_hostname = DPSGetIoTHubURI();
+        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DPSGetDeviceID(), MQTT_Protocol);
+        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", DPSGetIoTHubURI(), DPSGetDeviceID(), iotHubClientHandle);
+    }
+    else
+    {
+        if (platform_init() != 0)
+        {
+            LogError("Failed to initialize the platform.");
+            return false;
+        }
+
+        // Load connection from EEPROM
+        EEPROMInterface eeprom;
+        uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+        int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
+        if (ret < 0)
+        { 
+            LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
+            return false;
+        }
+        else if (ret == 0)
+        {
+            LogError("The connection string is empty.\r\nPlease set the value in configuration mode.");
+            return false;
+        }
+        iothub_hostname = GetHostNameFromConnectionString((char*)connString);
+        iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol);
+    }
+    
+    if (iotHubClientHandle == NULL)
     {
         LogTrace("Create", "IoT hub establish failed");
         return false;
@@ -496,37 +511,42 @@ bool IoTHubMQTT_Init(bool hasDeviceTwin)
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"TrustedCerts\"");
+        IoTHubMQTT_Close();
         return false;
     }
-
+    
     /* Setting Message call back, so we can receive Commands. */
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, ReceiveMessageCallback, &receiveContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetMessageCallback..........FAILED!");
+        IoTHubMQTT_Close();
         return false;
     }
-
+    
     if (IoTHubClient_LL_SetConnectionStatusCallback(iotHubClientHandle, ConnectionStatusCallback, &statusContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetConnectionStatusCallback..........FAILED!");
+        IoTHubMQTT_Close();
         return false;
     }
-
+    
     if (enableDeviceTwin)
     {
         if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
         {
             LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
+            IoTHubMQTT_Close();
             return false;
         }
-
+        
         if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
         {
             LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
+            IoTHubMQTT_Close();
             return false;
         }
     }
-
+    
     iothub_check_ms = SystemTickCounterRead();
 
     // Waiting for the confirmation 
