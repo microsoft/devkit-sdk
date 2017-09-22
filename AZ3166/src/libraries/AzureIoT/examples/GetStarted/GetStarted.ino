@@ -7,11 +7,12 @@
 
 #include "config.h"
 #include "utility.h"
-#include "Telemetry.h"
+#include "SystemTickCounter.h"
 
 static bool hasWifi = false;
 int messageCount = 1;
 static bool messageSending = true;
+static uint64_t send_interval_ms;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
@@ -56,7 +57,7 @@ static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsig
   }
   memcpy(temp, payLoad, size);
   temp[size] = '\0';
-  parseTwinMessage(temp);
+  parseTwinMessage(updateState, temp);
   free(temp);
 }
 
@@ -90,7 +91,6 @@ static int  DeviceMethodCallback(const char *methodName, const unsigned char *pa
   return result;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Arduino sketch
 void setup()
@@ -117,25 +117,34 @@ void setup()
   SensorInit();
 
   Screen.print(3, " > IoT Hub");
-  IoTHubMQTT_Init();
+  IoTHubMQTT_Init(true);
   
   IoTHubMQTT_SetSendConfirmationCallback(SendConfirmationCallback);
   IoTHubMQTT_SetMessageCallback(MessageCallback);
   IoTHubMQTT_SetDeviceTwinCallback(DeviceTwinCallback);
   IoTHubMQTT_SetDeviceMethodCallback(DeviceMethodCallback);
+
+  send_interval_ms = SystemTickCounterRead();
 }
 
 void loop()
 {
-  char messagePayload[MESSAGE_MAX_LEN];
-  if (messageSending)
+  if (messageSending && 
+      (int)(SystemTickCounterRead() - send_interval_ms) >= getInterval())
   {
+    // Send teperature data
+    char messagePayload[MESSAGE_MAX_LEN];
+
     bool temperatureAlert = readMessage(messageCount++, messagePayload);
     EVENT_INSTANCE* message = GenerateEvent(messagePayload, MESSAGE);
     AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
     IoTHubMQTT_SendEventInstance(message);
-    delay(getInterval());
+    
+    send_interval_ms = SystemTickCounterRead();
   }
-  IoTHubMQTT_Check();
+  else
+  {
+    IoTHubMQTT_Check();
+  }
   delay(10);
 }

@@ -500,7 +500,7 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, const void* value)
 {
     /* Not implementing any options */
-    return __FAILURE__;
+    return 0;
 }
 
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_023: [ The socketio_get_interface_description shall return the VTable IO_INTERFACE_DESCRIPTION. ]*/

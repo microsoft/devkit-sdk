@@ -78,9 +78,7 @@ RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
 int RiotStart(uint8_t *CDI, uint16_t CDILen)
 {
     int status;
-    LogInfo("The riot_fw start address: %p", &__start_riot_fw);
-    LogInfo("The riot_fw end address: %p", &__stop_riot_fw);
-
+    
     RIOT_ECC_PUBLIC     deviceIDPub, aliasKeyPub;
     RIOT_ECC_PRIVATE    deviceIDPriv, aliasKeyPriv;
     RIOT_ECC_SIGNATURE  tbsSig;
