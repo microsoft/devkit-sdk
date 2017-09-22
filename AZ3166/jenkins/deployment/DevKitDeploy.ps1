@@ -34,16 +34,16 @@ $StorageContext = New-AzureStorageContext -StorageAccountName $StorageAccountNam
 # Get current package version
 $CurrentVersion =  Get-Content '.\system_version.txt' | Out-String
 $CurrentVersion = $CurrentVersion.ToString().Trim()
-$CurrentVersion += "." + $env:BUILD_NUMBER
+$CurrentVersionWithBuildNumber = $CurrentVersion + "." + $env:BUILD_NUMBER
 
 # Upload installation package
-$InstallPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\usb_install_$CurrentVersion.zip"
+$InstallPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\usb_install_$CurrentVersionWithBuildNumber.zip"
 
-$InstallPackageBlobName = "devkit_install_" + $CurrentVersion + ".zip"
+$InstallPackageBlobName = "devkit_install_" + $CurrentVersionWithBuildNumber + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $InstallPackageFilePath -Blob "$InstallPackageContainer\$InstallPackageBlobName" -Force
 
 # Upload Arduino package
-$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\arduino_source_$CurrentVersion.zip"
+$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\arduino_source_$CurrentVersionWithBuildNumber.zip"
 $ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
