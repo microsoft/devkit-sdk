@@ -86,7 +86,7 @@ static void on_dps_error_callback(DPS_ERROR error_type, void* user_context)
     }
 }
 
-bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* dps_uri, const char* dps_scope_id, const char* proxy_address, int proxy_port)
+bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* dps_uri, const char* dps_scope_id, const char* registration_id, const char* proxy_address, int proxy_port)
 {
     if (dps_uri == NULL)
     {
@@ -114,7 +114,7 @@ bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* dps_uri, co
     LogInfo("Iothub Version: %s\r\n", IoTHubClient_GetVersionString());
     
     // Transfer control to DICE|RIoT
-    if(DiceRIoTStart() != 0)
+    if(DiceRIoTStart(registration_id) != 0)
     {
         LogError("Untrusted device.");
         return false;

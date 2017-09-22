@@ -8,6 +8,7 @@
 #include "config.h"
 #include "utility.h"
 #include "SystemTickCounter.h"
+#include "SystemVariables.h"
 
 extern char* Global_Device_Endpoint;
 extern char* ID_Scope;
@@ -121,7 +122,7 @@ void setup() {
 
   Screen.print(3, " > DPS");
   // Transfer control to firmware
-  if(DPSClientStart(Global_Device_Endpoint, ID_Scope))
+  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, GetBoardID()))
   {
     Screen.print(2, "DPS connected!\r\n");
   }

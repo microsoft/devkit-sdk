@@ -9,6 +9,7 @@
 #include "mico_system.h"
 #include "SystemLock.h"
 #include "SystemTickCounter.h"
+#include "SystemVariables.h"
 #include "SystemWiFi.h"
 
 static bool Initialization(void)
@@ -80,21 +81,6 @@ static bool IsAPMode()
     return false;
 }
 
-static int GetMACWithoutColon(char* buff)
-{
-    const char* mac = WiFiInterface()->get_mac_address();
-    int j = 0;
-    for(int i =0; i < strlen(mac); i++)
-    {
-        if (mac[i] != ':')
-        {
-            buff[j++] = mac[i];
-        }
-    }
-
-    return j;
-}
-
 static void EnterConfigurationMode()
 {
     pinMode(USER_BUTTON_A, INPUT);
@@ -126,11 +112,8 @@ static void EnterAPMode()
         Serial.println("Set wifi AP Mode failed");
         return;
     }
-
-    char ap_name[24] = "AZ-";
-    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
-
-    int ret = SystemWiFiAPStart(ap_name, "");
+    
+    int ret = SystemWiFiAPStart(GetBoardID(), "");
     if ( ret == false) 
     {
         Serial.println("Soft ap creation failed");
@@ -139,11 +122,11 @@ static void EnterAPMode()
 
     httpd_server_start();
     
-    Screen.print(1, ap_name);
+    Screen.print(1, GetBoardID());
     Screen.print(2, "Config WiFi on");
     Screen.print(3, "192.168.0.1");
 
-    Serial.printf("Soft AP %s is running...\r\n", ap_name);
+    Serial.printf("Soft AP %s is running...\r\n", GetBoardID());
     Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the Wi-Fi settings.\r\n");
 }
 

@@ -8,7 +8,7 @@ extern "C"
 {
 #endif
 
-int DiceRIoTStart(void);
+int DiceRIoTStart(const char *RegistrationId);
 
 #ifdef __cplusplus
 }

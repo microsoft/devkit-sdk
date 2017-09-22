@@ -14,28 +14,28 @@
 extern "C" {
 #endif
 
-char version[10] = { "\0" };
+static char version[10] = { "\0" };
 
-const char* getDevkitVersion()
+const char* getDevkitVersion(void)
 {
     snprintf(version, sizeof(version), "%d.%d.%d", DEVKIT_MAJOR_VERSION, DEVKIT_MINOR_VERSION, DEVKIT_PATCH_VERSION);
     return version;
 }
 
 
-uint32_t getMajorVersion()
+uint32_t getMajorVersion(void)
 {
     return DEVKIT_MAJOR_VERSION;
 }
 
 
-uint32_t getMinorVersion()
+uint32_t getMinorVersion(void)
 {
     return DEVKIT_MINOR_VERSION;
 }
 
 
-uint32_t getPatchVersion()
+uint32_t getPatchVersion(void)
 {
     return DEVKIT_PATCH_VERSION;
 }

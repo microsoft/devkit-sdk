@@ -7,9 +7,6 @@ const DICE_UDS DiceUDS = { DICE_UDS_TAG,
                            0xd0, 0xcc, 0x7d, 0x17, 0x43, 0x45, 0x8a, 0xae,
                            0x1c, 0xb4, 0x88, 0xb0, 0x74, 0x99, 0x3e, 0xae }};
 
-// DPS Registration Id as (potential) DeviceID in IoT Hub
-const char* Registration_Id = "devkitriotcore";
-
 // DPS instance information on Overview
 const char* Global_Device_Endpoint = "[Global Device Endpoint]";
 const char* ID_Scope = "[ID Scope]";

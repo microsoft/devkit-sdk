@@ -43,7 +43,7 @@ static int DiceInit(void)
     return 0;
 }
 
-int DiceRIoTStart(void)
+int DiceRIoTStart(const char *RegistrationId)
 {
     // Initialize DICE
     if (DiceInit() != 0){
@@ -61,7 +61,7 @@ int DiceRIoTStart(void)
     // the volatile storage segment. This attempt to transfer control to RIoT
     // will trigger a system reset. We will not be able to proceed.
     // TODO: DETECT WHEN A RESET HAS OCCURRED AND TAKE SOME ACTION.
-    if (RiotStart(DiceCDI.bytes, (uint16_t)DICE_DIGEST_LENGTH) != 0){
+    if (RiotStart(DiceCDI.bytes, (uint16_t)DICE_DIGEST_LENGTH, RegistrationId) != 0){
         return -1;
     }
 

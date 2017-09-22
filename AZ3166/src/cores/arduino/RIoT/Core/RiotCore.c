@@ -32,7 +32,6 @@ static bool SelfSignedDeviceCert = true;
 // attribute section info from AZ3166.ld
 extern void* __start_riot_fw;
 extern void* __stop_riot_fw;
-extern char* Registration_Id;
 
 char * RIoTGetDeviceID(unsigned int *len)
 {
@@ -75,7 +74,7 @@ RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
                                        "devkitdice", "DEVKIT_TEST", "US" };
 
 // Entry point for RIoT Invariant Code
-int RiotStart(uint8_t *CDI, uint16_t CDILen)
+int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
 {
     int status;
     
@@ -88,7 +87,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen)
     uint32_t            dcType;
 
     // Update subject common of alias certificate TBD data to input registration Id
-    x509AliasTBSData.SubjectCommon = Registration_Id;
+    x509AliasTBSData.SubjectCommon = RegistrationId;
 
     // Validate Compound Device Identifier, pointer and length
     if (!(CDI) || (CDILen != RIOT_DIGEST_LENGTH)) {

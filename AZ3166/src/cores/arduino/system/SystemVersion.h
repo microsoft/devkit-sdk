@@ -11,16 +11,16 @@ extern "C" {
 
 #include <stdint.h>
 //Get the whole version string
-const char* getDevkitVersion();
+const char* getDevkitVersion(void);
 
 //Get major version
-uint32_t getMajorVersion();
+uint32_t getMajorVersion(void);
 
 //Get minor version
-uint32_t getMinorVersion();
+uint32_t getMinorVersion(void);
 
 //Get patch version
-uint32_t getPatchVersion();
+uint32_t getPatchVersion(void);
 
 #ifdef __cplusplus
 }
