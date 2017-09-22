@@ -51,7 +51,7 @@ size_t UARTClass::write(const uint8_t c)
 size_t UARTClass::write(const uint8_t *buffer, size_t size)
 {
   init();
-  return serial->puts(buffer);
+  return serial->write(buffer, size);
 }
 
 int UARTClass::available( void )

@@ -86,7 +86,7 @@ int BufferedSerial::puts(const uint8_t *s)
             _txbuf.putc(*(ptr++)); 
         }
 
-        //_txbuf.putc('\n');      // done per puts definition
+        _txbuf.putc('\n');      // done per puts definition
         BufferedSerial::prime();
     
         return (ptr - s) + 1;
