@@ -37,7 +37,7 @@ public:
      * @param len length
      * @return put length
      */
-    int puts(uint8_t *data, int len);
+    int put(uint8_t *data, int len);
 
     int peek();
     
