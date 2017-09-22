@@ -467,7 +467,7 @@
             DirectoryInfo targetDir = new DirectoryInfo(targetFolder);
             CopyAll(sourceDir, targetDir);
 
-            string packageFile = Path.Combine(resultFolderPath, string.Format(packageName, versionInfo, Environment.GetEnvironmentVariable("BUILD_NUMBER")));
+            string packageFile = Path.Combine(resultFolderPath, string.Format(packageName, versionInfo));
             if (File.Exists(packageFile))
             {
                 File.Delete(packageFile);
