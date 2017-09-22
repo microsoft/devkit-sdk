@@ -4,7 +4,7 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-void parseTwinMessage(const char *);
+void parseTwinMessage(DEVICE_TWIN_UPDATE_STATE, const char *);
 bool readMessage(int, char *);
 
 void SensorInit(void);
