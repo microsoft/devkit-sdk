@@ -19,7 +19,8 @@ int GetMACWithoutColon(char* buff)
     {
         if (mac[i] != ':')
         {
-            buff[j++] = mac[i];
+            // Lower case
+            buff[j++] = (mac[i] >= 'A' && mac[i] <= 'Z') ?  (mac[i] - 'A' + 'a') : mac[i];
         }
     }
 
@@ -30,8 +31,8 @@ const char* GetBoardID(void)
 {
     if (boardID[0] == 0)
     {
-        boardID[0] = 'A';
-        boardID[1] = 'Z';
+        boardID[0] = 'a';
+        boardID[1] = 'z';
         boardID[2] = '-';
         boardID[3 + GetMACWithoutColon(boardID + 3)] = 0;
     }
