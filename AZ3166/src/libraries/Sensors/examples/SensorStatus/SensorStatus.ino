@@ -6,7 +6,7 @@
 
 #define NUMSENSORS 4  // 4 sensors to display
 
-// 0 - Motion&Gyro Sensor
+// 0 - Gyro Sensor
 // 1 - Pressure Sensor
 // 2 - Humidity & Temperature Sensor
 // 3 - Magnetic Sensor
@@ -102,7 +102,7 @@ void InitWiFi()
 
 void showMotionGyroSensor()
 {
-  acc_gyro->getXAxes(axes);
+  acc_gyro->getGAxes(axes);
   char buff[128];
   snprintf(buff, 128, "Gyroscope \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
