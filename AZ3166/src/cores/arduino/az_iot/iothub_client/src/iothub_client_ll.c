@@ -1408,7 +1408,7 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
         switch(reason)
         {
         case IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN:
-            if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
+            if (status == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
             {
                 LogInfo(">>>Connection status: timeout");
                 send_telemetry_data_async("", "Create", "Connection status: timeout");
@@ -1421,7 +1421,7 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
         case IOTHUB_CLIENT_CONNECTION_RETRY_EXPIRED:
             break;
         case IOTHUB_CLIENT_CONNECTION_NO_NETWORK:
-            if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
+            if (status == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
             {
                 LogInfo(">>>Connection status: disconnected");
                 send_telemetry_data_async("", "Create", "Connection status: disconnected");
@@ -1430,7 +1430,7 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
         case IOTHUB_CLIENT_CONNECTION_COMMUNICATION_ERROR:
             break;
         case IOTHUB_CLIENT_CONNECTION_OK:
-            if (result == IOTHUB_CLIENT_CONNECTION_AUTHENTICATED)
+            if (status == IOTHUB_CLIENT_CONNECTION_AUTHENTICATED)
             {
                 LogInfo(">>>Connection status: connected");
                 send_telemetry_data_async("", "Create", "IoT hub established");
