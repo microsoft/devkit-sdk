@@ -4,9 +4,10 @@
 #include "http_client.h"
 #include "telemetry.h"
 
-#define NUMSENSORS 4  // 4 sensors to display
+#define NUMSENSORS 5  // 5 sensors to display
 
 // 0 - Gyro Sensor
+// 1 - Motion (Acceleration) Sensor
 // 1 - Pressure Sensor
 // 2 - Humidity & Temperature Sensor
 // 3 - Magnetic Sensor
@@ -108,6 +109,14 @@ void showMotionGyroSensor()
   Screen.print(buff);
 }
 
+void showMotionAccelSensor()
+{
+  acc_gyro->getXAxes(axes);
+  char buff[128];
+  snprintf(buff, 128, "Accelorometer \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", axes[0], axes[1], axes[2]);
+  Screen.print(buff);
+}
+
 void showPressureSensor()
 {
   float pressure = 0;
@@ -189,7 +198,7 @@ void setup() {
      Serial.println(WiFi.encryptionType(thisNet));
   }   
 
-  status = 3;
+  status = 4;
   counter = 0;
   showSensor = false;
   isConnected = false;
@@ -249,6 +258,9 @@ void loop() {
         break;
       case 3:
         showMotionGyroSensor();
+        break;
+      case 4:
+        showMotionAccelSensor();
         break;
     }
   }
