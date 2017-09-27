@@ -19,6 +19,7 @@
 #include "iothub_client_options.h"
 #include "iothub_client_version.h"
 #include <stdint.h>
+#include "Telemetry.h"
 
 #ifndef DONT_USE_UPLOADTOBLOB
 #include "iothub_client_ll_uploadtoblob.h"
@@ -1405,6 +1406,10 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
     {
         IOTHUB_CLIENT_LL_HANDLE_DATA* handleData = (IOTHUB_CLIENT_LL_HANDLE_DATA*)handle;
 
+        if (reason == IOTHUB_CLIENT_CONNECTION_OK)
+        {
+            send_telemetry_data_async("", "Create", "IoT hub established");
+        }
         /*Codes_SRS_IOTHUBCLIENT_LL_25_114: [IoTHubClient_LL_ConnectionStatusCallBack shall call non-callback set by the user from IoTHubClient_LL_SetConnectionStatusCallback passing the status, reason and the passed userContextCallback.]*/
         if (handleData->conStatusCallback != NULL)
         {
