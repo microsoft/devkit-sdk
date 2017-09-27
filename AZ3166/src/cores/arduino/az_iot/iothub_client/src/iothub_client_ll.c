@@ -1403,6 +1403,41 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
     }
     else
     {
+        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+        // We collect data about the features you use, how often you use them, and how you use them.
+        switch(reason)
+        {
+        case IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN:
+            if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
+            {
+                LogInfo(">>>Connection status: timeout");
+                send_telemetry_data_async("", "Create", "Connection status: timeout");
+            }
+            break;
+        case IOTHUB_CLIENT_CONNECTION_DEVICE_DISABLED:
+            break;
+        case IOTHUB_CLIENT_CONNECTION_BAD_CREDENTIAL:
+            break;
+        case IOTHUB_CLIENT_CONNECTION_RETRY_EXPIRED:
+            break;
+        case IOTHUB_CLIENT_CONNECTION_NO_NETWORK:
+            if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
+            {
+                LogInfo(">>>Connection status: disconnected");
+                send_telemetry_data_async("", "Create", "Connection status: disconnected");
+            }
+            break;
+        case IOTHUB_CLIENT_CONNECTION_COMMUNICATION_ERROR:
+            break;
+        case IOTHUB_CLIENT_CONNECTION_OK:
+            if (result == IOTHUB_CLIENT_CONNECTION_AUTHENTICATED)
+            {
+                LogInfo(">>>Connection status: connected");
+                send_telemetry_data_async("", "Create", "IoT hub established");
+            }
+            break;
+        }
+        
         IOTHUB_CLIENT_LL_HANDLE_DATA* handleData = (IOTHUB_CLIENT_LL_HANDLE_DATA*)handle;
 
         /*Codes_SRS_IOTHUBCLIENT_LL_25_114: [IoTHubClient_LL_ConnectionStatusCallBack shall call non-callback set by the user from IoTHubClient_LL_SetConnectionStatusCallback passing the status, reason and the passed userContextCallback.]*/
