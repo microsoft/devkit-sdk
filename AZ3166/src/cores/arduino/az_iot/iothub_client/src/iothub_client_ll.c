@@ -1411,7 +1411,6 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
             if (status == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
             {
                 LogInfo(">>>Connection status: timeout");
-                send_telemetry_data_async("", "Create", "Connection status: timeout");
             }
             break;
         case IOTHUB_CLIENT_CONNECTION_DEVICE_DISABLED:
@@ -1424,7 +1423,6 @@ void IoTHubClient_LL_ConnectionStatusCallBack(IOTHUB_CLIENT_LL_HANDLE handle, IO
             if (status == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
             {
                 LogInfo(">>>Connection status: disconnected");
-                send_telemetry_data_async("", "Create", "Connection status: disconnected");
             }
             break;
         case IOTHUB_CLIENT_CONNECTION_COMMUNICATION_ERROR:
