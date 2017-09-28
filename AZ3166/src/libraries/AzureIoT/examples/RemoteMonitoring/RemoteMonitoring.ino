@@ -5,7 +5,7 @@
 #include "Sensor.h"
 #include "AzureIotHub.h"
 #include "AZ3166WiFi.h"
-#include "_iothub_client_sample_mqtt.h"
+#include "IoTHubMQTTClient.h"
 #include "Telemetry.h"
 
 static bool isConnected = false;
@@ -17,16 +17,10 @@ char wifiBuff[128];
 
 #define RECONNECT_THRESHOLD 3
 
-static void SendEventToIoTHub(const char* msg)
-{
-  iothub_client_sample_send_event((const unsigned char *)msg);
-  iothub_client_sample_mqtt_loop();
-}
-
 void sendDeviceInfo()
 {
     char *deviceInfo = "{\"ObjectType\":\"DeviceInfo\",\"Version\":\"1.0\",\"IsSimulatedDevice\":false,\"DeviceProperties\":{\"DeviceID\":\"AZ3166\",\"HubEnabledState\":true}}";
-    SendEventToIoTHub(deviceInfo);
+    IoTHubMQTT_SendEvent(deviceInfo);
 }
 
 void InitWiFi()
@@ -39,7 +33,7 @@ void InitWiFi()
     sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
     digitalWrite(LED_WIFI, 1);
-    iothub_client_sample_mqtt_init();
+    IoTHubMQTT_Init();
     sendDeviceInfo();
     isConnected = true;
   }
@@ -66,7 +60,7 @@ void showHumidTempSensor()
   
   char sensorData[100];
   sprintf_s(sensorData, sizeof(sensorData), "{\"DeviceId\":\"DevKit\",\"Temperature\":%s,\"Humidity\":%s}", f2s(temperature, 1), f2s(humidity, 1));
-  SendEventToIoTHub(sensorData);
+  IoTHubMQTT_SendEvent(sensorData);
 }
 
 void setup() {

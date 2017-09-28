@@ -333,6 +333,9 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
     event->trackingId = trackingId++;
     currentTrackingId = event->trackingId;
 
+    char propText[32];
+    sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
+    AddProp(event, "PropName", propText);
     uint64_t start_ms = SystemTickCounterRead();
 
     CheckConnection();
@@ -417,17 +420,6 @@ EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
             LogError("iotHubMessageHandle is NULL!");
             free(event);
             return NULL;
-        }
-    
-        MAP_HANDLE propMap = IoTHubMessage_Properties(event->messageHandle);
-        
-        char propText[32];
-        sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
-        if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
-        {
-             LogError("Map_AddOrUpdate Failed!");
-             free(event);
-             return NULL;
         }
     }
 
