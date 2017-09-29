@@ -114,7 +114,7 @@
             "taskName": "config-device-connection",
             "command": "node",
             "windows": {
-                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "config_device_connection", ".bin"],
+                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "config_device_connection", ".bin"],
                 "options": {
                     "shell": {
                         "executable": "cmd.exe",
