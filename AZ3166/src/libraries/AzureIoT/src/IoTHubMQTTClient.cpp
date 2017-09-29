@@ -418,17 +418,6 @@ EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
             free(event);
             return NULL;
         }
-    
-        MAP_HANDLE propMap = IoTHubMessage_Properties(event->messageHandle);
-        
-        char propText[32];
-        sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
-        if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
-        {
-             LogError("Map_AddOrUpdate Failed!");
-             free(event);
-             return NULL;
-        }
     }
 
     if (type == STATE)
