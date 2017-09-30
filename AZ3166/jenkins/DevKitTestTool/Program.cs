@@ -581,18 +581,13 @@
                 throw new FileNotFoundException($"Failed to find the task-installation.js, file path: {filePath}");
             }
 
-            string env = ConfigurationManager.AppSettings["Environment"].ToString();
             string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString();
+            string content = File.ReadAllText(filePath);
 
-            // Maybe we can use a placeholder in the script file, then replace the placeholder with actual url according to the environment
-            if (string.Equals(env, "staging", StringComparison.OrdinalIgnoreCase))
-            {
-                string content = File.ReadAllText(filePath);
-                content = content.Replace("BOARD_URL_PLACEHOLDER", newUrl);
-                Console.WriteLine($"Set board manager URL to {newUrl}");
+            content = content.Replace("BOARD_URL_PLACEHOLDER", newUrl);
+            Console.WriteLine($"Set board manager URL to {newUrl}");
 
-                File.WriteAllText(filePath, content);
-            }
+            File.WriteAllText(filePath, content);
         }
     }
 }
