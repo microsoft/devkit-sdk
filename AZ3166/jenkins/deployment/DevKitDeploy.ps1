@@ -49,7 +49,7 @@ $ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
 # Upload Firmware bin file
-$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\devkit-firmware-$CurrentVersionWithBuildNumber.zip"
+$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\devkit-firmware-$CurrentVersionWithBuildNumber.bin"
 
 $FirmwareBlobName = "devkit-firmware-" + $CurrentVersionWithBuildNumber + ".bin"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob "$FirmwareContainer\$FirmwareBlobName" -Force
