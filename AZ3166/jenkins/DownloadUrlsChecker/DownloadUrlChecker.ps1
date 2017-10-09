@@ -6,7 +6,7 @@ foreach ($url in $downloadURLs)
 {
     Write-Host("Starting to check: " + $url)
 
-    $statusCode = wget $url | % {$_.StatusCode}
+    $statusCode = wget $url -Method head | % {$_.StatusCode}
 
     If ($statusCode -eq 200) 
 	{
