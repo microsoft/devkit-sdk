@@ -20,7 +20,7 @@ char wifiBuff[128];
 void sendDeviceInfo()
 {
     char *deviceInfo = "{\"ObjectType\":\"DeviceInfo\",\"Version\":\"1.0\",\"IsSimulatedDevice\":false,\"DeviceProperties\":{\"DeviceID\":\"AZ3166\",\"HubEnabledState\":true}}";
-    IoTHubMQTT_SendEvent(deviceInfo);
+    DevKitMQTTClient_SendEvent(deviceInfo);
 }
 
 void InitWiFi()
@@ -33,7 +33,7 @@ void InitWiFi()
     sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
     digitalWrite(LED_WIFI, 1);
-    IoTHubMQTT_Init();
+    DevKitMQTTClient_Init();
     sendDeviceInfo();
     isConnected = true;
   }
@@ -60,7 +60,7 @@ void showHumidTempSensor()
   
   char sensorData[100];
   sprintf_s(sensorData, sizeof(sensorData), "{\"DeviceId\":\"DevKit\",\"Temperature\":%s,\"Humidity\":%s}", f2s(temperature, 1), f2s(humidity, 1));
-  IoTHubMQTT_SendEvent(sensorData);
+  DevKitMQTTClient_SendEvent(sensorData);
 }
 
 void setup() {
