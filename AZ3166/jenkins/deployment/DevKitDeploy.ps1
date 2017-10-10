@@ -26,6 +26,7 @@ $StorageAccountName = "azureboard"
 $InstallPackageContainer = "installpackage"
 $ArduinoPackageContainer = "arduinopackage"
 $PackageInfoContainer = "packageinfo"
+$FirmwareContainer = "firmware"
 
 # We can move this credential to Azure Key Vault once we have deploy with production subscription
 $Key = $env:DevKitStorageKey
@@ -47,6 +48,11 @@ $ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestR
 $ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
+# Upload Firmware bin file
+$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\devkit-firmware-$CurrentVersionWithBuildNumber.bin"
+
+$FirmwareBlobName = "devkit-firmware-" + $CurrentVersionWithBuildNumber + ".bin"
+Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob "$FirmwareContainer\$FirmwareBlobName" -Force
 
 #################################################################################
 # Step 2: Calculate package MD5 checksum and upload this MD5 info to Azure Blob #
