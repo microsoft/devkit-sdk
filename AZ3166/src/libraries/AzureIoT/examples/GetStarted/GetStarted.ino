@@ -3,7 +3,7 @@
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/connect-iot-hub?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
-#include "IoTHubMQTTClient.h"
+#include "DevKitMQTTClient.h"
 
 #include "config.h"
 #include "utility.h"
@@ -117,12 +117,12 @@ void setup()
   SensorInit();
 
   Screen.print(3, " > IoT Hub");
-  IoTHubMQTT_Init(true);
+  DevKitMQTTClient_Init(true);
   
-  IoTHubMQTT_SetSendConfirmationCallback(SendConfirmationCallback);
-  IoTHubMQTT_SetMessageCallback(MessageCallback);
-  IoTHubMQTT_SetDeviceTwinCallback(DeviceTwinCallback);
-  IoTHubMQTT_SetDeviceMethodCallback(DeviceMethodCallback);
+  DevKitMQTTClient_SetSendConfirmationCallback(SendConfirmationCallback);
+  DevKitMQTTClient_SetMessageCallback(MessageCallback);
+  DevKitMQTTClient_SetDeviceTwinCallback(DeviceTwinCallback);
+  DevKitMQTTClient_SetDeviceMethodCallback(DeviceMethodCallback);
 
   send_interval_ms = SystemTickCounterRead();
 }
@@ -136,15 +136,15 @@ void loop()
     char messagePayload[MESSAGE_MAX_LEN];
 
     bool temperatureAlert = readMessage(messageCount++, messagePayload);
-    EVENT_INSTANCE* message = GenerateEvent(messagePayload, MESSAGE);
-    AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
-    IoTHubMQTT_SendEventInstance(message);
+    EVENT_INSTANCE* message = DevKitMQTTClient_Event_Generate(messagePayload, MESSAGE);
+    DevKitMQTTClient_Event_AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
+    DevKitMQTTClient_SendEventInstance(message);
     
     send_interval_ms = SystemTickCounterRead();
   }
   else
   {
-    IoTHubMQTT_Check();
+    DevKitMQTTClient_Check();
   }
   delay(10);
 }
