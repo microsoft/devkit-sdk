@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 #include "EEPROMInterface.h"
-#include "IoTHubMQTTClient.h"
+#include "DevKitMQTTClient.h"
 #include "SerialLog.h"
 #include "SystemTickCounter.h"
 #include "SystemWiFi.h"
@@ -480,7 +480,7 @@ bool IoTHubMQTT_Init(bool hasDeviceTwin)
     
     int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
-    bool traceOn = false;
+    bool traceOn = true;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {

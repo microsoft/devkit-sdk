@@ -3,7 +3,7 @@
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/shake-shake/?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
-#include "IoTHubMQTTClient.h"
+#include "DevKitMQTTClient.h"
 #include "OledDisplay.h"
 #include "Sensor.h"
 #include "ShakeUI.h"

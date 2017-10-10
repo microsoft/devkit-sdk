@@ -5,7 +5,7 @@
 #include "Sensor.h"
 #include "AzureIotHub.h"
 #include "AZ3166WiFi.h"
-#include "IoTHubMQTTClient.h"
+#include "DevKitMQTTClient.h"
 #include "Telemetry.h"
 
 static bool isConnected = false;

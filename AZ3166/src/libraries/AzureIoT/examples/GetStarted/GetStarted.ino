@@ -3,7 +3,7 @@
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/connect-iot-hub?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
-#include "IoTHubMQTTClient.h"
+#include "DevKitMQTTClient.h"
 
 #include "config.h"
 #include "utility.h"
