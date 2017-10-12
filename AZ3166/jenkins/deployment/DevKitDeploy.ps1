@@ -22,7 +22,7 @@ Write-Host("Step 1: upload packages to Azure blob storage");
 
 $SubscriptionName = "VSChina IoT DevINT"
 $SubscriptionId = "faab228d-df7a-4086-991e-e81c4659d41a"
-$StorageAccountName = "azureboard"
+$StorageAccountName = "azureboard1"
 $InstallPackageContainer = "installpackage"
 $ArduinoPackageContainer = "arduinopackage"
 $PackageInfoContainer = "packageinfo"
@@ -112,7 +112,7 @@ $LastPlatform = ([PSCustomObject]($ArduinoConfigJson.packages[0].platforms[$tota
 if ($LastPlatform.version -eq $CurrentVersion)
 {
     # Update the latest version
-    $LastPlatform.url = "https://azureboard.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
+    $LastPlatform.url = "https://azureboard1.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
     $LastPlatform.archiveFileName = $ArduinoPackageBlobName
     $LastPlatform.checksum = "MD5:" + $ArduinoPackageHash
     $LastPlatform.size = (Get-Item $ArduinoPackageFilePath).Length.ToString()
@@ -127,7 +127,7 @@ else
     }
 
     $NewPlatform.version = $CurrentVersion
-    $NewPlatform.url = "https://azureboard.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
+    $NewPlatform.url = "https://azureboard1.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
     $NewPlatform.archiveFileName = $ArduinoPackageBlobName
     $NewPlatform.checksum = "MD5:" + $ArduinoPackageHash
     $NewPlatform.size = (Get-Item $ArduinoPackageFilePath).Length.ToString()
@@ -152,7 +152,7 @@ $ArduinoConfigJson | ConvertTo-Json -Depth 10 | Out-File $ArduinoConfigFileName 
 $ArduinoConfigJsonBlobName = "$PackageInfoContainer/$ArduinoConfigFileName"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoConfigFileName -Blob $ArduinoConfigJsonBlobName -Force
 
-$ArduinoConfigJsonBlobURL = "https://azureboard.blob.core.windows.net/$Environment/$ArduinoConfigJsonBlobName"
+$ArduinoConfigJsonBlobURL = "https://azureboard1.blob.core.windows.net/$Environment/$ArduinoConfigJsonBlobName"
 Write-Host("Arduino board manager JSON file URI: $ArduinoConfigJsonBlobURL")
 
 Write-Host("$Environment deployment completed.");
