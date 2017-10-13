@@ -70,7 +70,7 @@ $ArduinoPackageHash = $ArduinoPackageHash.ToLower() -replace '-', ''
 Write-Host($ArduinoPackageHash);
 
 # Update MD5 checksum in json file
-Get-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -Blob $MD5FileName -Force
+Get-AzureStorageBlobContent -Context $StorageContext -Container $Environment -Blob "$PackageInfoContainer\$MD5FileName" -Destination $MD5FileName -Force
 
 $MD5Json = Get-Content $MD5FileName | Out-String | ConvertFrom-Json
 $NewItem = $MD5Json.installPackageMD5.Where({$_.version -eq $CurrentVersion})
