@@ -3,7 +3,7 @@
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/shake-shake/?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
-#include "DevKitMQTTClient.h"
+#include "IoTHubMQTTClient.h"
 #include "OledDisplay.h"
 #include "Sensor.h"
 #include "ShakeUI.h"
@@ -127,7 +127,7 @@ static void HeartBeat()
   DigitalOut LedUser(LED_BUILTIN);
   LedUser = 1;
   // Send heart beat message
-  DevKitMQTTClient_SendEvent(iot_event_heartbeat);
+  IoTHubMQTT_SendEvent(iot_event_heartbeat);
   LedUser = 0;
   
   // Reset
@@ -283,7 +283,7 @@ static void DoIdle()
     HeartBeat();
     
     // Check with the IoT hub
-    DevKitMQTTClient_Check();
+    IoTHubMQTT_Check();
 }
 
 static void DoShake()
@@ -307,7 +307,7 @@ static void DoShake()
     // Update the screen
     ShowShakeProgress();
     // Send to IoT hub
-    if (DevKitMQTTClient_SendEvent(iot_event))
+    if (IoTHubMQTT_SendEvent(iot_event))
     {
       if (shake_progress < 2)
       {
@@ -343,7 +343,7 @@ static void DoWork()
     NoTweets();
   }
   // Check with the IoT hub
-  DevKitMQTTClient_Check(false);
+  IoTHubMQTT_Check(false);
 
   if (shake_progress > 2)
   {
@@ -428,7 +428,7 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   
-  if (!DevKitMQTTClient_Init())
+  if (!IoTHubMQTT_Init())
   {
     Screen.clean();
     DrawAppTitle("IoT DevKit");
@@ -437,7 +437,7 @@ void setup()
     return;
   }
   hasIoTHub = true;
-  DevKitMQTTClient_SetMessageCallback(TwitterMessageCallback);
+  IoTHubMQTT_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
   hb_interval_ms = -(HEARTBEAT_INTERVAL);   // Trigger heart beat immediately

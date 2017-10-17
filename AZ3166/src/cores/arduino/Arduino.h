@@ -89,8 +89,6 @@ extern const PinDescription g_APinDescription[] ;
 #include "WCharacter.h"
 #include "Stream.h"	
 
-#include "floatIO.h" 
-
 #include "app_httpd.h"
 #include "version.h"
 

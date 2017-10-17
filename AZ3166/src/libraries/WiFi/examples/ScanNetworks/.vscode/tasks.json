@@ -7,19 +7,16 @@
 // ${cwd}: the current working directory of the spawned process
 // A task runner that calls a custom npm script that compiles the extension.
 {
-    "version": "2.0.0",
+    "version": "0.1.0",
+    "args": [],
+    "runner": "terminal",
+    "showOutput": "always",
     "tasks": [
         {
             "taskName": "device-upload",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "build", ".bin"],
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": ["/d", "/c"]
-                    }
-                }
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "build", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "build", ".bin"]
@@ -27,13 +24,8 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "build", ".bin"]
             },
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": []
+            "isShellCommand": true,
+            "isBuildCommand": true
         }
     ]
 }

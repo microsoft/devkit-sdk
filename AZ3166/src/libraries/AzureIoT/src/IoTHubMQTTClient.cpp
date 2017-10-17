@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 #include "EEPROMInterface.h"
-#include "DevKitMQTTClient.h"
+#include "iothub_client_dps_ll.h"
+#include "IoTHubMQTTClient.h"
 #include "SerialLog.h"
 #include "SystemTickCounter.h"
 #include "SystemWiFi.h"
 #include "Telemetry.h"
+#include "DPSClient.h"
 
 #define CONNECT_TIMEOUT_MS          30000
 #define CHECK_INTERVAL_MS           5000
@@ -35,6 +37,8 @@ static uint64_t iothub_check_ms;
 
 static char* iothub_hostname = NULL;
 
+extern bool is_iothub_from_dps;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
 static void CheckConnection()
@@ -49,8 +53,8 @@ static void CheckConnection()
         {
             LogInfo(">>>Re-connect.");
             // Re-connect the IoT Hub
-            DevKitMQTTClient_Close();
-            DevKitMQTTClient_Init(enableDeviceTwin);
+            IoTHubMQTT_Close();
+            IoTHubMQTT_Init(enableDeviceTwin);
             resetClient = false;
         }
     }
@@ -399,7 +403,7 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MQTT APIs
-EVENT_INSTANCE* DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_TYPE type)
+EVENT_INSTANCE* GenerateEvent(const char *eventString, EVENT_TYPE type)
 {
     if (eventString == NULL)
     {
@@ -418,6 +422,17 @@ EVENT_INSTANCE* DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_T
             free(event);
             return NULL;
         }
+    
+        MAP_HANDLE propMap = IoTHubMessage_Properties(event->messageHandle);
+        
+        char propText[32];
+        sprintf_s(propText, sizeof(propText), "PropMsg_%d", event->trackingId);
+        if (Map_AddOrUpdate(propMap, "PropName", propText) != MAP_OK)
+        {
+             LogError("Map_AddOrUpdate Failed!");
+             free(event);
+             return NULL;
+        }
     }
 
     if (type == STATE)
@@ -428,14 +443,14 @@ EVENT_INSTANCE* DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_T
     return event;
 }
 
-void DevKitMQTTClient_Event_AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
+void AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
 {
     if (message == NULL || key == NULL) return;
     MAP_HANDLE propMap = IoTHubMessage_Properties(message->messageHandle);
     Map_AddOrUpdate(propMap, key, value);
 }
 
-bool DevKitMQTTClient_Init(bool hasDeviceTwin)
+bool IoTHubMQTT_Init(bool hasDeviceTwin)
 {
     if (iotHubClientHandle != NULL)
     {
@@ -448,31 +463,42 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
     
     srand((unsigned int)time(NULL));
     trackingId = 0;
-
-    // Load connection from EEPROM
-    EEPROMInterface eeprom;
-    uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
-    int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
-    if (ret < 0)
-    { 
-        LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
-        return false;
-    }
-    else if (ret == 0)
-    {
-        LogError("The connection string is empty.\r\nPlease set the value in configuration mode.");
-        return false;
-    }
-    iothub_hostname = GetHostNameFromConnectionString((char*)connString);
-    
-    if (platform_init() != 0)
-    {
-        LogError("Failed to initialize the platform.");
-        return false;
-    }
     
     // Create the IoTHub client
-    if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
+    if (is_iothub_from_dps)
+    {
+        // Use DPS
+        iothub_hostname = DPSGetIoTHubURI();
+        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DPSGetDeviceID(), MQTT_Protocol);
+        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", DPSGetIoTHubURI(), DPSGetDeviceID(), iotHubClientHandle);
+    }
+    else
+    {
+        if (platform_init() != 0)
+        {
+            LogError("Failed to initialize the platform.");
+            return false;
+        }
+
+        // Load connection from EEPROM
+        EEPROMInterface eeprom;
+        uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+        int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
+        if (ret < 0)
+        { 
+            LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
+            return false;
+        }
+        else if (ret == 0)
+        {
+            LogError("The connection string is empty.\r\nPlease set the value in configuration mode.");
+            return false;
+        }
+        iothub_hostname = GetHostNameFromConnectionString((char*)connString);
+        iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol);
+    }
+    
+    if (iotHubClientHandle == NULL)
     {
         LogTrace("Create", "IoT hub establish failed");
         return false;
@@ -480,42 +506,47 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
     
     int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
-    bool traceOn = true;
+    bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"TrustedCerts\"");
+        IoTHubMQTT_Close();
         return false;
     }
-
+    
     /* Setting Message call back, so we can receive Commands. */
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, ReceiveMessageCallback, &receiveContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetMessageCallback..........FAILED!");
+        IoTHubMQTT_Close();
         return false;
     }
-
+    
     if (IoTHubClient_LL_SetConnectionStatusCallback(iotHubClientHandle, ConnectionStatusCallback, &statusContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetConnectionStatusCallback..........FAILED!");
+        IoTHubMQTT_Close();
         return false;
     }
-
+    
     if (enableDeviceTwin)
     {
         if (IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, DeviceTwinCallback, NULL) != IOTHUB_CLIENT_OK)
         {
             LogError("Failed on IoTHubClient_LL_SetDeviceTwinCallback");
+            IoTHubMQTT_Close();
             return false;
         }
-
+        
         if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
         {
             LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
+            IoTHubMQTT_Close();
             return false;
         }
     }
-
+    
     iothub_check_ms = SystemTickCounterRead();
 
     // Waiting for the confirmation 
@@ -540,7 +571,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
     return true;
 }
 
-bool DevKitMQTTClient_SendEvent(const char *text)
+bool IoTHubMQTT_SendEvent(const char *text)
 {
     if (text == NULL)
     {
@@ -548,7 +579,7 @@ bool DevKitMQTTClient_SendEvent(const char *text)
     }
     for (int i = 0; i < SEND_EVENT_RETRY_COUNT; i++)
     {
-        if (SendEventOnce(DevKitMQTTClient_Event_Generate(text, MESSAGE)))
+        if (SendEventOnce(GenerateEvent(text, MESSAGE)))
         {
             return true;
         }
@@ -556,7 +587,7 @@ bool DevKitMQTTClient_SendEvent(const char *text)
     return false;
 }
 
-bool DevKitMQTTClient_ReportState(const char *stateString)
+bool IoTHubMQTT_ReportState(const char *stateString)
 {
     if (stateString == NULL)
     {
@@ -564,7 +595,7 @@ bool DevKitMQTTClient_ReportState(const char *stateString)
     }
     for (int i = 0; i < SEND_EVENT_RETRY_COUNT; i++)
     {
-        if (SendEventOnce(DevKitMQTTClient_Event_Generate(stateString, STATE)))
+        if (SendEventOnce(GenerateEvent(stateString, STATE)))
         {
             return true;
         }
@@ -572,7 +603,7 @@ bool DevKitMQTTClient_ReportState(const char *stateString)
     return false;
 }
 
-bool DevKitMQTTClient_SendEventInstance(EVENT_INSTANCE *event)
+bool IoTHubMQTT_SendEventInstance(EVENT_INSTANCE *event)
 {
     if (event == NULL)
     {
@@ -582,7 +613,7 @@ bool DevKitMQTTClient_SendEventInstance(EVENT_INSTANCE *event)
     return SendEventOnce(event);
 }
 
-void DevKitMQTTClient_Check(bool hasDelay)
+void IoTHubMQTT_Check(bool hasDelay)
 {
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
@@ -606,7 +637,7 @@ void DevKitMQTTClient_Check(bool hasDelay)
     }
 }
 
-void DevKitMQTTClient_Close(void)
+void IoTHubMQTT_Close(void)
 {
     if (iotHubClientHandle != NULL)
     {
@@ -615,32 +646,32 @@ void DevKitMQTTClient_Close(void)
     }
 }
 
-void DevKitMQTTClient_SetConnectionStatusCallback(CONNECTION_STATUS_CALLBACK connection_status_callback)
+void IoTHubMQTT_SetConnectionStatusCallback(CONNECTION_STATUS_CALLBACK connection_status_callback)
 {
     _connection_status_callback = connection_status_callback;
 }
 
-void DevKitMQTTClient_SetSendConfirmationCallback(SEND_CONFIRMATION_CALLBACK send_confirmation_callback)
+void IoTHubMQTT_SetSendConfirmationCallback(SEND_CONFIRMATION_CALLBACK send_confirmation_callback)
 {
     _send_confirmation_callback = send_confirmation_callback;
 }
 
-void DevKitMQTTClient_SetMessageCallback(MESSAGE_CALLBACK message_callback)
+void IoTHubMQTT_SetMessageCallback(MESSAGE_CALLBACK message_callback)
 {
     _message_callback = message_callback;
 }
 
-void DevKitMQTTClient_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_callback)
+void IoTHubMQTT_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_callback)
 {
     _device_twin_callback = device_twin_callback;
 }
 
-void DevKitMQTTClient_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback)
+void IoTHubMQTT_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback)
 {
     _device_method_callback = device_method_callback;
 }
 
-void DevKitMQTTClient_SetReportConfirmationCallback(REPORT_CONFIRMATION_CALLBACK report_confirmation_callback)
+void IoTHubMQTT_SetReportConfirmationCallback(REPORT_CONFIRMATION_CALLBACK report_confirmation_callback)
 {
     _report_confirmation_callback = report_confirmation_callback;
 }

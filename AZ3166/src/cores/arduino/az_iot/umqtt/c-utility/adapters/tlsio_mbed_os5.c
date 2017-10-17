@@ -813,7 +813,7 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
         }
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_029: [ The tlsio_mbedtls_setoption shall set the option on mbedtls connection when the optionName = x509certificate. ]*/
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_030: [ The tlsio_mbedtls_setoption shall fail when the optionName = x509certificate but mbedtls_x509_crt_parse() fails. ]*/
-        else if (strcmp(SU_OPTION_X509_CERT, optionName) == 0)
+        else if (strcmp(SU_OPTION_X509_CERT, optionName) == 0 || strcmp(OPTION_X509_ECC_CERT, optionName) == 0)
         {
             if (mbedtls_x509_crt_parse(&tls_io_instance->owncert, (const unsigned char *)value, (int)(strlen(value) + 1)) != 0)
             {
@@ -826,7 +826,7 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char* optionName, c
         }
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_031: [ The tlsio_mbedtls_setoption shall set the option on mbedtls connection when the optionName = x509privatekey. ]*/
         /* Codes_SRS_TLSIO_MBED_OS5_TLS_99_032: [ The tlsio_mbedtls_setoption shall fail when the optionName = x509privatekey but mbedtls_pk_parse_key() fails. ]*/
-        else if (strcmp(SU_OPTION_X509_PRIVATE_KEY, optionName) == 0)
+        else if (strcmp(SU_OPTION_X509_PRIVATE_KEY, optionName) == 0 || strcmp(OPTION_X509_ECC_KEY, optionName) == 0)
         {
             if (mbedtls_pk_parse_key(&tls_io_instance->pKey, (const unsigned char *)value, (int)(strlen(value) + 1), NULL, 0) != 0)
             {

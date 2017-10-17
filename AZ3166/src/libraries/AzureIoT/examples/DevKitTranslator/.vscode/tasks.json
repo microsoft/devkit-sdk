@@ -7,19 +7,16 @@
 // ${cwd}: the current working directory of the spawned process
 // A task runner that calls a custom npm script that compiles the extension.
 {
-    "version": "2.0.0",
+    "version": "0.1.0",
+    "args": [],
+    "runner": "terminal",
+    "showOutput": "always",
     "tasks": [
         {
             "taskName": "cloud-provision",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "provision", ".bin"],
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": ["/d", "/c"]
-                    }
-                }
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "provision", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "provision", ".bin"]
@@ -27,24 +24,14 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "provision", ".bin"]
             },
-            "type": "shell",
-            "presentation": {
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": []
+            "isShellCommand": true,
+            "isBuildCommand": false
         },
         {
             "taskName": "device-upload",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "build", ".bin"],
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": ["/d", "/c"]
-                    }
-                }
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "build", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "build", ".bin"]
@@ -52,25 +39,14 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "build", ".bin"]
             },
-            "type": "shell",
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": []
+            "isShellCommand": true,
+            "isBuildCommand": true
         },
         {
             "taskName": "cloud-deploy",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "deploy", ".bin"],
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": ["/d", "/c"]
-                    }
-                }
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "deploy", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "deploy", ".bin"]
@@ -78,24 +54,14 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "deploy", ".bin"]
             },
-            "type": "shell",
-            "presentation": {
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": []
+            "isShellCommand": true,
+            "isBuildCommand": false
         },
         {
             "taskName": "config_wifi",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "config_wifi"],
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": ["/d", "/c"]
-                    }
-                }
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "config_wifi"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "config_wifi"]
@@ -103,24 +69,14 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "config_wifi"]
             },
-            "type": "shell",
-            "presentation": {
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": []
+            "isShellCommand": true,
+            "isBuildCommand": false
         },
         {
             "taskName": "config-device-connection",
             "command": "node",
             "windows": {
-                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "config_device_connection", ".bin"],
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe",
-                        "args": ["/d", "/c"]
-                    }
-                }
+                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "config_device_connection", ".bin"]
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "config_device_connection", ".bin"]
@@ -128,12 +84,8 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "config_device_connection", ".bin"]
             },
-            "type": "shell",
-            "presentation": {
-                "reveal": "always",
-                "focus": true
-            },
-            "problemMatcher": []
+            "isShellCommand": true,
+            "isBuildCommand": false
         }
     ]
 }
