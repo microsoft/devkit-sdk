@@ -5,7 +5,7 @@ import {
 	getVersionInfo,
     removePackage,
     copyPackage,
-    zipPackage,
+    copyAZ3166,
     zipFinal,
 } from './generate';
 
@@ -16,7 +16,7 @@ async function main() {
 	getVersionInfo();
     removePackage();
     copyPackage();
-    await zipPackage();
+    copyAZ3166();
     await zipFinal();
 }
 
