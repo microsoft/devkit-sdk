@@ -44,6 +44,8 @@ typedef struct MQTT_CLIENT_TAG
     void* ctx;
     ON_MQTT_ERROR_CALLBACK fnOnErrorCallBack;
     void* errorCBCtx;
+    ON_MQTT_DISCONNECTED_CALLBACK disconnect_cb;
+    void* disconnect_ctx;
     QOS_VALUE qosValue;
     uint16_t keepAliveInterval;
     MQTT_CLIENT_OPTIONS mqttOptions;
@@ -57,24 +59,31 @@ typedef struct MQTT_CLIENT_TAG
 
 static void on_connection_closed(void* context)
 {
-    size_t* close_complete = (size_t*)context;
-    *close_complete = 1;
+    MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)context;
+    if (mqtt_client != NULL)
+    {
+        mqtt_client->socketConnected = false;
+        mqtt_client->clientConnected = false;
+        if (mqtt_client->disconnect_cb)
+        {
+            mqtt_client->disconnect_cb(mqtt_client->disconnect_ctx);
+        }
+    }
 }
 
 static void close_connection(MQTT_CLIENT* mqtt_client)
 {
-    size_t close_complete = 0;
-    (void)xio_close(mqtt_client->xioHandle, on_connection_closed, &close_complete);
-
-    size_t counter = 0;
-    do
+    (void)xio_close(mqtt_client->xioHandle, on_connection_closed, mqtt_client);
+    if (mqtt_client->disconnect_cb == NULL)
     {
-        xio_dowork(mqtt_client->xioHandle);
-        counter++;
-        ThreadAPI_Sleep(10);
-    } while (close_complete == 0 && counter < MAX_CLOSE_RETRIES);
-    mqtt_client->socketConnected = false;
-    mqtt_client->clientConnected = false;
+        size_t counter = 0;
+        do
+        {
+            xio_dowork(mqtt_client->xioHandle);
+            counter++;
+            ThreadAPI_Sleep(2);
+        } while (mqtt_client->clientConnected && counter < MAX_CLOSE_RETRIES);
+    }
 }
 
 static void set_error_callback(MQTT_CLIENT* mqtt_client, MQTT_CLIENT_EVENT_ERROR error_type)
@@ -83,8 +92,7 @@ static void set_error_callback(MQTT_CLIENT* mqtt_client, MQTT_CLIENT_EVENT_ERROR
     {
         mqtt_client->fnOnErrorCallBack(mqtt_client, error_type, mqtt_client->errorCBCtx);
     }
-    // Encounter underlying network error, so here just close the connection directly.
-    xio_close(mqtt_client->xioHandle, NULL, NULL);
+    close_connection(mqtt_client);
 }
 
 static STRING_HANDLE construct_trace_log_handle(MQTT_CLIENT* mqtt_client)
@@ -313,7 +321,7 @@ static int sendPacketItem(MQTT_CLIENT* mqtt_client, const unsigned char* data, s
 
     if (tickcounter_get_current_ms(mqtt_client->packetTickCntr, &mqtt_client->packetSendTimeMs) != 0)
     {
-        LogError("Failure getting current ms tickcounter");
+        LOG(AZ_LOG_ERROR, LOG_LINE, "Failure getting current ms tickcounter");
         result = __FAILURE__;
     }
     else
@@ -321,7 +329,7 @@ static int sendPacketItem(MQTT_CLIENT* mqtt_client, const unsigned char* data, s
         result = xio_send(mqtt_client->xioHandle, (const void*)data, length, sendComplete, mqtt_client);
         if (result != 0)
         {
-            LogError("%d: Failure sending control packet data", result);
+            LOG(AZ_LOG_ERROR, LOG_LINE, "%d: Failure sending control packet data", result);
             result = __FAILURE__;
         }
         else
@@ -405,7 +413,7 @@ static void onIoError(void* context)
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)context;
     if (mqtt_client != NULL && mqtt_client->fnOperationCallback)
     {
-        /* Codes_SRS_MQTT_CLIENT_07_032: [ If the actionResult parameter is of type MQTT_CLIENT_ON_DISCONNECT the the msgInfo value shall be NULL. ] */
+        /*Codes_SRS_MQTT_CLIENT_07_032: [If the actionResult parameter is of type MQTT_CLIENT_ON_DISCONNECT the the msgInfo value shall be NULL.]*/
         /* Codes_SRS_MQTT_CLIENT_07_036: [ If an error is encountered by the ioHandle the mqtt_client shall call xio_close. ] */
         set_error_callback(mqtt_client, MQTT_CLIENT_CONNECTION_ERROR);
     }
@@ -877,28 +885,16 @@ MQTT_CLIENT_HANDLE mqtt_client_init(ON_MQTT_MESSAGE_RECV_CALLBACK msgRecv, ON_MQ
         }
         else
         {
+            memset(result, 0, sizeof(MQTT_CLIENT));
             /*Codes_SRS_MQTT_CLIENT_07_003: [mqttclient_init shall allocate MQTTCLIENT_DATA_INSTANCE and return the MQTTCLIENT_HANDLE on success.]*/
-            result->xioHandle = NULL;
             result->packetState = UNKNOWN_TYPE;
-            result->packetSendTimeMs = 0;
             result->fnOperationCallback = opCallback;
             result->ctx = opCallbackCtx;
             result->fnMessageRecv = msgRecv;
             result->fnOnErrorCallBack = onErrorCallBack;
             result->errorCBCtx = errorCBCtx;
             result->qosValue = DELIVER_AT_MOST_ONCE;
-            result->keepAliveInterval = 0;
             result->packetTickCntr = tickcounter_create();
-            result->mqttOptions.clientId = NULL;
-            result->mqttOptions.willTopic = NULL;
-            result->mqttOptions.willMessage = NULL;
-            result->mqttOptions.username = NULL;
-            result->mqttOptions.password = NULL;
-            result->socketConnected = false;
-            result->clientConnected = false;
-            result->logTrace = false;
-            result->rawBytesTrace = false;
-            result->timeSincePing = 0;
             result->maxPingRespTime = DEFAULT_MAX_PING_RESPONSE_TIME;
             if (result->packetTickCntr == NULL)
             {
@@ -1146,7 +1142,7 @@ int mqtt_client_unsubscribe(MQTT_CLIENT_HANDLE handle, uint16_t packetId, const 
     return result;
 }
 
-int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
+int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle, ON_MQTT_DISCONNECTED_CALLBACK callback, void* ctx)
 {
     int result = 0;
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)handle;
@@ -1155,42 +1151,42 @@ int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle)
         /*Codes_SRS_MQTT_CLIENT_07_010: [If the parameters handle is NULL then mqtt_client_disconnect shall return a non-zero value.]*/
         result = __FAILURE__;
     }
-    else
+    else if (mqtt_client->xioHandle != NULL)
     {
-        if (mqtt_client->xioHandle != NULL)
+        BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
+        if (disconnectPacket == NULL)
         {
-            BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
-            if (disconnectPacket == NULL)
+            /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
+            LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect failed");
+            mqtt_client->packetState = PACKET_TYPE_ERROR;
+            result = __FAILURE__;
+        }
+        else
+        {
+            /* Codes_SRS_MQTT_CLIENT_07_037: [ if callback is not NULL callback shall be called once the mqtt connection has been disconnected ] */
+            mqtt_client->disconnect_cb = callback;
+            mqtt_client->disconnect_ctx = ctx;
+            mqtt_client->packetState = DISCONNECT_TYPE;
+
+            size_t size = BUFFER_length(disconnectPacket);
+            /*Codes_SRS_MQTT_CLIENT_07_012: [On success mqtt_client_disconnect shall send the MQTT DISCONNECT packet to the endpoint.]*/
+            if (sendPacketItem(mqtt_client, BUFFER_u_char(disconnectPacket), size) != 0)
             {
                 /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
-                LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect failed");
-                mqtt_client->packetState = PACKET_TYPE_ERROR;
+                LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect send failed");
                 result = __FAILURE__;
             }
             else
             {
-                mqtt_client->packetState = DISCONNECT_TYPE;
-
-                size_t size = BUFFER_length(disconnectPacket);
-                /*Codes_SRS_MQTT_CLIENT_07_012: [On success mqtt_client_disconnect shall send the MQTT DISCONNECT packet to the endpoint.]*/
-                if (sendPacketItem(mqtt_client, BUFFER_u_char(disconnectPacket), size) != 0)
+                if (mqtt_client->logTrace)
                 {
-                    /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
-                    LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect send failed");
-                    result = __FAILURE__;
+                    STRING_HANDLE trace_log = STRING_construct("DISCONNECT");
+                    log_outgoing_trace(mqtt_client, trace_log);
+                    STRING_delete(trace_log);
                 }
-                else
-                {
-                    if (mqtt_client->logTrace)
-                    {
-                        STRING_HANDLE trace_log = STRING_construct("DISCONNECT");
-                        log_outgoing_trace(mqtt_client, trace_log);
-                        STRING_delete(trace_log);
-                    }
-                    result = 0;
-                }
-                BUFFER_delete(disconnectPacket);
+                result = 0;
             }
+            BUFFER_delete(disconnectPacket);
             clear_mqtt_options(mqtt_client);
             mqtt_client->xioHandle = NULL;
         }

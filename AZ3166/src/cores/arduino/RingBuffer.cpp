@@ -36,19 +36,21 @@ int RingBuffer::putc(uint8_t data)
     return -1;
 }
 
-int RingBuffer::puts(uint8_t *data, int len)
+int RingBuffer::put(uint8_t *data, int len)
 {
-    int next, i;
-
-    for (i = 0; i < len; i ++) {
-        next = (addr_w + 1) % size;
-        if (next == addr_r) {
-            break;
-        }
-        buf[addr_w] = data[i];
-        addr_w = next;
+    len = len < available() ? len : available();
+    if (addr_w + len < size) {
+        memcpy(buf + addr_w, data, len);
+        addr_w += len;
     }
-    return i;
+    else
+    {
+        int remaining = size - addr_w;
+        memcpy(buf + addr_w, data, remaining);
+        memcpy(buf, data + remaining, len - remaining);
+        addr_w = len - remaining;
+    }
+    return len;
 }
 
 int RingBuffer::peek()
@@ -74,16 +76,19 @@ int RingBuffer::getc()
 
 int RingBuffer::get(uint8_t *data, int len)
 {
-    int i;
-
-    for (i = 0; i < len; i ++) {
-        if (addr_r == addr_w) {
-            break;
-        }
-        data[i] = buf[addr_r];
-        addr_r = (addr_r + 1) % size;
+    len = len < use() ? len : use();
+    if (addr_r + len < size) {
+        memcpy(data, buf + addr_r, len);
+        addr_r += len;
     }
-    return i;
+    else
+    {
+        int remaining = size - addr_r;
+        memcpy(data, buf + addr_r, remaining);
+        memcpy(data + remaining, buf, len - remaining);
+        addr_r = len - remaining;
+    }
+    return len;
 }
 
 int RingBuffer::available()

@@ -292,6 +292,5 @@ class StringSumHelper: public String {
                 String(num) {
         }
 };
-
 #endif  // __cplusplus
 #endif  // String_class_h

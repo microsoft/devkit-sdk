@@ -38,6 +38,7 @@ HttpsRequest::HttpsRequest(NetworkInterface* net_iface,
                            Callback<void(const char *at, size_t length)> body_callback)
 {
     _parsed_url = NULL;
+    _body_callback = body_callback;
     _tlssocket = NULL;
     _headerBuilder = NULL;
     _response = NULL;

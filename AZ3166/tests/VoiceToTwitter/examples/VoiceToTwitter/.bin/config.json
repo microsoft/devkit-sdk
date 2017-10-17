@@ -5,5 +5,8 @@
   "provision_storage": true,
   "provision_logic_app": true,
   "provision_azure_function": false,
-  "functionRelativePath": "azureFunction"
+  "tasks": {
+    "provision": ["subscription", "iothub", "armtemplatedeployment", "device"],
+    "deploy": []
+  }
 }

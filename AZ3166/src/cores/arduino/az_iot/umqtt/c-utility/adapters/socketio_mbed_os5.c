@@ -44,6 +44,47 @@ typedef struct SOCKET_IO_INSTANCE_TAG
     SINGLYLINKEDLIST_HANDLE pending_io_list;
 } SOCKET_IO_INSTANCE;
 
+/*this function will clone an option given by name and value*/
+static void* socketio_CloneOption(const char* name, const void* value)
+{
+    (void)(name, value);
+    return NULL;
+}
+
+/*this function destroys an option previously created*/
+static void socketio_DestroyOption(const char* name, const void* value)
+{
+    (void)(name, value);
+}
+
+static OPTIONHANDLER_HANDLE socketio_retrieveoptions(CONCRETE_IO_HANDLE socket_io)
+{
+    OPTIONHANDLER_HANDLE result;
+    (void)socket_io;
+    result = OptionHandler_Create(socketio_CloneOption, socketio_DestroyOption, socketio_setoption);
+    if (result == NULL)
+    {
+        /*return as is*/
+    }
+    else
+    {
+        /*insert here work to add the options to "result" handle*/
+    }
+    return result;
+}
+
+static const IO_INTERFACE_DESCRIPTION socket_io_interface_description =
+{
+    socketio_retrieveoptions,
+    socketio_create,
+    socketio_destroy,
+    socketio_open,
+    socketio_close,
+    socketio_send,
+    socketio_dowork,
+    socketio_setoption
+};
+
 static void indicate_error(SOCKET_IO_INSTANCE* socket_io_instance)
 {
     if ((socket_io_instance->io_state == IO_STATE_NOT_OPEN)
@@ -109,6 +150,7 @@ static int retrieve_data(SOCKET_IO_INSTANCE* socket_io_instance)
         indicate_error(socket_io_instance);
         return -1;
     }
+    
     while (received > 0)
     {
         /* Codes_SRS_SOCKETIO_MBED_OS5_99_005: [ retrieve_data shall succeed if tcp receive bytes succeed ]*/
@@ -119,15 +161,16 @@ static int retrieve_data(SOCKET_IO_INSTANCE* socket_io_instance)
             if (socket_io_instance->on_bytes_received != NULL)
             {
                 /* explictly ignoring here the result of the callback */
-                (void)socket_io_instance->on_bytes_received(socket_io_instance->on_bytes_received_context, recv_bytes, received);
+                socket_io_instance->on_bytes_received(socket_io_instance->on_bytes_received_context, recv_bytes, received);
             }
         }
         else if (received < 0)
         {
             if(received != NSAPI_ERROR_WOULD_BLOCK)     // NSAPI_ERROR_WOULD_BLOCK is not a real error but pending.
             {
-                LogError("Socketio_Failure: underlying IO error %d.", received);
                 indicate_error(socket_io_instance);
+                LogError("Socketio_Failure: underlying IO error %d.", received);
+                free(recv_bytes);
                 return -1;
             }
         }
@@ -177,7 +220,7 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
             else
             {
                 /* send something, wait for the rest */
-                (void)memmove(pending_socket_io->bytes, pending_socket_io->bytes + send_result, pending_socket_io->size - send_result);
+                memmove(pending_socket_io->bytes, pending_socket_io->bytes + send_result, pending_socket_io->size - send_result);
                 sent += send_result;
             }
         }
@@ -219,12 +262,6 @@ static void close_tcp_connection(SOCKET_IO_INSTANCE* socket_io_instance)
     }
 }
 
-/* Codes_SRS_SOCKETIO_MBED_OS5_99_003: [ The socketio_retrieveoptions shall not do anything, and return NULL. ]*/
-OPTIONHANDLER_HANDLE socketio_retrieveoptions(CONCRETE_IO_HANDLE socket_io)
-{
-   return NULL;
-}
-
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_007: [ The socketio_create shall create a new instance of SOCKET_IO_INSTANCE. ]*/
 CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
 {
@@ -234,129 +271,129 @@ CONCRETE_IO_HANDLE socketio_create(void* io_create_parameters)
     /* Codes_SRS_SOCKET_MBED_OS5_99_008: [ If the parameter is null, socketio_create shall return null. ]*/
     if (socket_io_config == NULL)
     {
-        return NULL;
+        result = NULL;
     }
-    
-    result = (SOCKET_IO_INSTANCE*)malloc(sizeof(SOCKET_IO_INSTANCE));
-    if (result != NULL)
-    {
-        /* Codes_SRS_SOCKETIO_MBED_OS5_99_008: [ If singlylinkedlist_create failed, socketio_create shall return null. ]*/
-        result->pending_io_list = singlylinkedlist_create();
-        if (result->pending_io_list == NULL)
+    else
+    {    
+        result = (SOCKET_IO_INSTANCE*)malloc(sizeof(SOCKET_IO_INSTANCE));
+        if (result != NULL)
         {
-            free(result);
-            result = NULL;
-        }
-        else
-        {
-            result->hostname = strdup(socket_io_config->hostname);
-            if (result->hostname == NULL)
+            /* Codes_SRS_SOCKETIO_MBED_OS5_99_008: [ If singlylinkedlist_create failed, socketio_create shall return null. ]*/
+            result->pending_io_list = singlylinkedlist_create();
+            if (result->pending_io_list == NULL)
             {
-                singlylinkedlist_destroy(result->pending_io_list);
                 free(result);
                 result = NULL;
             }
             else
             {
-                result->port = socket_io_config->port;
-                result->on_bytes_received = NULL;
-                result->on_io_error = NULL;
-                result->on_bytes_received_context = NULL;
-                result->on_io_error_context = NULL;
-                result->io_state = IO_STATE_NOT_OPEN;
-                result->tcp_socket_connection = NULL;
+                result->hostname = strdup(socket_io_config->hostname);
+                if (result->hostname == NULL)
+                {
+                    singlylinkedlist_destroy(result->pending_io_list);
+                    free(result);
+                    result = NULL;
+                }
+                else
+                {
+                    result->port = socket_io_config->port;
+                    result->on_bytes_received = NULL;
+                    result->on_io_error = NULL;
+                    result->on_bytes_received_context = NULL;
+                    result->on_io_error_context = NULL;
+                    result->io_state = IO_STATE_NOT_OPEN;
+                    result->tcp_socket_connection = NULL;
+                }
             }
         }
     }
-    
+
     return result;
 }
 
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_009: [ The socketio_destroy shall destroy a created instance of the socket_io identified by the CONCRETE_IO_HANDLE. ]*/
 void socketio_destroy(CONCRETE_IO_HANDLE socket_io)
 {
-    if (socket_io == NULL)
+    if (socket_io != NULL)
     {
-        return;
-    }
+        SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
 
-    SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
-
-    // Close the tcp connection
-    close_tcp_connection(socket_io_instance);
+        // Close the tcp connection
+        close_tcp_connection(socket_io_instance);
     
-    // Clear all pending IOs
-    LIST_ITEM_HANDLE first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
-    while (first_pending_io != NULL)
-    {
-        PENDING_SOCKET_IO* pending_socket_io = (PENDING_SOCKET_IO*)singlylinkedlist_item_get_value(first_pending_io);
-        if (pending_socket_io != NULL)
+        // Clear all pending IOs
+        LIST_ITEM_HANDLE first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
+        while (first_pending_io != NULL)
         {
-            free(pending_socket_io->bytes);
-            free(pending_socket_io);
-        }
+            PENDING_SOCKET_IO* pending_socket_io = (PENDING_SOCKET_IO*)singlylinkedlist_item_get_value(first_pending_io);
+            if (pending_socket_io != NULL)
+            {
+                free(pending_socket_io->bytes);
+                free(pending_socket_io);
+            }
 
-        (void)singlylinkedlist_remove(socket_io_instance->pending_io_list, first_pending_io);
-        first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
-    }
-    singlylinkedlist_destroy(socket_io_instance->pending_io_list);
+            (void)singlylinkedlist_remove(socket_io_instance->pending_io_list, first_pending_io);
+            first_pending_io = singlylinkedlist_get_head_item(socket_io_instance->pending_io_list);
+        }
+        singlylinkedlist_destroy(socket_io_instance->pending_io_list);
     
-    if(socket_io_instance->hostname != NULL)
-    {
-        free(socket_io_instance->hostname);
+        if(socket_io_instance->hostname != NULL)
+        {
+            free(socket_io_instance->hostname);
+            socket_io_instance->hostname = NULL;
+        }
+        free(socket_io);
     }
-    free(socket_io);
 }
 
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_010: [ The socketio_open shall start the process to open and connect the underlying tcp connection. ]*/
 int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_complete, void* on_io_open_complete_context, ON_BYTES_RECEIVED on_bytes_received, void* on_bytes_received_context, ON_IO_ERROR on_io_error, void* on_io_error_context)
 {
+    int result;
     SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
-    int result = 0;
+    
 
     /* Codes_SRS_SOCKETIO_MBED_OS5_99_011: [ If socketio is null, socketio_open shall fail. ]*/
-    if (socket_io == NULL)
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_011: [ If socketio is active, socketio_open shall fail. ]*/
+    if (socket_io_instance == NULL ||
+        socket_io_instance->io_state != IO_STATE_NOT_OPEN)
     {
         result = __FAILURE__;
     }
     else
     {
-        /* Codes_SRS_SOCKETIO_MBED_OS5_99_011: [ If socketio is active, socketio_open shall fail. ]*/
-        if (socket_io_instance->io_state != IO_STATE_NOT_OPEN)
+        /* Codes_SRS_SOCKETIO_MBED_OS5_99_012: [ socketio_open would return error if underlying tcpconnection create fail. ]*/
+        socket_io_instance->tcp_socket_connection = tcpsocketconnection_create();
+        if (socket_io_instance->tcp_socket_connection == NULL)
         {
             result = __FAILURE__;
         }
         else
         {
-            /* Codes_SRS_SOCKETIO_MBED_OS5_99_012: [ socketio_open would return error if underlying tcpconnection create fail. ]*/
-            socket_io_instance->tcp_socket_connection = tcpsocketconnection_create();
-            if (socket_io_instance->tcp_socket_connection == NULL)
+            /* Codes_SRS_SOCKETIO_MBED_OS5_99_013: [ socketio_open would return error if underlying tcpconnection open fail. ]*/
+            if (tcpsocketconnection_connect(socket_io_instance->tcp_socket_connection, socket_io_instance->hostname, socket_io_instance->port) != 0)
             {
+                tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
+                socket_io_instance->tcp_socket_connection = NULL;
                 result = __FAILURE__;
             }
             else
             {
-                /* Codes_SRS_SOCKETIO_MBED_OS5_99_013: [ socketio_open would return error if underlying tcpconnection open fail. ]*/
-                if (tcpsocketconnection_connect(socket_io_instance->tcp_socket_connection, socket_io_instance->hostname, socket_io_instance->port) != 0)
-                {
-                    tcpsocketconnection_destroy(socket_io_instance->tcp_socket_connection);
-                    socket_io_instance->tcp_socket_connection = NULL;
-                    result = __FAILURE__;
-                }
-                else
-                {
-                    tcpsocketconnection_set_blocking(socket_io_instance->tcp_socket_connection, false, 0);
+                tcpsocketconnection_set_blocking(socket_io_instance->tcp_socket_connection, false, 0);
 
-                    socket_io_instance->on_bytes_received = on_bytes_received;
-                    socket_io_instance->on_bytes_received_context = on_bytes_received_context;
-                    socket_io_instance->on_io_error = on_io_error;
-                    socket_io_instance->on_io_error_context = on_io_error_context;
-                    socket_io_instance->io_state = IO_STATE_OPEN;
-                }
+                socket_io_instance->on_bytes_received = on_bytes_received;
+                socket_io_instance->on_bytes_received_context = on_bytes_received_context;
+
+                socket_io_instance->on_io_error = on_io_error;
+                socket_io_instance->on_io_error_context = on_io_error_context;
+
+                socket_io_instance->io_state = IO_STATE_OPEN;
+
+                result = 0;
             }
         }
     }
-
+    
     if (on_io_open_complete != NULL)
     {
         on_io_open_complete(on_io_open_complete_context, result == 0 ? IO_OPEN_OK : IO_OPEN_ERROR);
@@ -368,24 +405,32 @@ int socketio_open(CONCRETE_IO_HANDLE socket_io, ON_IO_OPEN_COMPLETE on_io_open_c
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_014: [socketio_close shall succeed for the correct input parameter. ]*/
 int socketio_close(CONCRETE_IO_HANDLE socket_io, ON_IO_CLOSE_COMPLETE on_io_close_complete, void* callback_context)
 {
-    /* Codes_SRS_SOCKETIO_MBED_OS5_99_015: [ If socketio is null, socketio_close shall fail. ]*/
+    int result;
+
     if (socket_io == NULL)
     {
-        return __FAILURE__;
+        result = __FAILURE__;
     }
-    
-    SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
-    
-    if (socket_io_instance->io_state != IO_STATE_NOT_OPEN)
+    else
     {
-        close_tcp_connection(socket_io_instance);
-        if (on_io_close_complete != NULL)
+        SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
+        if (socket_io_instance->io_state == IO_STATE_NOT_OPEN || 
+            socket_io_instance->io_state == IO_STATE_ERROR)
         {
-            on_io_close_complete(callback_context);
+            result = __FAILURE__;
+        }
+        else
+        {
+            close_tcp_connection(socket_io_instance);
+            if (on_io_close_complete != NULL)
+            {
+                on_io_close_complete(callback_context);
+            }
+            result = 0;
         }
     }
     
-    return 0;
+    return result;
 }
 
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_016: [ socketio_send shall succeed for the correct input parameter ]*/
@@ -394,8 +439,8 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
     int result;
 
     /* Codes_SRS_SOCKETIO_MBED_OS5_99_017: [ If socketio is null, socketio_send shall fail. ]*/
-	/* Codes_SRS_SOCKETIO_MBED_OS5_99_018: [ If buffer is null, socketio_send shall fail. ]*/
-	/* Codes_SRS_SOCKETIO_MBED_OS5_99_019: [ If buffer size is 0, socketio_send shall fail. ]*/
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_018: [ If buffer is null, socketio_send shall fail. ]*/
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_019: [ If buffer size is 0, socketio_send shall fail. ]*/
     if ((socket_io == NULL) ||
         (buffer == NULL) ||
         (size == 0))
@@ -408,7 +453,11 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
         result = 0;
 
         SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
-        if (socket_io_instance->io_state == IO_STATE_OPEN)
+        if (socket_io_instance->io_state != IO_STATE_OPEN)
+        {
+            result = __FAILURE__;
+        }
+        else
         {
             // Queue the data, and the socketio_dowork sends the package later
             if (add_pending_io(socket_io_instance, buffer, size, on_send_complete, callback_context) != 0)
@@ -429,46 +478,30 @@ int socketio_send(CONCRETE_IO_HANDLE socket_io, const void* buffer, size_t size,
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_020: [ The socketio_dowork shall execute the async jobs for the socket_io. ]*/
 void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 {
-	/* Codes_SRS_SOCKETIO_MBED_OS5_99_021: [ socketio_dowork shall if input socket_io is null ]*/
-    if (socket_io == NULL)
+    /* Codes_SRS_SOCKETIO_MBED_OS5_99_021: [ socketio_dowork shall if input socket_io is null ]*/
+    if (socket_io != NULL)
     {
-        return;
+        SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
+        if (socket_io_instance->io_state == IO_STATE_OPEN)
+        {
+            // Retrieve all data from IoT Hub
+            if (retrieve_data(socket_io_instance) < 0)
+            {
+                return;
+            }
+        
+            // Send all packages in the queue
+            send_queued_data(socket_io_instance);
+        }
     }
-
-    SOCKET_IO_INSTANCE* socket_io_instance = (SOCKET_IO_INSTANCE*)socket_io;
-    if (socket_io_instance->io_state != IO_STATE_OPEN)
-    {
-        return;
-    }
-    
-    // Retrieve all data from IoT Hub
-    if (retrieve_data(socket_io_instance) < 0)
-    {
-        return;
-    }
-    
-    // Send all packages in the queue
-    send_queued_data(socket_io_instance);
 }
 
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_022: [ The socketio_setoption shall do nothing and return failure. ]*/
 int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, const void* value)
 {
     /* Not implementing any options */
-    return __FAILURE__;
+    return 0;
 }
-
-static const IO_INTERFACE_DESCRIPTION socket_io_interface_description =
-{
-    socketio_retrieveoptions,
-    socketio_create,
-    socketio_destroy,
-    socketio_open,
-    socketio_close,
-    socketio_send,
-    socketio_dowork,
-    socketio_setoption
-};
 
 /* Codes_SRS_SOCKETIO_MBED_OS5_99_023: [ The socketio_get_interface_description shall return the VTable IO_INTERFACE_DESCRIPTION. ]*/
 const IO_INTERFACE_DESCRIPTION* socketio_get_interface_description(void)

@@ -10,7 +10,7 @@
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
-            <url>git@github.com:Microsoft/AzureIoTDeveloperKit.git</url>
+            <url>git@github.com:Microsoft/devkit-sdk.git</url>
             <credentialsId>d82b070b-a549-4d11-b0a6-4c86d9f7e028</credentialsId>
           </hudson.plugins.git.UserRemoteConfig>
         </userRemoteConfigs>
@@ -23,7 +23,7 @@
         <submoduleCfg class="list"/>
         <extensions>
           <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>AzureIoTDeveloperKit</relativeTargetDir>
+            <relativeTargetDir>devkit-sdk</relativeTargetDir>
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
@@ -43,12 +43,12 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.BatchFile>
-      <command>set folder=&quot;AzureIoTDeveloperKit\AZ3166\src\cores\arduino\az_iot&quot;&#xd;
+      <command>set folder=&quot;devkit-sdk\AZ3166\src\cores\arduino\az_iot&quot;&#xd;
 cd /d %folder%&#xd;
 for /F &quot;delims=&quot; %%i in (&apos;dir /b&apos;) do (rmdir &quot;%%i&quot; /s/q || del &quot;%%i&quot; /s/q)</command>
     </hudson.tasks.BatchFile>
     <hudson.tasks.BatchFile>
-      <command>set folder=&quot;AzureIoTDeveloperKit\AZ3166\src\system&quot;&#xd;
+      <command>set folder=&quot;devkit-sdk\AZ3166\src\system&quot;&#xd;
 cd /d %folder%&#xd;
 for /F &quot;delims=&quot; %%i in (&apos;dir /b&apos;) do (rmdir &quot;%%i&quot; /s/q || del &quot;%%i&quot; /s/q)</command>
     </hudson.tasks.BatchFile>
