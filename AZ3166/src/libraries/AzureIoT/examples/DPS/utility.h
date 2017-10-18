@@ -6,4 +6,12 @@
 
 void parseTwinMessage(DEVICE_TWIN_UPDATE_STATE, const char *);
 
+void enterIdleState();
+void enterActiveState();
+void enterRecordingState();
+void enterServerProcessingState();
+void enterReceivingState();
+void enterPlayingState();
+
+
 #endif /* UTILITY_H */
