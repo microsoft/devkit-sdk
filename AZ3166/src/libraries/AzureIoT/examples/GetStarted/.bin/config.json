@@ -4,7 +4,7 @@
   "provision_iot_hub": true,
   "provision_azure_function": false,
   "tasks": {
-    "provision": ["subscription", "iothub", "armtemplatedeployment", "device"],
+    "provision": ["subscription", "iothub", "armtemplatedeployment"],
     "deploy": []
   }
 }
