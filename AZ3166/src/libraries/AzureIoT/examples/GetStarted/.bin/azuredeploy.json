@@ -47,7 +47,7 @@
                 },
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat('https://raw.githubusercontent.com/VSChina/azureiotdevkit_tools/master/arm-template/', parameters('iotHubExisted'), 'iothub.json#')]"
+                    "uri": "[concat('https://raw.githubusercontent.com/VSChina/azureiotdevkit_tools/master/arm-template-mooncake/', parameters('iotHubExisted'), 'iothub.json#')]"
                 }
             }
         }
