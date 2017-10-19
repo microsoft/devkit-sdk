@@ -3,9 +3,8 @@ import {
     removeUsbInstall,
     copyScripts,
 	getVersionInfo,
-    removePackage,
-    copyPackage,
-    copyAZ3166,
+    zipAZ3166Package,
+    copyToolChain,
     zipFinal,
 } from './generate';
 
@@ -14,9 +13,8 @@ async function main() {
     removeUsbInstall();
     copyScripts();
 	getVersionInfo();
-    removePackage();
-    copyPackage();
-    copyAZ3166();
+    await zipAZ3166Package();
+    copyToolChain();
     await zipFinal();
 }
 

@@ -8,20 +8,29 @@ import fs from 'fs';
 const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
-    usbDir: path.join(__dirname, '../usb_install'),
-    packageOrigin: path.join(__dirname, '../devkit-sdk/AZ3166/src'),
-    packageDest: path.join(__dirname, '../AZ3166/AZ3166/hardware/stm32f4'),
-    finalZip: path.join(__dirname, `../TestResult/usb_install_{version}.${process.env.BUILD_NUMBER}.zip`),
+	packageOrigin: path.join(__dirname, '../devkit-sdk/AZ3166/src'),
 	versionFile: path.join(__dirname, `../system_version.txt`),
-	az3166Origin: path.join(__dirname, '../AZ3166'),
-	az3166Dest: path.join(__dirname, '../usb_install/tools/AZ3166')
+	
+    usbDirForWin: path.join(__dirname, '../usb_install_windows'),	
+	toolsOriginForWin: path.join(__dirname, '../Tools/windows'),		
+	toolsDestForWin: path.join(__dirname, '../usb_install_windows/tools/staging'),    
+	finalZipForWin: path.join(__dirname, `../TestResult/usb_install_windows_{version}.${process.env.BUILD_NUMBER}.zip`),
+	
+	usbDirForMac: path.join(__dirname, '../usb_install_mac'),
+	toolsOriginForMac: path.join(__dirname, '../Tools/mac'),
+	toolsDestForMac: path.join(__dirname, '../usb_install_mac/tools/staging'),
+	finalZipForMac: path.join(__dirname, `../TestResult/usb_install_mac_{version}.${process.env.BUILD_NUMBER}.zip`)
 };
 
 const command = {
     npmInstall: 'npm install',
     gulpBabel: 'gulp babel',
-    zipPackage: '7z a -r ../usb_install/tools/AZ3166.zip ../AZ3166/*',
-    zipFinal: `7z a -r ../TestResult/usb_install_{version}.${process.env.BUILD_NUMBER}.zip ../usb_install/*`
+	
+    zipPackageForWin: '7z a -r ../usb_install_windows/tools/staging/AZ3166-{version}.zip ../devkit-sdk/AZ3166/src/*',		
+    zipFinalForWin: `7z a -r ../TestResult/usb_install_windows_{version}.${process.env.BUILD_NUMBER}.zip ../usb_install_windows/*`,
+	
+	zipPackageForMac: '7z a -r ../usb_install_mac/tools/staging/AZ3166-{version}.zip ../devkit-sdk/AZ3166/src/*',
+	zipFinalForMac: `7z a -r ../TestResult/usb_install_mac_{version}.${process.env.BUILD_NUMBER}.zip ../usb_install_mac/*`
 };
 
 const timeout = 600 * 1000;
@@ -38,8 +47,11 @@ export async function buildNewCode() {
 
 export function removeUsbInstall() {
     console.log('remove usb_install');
-    fsExtra.removeSync(constants.usbDir);
-    fsExtra.mkdirSync(constants.usbDir);
+    fsExtra.removeSync(constants.usbDirForWin);
+    fsExtra.mkdirSync(constants.usbDirForWin);
+	
+	fsExtra.removeSync(constants.usbDirForMac);
+    fsExtra.mkdirSync(constants.usbDirForMac);
 }
 
 export function copyScripts() {
@@ -47,7 +59,8 @@ export function copyScripts() {
     let files = fsExtra.readdirSync(constants.scriptDir);
     for (let i = 0; i < files.length; ++i) {
         if (['node_modules', '.git', '.gitignore', 'LICENSE', 'README.md'].indexOf(files[i]) === -1) {
-            fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.usbDir, files[i]));
+            fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.usbDirForWin, files[i]));
+			fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.usbDirForMac, files[i]));
         }
     }
 }
@@ -56,36 +69,39 @@ export function getVersionInfo(){
 	versionInfo = data.toString();
 }
 
-export function removePackage() {
-    console.log('remove package');
-    fsExtra.removeSync(constants.packageDest);
-	fsExtra.mkdirSync(constants.packageDest);
-    fsExtra.mkdirSync(path.join(constants.packageDest,versionInfo));
+export async function zipAZ3166Package() {
+    console.log('zip the board package');
+    await util.execStdout(command.zipPackageForWin.replace("{version}",versionInfo), timeout);
+	await util.execStdout(command.zipPackageForMac.replace("{version}",versionInfo), timeout);
 }
 
-export function copyPackage() {
-    console.log('copy package source');
-    let files = fsExtra.readdirSync(constants.packageOrigin);
-    for (let i = 0; i < files.length; ++i) {
-        fsExtra.copySync(path.join(constants.packageOrigin, files[i]), path.join(path.join(constants.packageDest,versionInfo), files[i]));
-    }
-}
-
-export function copyAZ3166() {
-    console.log('copy AZ3166 folder');	
-    let files = fsExtra.readdirSync(constants.az3166Origin);
-    for (let i = 0; i < files.length; ++i) {
-		fsExtra.copySync(path.join(constants.az3166Origin, files[i]), path.join(constants.az3166Dest, files[i]));
-    }
-}
+ export function copyToolChain() {
+     console.log('copy tools');
+     let winFiles = fsExtra.readdirSync(constants.toolsOriginForWin);
+     for (let i = 0; i < winFiles.length; ++i) {
+         fsExtra.copySync(path.join(constants.toolsOriginForWin, winFiles[i]), path.join(constants.toolsDestForWin, winFiles[i]));
+     }
+	 
+	 let macFiles = fsExtra.readdirSync(constants.toolsOriginForMac);
+     for (let i = 0; i < macFiles.length; ++i) {
+         fsExtra.copySync(path.join(constants.toolsOriginForMac, macFiles[i]), path.join(constants.toolsDestForMac, macFiles[i]));
+     }
+ }
 
 export async function zipFinal() {
     console.log('zip the final package');
-    let files = glob.sync(path.dirname(constants.finalZip.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install*.zip');
-    _.each(files, file => {
-        console.log('deleting' ,file);
-        fs.unlinkSync(file);
-    });
+     let winFiles = glob.sync(path.dirname(constants.finalZipForWin.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_windows*.zip');
+     _.each(winFiles, file => {
+         console.log('deleting' ,file);
+         fs.unlinkSync(file);
+     });
+	 
+	 let macFiles = glob.sync(path.dirname(constants.finalZipForMac.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_mac*.zip');
+     _.each(macFiles, file => {
+         console.log('deleting' ,file);
+         fs.unlinkSync(file);
+     });
 
-    await util.execStdout(command.zipFinal.replace("{version}",versionInfo), timeout);
+	await util.execStdout(command.zipFinalForMac.replace("{version}",versionInfo), timeout);
+    await util.execStdout(command.zipFinalForWin.replace("{version}",versionInfo), timeout);
 }
