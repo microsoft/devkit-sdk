@@ -39,6 +39,7 @@ bool startPlay = false;
 // If you have multiple devices(clients) using the same WebSocket server,
 // Please ensure the nickName for each client is unique
 char * nickName = "devkit-test";
+const char * LUISWebAppUrl;
 
 extern char* Global_Device_Endpoint;
 extern char* ID_Scope;
@@ -74,7 +75,12 @@ static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsig
   }
   memcpy(temp, payLoad, size);
   temp[size] = '\0';
-  parseTwinMessage(updateState, temp);
+  LUISWebAppUrl = parseTwinMessage(updateState, temp);
+  if (LUISWebAppUrl == NULL)
+  {
+    LogError("Failed to retrieve LUIS URL from Device Twin");
+  }
+
   free(temp);
 }
 
@@ -242,7 +248,8 @@ char* getWebSocketUrl()
     char *url;
     url = (char *)malloc(300);
 
-    snprintf(url, 300, "%s%s", "ws://demobotapp-sandbox.azurewebsites.net/chat?nickName=", nickName);
+    // "ws://demobotapp-sandbox.azurewebsites.net/chat?nickName="
+    snprintf(url, 300, "%s%s", LUISWebAppUrl, nickName);
     Serial.print("WebSocket url: ");
     Serial.println(url);
     return url;
@@ -373,8 +380,8 @@ void setup() {
     return;
   }
 
+
   Screen.print(3, " > DPS");
-  // Transfer control to firmware
   if(DPSClientStart(Global_Device_Endpoint, ID_Scope, GetBoardID()))
   {
     Screen.print(2, "DPS connected!\r\n");
@@ -389,6 +396,7 @@ void setup() {
   IoTHubMQTT_Init(true);
   IoTHubMQTT_SetDeviceTwinCallback(DeviceTwinCallback);
 
+  Screen.print(3, " > LUIS.ai");
   pinMode(USER_BUTTON_A, INPUT);
   lastButtonAState = digitalRead(USER_BUTTON_A);
   pinMode(USER_BUTTON_B, INPUT);
@@ -398,8 +406,17 @@ void setup() {
   enterIdleState();
 }
 
-void loop()
+void loop() 
 {
-  IoTHubMQTT_Check();
-  delay(200);
+    if (LUISWebAppUrl == NULL)
+    {
+        IoTHubMQTT_Check();
+    }
+    
+    if (hasWifi)
+    {
+        doWork();
+    }
+
+    delay(100);
 }

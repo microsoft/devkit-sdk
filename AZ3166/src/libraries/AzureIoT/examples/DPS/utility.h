@@ -4,14 +4,8 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-void parseTwinMessage(DEVICE_TWIN_UPDATE_STATE, const char *);
 
-void enterIdleState();
-void enterActiveState();
-void enterRecordingState();
-void enterServerProcessingState();
-void enterReceivingState();
-void enterPlayingState();
+const char * parseTwinMessage(DEVICE_TWIN_UPDATE_STATE, const char *);
 
 
 #endif /* UTILITY_H */

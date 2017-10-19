@@ -6,8 +6,9 @@
 #include "parson.h"
 #include <assert.h>
 #include "config.h"
+#include "utility.h"
 
-void parseTwinMessage(DEVICE_TWIN_UPDATE_STATE updateState, const char *message)
+const char * parseTwinMessage(DEVICE_TWIN_UPDATE_STATE updateState, const char *message)
 {
     Serial.println(message);
 
@@ -20,28 +21,29 @@ void parseTwinMessage(DEVICE_TWIN_UPDATE_STATE updateState, const char *message)
             json_value_free(root_value);
         }
         LogError("parse %s failed", message);
-        return;
+        return NULL;
     }
     JSON_Object *root_object = json_value_get_object(root_value);
 
-    const char * luisAppUrl = NULL;
+    const char * LUIS_App_Url;
     if (updateState == DEVICE_TWIN_UPDATE_COMPLETE)
     {
         JSON_Object *desired_object = json_object_get_object(root_object, "desired");
         if (desired_object != NULL)
         {
-            luisAppUrl = json_object_get_string(desired_object, "luisappurl");
+            LUIS_App_Url = json_object_get_string(desired_object, "luisappurl");
         }
     }
     else
     {
-        luisAppUrl = json_object_get_string(root_object, "luisappurl");
+        LUIS_App_Url = json_object_get_string(root_object, "luisappurl");
     }
 
-    if (luisAppUrl != NULL)
+    if (LUIS_App_Url != NULL)
     {
-        LogInfo(">>>Get LUIS request URL: %s", luisAppUrl);
+        LogInfo(">>>Get LUIS request URL: %s", LUIS_App_Url);
     }
 
     json_value_free(root_value);
+    return LUIS_App_Url;
 }
