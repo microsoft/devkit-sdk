@@ -147,7 +147,7 @@ void showMagneticSensor()
 {
   magnetometer->getMAxes(axes);
   char buff[128];
-  snprintf(buff, 128, "Magnetometer  \r\    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
+  snprintf(buff, 128, "Magnetometer  \r\n    x:%d     \r\n    y:%d     \r\n    z:%d     ", axes[0], axes[1], axes[2]);
   Screen.print(buff);
 }
 
