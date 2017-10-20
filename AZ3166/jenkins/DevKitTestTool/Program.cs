@@ -111,7 +111,7 @@
 
                         break;
 
-                    case "GenerateActiveProgramFirmware":
+                    case "GenerateSensorStatusBinFile":
                         string sensorStatusPath = Path.Combine(workspace, ConfigurationManager.AppSettings["SensorStatusPath"]);
                         VerifyLibraryExamples(sensorStatusPath);
 
@@ -119,6 +119,10 @@
 
                     case "UpdateFirmwareVersion":
                         UpdateFirmwareVersion();
+                        break;
+
+                    case "UpdateBoardManagerUrl":
+                        UpdateBoardManagerUrl();
                         break;
 
                     default:
@@ -463,7 +467,7 @@
             DirectoryInfo targetDir = new DirectoryInfo(targetFolder);
             CopyAll(sourceDir, targetDir);
 
-            string packageFile = Path.Combine(resultFolderPath, string.Format(packageName, versionInfo));
+            string packageFile = Path.Combine(resultFolderPath, string.Format(packageName, versionInfo, Environment.GetEnvironmentVariable("BUILD_NUMBER")));
             if (File.Exists(packageFile))
             {
                 File.Delete(packageFile);
@@ -565,6 +569,23 @@
 
             Console.WriteLine($"Change firmware version to {versionInfo}");
             content = content.Replace(Constants.FirmwareVersionString, versionInfo);
+
+            File.WriteAllText(filePath, content);
+        }
+
+        private static void UpdateBoardManagerUrl()
+        {
+            string filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["TaskInstallationScriptFilePath"]);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Failed to find the task-installation.js, file path: {filePath}");
+            }
+
+            string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString();
+            string content = File.ReadAllText(filePath);
+
+            content = content.Replace("BOARD_URL_PLACEHOLDER", newUrl);
+            Console.WriteLine($"Set board manager URL to {newUrl}");
 
             File.WriteAllText(filePath, content);
         }

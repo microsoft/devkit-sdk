@@ -22,10 +22,11 @@ Write-Host("Step 1: upload packages to Azure blob storage");
 
 $SubscriptionName = "VSChina IoT DevINT"
 $SubscriptionId = "faab228d-df7a-4086-991e-e81c4659d41a"
-$StorageAccountName = "azureboard"
+$StorageAccountName = "azureboard1"
 $InstallPackageContainer = "installpackage"
 $ArduinoPackageContainer = "arduinopackage"
 $PackageInfoContainer = "packageinfo"
+$FirmwareContainer = "firmware"
 
 # We can move this credential to Azure Key Vault once we have deploy with production subscription
 $Key = $env:DevKitStorageKey
@@ -34,18 +35,24 @@ $StorageContext = New-AzureStorageContext -StorageAccountName $StorageAccountNam
 # Get current package version
 $CurrentVersion =  Get-Content '.\system_version.txt' | Out-String
 $CurrentVersion = $CurrentVersion.ToString().Trim()
+$CurrentVersionWithBuildNumber = $CurrentVersion + "." + $env:BUILD_NUMBER
 
 # Upload installation package
-$InstallPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\usb_install_$CurrentVersion.zip"
+$InstallPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\usb_install_$CurrentVersionWithBuildNumber.zip"
 
-$InstallPackageBlobName = "devkit_install_" + $CurrentVersion + ".zip"
+$InstallPackageBlobName = "devkit_install_" + $CurrentVersionWithBuildNumber + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $InstallPackageFilePath -Blob "$InstallPackageContainer\$InstallPackageBlobName" -Force
 
 # Upload Arduino package
-$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\arduino_source_$CurrentVersion.zip"
+$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\arduino_source_$CurrentVersionWithBuildNumber.zip"
 $ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
+# Upload Firmware bin file
+$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\devkit-firmware-$CurrentVersionWithBuildNumber.bin"
+
+$FirmwareBlobName = "devkit-firmware-" + $CurrentVersionWithBuildNumber + ".bin"
+Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob "$FirmwareContainer\$FirmwareBlobName" -Force
 
 #################################################################################
 # Step 2: Calculate package MD5 checksum and upload this MD5 info to Azure Blob #
@@ -63,7 +70,7 @@ $ArduinoPackageHash = $ArduinoPackageHash.ToLower() -replace '-', ''
 Write-Host($ArduinoPackageHash);
 
 # Update MD5 checksum in json file
-Get-AzureStorageBlobContent -Context $StorageContext -Container $PackageInfoContainer -Blob $MD5FileName -Force
+Get-AzureStorageBlobContent -Context $StorageContext -Container $Environment -Blob "$PackageInfoContainer\$MD5FileName" -Destination $MD5FileName -Force
 
 $MD5Json = Get-Content $MD5FileName | Out-String | ConvertFrom-Json
 $NewItem = $MD5Json.installPackageMD5.Where({$_.version -eq $CurrentVersion})
@@ -105,7 +112,7 @@ $LastPlatform = ([PSCustomObject]($ArduinoConfigJson.packages[0].platforms[$tota
 if ($LastPlatform.version -eq $CurrentVersion)
 {
     # Update the latest version
-    $LastPlatform.url = "https://azureboard.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
+    $LastPlatform.url = "https://azureboard1.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
     $LastPlatform.archiveFileName = $ArduinoPackageBlobName
     $LastPlatform.checksum = "MD5:" + $ArduinoPackageHash
     $LastPlatform.size = (Get-Item $ArduinoPackageFilePath).Length.ToString()
@@ -120,7 +127,7 @@ else
     }
 
     $NewPlatform.version = $CurrentVersion
-    $NewPlatform.url = "https://azureboard.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
+    $NewPlatform.url = "https://azureboard1.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
     $NewPlatform.archiveFileName = $ArduinoPackageBlobName
     $NewPlatform.checksum = "MD5:" + $ArduinoPackageHash
     $NewPlatform.size = (Get-Item $ArduinoPackageFilePath).Length.ToString()
@@ -145,7 +152,7 @@ $ArduinoConfigJson | ConvertTo-Json -Depth 10 | Out-File $ArduinoConfigFileName 
 $ArduinoConfigJsonBlobName = "$PackageInfoContainer/$ArduinoConfigFileName"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoConfigFileName -Blob $ArduinoConfigJsonBlobName -Force
 
-$ArduinoConfigJsonBlobURL = "https://azureboard.blob.core.windows.net/$Environment/$ArduinoConfigJsonBlobName"
+$ArduinoConfigJsonBlobURL = "https://azureboard1.blob.core.windows.net/$Environment/$ArduinoConfigJsonBlobName"
 Write-Host("Arduino board manager JSON file URI: $ArduinoConfigJsonBlobURL")
 
 Write-Host("$Environment deployment completed.");

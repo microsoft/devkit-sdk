@@ -7,16 +7,19 @@
 // ${cwd}: the current working directory of the spawned process
 // A task runner that calls a custom npm script that compiles the extension.
 {
-    "version": "0.1.0",
-    "args": [],
-    "runner": "terminal",
-    "showOutput": "always",
+    "version": "2.0.0",
     "tasks": [
         {
             "taskName": "cloud-provision",
             "command": "node",
             "windows": {
-                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "provision", ".bin"]
+                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "provision", ".bin"],
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "provision", ".bin"]
@@ -24,14 +27,24 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "provision", ".bin"]
             },
-            "isShellCommand": true,
-            "isBuildCommand": false
+            "type": "shell",
+            "presentation": {
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": []
         },
         {
             "taskName": "device-upload",
             "command": "node",
             "windows": {
-                "args": ["'${env:USERPROFILE}\\azure-board-cli\\out\\cli.js'", "build", ".bin"]
+                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "build", ".bin"],
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
             },
             "linux": {
                 "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "build", ".bin"]
@@ -39,8 +52,38 @@
             "osx": {
                 "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "build", ".bin"]
             },
-            "isShellCommand": true,
-            "isBuildCommand": true
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "taskName": "config-device-connection",
+            "command": "node",
+            "windows": {
+                "args": ["\"${env:USERPROFILE}\\azure-board-cli\\out\\cli.js\"", "config_device_connection", ".bin"],
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
+            },
+            "linux": {
+                "args": ["\"$HOME/azure-board-cli/out/cli.js\"", "config_device_connection", ".bin"]
+            },
+            "osx": {
+                "args": ["\"/Users/$USER/azure-board-cli/out/cli.js\"", "config_device_connection", ".bin"]
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": []
         }
     ]
 }

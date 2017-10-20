@@ -155,25 +155,31 @@ void HttpResponse::set_body(const char* at, size_t length)
     
     if(body != NULL)
     {
-        int len1 = strlen(body);
-        char* bd = (char*)malloc(len1 + length + 1);
-        memcpy(bd, body, len1);
-        memcpy(&bd[len1], at, length);
-        bd[len1 + length] = 0;
+        char* bd = (char*)malloc(body_length + length + 1);
+        memcpy(bd, body, body_length);
+        memcpy(&bd[body_length], at, length);
+        bd[body_length + length] = 0;
         free(body);
         body = bd;
+        body_length += length;
     }
     else
     {
         body = (char*)malloc(length + 1);
         memcpy(body, at, length);
         body[length] = 0;
+        body_length = length;
     }
 }
 
 const char* HttpResponse::get_body()
 {
     return body;
+}
+
+int HttpResponse::get_body_length()
+{
+    return body_length;
 }
 
 void HttpResponse::set_message_complete() {

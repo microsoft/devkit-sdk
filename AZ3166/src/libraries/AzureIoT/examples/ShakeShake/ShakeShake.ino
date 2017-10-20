@@ -3,7 +3,7 @@
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/shake-shake/?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
-#include "IoTHubMQTTClient.h"
+#include "DevKitMQTTClient.h"
 #include "OledDisplay.h"
 #include "Sensor.h"
 #include "ShakeUI.h"
@@ -13,7 +13,7 @@
 #define LOOP_DELAY          100
 
 #define HEARTBEAT_INTERVAL  300000
-#define PULL_TIMEOUT        15000
+#define PULL_TIMEOUT        20000
 
 #define MSG_HEADER_SIZE     20
 #define MSG_BODY_SIZE       200
@@ -127,7 +127,7 @@ static void HeartBeat()
   DigitalOut LedUser(LED_BUILTIN);
   LedUser = 1;
   // Send heart beat message
-  IoTHubMQTT_SendEvent(iot_event_heartbeat);
+  DevKitMQTTClient_SendEvent(iot_event_heartbeat);
   LedUser = 0;
   
   // Reset
@@ -149,11 +149,11 @@ static bool ParseTweet(const char *tweet, int lenTweet)
   // The header
   for (; i < min(lenTweet, sizeof(msgHeader)); i++)
   {
-      if(tweet[i] == '\n')
-      {
-          break;
-      }
-      msgHeader[j++] = PrintableChar(tweet[i]);
+    if(tweet[i] == '\n')
+    {
+      break;
+    }
+    msgHeader[j++] = PrintableChar(tweet[i]);
   }
   msgHeader[j] = 0;
   Serial.println(msgHeader);
@@ -283,7 +283,7 @@ static void DoIdle()
     HeartBeat();
     
     // Check with the IoT hub
-    IoTHubMQTT_Check();
+    DevKitMQTTClient_Check();
 }
 
 static void DoShake()
@@ -307,7 +307,7 @@ static void DoShake()
     // Update the screen
     ShowShakeProgress();
     // Send to IoT hub
-    if (IoTHubMQTT_SendEvent(iot_event))
+    if (DevKitMQTTClient_SendEvent(iot_event))
     {
       if (shake_progress < 2)
       {
@@ -343,7 +343,7 @@ static void DoWork()
     NoTweets();
   }
   // Check with the IoT hub
-  IoTHubMQTT_Check();
+  DevKitMQTTClient_Check(false);
 
   if (shake_progress > 2)
   {
@@ -428,7 +428,7 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   
-  if (!IoTHubMQTT_Init())
+  if (!DevKitMQTTClient_Init())
   {
     Screen.clean();
     DrawAppTitle("IoT DevKit");
@@ -437,7 +437,7 @@ void setup()
     return;
   }
   hasIoTHub = true;
-  IoTHubMQTT_SetMessageCallback(TwitterMessageCallback);
+  DevKitMQTTClient_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);
   hb_interval_ms = -(HEARTBEAT_INTERVAL);   // Trigger heart beat immediately

@@ -86,6 +86,8 @@ HttpResponseParser::HttpResponseParser(HttpResponse* a_response, Callback<void(c
     settings->on_message_complete = on_message_complete_callback;
 
     response = a_response;
+    body_callback = a_body_callback;
+
     // Construct the http_parser object
     parser = new http_parser;
     http_parser_init(parser, HTTP_RESPONSE);

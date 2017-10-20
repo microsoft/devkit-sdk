@@ -9,17 +9,19 @@ const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
     usbDir: path.join(__dirname, '../usb_install'),
-    packageOrigin: path.join(__dirname, '../AzureIoTDeveloperKit/AZ3166/src'),
+    packageOrigin: path.join(__dirname, '../devkit-sdk/AZ3166/src'),
     packageDest: path.join(__dirname, '../AZ3166/AZ3166/hardware/stm32f4'),
-    finalZip: path.join(__dirname, `../TestResult/usb_install_{version}.zip`),
+    finalZip: path.join(__dirname, `../TestResult/usb_install_{version}.${process.env.BUILD_NUMBER}.zip`),
 	versionFile: path.join(__dirname, `../system_version.txt`),
+	az3166Origin: path.join(__dirname, '../AZ3166'),
+	az3166Dest: path.join(__dirname, '../usb_install/tools/AZ3166')
 };
 
 const command = {
     npmInstall: 'npm install',
     gulpBabel: 'gulp babel',
     zipPackage: '7z a -r ../usb_install/tools/AZ3166.zip ../AZ3166/*',
-    zipFinal: `7z a -r ../TestResult/usb_install_{version}.zip ../usb_install/*`
+    zipFinal: `7z a -r ../TestResult/usb_install_{version}.${process.env.BUILD_NUMBER}.zip ../usb_install/*`
 };
 
 const timeout = 600 * 1000;
@@ -69,9 +71,12 @@ export function copyPackage() {
     }
 }
 
-export async function zipPackage() {
-    console.log('zip the board package');
-    await util.execStdout(command.zipPackage, timeout);
+export function copyAZ3166() {
+    console.log('copy AZ3166 folder');	
+    let files = fsExtra.readdirSync(constants.az3166Origin);
+    for (let i = 0; i < files.length; ++i) {
+		fsExtra.copySync(path.join(constants.az3166Origin, files[i]), path.join(constants.az3166Dest, files[i]));
+    }
 }
 
 export async function zipFinal() {
