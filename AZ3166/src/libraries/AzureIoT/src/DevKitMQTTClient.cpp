@@ -480,7 +480,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
     
     int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
-    bool traceOn = true;
+    bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
@@ -553,6 +553,33 @@ bool DevKitMQTTClient_SendEvent(const char *text)
             return true;
         }
     }
+    return false;
+}
+
+bool DevKitMQTTClient_ReceiveEvent()
+{
+    CheckConnection();
+    
+    int count = receiveContext;
+    uint64_t tm =  SystemTickCounterRead();
+    while((int)(SystemTickCounterRead() - tm) < CHECK_INTERVAL_MS)
+    {
+        IoTHubClient_LL_DoWork(iotHubClientHandle);
+        if (count < receiveContext)
+        {
+            return true;
+        }
+
+        if (resetClient || SystemWiFiRSSI() == 0)
+        {
+            // Disconnected
+            return false;
+        }
+
+        ThreadAPI_Sleep(500);
+    }
+    // Timeout
+    resetClient = true;
     return false;
 }
 
@@ -643,6 +670,12 @@ void DevKitMQTTClient_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_meth
 void DevKitMQTTClient_SetReportConfirmationCallback(REPORT_CONFIRMATION_CALLBACK report_confirmation_callback)
 {
     _report_confirmation_callback = report_confirmation_callback;
+}
+
+void DevKitMQTTClient_Reset(void)
+{
+    resetClient = true;
+    CheckConnection();
 }
 
 void LogTrace(const char *event, const char *message)
