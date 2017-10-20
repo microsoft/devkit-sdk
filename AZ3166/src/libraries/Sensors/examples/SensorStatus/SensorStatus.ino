@@ -6,8 +6,7 @@
 
 #define NUMSENSORS 5  // 5 sensors to display
 
-// 0 - Gyro Sensor
-// 1 - Motion (Acceleration) Sensor
+// 0 - Humidity & Temperature Sensor
 // 1 - Pressure Sensor
 // 2 - Magnetic Sensor
 // 3 - Gyro Sensor
