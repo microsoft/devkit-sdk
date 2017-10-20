@@ -6,11 +6,11 @@
 
 #define NUMSENSORS 5  // 5 sensors to display
 
-// 0 - Gyro Sensor
-// 1 - Motion (Acceleration) Sensor
+// 0 - Humidity & Temperature Sensor
 // 1 - Pressure Sensor
-// 2 - Humidity & Temperature Sensor
-// 3 - Magnetic Sensor
+// 2 - Magnetic Sensor
+// 3 - Gyro Sensor
+// 4 - Motion (Acceleration) Sensor
 static int status;
 static bool showSensor;
 static bool isConnected;
