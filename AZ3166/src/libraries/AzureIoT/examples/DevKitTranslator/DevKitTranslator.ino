@@ -10,7 +10,6 @@
 
 #include "azure_config.h"
 #include "http_client.h"
-#include "telemetry.h"
 
 #define LANGUAGES_COUNT     9
 #define MAX_RECORD_DURATION 2
