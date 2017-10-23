@@ -118,7 +118,7 @@ $LastPlatform = ([PSCustomObject]($ArduinoConfigJson.packages[0].platforms[$tota
 if ($LastPlatform.version -eq $CurrentVersion)
 {
     # Update the latest version
-    $LastPlatform.url = "https://azureboard2.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
+    $LastPlatform.url = "https://azureboard2.azureedge.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
     $LastPlatform.archiveFileName = $ArduinoPackageBlobName
     $LastPlatform.checksum = "MD5:" + $ArduinoPackageHash
     $LastPlatform.size = (Get-Item $ArduinoPackageFilePath).Length.ToString()
@@ -158,7 +158,7 @@ $ArduinoConfigJson | ConvertTo-Json -Depth 10 | Out-File $ArduinoConfigFileName 
 $ArduinoConfigJsonBlobName = "$PackageInfoContainer/$ArduinoConfigFileName"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoConfigFileName -Blob $ArduinoConfigJsonBlobName -Force
 
-$ArduinoConfigJsonBlobURL = "https://azureboard2.blob.core.windows.net/$Environment/$ArduinoConfigJsonBlobName"
+$ArduinoConfigJsonBlobURL = "https://azureboard2.azureedge.net/$Environment/$ArduinoConfigJsonBlobName"
 Write-Host("Arduino board manager JSON file URI: $ArduinoConfigJsonBlobURL")
 
 Write-Host("$Environment deployment completed.");
