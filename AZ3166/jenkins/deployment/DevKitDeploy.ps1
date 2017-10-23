@@ -49,7 +49,7 @@ $InstallPackageFilePathForMac = Join-Path -Path (Get-Location).Path -ChildPath "
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $InstallPackageFilePathForMac -Blob "$PackageContainerForMac\$MacInstallPackageName" -Force
 
 # Upload Arduino package
-$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\arduino_source_$CurrentVersionWithBuildNumber.zip"
+$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\AZ3166-$CurrentVersionWithBuildNumber.zip"
 $ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
 Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
