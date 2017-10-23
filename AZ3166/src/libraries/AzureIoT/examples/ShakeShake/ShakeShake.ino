@@ -149,11 +149,11 @@ static bool ParseTweet(const char *tweet, int lenTweet)
   // The header
   for (; i < min(lenTweet, sizeof(msgHeader)); i++)
   {
-      if(tweet[i] == '\n')
-      {
-          break;
-      }
-      msgHeader[j++] = PrintableChar(tweet[i]);
+    if(tweet[i] == '\n')
+    {
+      break;
+    }
+    msgHeader[j++] = PrintableChar(tweet[i]);
   }
   msgHeader[j] = 0;
   Serial.println(msgHeader);
