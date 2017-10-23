@@ -133,7 +133,7 @@ else
     }
 
     $NewPlatform.version = $CurrentVersion
-    $NewPlatform.url = "https://azureboard2.blob.core.windows.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
+    $NewPlatform.url = "https://azureboard2.azureedge.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
     $NewPlatform.archiveFileName = $ArduinoPackageBlobName
     $NewPlatform.checksum = "MD5:" + $ArduinoPackageHash
     $NewPlatform.size = (Get-Item $ArduinoPackageFilePath).Length.ToString()
