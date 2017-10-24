@@ -1,19 +1,19 @@
 import {
     buildNewCode,
-    removeUsbInstall,
+    removeDevKitInstall,
     copyScripts,
 	getVersionInfo,
-    zipAZ3166Package,
+    copyAZ3166Package,
     copyToolChain,
     zipFinal,
 } from './generate';
 
 async function main() {
     await buildNewCode();
-    removeUsbInstall();
+    removeDevKitInstall();
     copyScripts();
 	getVersionInfo();
-    await zipAZ3166Package();
+    copyAZ3166Package();
     copyToolChain();
     await zipFinal();
 }
