@@ -19,8 +19,6 @@ public static void Run(string myEventHubMessage, TraceWriter log)
 {
     log.Info($"C# Event Hub trigger function processed a message: {myEventHubMessage}");
 
-    registryManager = RegistryManager.CreateFromConnectionString(connectionString);
-
     string clientName = string.Empty;
     string accessToken = string.Empty;
 
@@ -40,6 +38,7 @@ public static void Run(string myEventHubMessage, TraceWriter log)
 
 public static async Task SetDeviceTwin(string deviceId, string endpoint)
 {
+    registryManager = RegistryManager.CreateFromConnectionString(connectionString);
     var twin = await registryManager.GetTwinAsync(deviceId);
     var patch = new
     {
