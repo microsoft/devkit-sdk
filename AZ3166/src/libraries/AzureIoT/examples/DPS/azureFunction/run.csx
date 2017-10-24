@@ -21,20 +21,20 @@ public static void Run(string myEventHubMessage, TraceWriter log)
 
     registryManager = RegistryManager.CreateFromConnectionString(connectionString);
 
-    string deviceAccessKey = string.Empty;
-    string deviceToken = string.Empty;
+    string clientName = string.Empty;
+    string accessToken = string.Empty;
 
     DeviceObject deviceObject = Newtonsoft.Json.JsonConvert.DeserializeObject<DeviceObject>(myEventHubMessage);
     if (String.IsNullOrEmpty(deviceObject.deviceId))
     {
         return;
     }
-    deviceAccessKey = deviceObject.deviceId;
+    clientName = deviceObject.deviceId;
     
-    var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(deviceAccessKey + tokenSuffix);
-    deviceToken = System.Convert.ToBase64String(plainTextBytes);
+    var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(clientName + tokenSuffix);
+    accessToken = System.Convert.ToBase64String(plainTextBytes);
 
-    string endpoint = string.Format("Endpoint={0};clientName={1};accessToken={2}", aiUrl, deviceAccessKey, deviceToken);
+    string endpoint = string.Format("Endpoint={0};clientName={1};accessToken={2}", aiUrl, clientName, accessToken);
     SetDeviceTwin(deviceObject.deviceId, endpoint).Wait();
 }
 
