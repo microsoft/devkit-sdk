@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
+#include "Arduino.h"
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "IoTHubMQTTClient.h"
@@ -44,7 +45,6 @@ const char * LUISWebAppUrl;
 extern char* Global_Device_Endpoint;
 extern char* ID_Scope;
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
 static void InitWiFi()
@@ -76,6 +76,7 @@ static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsig
   memcpy(temp, payLoad, size);
   temp[size] = '\0';
   LUISWebAppUrl = parseTwinMessage(updateState, temp);
+
   if (LUISWebAppUrl == NULL)
   {
     LogError("Failed to retrieve LUIS URL from Device Twin");
@@ -249,10 +250,13 @@ char* getWebSocketUrl()
     url = (char *)malloc(300);
 
     // "ws://demobotapp-sandbox.azurewebsites.net/chat?nickName="
+    // LUISWebAppUrl = Endpoint=http://demobotapp-wus.azurewebsites.net;clientName=az-04786300cd50;accessToken=YXotMDQ3ODYzMDBjZDUwZHBzLWFpLWRlbW8=
     snprintf(url, 300, "%s%s", LUISWebAppUrl, nickName);
     Serial.print("WebSocket url: ");
     Serial.println(url);
-    return url;
+
+    return "ws://demobotapp-sandbox.azurewebsites.net/chat?nickName=test";
+    //return url;
 }
 
 void doWork()
@@ -380,9 +384,12 @@ void setup() {
     return;
   }
 
+  const char* registrationId = GetBoardID();
+  char iot_message[35] = {0};
+  snprintf(iot_message, 34, "{\"deviceId\":\"%s\"}", registrationId);
 
   Screen.print(3, " > DPS");
-  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, GetBoardID()))
+  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, registrationId))
   {
     Screen.print(2, "DPS connected!\r\n");
   }
@@ -395,6 +402,10 @@ void setup() {
   Screen.print(3, " > IoT Hub(DPS)");
   IoTHubMQTT_Init(true);
   IoTHubMQTT_SetDeviceTwinCallback(DeviceTwinCallback);
+
+  if(!IoTHubMQTT_SendEvent((char *)iot_message)){
+      return;
+  }
 
   Screen.print(3, " > LUIS.ai");
   pinMode(USER_BUTTON_A, INPUT);

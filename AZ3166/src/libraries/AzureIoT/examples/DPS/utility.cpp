@@ -31,12 +31,12 @@ const char * parseTwinMessage(DEVICE_TWIN_UPDATE_STATE updateState, const char *
         JSON_Object *desired_object = json_object_get_object(root_object, "desired");
         if (desired_object != NULL)
         {
-            LUIS_App_Url = json_object_get_string(desired_object, "luisappurl");
+            LUIS_App_Url = json_object_get_string(desired_object, "LUISEndpoint");
         }
     }
     else
     {
-        LUIS_App_Url = json_object_get_string(root_object, "luisappurl");
+        LUIS_App_Url = json_object_get_string(root_object, "LUISEndpoint");
     }
 
     if (LUIS_App_Url != NULL)
