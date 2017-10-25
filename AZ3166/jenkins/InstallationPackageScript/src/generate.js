@@ -16,6 +16,7 @@ const constants = {
 	toolsOriginForWin: path.join(__dirname, '../Tools/win'),		
 	toolsDestForWin: path.join(__dirname, '../devkit_install_win/tools/staging'),    
 	invalidFolderForWin: path.join(__dirname, '../devkit_install_win/tools/darwin'),
+	jsonFileDirForWin: path.join(__dirname, '../devkit_install_win/package.json'),
 	finalZipForWin: path.join(__dirname, `../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip`),
 	
 	devkitDirForMac: path.join(__dirname, '../devkit_install_mac'),
@@ -23,6 +24,7 @@ const constants = {
 	toolsOriginForMac: path.join(__dirname, '../Tools/mac'),
 	toolsDestForMac: path.join(__dirname, '../devkit_install_mac/tools/staging'),
 	invalidFolderForMac: path.join(__dirname, '../devkit_install_mac/tools/win32'),
+	jsonFileDirForMac: path.join(__dirname, '../devkit_install_mac/package.json'),
 	finalZipForMac: path.join(__dirname, `../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip`)
 };
 
@@ -80,42 +82,60 @@ export function copyAZ3166Package() {
 	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo).replace("{buildNumber}", build), constants.packageDestForMac.replace("{version}",versionInfo));
 }
 
- export function copyToolChain() {
-     console.log('copy tools');
-     let winFiles = fsExtra.readdirSync(constants.toolsOriginForWin);
-     for (let i = 0; i < winFiles.length; ++i) {
-         fsExtra.copySync(path.join(constants.toolsOriginForWin, winFiles[i]), path.join(constants.toolsDestForWin, winFiles[i]));
-     }
+export function copyToolChain() {
+    console.log('copy tools');
+    let winFiles = fsExtra.readdirSync(constants.toolsOriginForWin);
+    for (let i = 0; i < winFiles.length; ++i) {
+        fsExtra.copySync(path.join(constants.toolsOriginForWin, winFiles[i]), path.join(constants.toolsDestForWin, winFiles[i]));
+    }
 	 
-	 let macFiles = fsExtra.readdirSync(constants.toolsOriginForMac);
-     for (let i = 0; i < macFiles.length; ++i) {
-         fsExtra.copySync(path.join(constants.toolsOriginForMac, macFiles[i]), path.join(constants.toolsDestForMac, macFiles[i]));
-     }
- }
+	let macFiles = fsExtra.readdirSync(constants.toolsOriginForMac);
+    for (let i = 0; i < macFiles.length; ++i) {
+        fsExtra.copySync(path.join(constants.toolsOriginForMac, macFiles[i]), path.join(constants.toolsDestForMac, macFiles[i]));
+    }
+}
 
- export function removeInvalidFiles()
- {
-	 console.log('remove invalid files');
-	 fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));
-	 fsExtra.removeSync(constants.invalidFolderForWin);
+export function removeInvalidFiles()
+{
+	console.log('remove invalid files');
+	fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));
+	fsExtra.removeSync(constants.invalidFolderForWin);
 	 
-	 fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));
-	 fsExtra.removeSync(constants.invalidFolderForMac);
- }
+	fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));
+	fsExtra.removeSync(constants.invalidFolderForMac);
+}
+
+export function updateSerialPort()
+{
+	console.log('update serialPort');	 
+	 	 
+	var winFile = require(constants.jsonFileDirForWin);	  
+	winFile.dependencies["serialport"] = "^4.0.7";
+	 
+	var winDest = JSON.stringify(winFile, null, 2);
+	fs.writeFile(constants.jsonFileDirForWin, winDest);
+	  
+	var macFile = require(constants.jsonFileDirForMac);	  
+	macFile.dependencies["serialport"] = "^6.0.3";
+	 
+	var macDest = JSON.stringify(macFile, null, 2);
+	fs.writeFile(constants.jsonFileDirForMac, macDest);
+	  
+}
  
 export async function zipFinal() {
     console.log('zip the final package');
-     let winFiles = glob.sync(path.dirname(constants.finalZipForWin.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_win*.zip');
-     _.each(winFiles, file => {
-         console.log('deleting' ,file);
-         fs.unlinkSync(file);
-     });
+    let winFiles = glob.sync(path.dirname(constants.finalZipForWin.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_win*.zip');
+    _.each(winFiles, file => {
+        console.log('deleting' ,file);
+        fs.unlinkSync(file);
+    });
 	 
-	 let macFiles = glob.sync(path.dirname(constants.finalZipForMac.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_mac*.zip');
-     _.each(macFiles, file => {
-         console.log('deleting' ,file);
-         fs.unlinkSync(file);
-     });
+	let macFiles = glob.sync(path.dirname(constants.finalZipForMac.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_mac*.zip');
+    _.each(macFiles, file => {
+        console.log('deleting' ,file);
+        fs.unlinkSync(file);
+    });
 
 	await util.execStdout(command.zipFinalForMac.replace("{version}",versionInfo), timeout);
     await util.execStdout(command.zipFinalForWin.replace("{version}",versionInfo), timeout);

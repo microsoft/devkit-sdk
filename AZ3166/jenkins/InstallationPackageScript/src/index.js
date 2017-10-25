@@ -6,6 +6,7 @@ import {
     copyAZ3166Package,
     copyToolChain,
 	removeInvalidFiles,
+	updateSerialPort,
     zipFinal,
 } from './generate';
 
@@ -17,6 +18,7 @@ async function main() {
     copyAZ3166Package();
     copyToolChain();
 	removeInvalidFiles();
+	updateSerialPort();
     await zipFinal();
 }
 
