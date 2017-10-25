@@ -15,12 +15,14 @@ const constants = {
 	packageDestForWin : path.join(__dirname, '../devkit_install_win/tools/staging/AZ3166-{version}.zip'),
 	toolsOriginForWin: path.join(__dirname, '../Tools/win'),		
 	toolsDestForWin: path.join(__dirname, '../devkit_install_win/tools/staging'),    
+	invalidFolderForWin: path.join(__dirname, '../devkit_install_win/tools/darwin'),
 	finalZipForWin: path.join(__dirname, `../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip`),
 	
 	devkitDirForMac: path.join(__dirname, '../devkit_install_mac'),
 	packageDestForMac : path.join(__dirname, '../devkit_install_mac/tools/staging/AZ3166-{version}.zip'),
 	toolsOriginForMac: path.join(__dirname, '../Tools/mac'),
 	toolsDestForMac: path.join(__dirname, '../devkit_install_mac/tools/staging'),
+	invalidFolderForMac: path.join(__dirname, '../devkit_install_mac/tools/win32'),
 	finalZipForMac: path.join(__dirname, `../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip`)
 };
 
@@ -64,6 +66,7 @@ export function copyScripts() {
         }
     }
 }
+
 export function getVersionInfo(){
 	let data = fs.readFileSync(constants.versionFile);
 	versionInfo = data.toString();
@@ -90,6 +93,16 @@ export function copyAZ3166Package() {
      }
  }
 
+ export function removeInvalidFiles()
+ {
+	 console.log('remove invalid files');
+	 fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));
+	 fsExtra.removeSync(constants.invalidFolderForWin);
+	 
+	 fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));
+	 fsExtra.removeSync(constants.invalidFolderForMac);
+ }
+ 
 export async function zipFinal() {
     console.log('zip the final package');
      let winFiles = glob.sync(path.dirname(constants.finalZipForWin.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_win*.zip');
