@@ -8,7 +8,7 @@ import fs from 'fs';
 const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
-	packageOrigin: path.join(__dirname, '../TestResult/AZ3166_{version}.{buildNumber}.zip'),
+	packageOrigin: path.join(__dirname, '../TestResult/AZ3166-{version}.{buildNumber}.zip'),
 	versionFile: path.join(__dirname, `../system_version.txt`),
 	
     devkitDirForWin: path.join(__dirname, '../devkit_install_win'),
