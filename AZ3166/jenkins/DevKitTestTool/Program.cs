@@ -581,7 +581,7 @@
                 throw new FileNotFoundException($"Failed to find the task-installation.js, file path: {filePath}");
             }
 
-            string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString();
+            string newUrl = ConfigurationManager.AppSettings["BoardManagerURL"].ToString().Trim();
             string content = File.ReadAllText(filePath);
 
             content = content.Replace("BOARD_URL_PLACEHOLDER", newUrl);
