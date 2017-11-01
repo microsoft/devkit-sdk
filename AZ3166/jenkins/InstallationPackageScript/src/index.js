@@ -3,6 +3,7 @@ import {
     removeDevKitInstall,
     copyScripts,
 	getVersionInfo,
+	zipAZ3166Package,
     copyAZ3166Package,
     copyToolChain,
 	removeInvalidFiles,
@@ -15,6 +16,7 @@ async function main() {
     removeDevKitInstall();
     copyScripts();
 	getVersionInfo();
+	await zipAZ3166Package();
     copyAZ3166Package();
     copyToolChain();
 	removeInvalidFiles();

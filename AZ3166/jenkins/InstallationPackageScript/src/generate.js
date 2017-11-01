@@ -8,8 +8,10 @@ import fs from 'fs';
 const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
-	packageOrigin: path.join(__dirname, '../TestResult/AZ3166-{version}.{buildNumber}.zip'),
-	versionFile: path.join(__dirname, `../system_version.txt`),
+	sourceOrigin: path.join(__dirname, '../devkit-sdk/AZ3166/src'),
+	sourceDest: path.join(__dirname, '../TestResult/AZ3166/AZ3166'),	
+	packageOrigin: path.join(__dirname, `../TestResult/AZ3166-{version}.${process.env.BUILD_NUMBER}.zip`),
+	versionFile: path.join(__dirname, '../system_version.txt'),
 	
     devkitDirForWin: path.join(__dirname, '../devkit_install_win'),
 	packageDestForWin : path.join(__dirname, '../devkit_install_win/tools/staging/AZ3166-{version}.zip'),
@@ -31,7 +33,8 @@ const constants = {
 const command = {
     npmInstall: 'npm install',
     gulpBabel: 'gulp babel',
-		
+	zipPackage: `7z a -r ../TestResult/AZ3166-{version}.${process.env.BUILD_NUMBER}.zip ../TestResult/AZ3166/*`,
+	
     zipFinalForWin: `7z a -r ../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_win/*`,
 
 	zipFinalForMac: `7z a -r ../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_mac/*`
@@ -74,12 +77,21 @@ export function getVersionInfo(){
 	versionInfo = data.toString();
 }
 
+export async function zipAZ3166Package() {
+	console.log('zip AZ3166 package');
+	let files = fsExtra.readdirSync(constants.sourceOrigin);
+    for (let i = 0; i < files.length; ++i) {
+        fsExtra.copySync(path.join(constants.sourceOrigin, files[i]), path.join(constants.sourceDest, files[i]));
+    }	
+    	
+    await util.execStdout(command.zipPackage.replace("{version}",versionInfo), timeout);
+}
+
 export function copyAZ3166Package() {
     console.log('copy AZ3166 zip package');
-	let build = process.env['BUILD_NUMBER'];
 	
-	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo).replace("{buildNumber}", build), constants.packageDestForWin.replace("{version}",versionInfo));
-	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo).replace("{buildNumber}", build), constants.packageDestForMac.replace("{version}",versionInfo));
+	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo), constants.packageDestForWin.replace("{version}",versionInfo));
+	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo), constants.packageDestForMac.replace("{version}",versionInfo));
 }
 
 export function copyToolChain() {
