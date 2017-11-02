@@ -342,7 +342,7 @@ static void httpd_handle_client_connection( const fd_set *active_readfds )
 
         if ( activefds_cnt == HTTPD_TIMEOUT_EVENT )
         {
-            /* Timeout has occured */
+            /* Timeout has occurred */
             httpd_d("Client socket timeout occurred. " "Force closing socket");
 
             status = close( client_sockfd );

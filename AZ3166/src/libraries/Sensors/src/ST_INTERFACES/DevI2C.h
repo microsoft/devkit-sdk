@@ -86,7 +86,7 @@ public:
      *         where to start writing to (must be correctly masked).
      * @param  NumByteToWrite number of bytes to be written.
      * @retval 0 if ok,
-     * @retval -1 if an I2C error has occured, or
+     * @retval -1 if an I2C error has occurred, or
      * @retval -2 on temporary buffer overflow (i.e. NumByteToWrite was too high)
      * @note   On some devices if NumByteToWrite is greater
      *         than one, the RegisterAddr must be masked correctly!
@@ -111,12 +111,12 @@ public:
     /**
      * @brief  Reads a buffer from the I2C peripheral device.
      * @param  pBuffer pointer to the byte-array to read data in to
-     * @param  DaviceAddr specifies the peripheral device slave address.
+     * @param  DeviceAddr specifies the peripheral device slave address.
      * @param  RegisterAddr specifies the internal address register
      *         where to start reading from (must be correctly masked).
      * @param  NumByteToRead number of bytes to be read.
      * @retval 0 if ok,
-     * @retval -1 if an I2C error has occured
+     * @retval -1 if an I2C error has occurred
      * @note   On some devices if NumByteToWrite is greater
      *         than one, the RegisterAddr must be masked correctly!
      */

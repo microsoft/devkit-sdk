@@ -4,7 +4,7 @@
 * @author  Ding QQ
 * @version V1.0.0
 * @date    21-May-2015
-* @brief   MiCO RTOS Fatfs extern functin.
+* @brief   MiCO RTOS Fatfs extern function.
 ******************************************************************************
 *
 *  The MIT License
