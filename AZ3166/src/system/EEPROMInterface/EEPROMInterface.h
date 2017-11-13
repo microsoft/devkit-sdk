@@ -27,6 +27,7 @@ public:
     
 	int write(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex);
 	int read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex);
+	void enableHostSecureChannel();
 };
 
 #endif /* _EEPROM_INTERFACE_ */
