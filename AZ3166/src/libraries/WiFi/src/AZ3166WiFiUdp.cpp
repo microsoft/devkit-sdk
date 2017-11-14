@@ -153,7 +153,7 @@ IPAddress WiFiUDP::remoteIP()
 {
     if(_address == NULL)
     {
-        return INADDR_NONE;
+        return IP_ADDR_NONE;
     }
     IPAddress ip;
     ip.fromString(_address->get_ip_address());

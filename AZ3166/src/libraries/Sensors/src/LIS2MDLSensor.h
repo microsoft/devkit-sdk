@@ -85,7 +85,7 @@ class LIS2MDLSensor : public MagneticSensor {
      * @param[in]  RegisterAddr specifies internal address register to read from.
      * @param[in]  NumByteToRead number of bytes to be read.
      * @retval     MAGNETO_OK if ok, 
-     * @retval     MAGNETO_ERROR if an I2C error has occured
+     * @retval     MAGNETO_ERROR if an I2C error has occurred
      */
     MAGNETO_StatusTypeDef LIS2MDL_IO_Read(uint8_t* pBuffer, 
                           uint8_t RegisterAddr, uint16_t NumByteToRead)
@@ -106,7 +106,7 @@ class LIS2MDLSensor : public MagneticSensor {
      * @param[in]  RegisterAddr specifies internal address register to read from.
      * @param[in]  NumByteToWrite number of bytes to write.
      * @retval     MAGNETO_OK if ok, 
-     * @retval     MAGNETO_ERROR if an I2C error has occured
+     * @retval     MAGNETO_ERROR if an I2C error has occurred
      */
     MAGNETO_StatusTypeDef LIS2MDL_IO_Write(uint8_t* pBuffer, 
                            uint8_t RegisterAddr, uint16_t NumByteToWrite)
