@@ -220,7 +220,7 @@
                 }
                 else
                 {
-                    unitTestResult.Add(file.Name, "succeed");
+                    unitTestResult.Add(file.FullName, "succeed");
                 }
 
                 Console.WriteLine("END\r\n");
@@ -257,12 +257,12 @@
 
                 if (string.IsNullOrEmpty(error))
                 {
-                    examplesTestResult.Add(file.Name, "succeed");
+                    examplesTestResult.Add(file.FullName, "succeed");
                     Console.WriteLine($"Result: succeeded.\r\n");
                 }
                 else
                 {
-                    examplesTestResult.Add(file.Name, error);
+                    examplesTestResult.Add(file.FullName, error);
                     Console.WriteLine(error);
                     Console.WriteLine("Result: failed.\r\n");
                 }
