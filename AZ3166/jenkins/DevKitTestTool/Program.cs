@@ -64,7 +64,7 @@
                         Thread.Sleep(30 * 1000);
                         _listener.Stop();
                         watch.Stop();
-                        Console.WriteLine($"DevKit unit test execution time: {watch.Elapsed.Minutes} minutes");
+                        Console.WriteLine($"DevKit unit test execution time: {watch.Elapsed.TotalMinutes} minutes");
 
                         Console.WriteLine("Generate test report");
                         GenerateReport("UnitTestReport", watch.Elapsed.Minutes, logFilePath);
@@ -84,7 +84,7 @@
                         VerifyLibraryExamples(exampleFolderPath);
 
                         watch.Stop();
-                        Console.WriteLine($"DevKit examples verification time: {watch.Elapsed.Minutes} minutes.");
+                        Console.WriteLine($"DevKit examples verification time: {watch.Elapsed.TotalMinutes} minutes.");
 
                         Console.WriteLine("Generate test report");
                         GenerateReport("ExampleReport", watch.Elapsed.Minutes);
