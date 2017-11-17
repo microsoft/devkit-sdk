@@ -59,6 +59,9 @@ class AudioClass {
         void attachRecord(callbackFunc func = NULL);
         int startRecord();
         int startPlay();
+        int startRecord(char * audioFile, int fileSize);
+        int startPlay(char * audioFile, int size);
+        int getCurrentSize();
 
         // Singleton class:
         // This is creation point for static instance variable
