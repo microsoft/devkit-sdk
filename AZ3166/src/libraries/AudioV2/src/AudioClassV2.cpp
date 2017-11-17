@@ -265,15 +265,39 @@ int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
     int bytesPerSample = sampleBitLength / 8;
     int curFileSize = 0;
 
-    char *curReader = audioFile + WAVE_HEADER_SIZE;
-    char *curWriter = audioFile + WAVE_HEADER_SIZE;
+    char *curReader = audioFile + WAVE_HEADER_SIZE + bytesPerSample * 2;
+    char *curWriter = audioFile + WAVE_HEADER_SIZE + bytesPerSample;
 
-    while (curReader < audioFile + size)
+    // Avoid using memcpy to improve performance
+    if (sampleBitLength == 16)
     {
-        memcpy(curWriter, curReader, bytesPerSample);
+        while (curReader < audioFile + size)
+        {
+            *(uint16_t *)curWriter = *((uint16_t *)curReader);
 
-        curWriter += bytesPerSample;
-        curReader += bytesPerSample * 2;
+            curWriter += bytesPerSample;
+            curReader += bytesPerSample * 2;
+        }
+    }
+    else if (sampleBitLength == 32)
+    {
+        while (curReader < audioFile + size)
+        {
+            *(uint32_t *)curWriter = *((uint32_t *)curReader);
+
+            curWriter += bytesPerSample;
+            curReader += bytesPerSample * 2;
+        }
+    }
+    else
+    {
+        while (curReader < audioFile + size)
+        {
+            memcpy(curWriter, curReader, bytesPerSample);
+
+            curWriter += bytesPerSample;
+            curReader += bytesPerSample * 2;
+        }
     }
 
     curFileSize = curWriter - audioFile;
