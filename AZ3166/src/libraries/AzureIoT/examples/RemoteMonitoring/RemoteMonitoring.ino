@@ -1,22 +1,23 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/remote-monitoring/?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
-#include "Arduino.h"
-#include "Sensor.h"
-#include "AzureIotHub.h"
 #include "AZ3166WiFi.h"
+#include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
-#include "Telemetry.h"
 
-static bool isConnected = false;
+#include "Sensor.h"
 
-DevI2C *ext_i2c;
-HTS221Sensor *ht_sensor;
+static bool hasWifi = false;
 
-char wifiBuff[128];
+static DevI2C *ext_i2c;
+static HTS221Sensor *ht_sensor;
+
+static char wifiBuff[128];
 
 #define RECONNECT_THRESHOLD 3
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utilities
 void sendDeviceInfo()
 {
     char *deviceInfo = "{\"ObjectType\":\"DeviceInfo\",\"Version\":\"1.0\",\"IsSimulatedDevice\":false,\"DeviceProperties\":{\"DeviceID\":\"AZ3166\",\"HubEnabledState\":true}}";
@@ -35,7 +36,7 @@ void InitWiFi()
     digitalWrite(LED_WIFI, 1);
     DevKitMQTTClient_Init();
     sendDeviceInfo();
-    isConnected = true;
+    hasWifi = true;
   }
   else
   {
@@ -63,6 +64,8 @@ void showHumidTempSensor()
   DevKitMQTTClient_SendEvent(sensorData);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Arduino sketch
 void setup() {
   pinMode(LED_WIFI, OUTPUT);
   pinMode(LED_AZURE, OUTPUT);
@@ -86,24 +89,27 @@ void setup() {
   }   
 
   InitWiFi();
-
-  if (isConnected)
+  if (!hasWifi)
   {
-    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
-    // We collect data about the features you use, how often you use them, and how you use them.
-    send_telemetry_data_async("", "RemoteMonitoringSetup", "");
+    return;
   }
+  
+  LogTrace("RemoteMonitoringSetup", NULL);
 }
 
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(isConnected)
+  if(hasWifi)
   {
     showHumidTempSensor();
     digitalWrite(LED_AZURE, 1);
     delay(500);
     digitalWrite(LED_AZURE, 0);
     delay(5000);
+  }
+  else
+  {
+    delay(100);
   }
 }
