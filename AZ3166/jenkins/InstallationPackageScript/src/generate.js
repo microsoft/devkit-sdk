@@ -8,8 +8,8 @@ import fs from 'fs';
 const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
-	packageOrigin: path.join(__dirname, '../TestResult/AZ3166-{version}.{buildNumber}.zip'),
-	versionFile: path.join(__dirname, `../system_version.txt`),
+	packageOrigin: path.join(__dirname, `../TestResult/AZ3166-{version}.${process.env.BUILD_NUMBER}.zip`),
+	versionFile: path.join(__dirname, '../system_version.txt'),
 	
     devkitDirForWin: path.join(__dirname, '../devkit_install_win'),
 	packageDestForWin : path.join(__dirname, '../devkit_install_win/tools/staging/AZ3166-{version}.zip'),
@@ -76,10 +76,9 @@ export function getVersionInfo(){
 
 export function copyAZ3166Package() {
     console.log('copy AZ3166 zip package');
-	let build = process.env['BUILD_NUMBER'];
-	
-	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo).replace("{buildNumber}", build), constants.packageDestForWin.replace("{version}",versionInfo));
-	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo).replace("{buildNumber}", build), constants.packageDestForMac.replace("{version}",versionInfo));
+		
+	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo), constants.packageDestForWin.replace("{version}",versionInfo));
+	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo), constants.packageDestForMac.replace("{version}",versionInfo));
 }
 
 export function copyToolChain() {
