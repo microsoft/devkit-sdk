@@ -71,9 +71,10 @@ void AudioClass::format(unsigned int sampleRate, unsigned short sampleBitLength)
     _audioState = AUDIO_STATE_INIT;
 }
 
-int AudioClass::startRecord()
+int AudioClass::startRecord(callbackFunc func)
 {
     _wavFile = NULL;
+    recordCallbackFptr = func;
     _audioState = AUDIO_STATE_RECORDING;
     memset(_play_buffer, 0x0, AUDIO_CHUNK_SIZE);
     BSP_AUDIO_In_Out_Transfer((uint16_t*)_play_buffer, (uint16_t*)_record_buffer, AUDIO_CHUNK_SIZE/2);
@@ -81,16 +82,16 @@ int AudioClass::startRecord()
     return AUDIO_OK;
 }
 
-int AudioClass::startRecord(char *audioFile, int fileSize)
+int AudioClass::startRecord(char* audioBuffer, int size)
 {
-    if (audioFile == NULL || fileSize < WAVE_HEADER_SIZE) {
+    if (audioBuffer == NULL || size < WAVE_HEADER_SIZE) {
         // TODO: log error
         return -1;
     }
 
     recordCallbackFptr = NULL;
-    _wavFile = audioFile;
-    _audioFileSize = fileSize;
+    _wavFile = audioBuffer;
+    _audioFileSize = size;
     _recordCursor = _wavFile + WAVE_HEADER_SIZE;
 
     _audioState = AUDIO_STATE_RECORDING;
@@ -114,7 +115,7 @@ int AudioClass::getCurrentSize()
     return 0;
 }
 
-int AudioClass::write(char* buffer, int length)
+int AudioClass::writeToPlayBuffer(char* buffer, int length)
 {
     if (buffer == NULL || length < 0)
     {
@@ -131,7 +132,7 @@ int AudioClass::write(char* buffer, int length)
     return copySize;
 }
 
-int AudioClass::read(char* buffer, int length)
+int AudioClass::readFromRecordBuffer(char* buffer, int length)
 {
     if (buffer == NULL || length < 0)
     {
@@ -148,9 +149,10 @@ int AudioClass::read(char* buffer, int length)
     return copySize;
 }
 
-int AudioClass::startPlay()
+int AudioClass::startPlay(callbackFunc func)
 {
     _wavFile = NULL;
+    audioCallbackFptr = func;
     if (audioCallbackFptr != NULL)
     {
         // Write audio binary to Tx buffer
@@ -171,16 +173,16 @@ int AudioClass::startPlay()
     return AUDIO_OK;
 }
 
-int AudioClass::startPlay(char *audioFile, int fileSize)
+int AudioClass::startPlay(char* audioBuffer, int size)
 {
-    if (audioFile == NULL || fileSize < WAVE_HEADER_SIZE + AUDIO_CHUNK_SIZE)
+    if (audioBuffer == NULL || size < WAVE_HEADER_SIZE + AUDIO_CHUNK_SIZE)
     {
         return AUDIO_ERROR;
     }
 
     audioCallbackFptr = NULL;
-    _wavFile = audioFile;
-    _audioFileSize = fileSize;
+    _wavFile = audioBuffer;
+    _audioFileSize = size;
     _playCursor = _wavFile + WAVE_HEADER_SIZE;
 
     _audioState = AUDIO_STATE_PLAYING;
@@ -248,7 +250,7 @@ void AudioClass::genericWAVHeader(WaveHeader *hdr, int pcmDataSize, uint32_t sam
     hdr->data_chunk_size = pcmDataSize;
 }
 
-int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
+int AudioClass::convertToMono(char* audioFile, int size, int sampleBitLength)
 {
     if (sampleBitLength != 16 && sampleBitLength != 24 && sampleBitLength != 32)
     {
@@ -311,16 +313,6 @@ int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
     //memset(curWriter, 0, audioFile + size - curWriter);
 
     return curFileSize;
-}
-
-void AudioClass::attachPlay(callbackFunc func)
-{
-    audioCallbackFptr = func;
-}
-
-void AudioClass::attachRecord(callbackFunc func)
-{
-    recordCallbackFptr = func;
 }
 
 /*------------------------------------------------------------------------------

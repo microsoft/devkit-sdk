@@ -47,21 +47,19 @@ typedef void (*callbackFunc)();
 class AudioClass {
     public:
         void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);
+
+        int startRecord(callbackFunc func = NULL);
+        int startPlay(callbackFunc func = NULL);
+        int startRecord(char* audioBuffer, int size);
+        int startPlay(char* audioBuffer, int size);
         void stop();
 
         int getAudioState();
-        int convertToMono(char * audioFile, int size, int sampleBitLength);
-
-        // V2 APIs
-        int read(char * buffer, int length);
-        int write(char* buffer, int length);
-        void attachPlay(callbackFunc func = NULL);
-        void attachRecord(callbackFunc func = NULL);
-        int startRecord();
-        int startPlay();
-        int startRecord(char * audioFile, int fileSize);
-        int startPlay(char * audioFile, int size);
         int getCurrentSize();
+        int readFromRecordBuffer(char* buffer, int length);
+        int writeToPlayBuffer(char* buffer, int length);
+
+        int convertToMono(char* audioFile, int size, int sampleBitLength);
 
         // Singleton class:
         // This is creation point for static instance variable

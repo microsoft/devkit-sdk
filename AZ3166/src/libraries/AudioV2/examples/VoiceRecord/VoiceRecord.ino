@@ -45,14 +45,11 @@ void loop(void)
       record();
       while(digitalRead(USER_BUTTON_A) == LOW && ringBuffer.available() > 0)
       {
-        if (digitalRead(USER_BUTTON_A) == HIGH)
-        {
-            stop();
-        }
+        delay(100);
       }
       if (Audio.getAudioState() == AUDIO_STATE_RECORDING)
       {
-          stop();
+          Audio.stop();
       }
       startPlay = true;
       printIdleMessage();
@@ -69,7 +66,7 @@ void loop(void)
         {
             delay(100);
         }
-        stop();
+        Audio.stop();
         startPlay = false;
         printIdleMessage();
       }
@@ -94,42 +91,32 @@ void printIdleMessage()
 
 void record()
 {
+  Serial.println("start recording");
   ringBuffer.clear();
   Audio.format(8000, 16);
-  Audio.attachPlay(NULL);
-  Audio.attachRecord(recordCallback);
-  Audio.startRecord();
+  Audio.startRecord(recordCallback);
 }
 
 void play()
 {
   Serial.println("start playing");
-  Audio.attachRecord(NULL);
-  Audio.attachPlay(playCallback);
   Audio.format(8000, 16);
-  Audio.startPlay();
-}
-
-void stop()
-{
-    Audio.stop();
-    Audio.attachRecord(NULL);
-    Audio.attachPlay(NULL);
+  Audio.startPlay(playCallback);
 }
 
 void playCallback(void)
 {
     if (ringBuffer.use() < AUDIO_CHUNK_SIZE)
     {
-      Audio.write(emptyAudio, AUDIO_CHUNK_SIZE);
+      Audio.writeToPlayBuffer(emptyAudio, AUDIO_CHUNK_SIZE);
       return;
     }
     int length = ringBuffer.get((uint8_t*)readBuffer, AUDIO_CHUNK_SIZE);
-    Audio.write(readBuffer, length);
+    Audio.writeToPlayBuffer(readBuffer, length);
 }
 
 void recordCallback(void)
 {
-    int length = Audio.read(readBuffer, AUDIO_CHUNK_SIZE);
+    int length = Audio.readFromRecordBuffer(readBuffer, AUDIO_CHUNK_SIZE);
     ringBuffer.put((uint8_t*)readBuffer, length);
 }
