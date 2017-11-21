@@ -34,51 +34,51 @@ void setup(void)
 
 void loop(void)
 {
-    buttonAState = digitalRead(USER_BUTTON_A);
-    buttonBState = digitalRead(USER_BUTTON_B);
+  buttonAState = digitalRead(USER_BUTTON_A);
+  buttonBState = digitalRead(USER_BUTTON_B);
     
-    if (buttonAState == LOW)
+  if (buttonAState == LOW && lastButtonAState == HIGH)
+  {
+    Screen.clean();
+    Screen.print(0, "Start recording:");
+    ringBuffer.clear();
+    record();
+    while(digitalRead(USER_BUTTON_A) == LOW && ringBuffer.available() > 0)
+    {
+      delay(10);
+    }
+    if (Audio.getAudioState() == AUDIO_STATE_RECORDING)
+    {
+      Audio.stop();
+    }
+    startPlay = true;
+    printIdleMessage();
+  }
+
+  if (buttonBState == LOW && lastButtonBState == HIGH)
+  {
+    if (startPlay == true)
     {
       Screen.clean();
-      Screen.print(0, "Start recording:");
-      ringBuffer.clear();
-      record();
-      while(digitalRead(USER_BUTTON_A) == LOW && ringBuffer.available() > 0)
+      Screen.print(0, "start playing");
+      play();
+      while(ringBuffer.use() >= AUDIO_CHUNK_SIZE)
       {
-        delay(100);
+        delay(10);
       }
-      if (Audio.getAudioState() == AUDIO_STATE_RECORDING)
-      {
-          Audio.stop();
-      }
-      startPlay = true;
+      Audio.stop();
+      startPlay = false;
       printIdleMessage();
     }
-
-    if (buttonBState == LOW && lastButtonBState == HIGH)
+    else
     {
-      if (startPlay == true)
-      {
-        Screen.clean();
-        Screen.print(0, "start playing");
-        play();
-        while(ringBuffer.use() >= AUDIO_CHUNK_SIZE)
-        {
-            delay(100);
-        }
-        Audio.stop();
-        startPlay = false;
-        printIdleMessage();
-      }
-      else
-      {
-        Screen.clean();
-        Screen.print(0, "Nothing to play");
-        Screen.print(1, "Hold A to Record", true);
-      }
+      Screen.clean();
+      Screen.print(0, "Nothing to play");
+      Screen.print(1, "Hold A to Record", true);
     }
-    lastButtonAState = buttonAState;
-    lastButtonBState = buttonBState;
+  }
+  lastButtonAState = buttonAState;
+  lastButtonBState = buttonBState;
 }
 
 void printIdleMessage()
@@ -106,17 +106,17 @@ void play()
 
 void playCallback(void)
 {
-    if (ringBuffer.use() < AUDIO_CHUNK_SIZE)
-    {
-      Audio.writeToPlayBuffer(emptyAudio, AUDIO_CHUNK_SIZE);
-      return;
-    }
-    int length = ringBuffer.get((uint8_t*)readBuffer, AUDIO_CHUNK_SIZE);
-    Audio.writeToPlayBuffer(readBuffer, length);
+  if (ringBuffer.use() < AUDIO_CHUNK_SIZE)
+  {
+    Audio.writeToPlayBuffer(emptyAudio, AUDIO_CHUNK_SIZE);
+    return;
+  }
+  int length = ringBuffer.get((uint8_t*)readBuffer, AUDIO_CHUNK_SIZE);
+  Audio.writeToPlayBuffer(readBuffer, length);
 }
 
 void recordCallback(void)
 {
-    int length = Audio.readFromRecordBuffer(readBuffer, AUDIO_CHUNK_SIZE);
-    ringBuffer.put((uint8_t*)readBuffer, length);
+  int length = Audio.readFromRecordBuffer(readBuffer, AUDIO_CHUNK_SIZE);
+  ringBuffer.put((uint8_t*)readBuffer, length);
 }

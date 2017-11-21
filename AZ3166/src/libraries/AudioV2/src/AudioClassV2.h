@@ -12,8 +12,8 @@
 #define DEFAULT_BITS_PER_SAMPLE     16
 #define MONO                        1
 #define STEREO                      2
-#define WAVE_HEADER_SIZE            44          // 44 bytes
-#define AUDIO_CHUNK_SIZE            512    // 2048 bytes
+#define WAVE_HEADER_SIZE            44         // 44 bytes
+#define AUDIO_CHUNK_SIZE            512        // 512 bytes
 
 typedef struct
 {
@@ -46,21 +46,6 @@ typedef void (*callbackFunc)();
 
 class AudioClass {
     public:
-        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);
-
-        int startRecord(callbackFunc func = NULL);
-        int startPlay(callbackFunc func = NULL);
-        int startRecord(char* audioBuffer, int size);
-        int startPlay(char* audioBuffer, int size);
-        void stop();
-
-        int getAudioState();
-        int getCurrentSize();
-        int readFromRecordBuffer(char* buffer, int length);
-        int writeToPlayBuffer(char* buffer, int length);
-
-        int convertToMono(char* audioFile, int size, int sampleBitLength);
-
         // Singleton class:
         // This is creation point for static instance variable
         static AudioClass& getInstance()
@@ -69,6 +54,32 @@ class AudioClass {
             static AudioClass audioInstance;
             return audioInstance;
         }
+        // Configure the audio data format.
+        void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);
+        // Stop audio data transmition.
+        void stop();
+        // Get status of the audio driver. Please use this API to query whether the playing/recoding process is completed.
+        int getAudioState();
+
+        // Callback scenario methods :
+        // Start recording audio data and call func after every 512 bytes buffer was recorded.
+        int startRecord(callbackFunc func = NULL);
+        // Start playing audio data and call func after every 512 bytes buffer was played.
+        int startPlay(callbackFunc func = NULL);
+        // Read recorded data from buffer inside AudioClass to given buffer.
+        int readFromRecordBuffer(char* buffer, int length);
+        // Write played data from given buffer to buffer inside AudioClass.
+        int writeToPlayBuffer(char* buffer, int length);
+
+        // WAV format data scenario methods :
+        // Start recording audio data and save a WAV format data to audioBuffer.
+        int startRecord(char* audioBuffer, int size);
+        // Start playing WAV format data in audioBuffer.
+        int startPlay(char* audioBuffer, int size);
+        // Get current recorded or played WAV format data size in byte.
+        int getCurrentSize();
+        // Convert the given stereo WAV format data to mono WAV format data.
+        int convertToMono(char* audioBuffer, int size, int sampleBitLength);
 
     private:
         void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, uint16_t sampleBitDepth, uint8_t channels);

@@ -9,7 +9,7 @@ int lastButtonAState;
 int buttonAState;
 int lastButtonBState;
 int buttonBState;
-char *waveFile;
+char *audioBuffer;
 int totalSize;
 int monoSize;
 
@@ -27,8 +27,8 @@ void setup(void)
   lastButtonBState = digitalRead(USER_BUTTON_B);
 
   // Setup your local audio buffer
-  waveFile = (char *)malloc(AUDIO_SIZE + 1);
-  memset(waveFile, 0x0, AUDIO_SIZE);
+  audioBuffer = (char *)malloc(AUDIO_SIZE + 1);
+  memset(audioBuffer, 0x0, AUDIO_SIZE);
 }
 
 void loop(void)
@@ -54,7 +54,7 @@ void loop(void)
     lastButtonBState = buttonBState;
   }
 
-  delay(100);
+  delay(10);
 }
 
 void printIdleMessage()
@@ -75,13 +75,14 @@ void record()
   Screen.print(0, "Start recording");
 
   // Start to record audio data
-  Audio.startRecord(waveFile, AUDIO_SIZE);
+  Audio.startRecord(audioBuffer, AUDIO_SIZE);
 
   // Check whether the audio record is completed.
-  while (Audio.getAudioState() == AUDIO_STATE_RECORDING)
+  while (digitalRead(USER_BUTTON_A) == LOW && Audio.getAudioState() == AUDIO_STATE_RECORDING)
   {
-    delay(100);
+    delay(10);
   }
+  Audio.stop();
   
   Screen.clean();
   Screen.print(0, "Finish recording");
@@ -96,11 +97,11 @@ void play()
 {
   Screen.clean();
   Screen.print(0, "Start playing");
-  Audio.startPlay(waveFile, totalSize);
+  Audio.startPlay(audioBuffer, totalSize);
   
   while (Audio.getAudioState() == AUDIO_STATE_PLAYING)
   {
-    delay(100);
+    delay(10);
   }
   
   Screen.print(0, "Stop playing");
