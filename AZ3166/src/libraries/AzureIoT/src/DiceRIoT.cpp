@@ -4,20 +4,14 @@
 #include "DiceCore.h"
 #include "RiotCore.h"
 #include <stdio.h>
-#include "azure_c_shared_utility/xlogging.h"
-
-#define logging 0
 
 // attribute section info from AZ3166.ld
 extern void* __start_riot_core;
 extern void* __stop_riot_core;
 
 // Protected data
-//extern DICE_UDS DiceUDS;
-extern uint8_t udsBytes[DICE_UDS_LENGTH];
+extern DICE_UDS DiceUDS;
 extern DICE_CMPND_ID DiceCDI;
-
-DICE_UDS DiceUDS = { DICE_UDS_TAG, 0 };
 
 // Non-protected data
 DICE_DATA DiceData = { 0 };
@@ -25,10 +19,6 @@ DICE_CMPND_ID DiceCDI = { DICE_CMPND_TAG , { 0x00 } };
 
 static int DiceInit(void)
 {
-    for (int i = 0; i < DICE_UDS_LENGTH; i++) {
-        DiceUDS.bytes[i] = udsBytes[i];
-    }
-
     // Up-front sanity check
     if (DiceUDS.tag != DICE_UDS_TAG) {
         return -1;
@@ -49,11 +39,6 @@ static int DiceInit(void)
     if((DiceData.riotSize = (uint8_t*)&__stop_riot_core - DiceData.riotCore) == 0){
         return -1;
     }
-
-    #if logging
-        LogInfo("The riot_core start address: %p", &__start_riot_core);
-        LogInfo("The riot_core end address: %p", &__stop_riot_core);
-    #endif
 
     return 0;
 }

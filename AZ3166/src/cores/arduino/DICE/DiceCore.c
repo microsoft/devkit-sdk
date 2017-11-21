@@ -8,9 +8,6 @@ Confidential Information
 #include "DiceCore.h"
 #include "DiceSha256.h"
 #include <stdio.h>
-#include "azure_c_shared_utility/xlogging.h"
-
-#define logging 0
 
 // DiceData from DiceInit
 extern DICE_DATA DiceData;
@@ -22,36 +19,12 @@ DICE_SHA256_CONTEXT  DiceHashCtx = { 0x00 };
 
 int DiceCore(void)
 {
-#if logging
-    LogInfo("Riot Core Code:");
-    for(int i = 0; i < DiceData.riotSize; i++){
-        if(i == (DiceData.riotSize - 1)){
-            printf("%02x\r\n", DiceData.riotCore[i]);
-        }
-        else{
-            printf("%02x", DiceData.riotCore[i]);
-        }
-    }
-#endif
-
     // Compute digest of RIoT Core
     if (_DiceMeasure(DiceData.riotCore, DiceData.riotSize, rDigest, DICE_DIGEST_LENGTH)) {
         // Enter remediation
         return -1;
     }
-
-#if logging
-    LogInfo("rDigest:");
-    for(int i = 0; i < DICE_DIGEST_LENGTH; i++){
-        if(i == (DICE_DIGEST_LENGTH - 1)){
-            printf("%02x\r\n", rDigest[i]);
-        }
-        else{
-            printf("%02x", rDigest[i]);
-        }
-    }
-#endif
-
+		
     // Derive CDI based on measurement of RIoT Core and UDS.
    if (_DiceDeriveCDI(rDigest, DICE_DIGEST_LENGTH)) {
        // Enter remediation

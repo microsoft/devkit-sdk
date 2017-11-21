@@ -45,7 +45,6 @@ static void wifi_scan(int argc, char **argv);
 static void wifi_ssid_command(int argc, char **argv);
 static void wifi_pwd_Command(int argc, char **argv);
 static void az_iothub_command(int argc, char **argv);
-static void dps_uds_command(int argc, char **argv);
 
 static const struct console_command cmds[] = {
   {"help",          "Help document",                                            false, help_command},
@@ -55,7 +54,6 @@ static const struct console_command cmds[] = {
   {"set_wifissid",  "Set Wi-Fi SSID",                                           false, wifi_ssid_command},
   {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
   {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     false, az_iothub_command},
-  {"set_dps_uds",   "Set DPS Unique Device Secret (DPS)",                       true,  dps_uds_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -217,29 +215,6 @@ static void az_iothub_command(int argc, char **argv)
     if (result == 0)
     {
         Serial.printf("INFO: Set Azure Iot hub connection string successfully.\r\n");
-    }
-}
-
-static void dps_uds_command(int argc, char **argv)
-{
-    char* uds = NULL;
-    if (argc == 1 || argv[1] == NULL)
-    {
-        Serial.printf("Usage: set_dps_uds [uds]. Please provide the UDS for DPS.\r\n");
-        return;
-    }
-
-    int len = strlen(argv[1]);
-    if (len != DPS_UDS_MAX_LEN)
-    {
-        Serial.printf("Invalid UDS.\r\n");
-    }
-    uds = argv[1];
-        
-    int result = write_eeprom(uds, DPS_UDS_ZONE_IDX);
-    if (result == 0)
-    {
-        Serial.printf("INFO: Set DPS UDS successfully.\r\n");
     }
 }
 
