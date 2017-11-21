@@ -4,14 +4,22 @@
 #include "AzureIotHub.h"
 #include "IoTHubMQTTClient.h"
 #include "DPSClient.h"
+#include "DiceRIoT.h"
+#include "DiceCore.h"
+#include "SystemVersion.h"
 
 #include "config.h"
 #include "utility.h"
 #include "SystemTickCounter.h"
 #include "SystemVariables.h"
+#include "EEPROMInterface.h"
 
-extern char* Global_Device_Endpoint;
-extern char* ID_Scope;
+// Input DPS instance info
+char* Global_Device_Endpoint = "global.azure-devices-provisioning.net";
+char* ID_Scope = "0ne00000045";
+
+// UDS bytes for DICE|RIoT calculation
+uint8_t udsBytes[DICE_UDS_LENGTH] = { 0 };
 
 // Indicate whether WiFi is ready
 static bool hasWifi = false;
@@ -21,6 +29,42 @@ static uint64_t send_interval_ms;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
+static int getUDSBytesFromString()
+{
+  EEPROMInterface eeprom;
+  uint8_t udsString[DPS_UDS_MAX_LEN + 1] = { '\0' };
+  int ret = eeprom.read(udsString, DPS_UDS_MAX_LEN, 0x00, DPS_UDS_ZONE_IDX);
+  if (ret < 0)
+  { 
+      LogError("Unable to get DPS UDS string from EEPROM. Please set the value in configuration mode.");
+      return 1;
+  }
+  else if (ret == 0)
+  {
+      LogError("The DPS UDS string is empty.\r\nPlease set the value in configuration mode.");
+      return 1;
+  }
+  else if (ret < DPS_UDS_MAX_LEN)
+  {
+      LogError("The length of DPS UDS string must be 64.\r\nPlease set the value with correct length in configuration mode.");
+      return 1;
+  }
+	char element[2];
+	unsigned long int resLeft;
+	unsigned long int resRight;
+
+	memset(element, 0, 2);
+	for (int i = 0; i < (DPS_UDS_MAX_LEN/2); i++) {
+		element[0] = udsString[i * 2];
+		resLeft = strtoul(element, NULL, 16);
+		element[0] = udsString[i * 2 + 1];
+		resRight = strtoul(element, NULL, 16);
+		udsBytes[i] = (resLeft << 4) + resRight;
+	}
+
+  return 0;
+}
+
 static void InitWiFi()
 {
   Screen.print(2, "Connecting...");
@@ -121,8 +165,35 @@ void setup() {
   SensorInit();
 
   Screen.print(3, " > DPS");
+  Screen.print(3, " > DPS");
+
+  char registrationId[64] = { "\0" };
+  snprintf(registrationId, 64, "%sv%s", GetBoardID(), getDevkitVersion());
+
+  for(int i = 0; i < strlen(registrationId); i++){
+    if(registrationId[i] == '.'){
+      registrationId[i] = 'v';
+    }
+  }
+
+  LogInfo("DevKit firmware Version: %s\r\n", getDevkitVersion());
+
+  // Prepare UDS Bytes
+  if(getUDSBytesFromString() != 0)
+  {
+      LogError("Getting DPS UDS failure.");
+      return;
+  }
+
+  // Transfer control to DICE|RIoT
+  if(DiceRIoTStart(registrationId) != 0)
+  {
+      LogError("Untrusted device.");
+      return;
+  }
+
   // Transfer control to firmware
-  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, GetBoardID()))
+  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, registrationId))
   {
     Screen.print(2, "DPS connected!\r\n");
   }

@@ -9,6 +9,8 @@ Confidential Information
 #include <stdio.h>
 #include "azure_c_shared_utility/xlogging.h"
 
+#define logging 0
+
 // RIoT Core data
 static uint8_t cDigest[RIOT_DIGEST_LENGTH+1];
 static uint8_t FWID[RIOT_DIGEST_LENGTH+1];
@@ -113,6 +115,21 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     // It must be the address of DPS code
     base = (uint8_t*)&__start_riot_fw;
     length = (uint8_t*)&__stop_riot_fw - base;
+
+#if logging
+    LogInfo("The riot_fw start address: %p", &__start_riot_fw);
+    LogInfo("The riot_fw end address: %p", &__stop_riot_fw);
+
+    LogInfo("Riot FW code:");
+    for(int i = 0; i < length; i++){
+        if(i == (length - 1)){
+            printf("%02x\r\n", base[i]);
+        }
+        else{
+            printf("%02x", base[i]);
+        }
+    }
+#endif
 
     // Measure FW, i.e., calculate FWID
     if ((status = RiotCrypt_Hash(FWID, RIOT_DIGEST_LENGTH, base, length)) != RIOT_SUCCESS){
@@ -260,18 +277,17 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     memset(&deviceIDPriv, 0, sizeof(RIOT_ECC_PRIVATE));
 
     // Display info for Alias Key Certificate
+#if logging
     char *buf;
     buf = RIoTGetAliasCert(NULL);
     (void)printf("Alias Key Certificate\r\n%s\r\n", buf);
-
-    #ifdef MORE_CERT_INFO
-        buf = RIoTGetDeviceID(NULL);
-        (void)printf("\r\nDeviceID Public\r\n%s\r\n", buf);
-        buf = RIoTGetAliasKey(NULL);
-        (void)printf("Alias Key Pair\r\n%s\r\n", buf);
-        buf = RIoTGetDeviceCert(NULL);
-        (void)printf("Device Certificate\r\n%s\r\n", buf);
-    #endif
+    buf = RIoTGetDeviceID(NULL);
+    (void)printf("\r\nDeviceID Public\r\n%s\r\n", buf);
+    buf = RIoTGetAliasKey(NULL);
+    (void)printf("Alias Key Pair\r\n%s\r\n", buf);
+    buf = RIoTGetDeviceCert(NULL);
+    (void)printf("Device Certificate\r\n%s\r\n", buf);
+#endif
 
     // Must not return. If we do, DICE will trigger reset.
     return 0;
