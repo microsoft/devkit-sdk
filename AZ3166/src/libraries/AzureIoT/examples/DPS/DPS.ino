@@ -15,8 +15,8 @@
 #include "EEPROMInterface.h"
 
 // Input DPS instance info
-char* Global_Device_Endpoint = "global.azure-devices-provisioning.net";
-char* ID_Scope = "0ne00000045";
+char* Global_Device_Endpoint = "";
+char* ID_Scope = "";
 
 // UDS bytes for DICE|RIoT calculation
 uint8_t udsBytes[DICE_UDS_LENGTH] = { 0 };
