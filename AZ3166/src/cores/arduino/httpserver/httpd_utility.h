@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    httpd_utilily.h
+ * @file    httpd_utility.h
  * @author  QQ DING
  * @version V1.0.0
  * @date    1-September-2015
