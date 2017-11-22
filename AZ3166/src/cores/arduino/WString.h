@@ -198,7 +198,7 @@ class String {
         unsigned char startsWith(const String &prefix, unsigned int offset) const;
         unsigned char endsWith(const String &suffix) const;
 
-        // character acccess
+        // character access
         char charAt(unsigned int index) const;
         void setCharAt(unsigned int index, char c);
         char operator [](unsigned int index) const;
