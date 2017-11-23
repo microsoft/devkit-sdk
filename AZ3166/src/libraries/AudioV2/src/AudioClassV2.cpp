@@ -19,11 +19,10 @@ static uint8_t _durationInSeconds;
 static char _play_buffer[AUDIO_CHUNK_SIZE];
 static char _record_buffer[AUDIO_CHUNK_SIZE];
 
-static char * _wavFile;
+static char * _audioBuffer;
 static char * _recordCursor;
-static uint16_t * _playCursor;
-static int _audioFileSize;
-static int _audioRemSize;
+static char * _playCursor;
+static int _audioBufferSize;
 
 static volatile char _flag = 0;
 static AUDIO_STATE_TypeDef _audioState;
@@ -72,8 +71,11 @@ void AudioClass::format(unsigned int sampleRate, unsigned short sampleBitLength)
     _audioState = AUDIO_STATE_INIT;
 }
 
-int AudioClass::startRecord()
+int AudioClass::startRecord(callbackFunc func)
 {
+    _audioBuffer = NULL;
+    recordCallbackFptr = func;
+    BSP_AUDIO_STOP();
     _audioState = AUDIO_STATE_RECORDING;
     memset(_play_buffer, 0x0, AUDIO_CHUNK_SIZE);
     BSP_AUDIO_In_Out_Transfer((uint16_t*)_play_buffer, (uint16_t*)_record_buffer, AUDIO_CHUNK_SIZE/2);
@@ -81,7 +83,41 @@ int AudioClass::startRecord()
     return AUDIO_OK;
 }
 
-int AudioClass::write(char* buffer, int length)
+int AudioClass::startRecord(char* audioBuffer, int size)
+{
+    if (audioBuffer == NULL || size < WAVE_HEADER_SIZE) {
+        // TODO: log error
+        return -1;
+    }
+
+    recordCallbackFptr = NULL;
+    _audioBuffer = audioBuffer;
+    _audioBufferSize = size;
+    _recordCursor = _audioBuffer + WAVE_HEADER_SIZE;
+
+    BSP_AUDIO_STOP();
+    _audioState = AUDIO_STATE_RECORDING;
+    memset(_play_buffer, 0x0, AUDIO_CHUNK_SIZE);
+    BSP_AUDIO_In_Out_Transfer((uint16_t*)_play_buffer, (uint16_t*)_record_buffer, AUDIO_CHUNK_SIZE/2);
+
+    return AUDIO_OK;
+}
+
+int AudioClass::getCurrentSize()
+{
+    if ((_audioState == AUDIO_STATE_RECORDING || _audioState == AUDIO_STATE_RECORDING_FINISH) && _audioBuffer != NULL)
+    {
+        return _recordCursor - _audioBuffer;
+    }
+    if ((_audioState == AUDIO_STATE_PLAYING || _audioState == AUDIO_STATE_PLAYING_FINISH) && _audioBuffer != NULL)
+    {
+        return _playCursor - _audioBuffer;
+    }
+
+    return 0;
+}
+
+int AudioClass::writeToPlayBuffer(char* buffer, int length)
 {
     if (buffer == NULL || length < 0)
     {
@@ -98,7 +134,7 @@ int AudioClass::write(char* buffer, int length)
     return copySize;
 }
 
-int AudioClass::read(char* buffer, int length)
+int AudioClass::readFromRecordBuffer(char* buffer, int length)
 {
     if (buffer == NULL || length < 0)
     {
@@ -115,8 +151,10 @@ int AudioClass::read(char* buffer, int length)
     return copySize;
 }
 
-int AudioClass::startPlay()
+int AudioClass::startPlay(callbackFunc func)
 {
+    _audioBuffer = NULL;
+    audioCallbackFptr = func;
     if (audioCallbackFptr != NULL)
     {
         // Write audio binary to Tx buffer
@@ -124,6 +162,7 @@ int AudioClass::startPlay()
     }
 
     // Start the audio player
+    BSP_AUDIO_STOP();
     _audioState = AUDIO_STATE_PLAYING;
 
     // Set the start pointer of the PCM raw data.
@@ -137,15 +176,51 @@ int AudioClass::startPlay()
     return AUDIO_OK;
 }
 
+int AudioClass::startPlay(char* audioBuffer, int size)
+{
+    if (audioBuffer == NULL || size < WAVE_HEADER_SIZE + AUDIO_CHUNK_SIZE)
+    {
+        return AUDIO_ERROR;
+    }
+
+    audioCallbackFptr = NULL;
+    _audioBuffer = audioBuffer;
+    _audioBufferSize = size;
+    _playCursor = _audioBuffer + WAVE_HEADER_SIZE;
+
+    BSP_AUDIO_STOP();
+    _audioState = AUDIO_STATE_PLAYING;
+    BSP_AUDIO_OUT_Play((uint16_t *)_playCursor, AUDIO_CHUNK_SIZE / STEREO);
+    _playCursor += AUDIO_CHUNK_SIZE;
+
+    return AUDIO_OK;
+}
+
 /*
  * @brief stop audio data transmition
 */
 void AudioClass::stop()
 {
-    if (_audioState != AUDIO_STATE_IDLE)
+    if (_audioState == AUDIO_STATE_RECORDING && _audioBuffer != NULL)
     {
+        int currentSize = _recordCursor - _audioBuffer;
+    
+        // write wave header for this audio format data
+        WaveHeader hdr;
+        genericWAVHeader(&hdr, currentSize - WAVE_HEADER_SIZE, _sampleRate, _sampleBitDepth, _channels);
+        memcpy(_audioBuffer, &hdr, sizeof(WaveHeader));
+    }
+
+    if (_audioState == AUDIO_STATE_RECORDING)
+    {
+        _audioState = AUDIO_STATE_RECORDING_FINISH;
         BSP_AUDIO_STOP();
-        _audioState = AUDIO_STATE_IDLE;
+    }
+
+    if (_audioState == AUDIO_STATE_PLAYING)
+    {
+        _audioState = AUDIO_STATE_PLAYING_FINISH;
+        BSP_AUDIO_STOP();
     }
 }
 
@@ -179,7 +254,7 @@ void AudioClass::genericWAVHeader(WaveHeader *hdr, int pcmDataSize, uint32_t sam
     hdr->data_chunk_size = pcmDataSize;
 }
 
-int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
+int AudioClass::convertToMono(char* audioBuffer, int size, int sampleBitLength)
 {
     if (sampleBitLength != 16 && sampleBitLength != 24 && sampleBitLength != 32)
     {
@@ -187,21 +262,22 @@ int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
         return -1;
     }
 
-    if (audioFile == NULL || size < WAVE_HEADER_SIZE)
+    if (audioBuffer == NULL || size < WAVE_HEADER_SIZE)
     {
         // TODO: log error
         return -1;
     }
 
     int bytesPerSample = sampleBitLength / 8;
-    int curFileSize = 0;
+    int curBufferSize = 0;
 
-    char *curReader = audioFile + WAVE_HEADER_SIZE + bytesPerSample * 2;
-    char *curWriter = audioFile + WAVE_HEADER_SIZE + bytesPerSample;
+    char *curReader = audioBuffer + WAVE_HEADER_SIZE + bytesPerSample * 2;
+    char *curWriter = audioBuffer + WAVE_HEADER_SIZE + bytesPerSample;
 
+    // Avoid using memcpy to improve performance
     if (sampleBitLength == 16)
     {
-        while (curReader < audioFile + size)
+        while (curReader < audioBuffer + size)
         {
             *(uint16_t *)curWriter = *((uint16_t *)curReader);
 
@@ -211,7 +287,7 @@ int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
     }
     else if (sampleBitLength == 32)
     {
-        while (curReader < audioFile + size)
+        while (curReader < audioBuffer + size)
         {
             *(uint32_t *)curWriter = *((uint32_t *)curReader);
 
@@ -221,7 +297,7 @@ int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
     }
     else
     {
-        while (curReader < audioFile + size)
+        while (curReader < audioBuffer + size)
         {
             memcpy(curWriter, curReader, bytesPerSample);
 
@@ -230,27 +306,17 @@ int AudioClass::convertToMono(char *audioFile, int size, int sampleBitLength)
         }
     }
 
-    curFileSize = curWriter - audioFile;
+    curBufferSize = curWriter - audioBuffer;
 
     // re-calculate wave header since the raw data is re-sized from stereo to mono
     WaveHeader hdr;
-    genericWAVHeader(&hdr, curFileSize - WAVE_HEADER_SIZE, _sampleRate, _sampleBitDepth, 1);
-    memcpy(audioFile, &hdr, sizeof(WaveHeader));
+    genericWAVHeader(&hdr, curBufferSize - WAVE_HEADER_SIZE, _sampleRate, sampleBitLength, 1);
+    memcpy(audioBuffer, &hdr, sizeof(WaveHeader));
 
-    // clean up the remaining file
-    //memset(curWriter, 0, audioFile + size - curWriter);
+    // clean up the remaining buffer
+    // memset(curWriter, 0, audioBuffer + size - curWriter);
 
-    return curFileSize;
-}
-
-void AudioClass::attachPlay(callbackFunc func)
-{
-    audioCallbackFptr = func;
-}
-
-void AudioClass::attachRecord(callbackFunc func)
-{
-    recordCallbackFptr = func;
+    return curBufferSize;
 }
 
 /*------------------------------------------------------------------------------
@@ -272,6 +338,18 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(void)
         {
             recordCallbackFptr();
         }
+        
+        if (_audioBuffer != NULL)
+        {
+            if (_recordCursor + AUDIO_CHUNK_SIZE > _audioBuffer + _audioBufferSize)
+            {
+                AudioClass::getInstance().stop();
+                return;
+            }
+            
+            memcpy(_recordCursor, _record_buffer, AUDIO_CHUNK_SIZE);
+            _recordCursor += AUDIO_CHUNK_SIZE;
+        }
 
         memset(_play_buffer, 0x0, AUDIO_CHUNK_SIZE);
         BSP_AUDIO_In_Out_Transfer((uint16_t*)_play_buffer, (uint16_t*)_record_buffer, AUDIO_CHUNK_SIZE/2);
@@ -285,6 +363,18 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
         if (audioCallbackFptr != NULL)
         {
             audioCallbackFptr();
+        }
+        
+        if (_audioBuffer != NULL)
+        {    
+            if (_playCursor + AUDIO_CHUNK_SIZE > _audioBuffer + _audioBufferSize)
+            {
+                AudioClass::getInstance().stop();
+                return;
+            }
+            
+            memcpy(_play_buffer, _playCursor, AUDIO_CHUNK_SIZE);
+            _playCursor += AUDIO_CHUNK_SIZE;
         }
 
         BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)_play_buffer, DMA_MAX(AUDIO_CHUNK_SIZE/2));

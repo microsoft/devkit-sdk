@@ -129,22 +129,25 @@ void setup()
 
 void loop()
 {
-  if (messageSending && 
-      (int)(SystemTickCounterRead() - send_interval_ms) >= getInterval())
+  if (hasWifi)
   {
-    // Send teperature data
-    char messagePayload[MESSAGE_MAX_LEN];
+    if (messageSending && 
+        (int)(SystemTickCounterRead() - send_interval_ms) >= getInterval())
+    {
+      // Send teperature data
+      char messagePayload[MESSAGE_MAX_LEN];
 
-    bool temperatureAlert = readMessage(messageCount++, messagePayload);
-    EVENT_INSTANCE* message = DevKitMQTTClient_Event_Generate(messagePayload, MESSAGE);
-    DevKitMQTTClient_Event_AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
-    DevKitMQTTClient_SendEventInstance(message);
-    
-    send_interval_ms = SystemTickCounterRead();
-  }
-  else
-  {
-    DevKitMQTTClient_Check();
+      bool temperatureAlert = readMessage(messageCount++, messagePayload);
+      EVENT_INSTANCE* message = DevKitMQTTClient_Event_Generate(messagePayload, MESSAGE);
+      DevKitMQTTClient_Event_AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
+      DevKitMQTTClient_SendEventInstance(message);
+      
+      send_interval_ms = SystemTickCounterRead();
+    }
+    else
+    {
+      DevKitMQTTClient_Check();
+    }
   }
   delay(10);
 }
