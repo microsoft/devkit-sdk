@@ -512,7 +512,6 @@
             try
             {
                 ProcessStartInfo psi = new ProcessStartInfo();
-                //psi.Verb = "runas";
                 psi.FileName = exeFileName;
                 psi.Arguments = exeArgument;
                 psi.UseShellExecute = false;
@@ -520,8 +519,12 @@
                 psi.RedirectStandardOutput = true;
 
                 proc = Process.Start(psi);
-                int timeout = Constants.Timeout;
+                proc.OutputDataReceived += (sender, e) => { Console.WriteLine(e.Data); };
+                proc.ErrorDataReceived += (sender, e) => { Console.WriteLine(e.Data); };
+                proc.BeginErrorReadLine();
+                proc.BeginOutputReadLine();
 
+                int timeout = Constants.Timeout;
                 while (timeout >= 0 && !proc.HasExited)
                 {
                     proc.WaitForExit(1000); // wait for 1 seconds
