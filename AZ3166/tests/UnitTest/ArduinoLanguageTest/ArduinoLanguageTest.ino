@@ -70,9 +70,7 @@ test(digital_io)
 
 test(serial_print)
 {
-  int incomingByte = 0;
-  int x =0;
-  char readVal[3];
+    int x =0;  
 
     Serial.print("No Format");
     Serial.print("\t");
@@ -367,7 +365,7 @@ test(math_sqrt)
 
 test(trigonometry)
 {
-    int data[9]={PI, PI/2,PI/3, PI/4, 0, -PI/2,-PI/3, -PI/4, -PI};
+    double data[9]={PI, PI/2,PI/3, PI/4, 0, -PI/2,-PI/3, -PI/4, -PI};
 
     for(int i=0; i<9; ++i)
     {        

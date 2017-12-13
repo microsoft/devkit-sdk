@@ -58,7 +58,7 @@ class AudioClass {
         void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);
         // Stop audio data transmition.
         void stop();
-        // Get status of the audio driver. Please use this API to query whether the playing/recoding process is completed.
+        // Get status of the audio driver. Please use this API to query whether the playing/recording process is completed.
         int getAudioState();
 
         // Callback scenario methods :
