@@ -29,7 +29,7 @@ public:
 	int read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex);
 	void enableHostSecureChannel();
 private:
-	void *handle = NULL;
+	void* handle;
 	FLASH_AdvOBProgramInitTypeDef pAdvOBInit;
 	bool PCROPCheck(int sector);
 	bool checkZoneSize(int dataZoneIndex, int &size, bool write);
