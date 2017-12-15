@@ -57,8 +57,8 @@ public:
 	*
 	* On function called, a key will be set to secure chip, meanwhile the key will be stored in flash of AZ3166.
 	* And this will automaticly encrypt all data in secure chip.
-	* Notice that do not darg-drop firmware after secure channel enabled.
-	* Darg-drop bin file may rewrite the flash with key and the data in zone can not be decrypted correctlly.
+	* Notice that do not drag-drop firmware after secure channel enabled.
+	* Drag-drop bin file may rewrite the flash with key and the data in zone can not be decrypted correctlly.
 	*/
 	void enableHostSecureChannel();
 private:
