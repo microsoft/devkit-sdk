@@ -53,7 +53,6 @@ void EEPROMInterface::enableHostSecureChannel()
 	}
 }
 
-// return -1 on fail, return 0 on success
 int EEPROMInterface::write(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex)
 {
 	Init_HAL(STSAFE_I2C_ADDRESS, &handle);
@@ -71,7 +70,6 @@ int EEPROMInterface::write(uint8_t* dataBuff, int buffSize, uint8_t dataZoneInde
 	}
 }
 
-// return -1 on fail, return size otherwise
 int EEPROMInterface::read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
 	Init_HAL(STSAFE_I2C_ADDRESS, &handle);
