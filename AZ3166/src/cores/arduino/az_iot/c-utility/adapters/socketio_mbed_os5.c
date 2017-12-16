@@ -201,7 +201,7 @@ static int send_queued_data(SOCKET_IO_INSTANCE* socket_io_instance)
             if (send_result == 0)
             {
                 // The underlying network layer may encounter hardware / environment issues, 
-                // but the driver doesn�t handle it properly. So here the send API always return 0, 
+                // but the driver doesn't handle it properly. So here the send API always return 0, 
                 // this causes the program running into dead loop if not check it here.
                 if (errors++ >= 10)
                 {
@@ -508,13 +508,3 @@ const IO_INTERFACE_DESCRIPTION* socketio_get_interface_description(void)
 {
     return &socket_io_interface_description;
 }
-
-
-#pragma pack(4)
-struct MyData
-{
-    int Data1;
-    short Data2;
-    int Data3;
-};
-
