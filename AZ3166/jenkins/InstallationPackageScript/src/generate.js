@@ -109,7 +109,7 @@ export function updateSerialPort()
 	console.log('update serialPort');	 
 	 	 
 	var winFile = require(constants.jsonFileDirForWin);	  
-	winFile.dependencies["serialport"] = "^4.0.7";
+	winFile.dependencies["serialport"] = "^6.0.4";
 	 
 	var winDest = JSON.stringify(winFile, null, 2);
 	fs.writeFile(constants.jsonFileDirForWin, winDest);
