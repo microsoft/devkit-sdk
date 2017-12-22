@@ -18,10 +18,11 @@
 #include "iothub_client_private.h"
 #include "iothub_client_options.h"
 #include "iothub_client_version.h"
+#include "iothub_client_diagnostic.h"
 #include <stdint.h>
 
-#ifdef USE_DPS_MODULE
-#include "iothub_client_dps_ll.h"
+#ifdef USE_PROV_MODULE
+#include "iothub_client_hsm_ll.h"
 #endif
 
 #ifndef DONT_USE_UPLOADTOBLOB
@@ -86,6 +87,7 @@ typedef struct IOTHUB_CLIENT_LL_HANDLE_DATA_TAG
     bool complete_twin_update_encountered;
     IOTHUB_AUTHORIZATION_HANDLE authorization_module;
     STRING_HANDLE product_info;
+    IOTHUB_DIAGNOSTIC_SETTING_DATA diagnostic_setting;
 }IOTHUB_CLIENT_LL_HANDLE_DATA;
 
 static const char HOSTNAME_TOKEN[] = "HostName";
@@ -95,6 +97,8 @@ static const char X509_TOKEN_ONLY_ACCEPTABLE_VALUE[] = "true";
 static const char DEVICEKEY_TOKEN[] = "SharedAccessKey";
 static const char DEVICESAS_TOKEN[] = "SharedAccessSignature";
 static const char PROTOCOL_GATEWAY_HOST[] = "GatewayHostName";
+static const char PROVISIONING_TOKEN[] = "UseProvisioning";
+static const char PROVISIONING_ACCEPTABLE_VALUE[] = "true";
 
 static void setTransportProtocol(IOTHUB_CLIENT_LL_HANDLE_DATA* handleData, TRANSPORT_PROVIDER* protocol)
 {
@@ -183,6 +187,7 @@ static STRING_HANDLE make_product_info(const char* product)
 static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIENT_CONFIG* client_config, const IOTHUB_CLIENT_DEVICE_CONFIG* device_config, bool use_dev_auth)
 {
     IOTHUB_CLIENT_LL_HANDLE_DATA* result;
+    srand((unsigned int)time(NULL));
     STRING_HANDLE product_info = make_product_info(NULL);
     if (product_info == NULL)
     {
@@ -421,6 +426,9 @@ static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIEN
                             /*Codes_SRS_IOTHUBCLIENT_LL_02_042: [ By default, messages shall not timeout. ]*/
                             result->currentMessageTimeout = 0;
                             result->current_device_twin_timeout = 0;
+
+                            result->diagnostic_setting.currentMessageNumber = 0;
+                            result->diagnostic_setting.diagSamplingPercentage = 0;
                             /*Codes_SRS_IOTHUBCLIENT_LL_25_124: [ `IoTHubClient_LL_Create` shall set the default retry policy as Exponential backoff with jitter and if succeed and return a `non-NULL` handle. ]*/
                             if (IoTHubClient_LL_SetRetryPolicy(result, IOTHUB_CLIENT_RETRY_EXPONENTIAL_BACKOFF_WITH_JITTER, 0) != IOTHUB_CLIENT_OK)
                             {
@@ -514,7 +522,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromDeviceAuth(const char* iothub_
     }
     else
     {
-#ifdef USE_DPS_MODULE
+#ifdef USE_PROV_MODULE
         IOTHUB_CLIENT_CONFIG* config = (IOTHUB_CLIENT_CONFIG*)malloc(sizeof(IOTHUB_CLIENT_CONFIG));
         if (config == NULL)
         {
@@ -532,7 +540,6 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromDeviceAuth(const char* iothub_
             memset(config, 0, sizeof(IOTHUB_CLIENT_CONFIG) );
             config->protocol = protocol;
             config->deviceId = device_id;
-            //config->useDeviceAuthKey = 1;
             
             // Find the iothub suffix
             initial = iterator = iothub_uri;
@@ -561,6 +568,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromDeviceAuth(const char* iothub_
                         {
                             LogError("Failed to allocate iothub suffix");
                             free(iothub_name);
+                            iothub_name = NULL;
                             result = NULL;
                         }
                     }
@@ -597,7 +605,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromDeviceAuth(const char* iothub_
             free(config);
         }
 #else
-        LogError("DPS module is not included");
+        LogError("HSM module is not included");
         result = NULL;
 #endif
     }
@@ -692,6 +700,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
             else
             {
                 int isx509found = 0;
+                bool use_provisioning = false;
                 while ((STRING_TOKENIZER_get_next_token(tokenizer1, tokenString, "=") == 0))
                 {
                     if (STRING_TOKENIZER_get_next_token(tokenizer1, valueString, ";") != 0)
@@ -791,6 +800,19 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                                     isx509found = 1;
                                 }
                             }
+                            else if (strcmp(s_token, PROVISIONING_TOKEN) == 0)
+                            {
+                                if (strcmp(STRING_c_str(valueString), PROVISIONING_ACCEPTABLE_VALUE) != 0)
+                                {
+                                    LogError("provisioning option has wrong value, the only acceptable one is \"true\"");
+                                    break;
+                                }
+                                else
+                                {
+                                    use_provisioning = 1;
+                                }
+                            }
+
                             /* Codes_SRS_IOTHUBCLIENT_LL_04_001: [IoTHubClient_LL_CreateFromConnectionString shall verify the existence of key/value pair GatewayHostName. If it does exist it shall pass the value to IoTHubClient_LL_Create API.] */
                             else if (strcmp(s_token, PROTOCOL_GATEWAY_HOST) == 0)
                             {
@@ -825,17 +847,17 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
                     result = NULL;
                 }
                 else if (!(
-                    ((!isx509found) && (config->deviceSasToken == NULL) ^ (config->deviceKey == NULL)) ||
-                    ((isx509found) && (config->deviceSasToken == NULL) && (config->deviceKey == NULL))
+                    ((!use_provisioning && !isx509found) && (config->deviceSasToken == NULL) ^ (config->deviceKey == NULL)) ||
+                    ((use_provisioning || isx509found) && (config->deviceSasToken == NULL) && (config->deviceKey == NULL))
                     ))
                 {
-                    LogError("invalid combination of x509, deviceSasToken and deviceKey");
+                    LogError("invalid combination of x509, provisioning, deviceSasToken and deviceKey");
                     result = NULL;
                 }
                 else
                 {
                     /* Codes_SRS_IOTHUBCLIENT_LL_12_011: [IoTHubClient_LL_CreateFromConnectionString shall call into the IoTHubClient_LL_Create API with the current structure and returns with the return value of it] */
-                    result = initialize_iothub_client(config, NULL, false);
+                    result = initialize_iothub_client(config, NULL, use_provisioning);
                     if (result == NULL)
                     {
                         LogError("IoTHubClient_LL_Create failed");
@@ -988,7 +1010,7 @@ static int attach_ms_timesOutAfter(IOTHUB_CLIENT_LL_HANDLE_DATA* handleData, IOT
     }
     else
     {
-        /*Codes_SRS_IOTHUBCLIENT_LL_02_039: [ "messageTimeout" - once IoTHubClient_LL_SendEventAsync is called the message shall timeout after value miliseconds. Value is a pointer to a uint64. ]*/
+        /*Codes_SRS_IOTHUBCLIENT_LL_02_039: [ "messageTimeout" - once IoTHubClient_LL_SendEventAsync is called the message shall timeout after value miliseconds. Value is a pointer to a tickcounter_ms_t. ]*/
         if (tickcounter_get_current_ms(handleData->tickCounter, &newEntry->ms_timesOutAfter) != 0)
         {
             result = __FAILURE__;
@@ -1040,8 +1062,15 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SendEventAsync(IOTHUB_CLIENT_LL_HANDLE iotH
                 /*Codes_SRS_IOTHUBCLIENT_LL_02_013: [IoTHubClient_LL_SendEventAsync shall add the DLIST waitingToSend a new record cloning the information from eventMessageHandle, eventConfirmationCallback, userContextCallback.]*/
                 if ((newEntry->messageHandle = IoTHubMessage_Clone(eventMessageHandle)) == NULL)
                 {
-                    /*Codes_SRS_IOTHUBCLIENT_LL_02_014: [If cloning and/or adding the information fails for any reason, IoTHubClient_LL_SendEventAsync shall fail and return IOTHUB_CLIENT_ERROR.] */
                     result = IOTHUB_CLIENT_ERROR;
+                    free(newEntry);
+                    LOG_ERROR_RESULT;
+                }
+                else if (IoTHubClient_Diagnostic_AddIfNecessary(&handleData->diagnostic_setting, newEntry->messageHandle) != 0)
+                {
+                    /*Codes_SRS_IOTHUBCLIENT_LL_02_014: [If cloning and/or adding the information/diagnostic fails for any reason, IoTHubClient_LL_SendEventAsync shall fail and return IOTHUB_CLIENT_ERROR.] */
+                    result = IOTHUB_CLIENT_ERROR;
+                    IoTHubMessage_Destroy(newEntry->messageHandle);
                     free(newEntry);
                     LOG_ERROR_RESULT;
                 }
@@ -1678,7 +1707,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SetOption(IOTHUB_CLIENT_LL_HANDLE iotHubCli
     {
         IOTHUB_CLIENT_LL_HANDLE_DATA* handleData = (IOTHUB_CLIENT_LL_HANDLE_DATA*)iotHubClientHandle;
 
-        /*Codes_SRS_IOTHUBCLIENT_LL_02_039: [ "messageTimeout" - once IoTHubClient_LL_SendEventAsync is called the message shall timeout after value miliseconds. Value is a pointer to a uint64. ]*/
+        /*Codes_SRS_IOTHUBCLIENT_LL_02_039: [ "messageTimeout" - once IoTHubClient_LL_SendEventAsync is called the message shall timeout after value miliseconds. Value is a pointer to a tickcounter_ms_t. ]*/
         if (strcmp(optionName, OPTION_MESSAGE_TIMEOUT) == 0)
         {
             /*this is an option handled by IoTHubClient_LL*/
@@ -1704,6 +1733,23 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SetOption(IOTHUB_CLIENT_LL_HANDLE iotHubCli
             }
             else
             {
+                result = IOTHUB_CLIENT_OK;
+            }
+        }
+        else if (strcmp(optionName, OPTION_DIAGNOSTIC_SAMPLING_PERCENTAGE) == 0)
+        {
+            uint32_t percentage = *(uint32_t*)value;
+            if (percentage > 100)
+            {
+                /*Codes_SRS_IOTHUBCLIENT_LL_10_036: [Calling IoTHubClient_LL_SetOption with value > 100 shall return `IOTHUB_CLIENT_ERRROR`. ]*/
+                LogError("The value of diag_sampling_percentage is out of range [0, 100]: %u", percentage);
+                result = IOTHUB_CLIENT_ERROR;
+            }
+            else
+            {
+                /*Codes_SRS_IOTHUBCLIENT_LL_10_037: [Calling IoTHubClient_LL_SetOption with value between [0, 100] shall return `IOTHUB_CLIENT_OK`. ]*/
+                handleData->diagnostic_setting.diagSamplingPercentage = percentage;
+                handleData->diagnostic_setting.currentMessageNumber = 0;
                 result = IOTHUB_CLIENT_OK;
             }
         }
@@ -2028,6 +2074,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_UploadToBlob(IOTHUB_CLIENT_LL_HANDLE iotHub
     IOTHUB_CLIENT_RESULT result;
     /*Codes_SRS_IOTHUBCLIENT_LL_02_061: [ If iotHubClientHandle is NULL then IoTHubClient_LL_UploadToBlob shall fail and return IOTHUB_CLIENT_INVALID_ARG. ]*/
     /*Codes_SRS_IOTHUBCLIENT_LL_02_062: [ If destinationFileName is NULL then IoTHubClient_LL_UploadToBlob shall fail and return IOTHUB_CLIENT_INVALID_ARG. ]*/
+    /*Codes_SRS_IOTHUBCLIENT_LL_02_063: [ If `source` is `NULL` and size is greater than 0 then `IoTHubClient_LL_UploadToBlob` shall fail and return `IOTHUB_CLIENT_INVALID_ARG`. ]*/
     if (
         (iotHubClientHandle == NULL) ||
         (destinationFileName == NULL) ||
@@ -2043,4 +2090,27 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_UploadToBlob(IOTHUB_CLIENT_LL_HANDLE iotHub
     }
     return result;
 }
-#endif
+
+IOTHUB_CLIENT_RESULT IoTHubClient_LL_UploadMultipleBlocksToBlob(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle, const char* destinationFileName, IOTHUB_CLIENT_FILE_UPLOAD_GET_DATA_CALLBACK getDataCallback, void* context)
+{
+    IOTHUB_CLIENT_RESULT result;
+    /*Codes_SRS_IOTHUBCLIENT_LL_99_005: [ If `iotHubClientHandle` is `NULL` then `IoTHubClient_LL_UploadMultipleBlocksToBlob` shall fail and return `IOTHUB_CLIENT_INVALID_ARG`. ]*/
+    /*Codes_SRS_IOTHUBCLIENT_LL_99_006: [ If `destinationFileName` is `NULL` then `IoTHubClient_LL_UploadMultipleBlocksToBlob` shall fail and return `IOTHUB_CLIENT_INVALID_ARG`. ]*/
+    /*Codes_SRS_IOTHUBCLIENT_LL_99_007: [ If `getDataCallback` is `NULL` then `IoTHubClient_LL_UploadMultipleBlocksToBlob` shall fail and return `IOTHUB_CLIENT_INVALID_ARG`. ]*/
+    if (
+        (iotHubClientHandle == NULL) ||
+        (destinationFileName == NULL) ||
+        (getDataCallback == NULL)
+        )
+    {
+        LogError("invalid parameters IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle=%p, const char* destinationFileName=%p, getDataCallback=%p", iotHubClientHandle, destinationFileName, getDataCallback);
+        result = IOTHUB_CLIENT_INVALID_ARG;
+    }
+    else
+    {
+        result = IoTHubClient_LL_UploadMultipleBlocksToBlob_Impl(iotHubClientHandle->uploadToBlobHandle, destinationFileName, getDataCallback, context);
+    }
+    return result;
+}
+
+#endif /* DONT_USE_UPLOADTOBLOB */
