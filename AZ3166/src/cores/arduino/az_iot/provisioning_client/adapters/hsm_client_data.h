@@ -11,7 +11,7 @@ extern "C" {
 #include <stddef.h>
 #endif /* __cplusplus */
 
-typedef void* HSM_CLIENT_HANDLE;
+typedef struct HSM_CLIENT_X509_INFO_TAG* HSM_CLIENT_HANDLE;
 
 typedef HSM_CLIENT_HANDLE (*HSM_CLIENT_CREATE)();
 typedef void (*HSM_CLIENT_DESTROY)(HSM_CLIENT_HANDLE handle);
@@ -47,18 +47,6 @@ typedef struct HSM_CLIENT_X509_INTERFACE_TAG
     HSM_CLIENT_GET_ALIAS_KEY hsm_client_get_key;
     HSM_CLIENT_GET_COMMON_NAME hsm_client_get_common_name;
 } HSM_CLIENT_X509_INTERFACE;
-
-extern int initialize_hsm_system();
-extern void deinitialize_hsm_system();
-
-extern const HSM_CLIENT_TPM_INTERFACE* hsm_client_tpm_interface();
-extern const HSM_CLIENT_X509_INTERFACE* hsm_client_x509_interface();
-
-extern int hsm_client_x509_init();
-extern void hsm_client_x509_deinit();
-int hsm_client_tpm_init();
-void hsm_client_tpm_deinit();
-
 
 #ifdef __cplusplus
 }
