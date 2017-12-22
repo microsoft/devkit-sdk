@@ -50,18 +50,18 @@ IOTHUB_SECURITY_HANDLE iothub_device_auth_create()
         memset(result, 0, sizeof(IOTHUB_SECURITY_INFO) );
         if (iothub_security_type() == IOTHUB_SECURITY_TYPE_SAS)
         {
-            result->cred_type = AUTH_TYPE_SAS;
+            /*result->cred_type = AUTH_TYPE_SAS;
             const HSM_CLIENT_TPM_INTERFACE* tpm_interface = hsm_client_tpm_interface();
             if (((result->hsm_client_create = tpm_interface->hsm_client_tpm_create) == NULL) ||
                 ((result->hsm_client_destroy = tpm_interface->hsm_client_tpm_destroy) == NULL) ||
                 ((result->hsm_client_sign_data = tpm_interface->hsm_client_sign_with_identity) == NULL)
                 )
-            {
+            {*/
                 /* Codes_IOTHUB_DEV_AUTH_07_034: [ if any of the iothub_security_interface function are NULL iothub_device_auth_create shall return NULL. ] */
-                LogError("Invalid secure device interface");
+                /*LogError("Invalid secure device interface");
                 free(result);
                 result = NULL;
-            }
+            }*/
         }
         else
         {

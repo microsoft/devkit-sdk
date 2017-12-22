@@ -16,7 +16,7 @@
 #include "azure_prov_client/prov_auth_client.h"
 #include "hsm_client_data.h"
 
-#include "azure_prov_client/prov_security_factory.h"
+#include "azure_prov_client/secure_device_factory.h"
 
 typedef struct PROV_AUTH_INFO_TAG
 {
@@ -157,7 +157,7 @@ PROV_AUTH_HANDLE prov_auth_create()
         if (prov_dev_security_get_type() == SECURE_DEVICE_TYPE_TPM)
         {
             /* Codes_SRS_PROV_AUTH_CLIENT_07_003: [ prov_auth_create shall validate the specified secure enclave interface to ensure. ] */
-            result->sec_type = PROV_AUTH_TYPE_TPM;
+            /*result->sec_type = PROV_AUTH_TYPE_TPM;
             const HSM_CLIENT_TPM_INTERFACE* tpm_interface = hsm_client_tpm_interface();
             if ( ( (result->hsm_client_create = tpm_interface->hsm_client_tpm_create) == NULL) ||
                 ((result->hsm_client_destroy = tpm_interface->hsm_client_tpm_destroy) == NULL) ||
@@ -166,12 +166,12 @@ PROV_AUTH_HANDLE prov_auth_create()
                 ((result->hsm_client_get_srk = tpm_interface->hsm_client_get_srk) == NULL) ||
                 ((result->hsm_client_sign_data = tpm_interface->hsm_client_sign_with_identity) == NULL)
                 )
-            {
+            {*/
                 /* Codes_SRS_PROV_AUTH_CLIENT_07_002: [ If any failure is encountered prov_auth_create shall return NULL ] */
-                LogError("Invalid secure device interface");
+                /*LogError("Invalid secure device interface");
                 free(result);
                 result = NULL;
-            }
+            }*/
         }
         else
         {

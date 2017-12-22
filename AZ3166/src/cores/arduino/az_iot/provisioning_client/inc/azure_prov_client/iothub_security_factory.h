@@ -22,9 +22,6 @@ extern "C" {
 
 DEFINE_ENUM(IOTHUB_SECURITY_TYPE, IOTHUB_SECURITY_TYPE_VALUES);
 
-MOCKABLE_FUNCTION(, int, iothub_security_init, IOTHUB_SECURITY_TYPE, sec_type);
-MOCKABLE_FUNCTION(, void, iothub_security_deinit);
-
 MOCKABLE_FUNCTION(, const void*, iothub_security_interface);
 MOCKABLE_FUNCTION(, IOTHUB_SECURITY_TYPE, iothub_security_type);
 
