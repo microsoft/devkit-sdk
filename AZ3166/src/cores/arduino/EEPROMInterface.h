@@ -64,9 +64,10 @@ public:
 	*
 	* @param    level               Secure level of secure channel. 1 means hard code key, 2 means user defined key, 3 means random key.
 	*                               The key can never be changed after set. Be very careful here. And we strongly suggest developer use 1 here.
+	*                               For now, we only support level 1.
 	* @param    key                 A 32 bytes array needed if choose level 2, user defined key.
 	*
-	* @return   Return 0 on success. Return 1 on secure channel already enabled. Return -1 on fail. 
+	* @return   Return 0 on success. Return 1 if the secure channel has already been enabled. Return -1 on fail.
 	*           The failure might be caused by wrong parameter or key not available.
 	*/
 	int enableHostSecureChannel(int level = 1, uint8_t* key = NULL);

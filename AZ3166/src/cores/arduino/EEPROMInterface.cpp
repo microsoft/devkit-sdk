@@ -27,7 +27,13 @@ EEPROMInterface::~EEPROMInterface()
 
 int EEPROMInterface::enableHostSecureChannel(int level = 1, uint8_t* key = NULL)
 {
-	// Initialization of global variable will fail if Init_HAL called in construction function
+	// For now, we only support level 1.
+	if (level != 1)
+	{
+		return -1;
+	}
+
+	// Initialization of global variable will fail if Init_HAL called in construction function.
 	if (isHostSecureChannelEnabled())
 	{
 		return 1;
