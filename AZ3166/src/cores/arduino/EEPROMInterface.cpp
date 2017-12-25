@@ -7,13 +7,17 @@
 
 #define min(a,b) ((a)<(b)?(a):(b))
 #define PCROP_ADDR 0x08008000  // Sector 2 STM32F412
-#define PCROP_ENABLED_VALUE  0x8000 /* SPRMOD bit */
-#define I2C_ADRESS 0x20
-#define OK 0
-const static int ZONE_SIZE[11] = {976, 0, 192, 120, 0, 584, 680, 784, 880, 0, 88};
+#define PCROP_ENABLED_VALUE  0x8000
+#define STSAFE_I2C_ADDRESS 0x20
+#define MAX_BUFFER_SIZE 1000
+#define MAX_ENCRYPT_DATA_SIZE 480
+#define MAX_ENVELOPE_SIZE 488
+// The segment length of each data partition
+const static int DATA_SEGMENT_LENGTH[11] = {976, 0, 192, 120, 0, 584, 680, 784, 880, 0, 88};
 
 EEPROMInterface::EEPROMInterface()
 {
+	handle = NULL;
 }
 
 EEPROMInterface::~EEPROMInterface()
@@ -21,37 +25,64 @@ EEPROMInterface::~EEPROMInterface()
 	Free_HAL(handle);
 }
 
-void EEPROMInterface::enableHostSecureChannel()
+int EEPROMInterface::enableHostSecureChannel(int level = 1, uint8_t* key = NULL)
 {
 	// Initialization of global variable will fail if Init_HAL called in construction function
-	Init_HAL(I2C_ADRESS, &handle);
 	if (isHostSecureChannelEnabled())
 	{
-		return;
+		return 1;
 	}
-	Init_Perso(handle, 0, 0, NULL);
-	Free_HAL(handle);
-	Init_HAL(I2C_ADRESS, &handle);
-	uint8_t buf[1000];
-	for (int zone = 0; zone < 11; ++zone)
+
+	int initResult = Init_HAL(STSAFE_I2C_ADDRESS, &handle);
+
+	// If the chip has been Initialized before, never set random key.
+	if (level == 3 && initResult == 0)
 	{
-		if (ZONE_SIZE[zone] == 0) continue;
-		readWithoutEnvelope(buf, ZONE_SIZE[zone], 0, zone);
-		for (int i = 0; i * 480 < ZONE_SIZE[zone]; i ++)
+		return -1;
+	}
+
+	// If user choose level 2, user must provide key array.
+	if (level == 2 && key == NULL)
+	{
+		return -1;
+	}
+
+	if (level == 1)
+	{
+		Init_Perso(handle, 0, 0, NULL);
+	}
+	else if (level == 2)
+	{
+		Init_Perso(handle, 2, 1, key);
+	}
+	else if (level == 3)
+	{
+		Init_Perso(handle, 1, 1, NULL);
+	}
+	Free_HAL(handle);
+	Init_HAL(STSAFE_I2C_ADDRESS, &handle);
+	uint8_t buf[MAX_BUFFER_SIZE];
+	for (int dataZoneIndex = 0; dataZoneIndex < 11; ++dataZoneIndex)
+	{
+		int segmentLength = DATA_SEGMENT_LENGTH[dataZoneIndex];
+		if (segmentLength == 0) continue;
+		readWithoutEnvelope(buf, segmentLength, 0, dataZoneIndex);
+		for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < segmentLength; i ++)
 		{
-			if (HAL_Store_Data_WithinEnvelop(handle, zone, min(ZONE_SIZE[zone] - i * 480, 480), buf + i * 480, i * 488))
+			int dataSize = min(segmentLength - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
+			if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
 			{
-				return;
+				return -1;
 			}
 		}
 	}
+	return 0;
 }
 
-// return -1 on fail, return 0 on success
 int EEPROMInterface::write(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex)
 {
-	Init_HAL(I2C_ADRESS, &handle);
-	if (dataBuff == NULL || checkZoneSize(dataZoneIndex, buffSize, true) != OK)
+	Init_HAL(STSAFE_I2C_ADDRESS, &handle);
+	if (dataBuff == NULL || checkZoneSize(dataZoneIndex, buffSize, true))
     {
         return -1;
     }
@@ -65,83 +96,81 @@ int EEPROMInterface::write(uint8_t* dataBuff, int buffSize, uint8_t dataZoneInde
 	}
 }
 
-// return -1 on fail, return size otherwise
 int EEPROMInterface::read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
-	Init_HAL(I2C_ADRESS, &handle);
+	Init_HAL(STSAFE_I2C_ADDRESS, &handle);
 	if (dataBuff == NULL || buffSize <= 0)
     {
         return -1;
     }
 	int size = buffSize + offset;
-	if (checkZoneSize(dataZoneIndex, size, false) != OK || size <= offset)
+	if (checkZoneSize(dataZoneIndex, size, false) || size <= offset)
 	{
 		return -1;
 	}
 	if (isHostSecureChannelEnabled())
 	{
-		printf("secure read!\r\n");
 		return readWithEnvelope(dataBuff, size - offset, offset, dataZoneIndex);
 	}
 	else
 	{
-		printf("unsecure read!\r\n");
 		return readWithoutEnvelope(dataBuff, size - offset, offset, dataZoneIndex);
 	}
 }
 
 int EEPROMInterface::writeWithEnvelope(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex)
 {
-	int envelopeSize = min(ZONE_SIZE[dataZoneIndex], ((buffSize - 1) / 480 + 1) * 480);
-	uint8_t* buf = (uint8_t*)malloc(envelopeSize + 1);
-	int readSize = readWithEnvelope(buf, envelopeSize, 0, dataZoneIndex);
-	if (readSize != envelopeSize)
+	int readSize = min(DATA_SEGMENT_LENGTH[dataZoneIndex], ((buffSize - 1) / MAX_ENCRYPT_DATA_SIZE + 1) * MAX_ENCRYPT_DATA_SIZE);
+	uint8_t buf[MAX_BUFFER_SIZE];
+	int readResult = readWithEnvelope(buf, readSize, 0, dataZoneIndex);
+	if (readResult != readSize)
 	{
-		delete buf;
 		return -1;
 	}
 	memcpy(buf, dataBuff, buffSize);
-	for (int i = 0; i * 480 < envelopeSize; i ++)
+	for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < readSize; i ++)
 	{
-		if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, min(envelopeSize - i * 480, 480), buf + i * 480, i * 488))
+		int dataSize = min(readSize - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
+		if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
 		{
-			delete buf;
 			return -1;
 		}
 	}
-	delete buf;
 	return 0;
 }
 
 int EEPROMInterface::writeWithoutEnvelope(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex)
 {
-	if (HAL_Store_Data_Zone(handle, dataZoneIndex, buffSize, dataBuff, 0x0)) return -1;
+	if (HAL_Store_Data_Zone(handle, dataZoneIndex, buffSize, dataBuff, 0x0))
+	{
+		return -1;
+	}
 	return 0;
 }
 
 int EEPROMInterface::readWithEnvelope(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
-	int envelopeSize = min(ZONE_SIZE[dataZoneIndex], ((buffSize + offset - 1) / 480 + 1) * 480);
-	uint8_t* buf = (uint8_t*)malloc(envelopeSize + 1);
-	for (int i = 0; i * 480 < envelopeSize; i ++)
+	uint8_t buf[MAX_BUFFER_SIZE];
+	for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < buffSize + offset; i ++)
 	{
-		int readSize = min(envelopeSize - i * 480, 480);
-		if (HAL_Get_Data_WithinEnvelop(handle, dataZoneIndex, readSize, buf + i * 480, i * 488))
+		int dataSize = min(DATA_SEGMENT_LENGTH[dataZoneIndex] - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
+		if (HAL_Get_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
 		{
-			memset(buf, 0, readSize);
-			HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, readSize, buf, i * 488);
-			delete buf;
+			memset(buf, 0, dataSize);
+			HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf, i * MAX_ENVELOPE_SIZE);
 			return -1;
 		}
 	}
 	memcpy(dataBuff, buf + offset, buffSize);
-	delete buf;
 	return buffSize;
 }
 
 int EEPROMInterface::readWithoutEnvelope(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
-	if (HAL_Get_Data_Zone(handle, dataZoneIndex, buffSize, dataBuff, offset)) return -1;
+	if (HAL_Get_Data_Zone(handle, dataZoneIndex, buffSize, dataBuff, offset))
+	{
+		return -1;
+	}
 	return buffSize;
 }
 
@@ -175,7 +204,7 @@ bool EEPROMInterface::PCROPCheck(int sector)
 
 bool EEPROMInterface::checkZoneSize(int dataZoneIndex, int &size, bool write)
 {
-	if (dataZoneIndex < 0 || dataZoneIndex > 10 || ZONE_SIZE[dataZoneIndex] == 0)
+	if (dataZoneIndex < 0 || dataZoneIndex > 10 || DATA_SEGMENT_LENGTH[dataZoneIndex] == 0)
 	{
 		return 1;
 	}
@@ -183,14 +212,14 @@ bool EEPROMInterface::checkZoneSize(int dataZoneIndex, int &size, bool write)
 	{
 		return 1;
 	}
-	int zoneSize = ZONE_SIZE[dataZoneIndex];
-	if (write == 1 && size > zoneSize)
+	int segmentLength = DATA_SEGMENT_LENGTH[dataZoneIndex];
+	if (write == 1 && size > segmentLength)
 	{
 		return 1;
 	}
-	if (size > zoneSize)
+	if (size > segmentLength)
 	{
-		size = zoneSize;
+		size = segmentLength;
 	}
-	return OK;
+	return 0;
 }
