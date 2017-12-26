@@ -25,7 +25,7 @@ EEPROMInterface::~EEPROMInterface()
 	Free_HAL(handle);
 }
 
-int EEPROMInterface::enableHostSecureChannel(int level = 1, uint8_t* key = NULL)
+int EEPROMInterface::enableHostSecureChannel(int level, uint8_t* key)
 {
 	// For now, we only support level 1.
 	if (level != 1)
@@ -67,7 +67,7 @@ int EEPROMInterface::enableHostSecureChannel(int level = 1, uint8_t* key = NULL)
 	}
 	Free_HAL(handle);
 	Init_HAL(STSAFE_I2C_ADDRESS, &handle);
-	uint8_t buf[MAX_BUFFER_SIZE];
+	uint8_t* buf = (uint8_t*)malloc(MAX_BUFFER_SIZE);
 	for (int dataZoneIndex = 0; dataZoneIndex < 11; ++dataZoneIndex)
 	{
 		int segmentLength = DATA_SEGMENT_LENGTH[dataZoneIndex];
@@ -78,10 +78,12 @@ int EEPROMInterface::enableHostSecureChannel(int level = 1, uint8_t* key = NULL)
 			int dataSize = min(segmentLength - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
 			if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
 			{
+				delete buf;
 				return -1;
 			}
 		}
 	}
+	delete buf;
 	return 0;
 }
 
@@ -127,10 +129,11 @@ int EEPROMInterface::read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint
 int EEPROMInterface::writeWithEnvelope(uint8_t* dataBuff, int buffSize, uint8_t dataZoneIndex)
 {
 	int readSize = min(DATA_SEGMENT_LENGTH[dataZoneIndex], ((buffSize - 1) / MAX_ENCRYPT_DATA_SIZE + 1) * MAX_ENCRYPT_DATA_SIZE);
-	uint8_t buf[MAX_BUFFER_SIZE];
+	uint8_t* buf = (uint8_t*)malloc(MAX_BUFFER_SIZE);
 	int readResult = readWithEnvelope(buf, readSize, 0, dataZoneIndex);
 	if (readResult != readSize)
 	{
+		delete buf;
 		return -1;
 	}
 	memcpy(buf, dataBuff, buffSize);
@@ -139,9 +142,11 @@ int EEPROMInterface::writeWithEnvelope(uint8_t* dataBuff, int buffSize, uint8_t 
 		int dataSize = min(readSize - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
 		if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
 		{
+			delete buf;
 			return -1;
 		}
 	}
+	delete buf;
 	return 0;
 }
 
@@ -156,7 +161,7 @@ int EEPROMInterface::writeWithoutEnvelope(uint8_t* dataBuff, int buffSize, uint8
 
 int EEPROMInterface::readWithEnvelope(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
-	uint8_t buf[MAX_BUFFER_SIZE];
+	uint8_t* buf = (uint8_t*)malloc(MAX_BUFFER_SIZE);
 	for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < buffSize + offset; i ++)
 	{
 		int dataSize = min(DATA_SEGMENT_LENGTH[dataZoneIndex] - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
@@ -164,10 +169,12 @@ int EEPROMInterface::readWithEnvelope(uint8_t* dataBuff, int buffSize, uint16_t 
 		{
 			memset(buf, 0, dataSize);
 			HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf, i * MAX_ENVELOPE_SIZE);
+			delete buf;
 			return -1;
 		}
 	}
 	memcpy(dataBuff, buf + offset, buffSize);
+	delete buf;
 	return buffSize;
 }
 
