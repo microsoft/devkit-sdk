@@ -34,7 +34,8 @@ EEPROMInterface eeprom;
 static int getUDSBytesFromString()
 {
   //EEPROMInterface eeprom;
-  eeprom.enableHostSecureChannel();
+  //The secure channel enabling is pending on a fix with latest EEPROMInterface
+  //eeprom.enableHostSecureChannel();
   uint8_t udsString[DPS_UDS_MAX_LEN + 1] = { '\0' };
   int ret = eeprom.read(udsString, DPS_UDS_MAX_LEN, 0x00, DPS_UDS_ZONE_IDX);
   
