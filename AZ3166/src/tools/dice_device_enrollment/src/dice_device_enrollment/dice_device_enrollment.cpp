@@ -343,8 +343,8 @@ int main()
 
 	// Get user input
 	udsString = get_user_input("Input the UDS you saved into security chip of your DevKit: ", 64);
-	firmwareVer = get_user_input("Input the firmware version of the program running on your DevKit: ", 5);
 	macAddress = get_user_input("Input the Mac Address on your DevKit: ", 12);
+	firmwareVer = get_user_input("Input the firmware version of the program running on your DevKit: ", 5);
 
 	// Check sanity of input data
 	if (validateUserInputData() != 0)
