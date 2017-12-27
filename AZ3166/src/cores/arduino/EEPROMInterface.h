@@ -73,7 +73,6 @@ public:
 	int enableHostSecureChannel(int level = 1, uint8_t* key = NULL);
 private:
 	void* handle;
-	FLASH_AdvOBProgramInitTypeDef pAdvOBInit;
 	bool PCROPCheck(int sector);
 	bool checkZoneSize(int dataZoneIndex, int &size, bool write);
 	bool isHostSecureChannelEnabled();

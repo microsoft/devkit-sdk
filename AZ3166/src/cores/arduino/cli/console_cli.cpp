@@ -46,6 +46,7 @@ static void wifi_ssid_command(int argc, char **argv);
 static void wifi_pwd_Command(int argc, char **argv);
 static void az_iothub_command(int argc, char **argv);
 static void dps_uds_command(int argc, char **argv);
+static void enable_secure_command(int argc, char **argv);
 
 static const struct console_command cmds[] = {
   {"help",          "Help document",                                            false, help_command},
@@ -56,6 +57,7 @@ static const struct console_command cmds[] = {
   {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
   {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     false, az_iothub_command},
   {"set_dps_uds",   "Set DPS Unique Device Secret (DPS)",                       true,  dps_uds_command},
+  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",     false, enable_secure_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -243,6 +245,75 @@ static void dps_uds_command(int argc, char **argv)
     }
 }
 
+static void enable_secure_command(int argc, char **argv)
+{
+    if (argc == 1 || argv[1] == NULL || strlen(argv[1]) != 1 || argv[1][0] > '3' || argv[1][0] < '1')
+    {
+        Serial.printf("Usage: enable_secure <secure channel> <provided key>. Please provide the secure level. More detail:\r\n\
+        1.\"enable_secure 1\" to enable secure channel with pre set key.\r\n\
+        2.\"enable_secure 2 ([a-f]|[0-9]){64}\" to enable secure channel with provided key. (not support for now)\r\n\
+        3.\"enable_secure 3\" to enable secure channel with random key. (not support for now)\r\n");
+        return;
+    }
+
+    int ret = -2;
+    if (argc == 2 && (argv[1][0] == '1' || argv[1][0] == '3'))
+    {
+        EEPROMInterface eeprom;
+        ret = eeprom.enableHostSecureChannel(argv[1][0] - '0');
+    }
+
+    if (argc == 3 && argv[2] != NULL && strlen(argv[2]) == 64)
+    {
+        int i = 0, val;
+        uint8_t key[32];
+        char ch;
+        memset(key, 0, sizeof(key));
+        for (i = 0; i < 64; ++i)
+        {
+            ch = argv[2][i];
+            if (ch <= 'f' && ch >= 'a')
+            {
+                val = ch - 'a' + 10;
+            }
+            else if (ch <= '9' && ch >= '0')
+            {
+                val = ch - '0';
+            }
+            else
+            {
+                break;
+            }
+            key[i / 2] += (i % 2 == 0) ? (val << 4) : val;
+        }
+        if (i == 64)
+        {
+            EEPROMInterface eeprom;
+            ret = eeprom.enableHostSecureChannel(2, key);
+        }
+    }
+
+    if (ret == 0)
+    {
+        Serial.printf("INFO: Enable secure channel successfully.\r\n");
+    }
+    else if (ret == -1)
+    {
+        Serial.printf("INFO: Enable secure channel failed.\r\n");
+    }
+    else if (ret == 1)
+    {
+        Serial.printf("INFO: Secure channel has already been enabled.\r\n");
+    }
+    else // enableHostSecureChannel() never run. Input argv does not accepted.
+    {
+        Serial.printf("Usage: enable_secure <secure channel> <provided key>. 64-characters key is only needed for level 2. More detail:\r\n\
+        1.\"enable_secure 1\" to enable secure channel with pre set key.\r\n\
+        2.\"enable_secure 2 ([a-f]|[0-9]){64}\" to enable secure channel with provided key. (not support for now)\r\n\
+        3.\"enable_secure 3\" to enable secure channel with random key. (not support for now)\r\n");
+    }
+    return;
+}
 ////////////////////////////////////////////////////////////////////////////////////
 // Console app
 static bool is_privacy_cmd(char *inbuf, unsigned int bp)
