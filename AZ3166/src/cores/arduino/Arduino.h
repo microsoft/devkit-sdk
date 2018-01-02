@@ -92,6 +92,9 @@ extern const PinDescription g_APinDescription[] ;
 #include "floatIO.h" 
 
 #include "app_httpd.h"
-#include "version.h"
+#include "SystemVersion.h"
+#include "SystemTickCounter.h"
+#include "SystemVariables.h"
+#include "EEPROMInterface.h"
 
 #endif

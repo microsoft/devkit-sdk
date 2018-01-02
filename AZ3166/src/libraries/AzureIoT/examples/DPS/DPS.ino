@@ -6,13 +6,9 @@
 #include "DPSClient.h"
 #include "DiceRIoT.h"
 #include "DiceCore.h"
-#include "SystemVersion.h"
 
 #include "config.h"
 #include "utility.h"
-#include "SystemTickCounter.h"
-#include "SystemVariables.h"
-#include "EEPROMInterface.h"
 
 // Input DPS instance info
 char* Global_Device_Endpoint = "[Global_Device_Endpoint]";
