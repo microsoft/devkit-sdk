@@ -4,7 +4,6 @@
 #include "EMW10xxInterface.h"
 #include "SystemVariables.h"
 #include "SystemWiFi.h"
-#include "azure_c_shared_utility/xlogging.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,8 +23,6 @@ int GetMACWithoutColon(char* buff)
             buff[j++] = (mac[i] >= 'A' && mac[i] <= 'Z') ?  (mac[i] - 'A' + 'a') : mac[i];
         }
     }
-
-    LogInfo("DevKit MAC address: %s", buff);
 
     return j;
 }
