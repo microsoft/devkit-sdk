@@ -15,7 +15,7 @@
 #include "azure_c_shared_utility/base64.h"
 
 #include "azure_prov_client/prov_transport_http_client.h"
-#include "azure_prov_client/uhttp.h"
+#include "azure_uhttp_c/uhttp.h"
 #include "parson.h"
 
 #define HTTP_PORT_NUM                   443
