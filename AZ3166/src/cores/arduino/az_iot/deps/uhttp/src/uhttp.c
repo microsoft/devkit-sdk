@@ -8,7 +8,7 @@
 #include "azure_c_shared_utility/gballoc.h"
 
 #include <string.h>
-#include "azure_prov_client/uhttp.h"
+#include "azure_uhttp_c/uhttp.h"
 #include "azure_c_shared_utility/httpheaders.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
 #include "azure_c_shared_utility/strings.h"
