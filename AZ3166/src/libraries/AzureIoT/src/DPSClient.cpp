@@ -83,7 +83,7 @@ static void register_device_callback(PROV_DEVICE_RESULT register_result, const c
     }
 }
 
-bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* global_prov_uri, const char* id_scope, const char* registration_id, const char* proxy_address, int proxy_port)
+bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* global_prov_uri, const char* id_scope, const char* proxy_address, int proxy_port)
 {
     if (global_prov_uri == NULL)
     {

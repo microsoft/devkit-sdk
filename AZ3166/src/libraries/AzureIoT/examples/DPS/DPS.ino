@@ -14,6 +14,10 @@
 char* Global_Device_Endpoint = "[Global_Device_Endpoint]";
 char* ID_Scope = "[ID_Scope]";
 
+// Input your preferrred registrationId and only alphanumeric, lowercase, and hyphen are supported with maximum 128 characters long.
+// If you leave it blank, one registrationId would be auto-generated based on MAC address and firmware version on your DevKit.
+char* registrationId = "";
+
 // UDS bytes for DICE|RIoT calculation
 uint8_t udsBytes[DICE_UDS_LENGTH] = { 0 };
 
@@ -31,8 +35,6 @@ static int getUDSBytesFromString()
 {
   uint8_t udsString[DPS_UDS_MAX_LEN + 1] = { '\0' };
   int ret = eeprom.read(udsString, DPS_UDS_MAX_LEN, 0x00, DPS_UDS_ZONE_IDX);
-  
-  printf("udsString: %s\r\n", udsString);
 
   if (ret < 0)
   { 
@@ -167,17 +169,6 @@ void setup() {
   Screen.print(3, " > DPS");
   Screen.print(3, " > DPS");
 
-  char registrationId[64] = { "\0" };
-  snprintf(registrationId, 64, "%sv%s", GetBoardID(), getDevkitVersion());
-
-  for(int i = 0; i < strlen(registrationId); i++){
-    if(registrationId[i] == '.'){
-      registrationId[i] = 'v';
-    }
-  }
-
-  LogInfo("DevKit firmware Version: %s\r\n", getDevkitVersion());
-
   // Prepare UDS Bytes
   if(getUDSBytesFromString() != 0)
   {
@@ -193,7 +184,7 @@ void setup() {
   }
 
   // Transfer control to firmware
-  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, registrationId))
+  if(DPSClientStart(Global_Device_Endpoint, ID_Scope))
   {
     Screen.print(2, "DPS connected!\r\n");
   }

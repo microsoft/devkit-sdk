@@ -67,7 +67,7 @@ char * RIoTGetDeviceCert(unsigned int *len)
 RIOT_X509_TBS_DATA x509AliasTBSData = { { 0x0A, 0x0B, 0x0C, 0x0D, 0x0E },
                                        "devkitdice", "DEVKIT_TEST", "US",
                                        "170101000000Z", "370101000000Z",
-                                       "devkitriotcore", "DEVKIT_TEST", "US" };
+                                       NULL, "DEVKIT_TEST", "US" };
 
 // The static data fields that make up the DeviceID Cert "to be signed" region
 RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
@@ -88,8 +88,54 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     uint32_t            length;
     uint32_t            dcType;
 
-    // Update subject common of alias certificate TBD data to input registration Id
-    x509AliasTBSData.SubjectCommon = RegistrationId;
+    // Verify registrationId input and given an empty input, generate one based on MAC address and firmware version of your DevKit
+    int regIdLength = strlen(RegistrationId);
+    char * realRegistrationId;
+
+    if (regIdLength == 0){
+        char * macAddress[24] = { "\0" };
+        GetMACWithoutColon(macAddress);
+        LogInfo("DevKit MAC Address: %s", macAddress);
+
+        char * boardId = GetBoardID();
+        char * fmVersion = getDevkitVersion();
+        LogInfo("DevKit Firmware Version: %s", fmVersion);
+
+        char generatedRegistrationId[AUTO_GEN_REGISTRATION_ID_MAX_LENGTH] = { "\0" };
+        snprintf(generatedRegistrationId, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH, "%sv%s", boardId, fmVersion);
+        
+        for(int i = 0; i < strlen(generatedRegistrationId); i++){
+            if(generatedRegistrationId[i] == '.'){
+                generatedRegistrationId[i] = 'v';
+            }
+        }
+
+        // Update subject common of alias certificate TBD data to auto-generated registration Id
+        realRegistrationId = strdup(generatedRegistrationId);
+    }
+    else if (regIdLength > REGISTRATION_ID_MAX_LENGTH){
+        LogError("Input value for registrationId in DPS.ino exceeds maximum length %d.", REGISTRATION_ID_MAX_LENGTH);
+        status = RIOT_INVALID_DEVICE_ID;
+        return status;
+    }
+    else{
+        for (int i = 0; i < regIdLength; i++){
+            if ((RegistrationId[i] >= 'a' && RegistrationId[i] <= 'z') 
+            || (RegistrationId[i] >= '0' && RegistrationId[i] <= '9') 
+            || (RegistrationId[i] == '-')){
+                continue;
+            }
+            else{
+                LogError("Input value for registrationId in DPS.ino does not meet DPS requirements - only alphanumeric, lowercase, and hyphen are supported.");
+                status = RIOT_INVALID_DEVICE_ID;
+                return status;
+            }
+        }
+        // Update subject common of alias certificate TBD data to input registration Id
+        realRegistrationId = strdup(RegistrationId);
+    }
+
+    x509AliasTBSData.SubjectCommon = realRegistrationId;
 
     // Validate Compound Device Identifier, pointer and length
     if (!(CDI) || (CDILen != RIOT_DIGEST_LENGTH)) {

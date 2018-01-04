@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-bool DPSClientStart(const char* dps_uri, const char* dps_scope_id, const char* registration_id, const char* proxy_address = NULL, int proxy_port = 0);
+bool DPSClientStart(const char* dps_uri, const char* dps_scope_id, const char* proxy_address = NULL, int proxy_port = 0);
 char* DPSGetIoTHubURI(void);
 char* DPSGetDeviceID(void);
 
