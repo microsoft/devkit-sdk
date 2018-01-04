@@ -20,7 +20,6 @@ const char *mapFileFullPath = ".\\DPS.ino.map";
 // Settings
 uint32_t udsStringLength = 64;
 uint32_t registrationIdMaxLength = 128;
-uint32_t autoGenRegistrationIdMaxLength = 32;
 uint32_t macAddressLength = 12;
 uint32_t elementSize = 1; //bytes
 uint32_t aliasCertSize = 1024; //bytes
