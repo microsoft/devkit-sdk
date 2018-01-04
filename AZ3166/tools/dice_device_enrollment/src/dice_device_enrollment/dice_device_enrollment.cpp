@@ -258,8 +258,6 @@ static int getRegistrationId()
 		}
 	}
 
-	//registrationId = (char*)malloc(autoGenRegistrationIdMaxLength);
-	//memset(registrationId, 0, autoGenRegistrationIdMaxLength);
 	return sprintf(registrationId, "az-%sv%s", macAddress, firmwareVer);
 }
 
