@@ -249,7 +249,7 @@ static int validateInputFiles()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Prepare DICE|RIOT data
-static int getRegistrationId()
+static int autoGenRegistrationId()
 {
 	for (int i = 0; i < strlen(firmwareVer); i++) {
 		if (firmwareVer[i] == '.') {
@@ -405,9 +405,8 @@ int main()
 			goto EXIT;
 		}
 
-		// Get desired firmware version and device's registration Id
-		//char autoGenRegistrationId[32] = { '\0' };
-		getRegistrationId();
+		// Auto Generate registrationId based on firmware version and device MAC address
+		autoGenRegistrationId();
 	}
 	else {
 		if (registrationIdValidated()) {
@@ -426,7 +425,7 @@ int main()
 	}
 	startBin = (uint8_t*)resultAddress;
 
-	// Initilize the value of riot attributes stuff
+	// Initialize the value of riot attributes stuff
 	resultAddress = findAddressInMapFile(startRiotCoreName);
 	if (resultAddress == 0)
 	{
