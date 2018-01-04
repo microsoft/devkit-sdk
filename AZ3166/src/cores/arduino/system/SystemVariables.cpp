@@ -5,7 +5,6 @@
 #include "EMW10xxInterface.h"
 #include "SystemVariables.h"
 #include "SystemWiFi.h"
-#include "azure_c_shared_utility/xlogging.h"
 
 #ifdef __cplusplus
 extern "C" {

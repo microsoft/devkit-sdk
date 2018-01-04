@@ -11,8 +11,8 @@
 #include "utility.h"
 
 // Input DPS instance info
-char* Global_Device_Endpoint = "global.azure-devices-provisioning.net";
-char* ID_Scope = "0ne00000045";
+char* Global_Device_Endpoint = "[Global_Device_Endpoint]";
+char* ID_Scope = "[ID_Scope]";
 
 // Input your preferrred registrationId and only alphanumeric, lowercase, and hyphen are supported with maximum 128 characters long.
 // If you leave it blank, one registrationId would be auto-generated based on MAC address and firmware version on your DevKit.
