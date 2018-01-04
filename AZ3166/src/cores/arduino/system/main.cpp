@@ -80,21 +80,6 @@ static bool IsAPMode()
     return false;
 }
 
-static int GetMACWithoutColon(char* buff)
-{
-    const char* mac = WiFiInterface()->get_mac_address();
-    int j = 0;
-    for(int i =0; i < strlen(mac); i++)
-    {
-        if (mac[i] != ':')
-        {
-            buff[j++] = mac[i];
-        }
-    }
-
-    return j;
-}
-
 static void EnterConfigurationMode()
 {
     pinMode(USER_BUTTON_A, INPUT);

@@ -39,6 +39,7 @@
 #define SAS_REFRESH_MULTIPLIER              .8
 #define EPOCH_TIME_T_VALUE                  0
 #define DEFAULT_MQTT_KEEPALIVE              4*60 // 4 min
+#define DEFAULT_CONNACK_TIMEOUT             30 // 30 seconds
 #define BUILD_CONFIG_USERNAME               24
 #define SAS_TOKEN_DEFAULT_LEN               10
 #define RESEND_TIMEOUT_VALUE_MIN            1*60
@@ -76,6 +77,10 @@ static const char* MESSAGE_ID_PROPERTY = "mid";
 static const char* CORRELATION_ID_PROPERTY = "cid";
 static const char* CONTENT_TYPE_PROPERTY = "ct";
 static const char* CONTENT_ENCODING_PROPERTY = "ce";
+static const char* DIAGNOSTIC_ID_PROPERTY = "diagid";
+static const char* DIAGNOSTIC_CONTEXT_PROPERTY = "diagctx";
+
+static const char* DIAGNOSTIC_CONTEXT_CREATION_TIME_UTC_PROPERTY = "creationtimeutc";
 
 #define UNSUBSCRIBE_FROM_TOPIC                  0x0000
 #define SUBSCRIBE_GET_REPORTED_STATE_TOPIC      0x0001
@@ -172,13 +177,15 @@ typedef struct MQTTTRANSPORT_HANDLE_DATA_TAG
     bool device_twin_get_sent;
     bool isRecoverableError;
     uint16_t keepAliveValue;
+    uint16_t connect_timeout_in_sec;
     tickcounter_ms_t mqtt_connect_time;
     size_t connectFailCount;
     tickcounter_ms_t connectTick;
     bool log_trace;
     bool raw_trace;
     TICK_COUNTER_HANDLE msgTickCounter;
-    OPTIONHANDLER_HANDLE saved_tls_options;		// Here are the options from the xio layer if any is saved.
+    OPTIONHANDLER_HANDLE saved_tls_options; // Here are the options from the xio layer if any is saved.
+    size_t option_sas_token_lifetime_secs;
 
     // Internal lists for message tracking
     PDLIST_ENTRY waitingToSend;
@@ -259,6 +266,37 @@ static void set_saved_tls_options(PMQTTTRANSPORT_HANDLE_DATA transport, OPTIONHA
         OptionHandler_Destroy(transport->saved_tls_options);
     }
     transport->saved_tls_options = new_options;
+}
+
+static void free_transport_handle_data(MQTTTRANSPORT_HANDLE_DATA* transport_data)
+{
+    if (transport_data->mqttClient != NULL)
+    {
+        mqtt_client_deinit(transport_data->mqttClient);
+    }
+
+    if (transport_data->retry_control_handle != NULL)
+    {
+        retry_control_destroy(transport_data->retry_control_handle);
+    }
+
+    set_saved_tls_options(transport_data, NULL);
+
+    tickcounter_destroy(transport_data->msgTickCounter);
+    
+    free_proxy_data(transport_data);
+
+    STRING_delete(transport_data->devicesPath);
+    STRING_delete(transport_data->topic_MqttEvent);
+    STRING_delete(transport_data->topic_MqttMessage);
+    STRING_delete(transport_data->device_id);
+    STRING_delete(transport_data->hostAddress);
+    STRING_delete(transport_data->configPassedThroughUsername);
+    STRING_delete(transport_data->topic_GetState);
+    STRING_delete(transport_data->topic_NotifyState);
+    STRING_delete(transport_data->topic_DeviceMethods);
+    
+    free(transport_data);
 }
 
 int IoTHubTransport_MQTT_Common_SetRetryPolicy(TRANSPORT_LL_HANDLE handle, IOTHUB_CLIENT_RETRY_POLICY retryPolicy, size_t retryTimeoutLimitInSeconds)
@@ -639,6 +677,74 @@ static STRING_HANDLE addPropertiesTouMqttMessage(IOTHUB_MESSAGE_HANDLE iothub_me
         }
     }
 
+    // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_014: [ `IoTHubTransport_MQTT_Common_DoWork` shall check for the diagnostic properties including diagid and diagCreationTimeUtc and if found both add them as system property in the format of `$.diagid` and `$.diagctx` respectively]
+    if (result != NULL)
+    {
+        const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* diagnosticData = IoTHubMessage_GetDiagnosticPropertyData(iothub_message_handle);
+        if (diagnosticData != NULL)
+        {
+            const char* diag_id = diagnosticData->diagnosticId;
+            const char* creation_time_utc = diagnosticData->diagnosticCreationTimeUtc;
+            //diagid and creationtimeutc must be present/unpresent simultaneously
+            if (diag_id != NULL && creation_time_utc != NULL)
+            {
+                if (STRING_sprintf(result, "%s%%24.%s=%s", index == 0 ? "" : PROPERTY_SEPARATOR, DIAGNOSTIC_ID_PROPERTY, diag_id) != 0)
+                {
+                    LogError("Failed setting diagnostic id");
+                    STRING_delete(result);
+                    result = NULL;
+                }
+                index++;
+
+                if (result != NULL)
+                {
+                    //construct diagnostic context, it should be urlencode(key1=value1,key2=value2)
+                    STRING_HANDLE diagContextHandle = STRING_construct_sprintf("%s=%s", DIAGNOSTIC_CONTEXT_CREATION_TIME_UTC_PROPERTY, creation_time_utc);
+                    if (diagContextHandle == NULL)
+                    {
+                        LogError("Failed constructing diagnostic context");
+                        STRING_delete(result);
+                        result = NULL;
+                    }
+                    else
+                    {
+                        //Add other diagnostic context properties here if have more
+                        STRING_HANDLE encodedContextValueHandle = URL_Encode(diagContextHandle);
+                        const char* encodedContextValueString = NULL;
+                        if (encodedContextValueHandle != NULL &&
+                            (encodedContextValueString = STRING_c_str(encodedContextValueHandle)) != NULL)
+                        {
+                            if (STRING_sprintf(result, "%s%%24.%s=%s", index == 0 ? "" : PROPERTY_SEPARATOR, DIAGNOSTIC_CONTEXT_PROPERTY, encodedContextValueString) != 0)
+                            {
+                                LogError("Failed setting diagnostic context");
+                                STRING_delete(result);
+                                result = NULL;
+                            }
+                            STRING_delete(encodedContextValueHandle);
+                            encodedContextValueHandle = NULL;
+                        }
+                        else
+                        {
+                            LogError("Failed encoding diagnostic context value");
+                            STRING_delete(result);
+                            result = NULL;
+                        }
+                        STRING_delete(diagContextHandle);
+                        diagContextHandle = NULL;
+                        index++;
+                    }
+                }
+            }
+            else if (diag_id != NULL || creation_time_utc != NULL)
+            {
+                // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_015: [ `IoTHubTransport_MQTT_Common_DoWork` shall check whether diagid and diagCreationTimeUtc be present simultaneously, treat as error if not]
+                LogError("diagid and diagcreationtimeutc must be present simultaneously.");
+                STRING_delete(result);
+                result = NULL;
+            }
+        }
+    }
+
     return result;
 }
 
@@ -841,6 +947,56 @@ static bool isSystemProperty(const char* tokenData)
     return result;
 }
 
+static int setMqttMessagePropertyIfPossible(IOTHUB_MESSAGE_HANDLE IoTHubMessage, const char* propName, const char* propValue, size_t nameLen)
+{
+    // Not finding a system property to map to isn't an error.
+    int result = 0;
+
+    if (nameLen > 2)
+    {
+        if (nameLen > 3)
+        {
+            if (strcmp((const char*)&propName[nameLen - 3], MESSAGE_ID_PROPERTY) == 0)
+            {
+                if (IoTHubMessage_SetMessageId(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
+                {
+                    LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'messageId' property.");
+                    result = __FAILURE__;
+                }
+            }
+            else if (strcmp((const char*)&propName[nameLen - 3], CORRELATION_ID_PROPERTY) == 0)
+            {
+                if (IoTHubMessage_SetCorrelationId(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
+                {
+                    LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'correlationId' property.");
+                    result = __FAILURE__;
+                }
+            }
+        }
+
+        // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_012: [ If type is IOTHUB_TYPE_TELEMETRY and the system property `$.ct` is defined, its value shall be set on the IOTHUB_MESSAGE_HANDLE's ContentType property ]
+        if (strcmp((const char*)&propName[nameLen - 2], CONTENT_TYPE_PROPERTY) == 0)
+        {
+            if (IoTHubMessage_SetContentTypeSystemProperty(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
+            {
+                LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'customContentType' property.");
+                result = __FAILURE__;
+            }
+        }
+        // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_013: [ If type is IOTHUB_TYPE_TELEMETRY and the system property `$.ce` is defined, its value shall be set on the IOTHUB_MESSAGE_HANDLE's ContentEncoding property ]
+        else if (strcmp((const char*)&propName[nameLen - 2], CONTENT_ENCODING_PROPERTY) == 0)
+        {
+            if (IoTHubMessage_SetContentEncodingSystemProperty(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
+            {
+                LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'contentEncoding' property.");
+                result = __FAILURE__;
+            }
+        }
+    }
+
+    return result;
+}
+
 static int extractMqttProperties(IOTHUB_MESSAGE_HANDLE IoTHubMessage, const char* topic_name)
 {
     int result;
@@ -909,46 +1065,10 @@ static int extractMqttProperties(IOTHUB_MESSAGE_HANDLE IoTHubMessage, const char
                                             strncpy(propValue, iterator + 1, valLen);
                                             propValue[valLen] = '\0';
 
-                                            if (nameLen > 2)
+                                            if (setMqttMessagePropertyIfPossible(IoTHubMessage, propName, propValue, nameLen) != 0)
                                             {
-                                                if (nameLen > 3)
-                                                {
-                                                    if (strcmp((const char*)&propName[nameLen - 3], MESSAGE_ID_PROPERTY) == 0)
-                                                    {
-                                                        if (IoTHubMessage_SetMessageId(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
-                                                        {
-                                                            LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'messageId' property.");
-                                                            result = __FAILURE__;
-                                                        }
-                                                    }
-                                                    else if (strcmp((const char*)&propName[nameLen - 3], CORRELATION_ID_PROPERTY) == 0)
-                                                    {
-                                                        if (IoTHubMessage_SetCorrelationId(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
-                                                        {
-                                                            LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'correlationId' property.");
-                                                            result = __FAILURE__;
-                                                        }
-                                                    }
-                                                }
-
-                                                // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_012: [ If type is IOTHUB_TYPE_TELEMETRY and the system property `$.ct` is defined, its value shall be set on the IOTHUB_MESSAGE_HANDLE's ContentType property ]
-                                                if (strcmp((const char*)&propName[nameLen - 2], CONTENT_TYPE_PROPERTY) == 0)
-                                                {
-                                                    if (IoTHubMessage_SetContentTypeSystemProperty(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
-                                                    {
-                                                        LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'customContentType' property.");
-                                                        result = __FAILURE__;
-                                                    }
-                                                }
-                                                // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_013: [ If type is IOTHUB_TYPE_TELEMETRY and the system property `$.ce` is defined, its value shall be set on the IOTHUB_MESSAGE_HANDLE's ContentEncoding property ]
-                                                else if (strcmp((const char*)&propName[nameLen - 2], CONTENT_ENCODING_PROPERTY) == 0)
-                                                {
-                                                    if (IoTHubMessage_SetContentEncodingSystemProperty(IoTHubMessage, propValue) != IOTHUB_MESSAGE_OK)
-                                                    {
-                                                        LogError("Failed to set IOTHUB_MESSAGE_HANDLE 'contentEncoding' property.");
-                                                        result = __FAILURE__;
-                                                    }
-                                                }
+                                                LogError("Unable to set message property");
+                                                result = __FAILURE__;
                                             }
                                         }
                                         free(propName);
@@ -1577,9 +1697,7 @@ static int SendMqttConnectMsg(PMQTTTRANSPORT_HANDLE_DATA transport_data)
     IOTHUB_CREDENTIAL_TYPE cred_type = IoTHubClient_Auth_Get_Credential_Type(transport_data->authorization_module);
     if (cred_type == IOTHUB_CREDENTIAL_TYPE_DEVICE_KEY || cred_type == IOTHUB_CREDENTIAL_TYPE_DEVICE_AUTH)
     {
-        size_t secSinceEpoch = (size_t)(difftime(get_time(NULL), EPOCH_TIME_T_VALUE) + 0);
-        size_t expiryTime = secSinceEpoch + SAS_TOKEN_DEFAULT_LIFETIME;
-        sasToken = IoTHubClient_Auth_Get_SasToken(transport_data->authorization_module, STRING_c_str(transport_data->devicesPath), expiryTime);
+        sasToken = IoTHubClient_Auth_Get_SasToken(transport_data->authorization_module, STRING_c_str(transport_data->devicesPath), transport_data->option_sas_token_lifetime_secs);
         if (sasToken == NULL)
         {
             LogError("failure getting sas token from IoTHubClient_Auth_Get_SasToken.");
@@ -1731,7 +1849,7 @@ static int InitializeConnection(PMQTTTRANSPORT_HANDLE_DATA transport_data)
                 LogError("failed verifying MQTT_CLIENT_STATUS_CONNECTING timeout");
                 result = __FAILURE__;
             }
-            else if ((current_time - transport_data->mqtt_connect_time) / 1000 > transport_data->keepAliveValue) 
+            else if ((current_time - transport_data->mqtt_connect_time) / 1000 > transport_data->connect_timeout_in_sec)
             {
                 LogError("mqtt_client timed out waiting for CONNACK");
                 DisconnectFromClient(transport_data);
@@ -1749,9 +1867,11 @@ static int InitializeConnection(PMQTTTRANSPORT_HANDLE_DATA transport_data)
             }
             else
             {
-                if ((current_time - transport_data->mqtt_connect_time) / 1000 > (SAS_TOKEN_DEFAULT_LIFETIME * SAS_REFRESH_MULTIPLIER))
+                if ((current_time - transport_data->mqtt_connect_time) / 1000 > (transport_data->option_sas_token_lifetime_secs*SAS_REFRESH_MULTIPLIER))
                 {
                     /* Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_07_058: [ If the sas token has timed out IoTHubTransport_MQTT_Common_DoWork shall disconnect from the mqtt client and destroy the transport information and wait for reconnect. ] */
+                    OPTIONHANDLER_HANDLE options = xio_retrieveoptions(transport_data->xioTransport);
+                    set_saved_tls_options(transport_data, options);
                     DisconnectFromClient(transport_data);
                     
                     IoTHubClient_LL_ConnectionStatusCallBack(transport_data->llClientHandle, IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED, IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN);
@@ -1784,31 +1904,26 @@ static PMQTTTRANSPORT_HANDLE_DATA InitializeTransportHandleData(const IOTHUB_CLI
         if ((state->msgTickCounter = tickcounter_create()) == NULL)
         {
             LogError("Invalid Argument: iotHubName is empty");
-            free(state);
+            free_transport_handle_data(state);
             state = NULL;
         }
         // Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_09_005: [ MQTT transport shall use EXPONENTIAL_WITH_BACK_OFF as default retry policy ]
         else if ((state->retry_control_handle = retry_control_create(DEFAULT_RETRY_POLICY, DEFAULT_RETRY_TIMEOUT_IN_SECONDS)) == NULL)
         {
             LogError("Failed creating default retry control");
-            tickcounter_destroy(state->msgTickCounter);
-            free(state);
+            free_transport_handle_data(state);
             state = NULL;
         }
         else if ((state->device_id = STRING_construct(upperConfig->deviceId)) == NULL)
         {
             LogError("failure constructing device_id.");
-            retry_control_destroy(state->retry_control_handle);
-            tickcounter_destroy(state->msgTickCounter);
-            free(state);
+            free_transport_handle_data(state);
             state = NULL;
         }
         else if ((state->devicesPath = STRING_construct_sprintf("%s.%s/devices/%s", upperConfig->iotHubName, upperConfig->iotHubSuffix, upperConfig->deviceId)) == NULL)
         {
-            STRING_delete(state->device_id);
-            retry_control_destroy(state->retry_control_handle);
-            tickcounter_destroy(state->msgTickCounter);
-            free(state);
+            LogError("failure constructing devicesPath.");
+            free_transport_handle_data(state);
             state = NULL;
         }
         else
@@ -1816,11 +1931,7 @@ static PMQTTTRANSPORT_HANDLE_DATA InitializeTransportHandleData(const IOTHUB_CLI
             if ( (state->topic_MqttEvent = STRING_construct_sprintf(TOPIC_DEVICE_DEVICE, upperConfig->deviceId) ) == NULL)
             {
                 LogError("Could not create topic_MqttEvent for MQTT");
-                STRING_delete(state->devicesPath);
-                STRING_delete(state->device_id);
-                retry_control_destroy(state->retry_control_handle);
-                tickcounter_destroy(state->msgTickCounter);
-                free(state);
+                free_transport_handle_data(state);
                 state = NULL;
             }
             else
@@ -1829,12 +1940,7 @@ static PMQTTTRANSPORT_HANDLE_DATA InitializeTransportHandleData(const IOTHUB_CLI
                 if (state->mqttClient == NULL)
                 {
                     LogError("failure initializing mqtt client.");
-                    STRING_delete(state->devicesPath);
-                    STRING_delete(state->topic_MqttEvent);
-                    STRING_delete(state->device_id);
-                    retry_control_destroy(state->retry_control_handle);
-                    tickcounter_destroy(state->msgTickCounter);
-                    free(state);
+                    free_transport_handle_data(state);
                     state = NULL;
                 }
                 else
@@ -1852,25 +1958,12 @@ static PMQTTTRANSPORT_HANDLE_DATA InitializeTransportHandleData(const IOTHUB_CLI
                     if (state->hostAddress == NULL)
                     {
                         LogError("failure constructing host address.");
-                        mqtt_client_deinit(state->mqttClient);
-                        STRING_delete(state->devicesPath);
-                        STRING_delete(state->topic_MqttEvent);
-                        STRING_delete(state->device_id);
-                        retry_control_destroy(state->retry_control_handle);
-                        tickcounter_destroy(state->msgTickCounter);
-                        free(state);
+                        free_transport_handle_data(state);
                         state = NULL;
                     }
                     else if ((state->configPassedThroughUsername = buildConfigForUsername(upperConfig)) == NULL)
                     {
-                        STRING_delete(state->hostAddress);
-                        mqtt_client_deinit(state->mqttClient);
-                        STRING_delete(state->devicesPath);
-                        STRING_delete(state->topic_MqttEvent);
-                        STRING_delete(state->device_id);
-                        retry_control_destroy(state->retry_control_handle);
-                        tickcounter_destroy(state->msgTickCounter);
-                        free(state);
+                        free_transport_handle_data(state);
                         state = NULL;
                     }
                     else
@@ -1890,6 +1983,7 @@ static PMQTTTRANSPORT_HANDLE_DATA InitializeTransportHandleData(const IOTHUB_CLI
                         state->waitingToSend = waitingToSend;
                         state->currPacketState = CONNECT_TYPE;
                         state->keepAliveValue = DEFAULT_MQTT_KEEPALIVE;
+                        state->connect_timeout_in_sec = DEFAULT_CONNACK_TIMEOUT;
                         state->connectFailCount = 0;
                         state->connectTick = 0;
                         state->topic_MqttMessage = NULL;
@@ -1901,6 +1995,7 @@ static PMQTTTRANSPORT_HANDLE_DATA InitializeTransportHandleData(const IOTHUB_CLI
                         srand((unsigned int)get_time(NULL));
                         state->authorization_module = auth_module;
                         state->isProductInfoSet = false;
+                        state->option_sas_token_lifetime_secs = SAS_TOKEN_DEFAULT_LIFETIME;
                     }
                 }
             }
@@ -2013,26 +2108,9 @@ void IoTHubTransport_MQTT_Common_Destroy(TRANSPORT_LL_HANDLE handle)
             free(mqtt_device_twin);
         }
 
-        STRING_delete(transport_data->devicesPath);
-
         /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_07_014: [IoTHubTransport_MQTT_Common_Destroy shall free all the resources currently in use.] */
-        mqtt_client_deinit(transport_data->mqttClient);
-        retry_control_destroy(transport_data->retry_control_handle);
-        STRING_delete(transport_data->topic_MqttEvent);
-        STRING_delete(transport_data->topic_MqttMessage);
-        STRING_delete(transport_data->device_id);
-        STRING_delete(transport_data->hostAddress);
-        STRING_delete(transport_data->configPassedThroughUsername);
-        STRING_delete(transport_data->topic_GetState);
-        STRING_delete(transport_data->topic_NotifyState);
-        STRING_delete(transport_data->topic_DeviceMethods);
-
-        set_saved_tls_options(transport_data, NULL);
-
-        tickcounter_destroy(transport_data->msgTickCounter);
         /* Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_01_012: [ `IoTHubTransport_MQTT_Common_Destroy` shall free the stored proxy options. ]*/
-        free_proxy_data(transport_data);
-        free(transport_data);
+        free_transport_handle_data(transport_data);
     }
 }
 
@@ -2572,6 +2650,22 @@ IOTHUB_CLIENT_RESULT IoTHubTransport_MQTT_Common_SetOption(TRANSPORT_LL_HANDLE h
         {
             transport_data->raw_trace = *((bool*)value);
             mqtt_client_set_trace(transport_data->mqttClient, transport_data->log_trace, transport_data->raw_trace);
+            result = IOTHUB_CLIENT_OK;
+        }
+        /* Codes_SRS_IOTHUB_TRANSPORT_MQTT_COMMON_07_052: [ If the option parameter is set to "sas_token_lifetime" then the value shall be a size_t_ptr and the value will determine the mqtt sas token lifetime.] */
+        else if (strcmp(OPTION_SAS_TOKEN_LIFETIME, option) == 0)
+        {
+            size_t* sas_lifetime = (size_t*)value;
+            transport_data->option_sas_token_lifetime_secs = *sas_lifetime;
+            result = IOTHUB_CLIENT_OK;
+        }
+        else if (strcmp(OPTION_CONNECTION_TIMEOUT, option) == 0)
+        {
+            int* connection_time = (int*)value;
+            if (*connection_time != transport_data->connect_timeout_in_sec)
+            {
+                transport_data->connect_timeout_in_sec = (uint16_t)(*connection_time);
+            }
             result = IOTHUB_CLIENT_OK;
         }
         else if (strcmp(OPTION_KEEP_ALIVE, option) == 0)

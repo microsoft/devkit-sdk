@@ -11,6 +11,10 @@ const constants = {
 	packageOrigin: path.join(__dirname, `../TestResult/AZ3166-{version}.${process.env.BUILD_NUMBER}.zip`),
 	versionFile: path.join(__dirname, '../system_version.txt'),
 	
+	devkitTaskDir: path.join(__dirname, '../devkit_task_win'),
+	invalidFolderForTask: path.join(__dirname, '../devkit_task_win/tools'),
+	devkitTaskDestDir: path.join(__dirname, `../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}/devkit_task_win_{version}.${process.env.BUILD_NUMBER}`),
+	
     devkitDirForWin: path.join(__dirname, '../devkit_install_win'),
 	packageDestForWin : path.join(__dirname, '../devkit_install_win/tools/staging/AZ3166-{version}.zip'),
 	toolsOriginForWin: path.join(__dirname, '../Tools/win'),		
@@ -34,7 +38,9 @@ const command = {
 		
     zipFinalForWin: `7z a -r ../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_win/*`,
 
-	zipFinalForMac: `7z a -r ../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_mac/*`
+	zipFinalForMac: `7z a -r ../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_mac/*`,
+	
+	zipTaskFinal: `7z a -r ../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}.zip ../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}/*`
 };
 
 const timeout = 600 * 1000;
@@ -56,6 +62,9 @@ export function removeDevKitInstall() {
 	
 	fsExtra.removeSync(constants.devkitDirForMac);
     fsExtra.mkdirSync(constants.devkitDirForMac);
+	
+	fsExtra.removeSync(constants.devkitTaskDir);
+    fsExtra.mkdirSync(constants.devkitTaskDir);
 }
 
 export function copyScripts() {
@@ -65,6 +74,7 @@ export function copyScripts() {
         if (['node_modules', '.git', '.gitignore', 'LICENSE', 'README.md', 'src'].indexOf(files[i]) === -1) {
             fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitDirForWin, files[i]));
 			fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitDirForMac, files[i]));
+			fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitTaskDir, files[i]));
         }
     }
 }
@@ -97,11 +107,23 @@ export function copyToolChain() {
 export function removeInvalidFiles()
 {
 	console.log('remove invalid files');
-	fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));
+	fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));	
 	fsExtra.removeSync(constants.invalidFolderForWin);
 	 
-	fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));
+	fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));	
 	fsExtra.removeSync(constants.invalidFolderForMac);
+	
+	fsExtra.removeSync(path.join(constants.devkitTaskDir, 'install.cmd'));
+	fsExtra.removeSync(path.join(constants.devkitTaskDir, 'install.sh'));
+	fsExtra.removeSync(constants.invalidFolderForTask);	
+}
+
+export function copyTaskFolder() {
+    console.log('copy task folder');
+    let files = fsExtra.readdirSync(constants.devkitTaskDir);
+    for (let i = 0; i < files.length; ++i) {
+        fsExtra.copySync(path.join(constants.devkitTaskDir, files[i]), path.join(constants.devkitTaskDestDir.replace(new RegExp("{version}","gm"),versionInfo), files[i]));
+    }	
 }
 
 export function updateSerialPort()
@@ -109,7 +131,7 @@ export function updateSerialPort()
 	console.log('update serialPort');	 
 	 	 
 	var winFile = require(constants.jsonFileDirForWin);	  
-	winFile.dependencies["serialport"] = "^4.0.7";
+	winFile.dependencies["serialport"] = "^6.0.4";
 	 
 	var winDest = JSON.stringify(winFile, null, 2);
 	fs.writeFile(constants.jsonFileDirForWin, winDest);
@@ -118,8 +140,7 @@ export function updateSerialPort()
 	macFile.dependencies["serialport"] = "^6.0.3";
 	 
 	var macDest = JSON.stringify(macFile, null, 2);
-	fs.writeFile(constants.jsonFileDirForMac, macDest);
-	  
+	fs.writeFile(constants.jsonFileDirForMac, macDest);	  
 }
  
 export async function zipFinal() {
@@ -138,4 +159,5 @@ export async function zipFinal() {
 
 	await util.execStdout(command.zipFinalForMac.replace("{version}",versionInfo), timeout);
     await util.execStdout(command.zipFinalForWin.replace("{version}",versionInfo), timeout);
+	await util.execStdout(command.zipTaskFinal.replace(new RegExp("{version}","gm"),versionInfo), timeout);
 }
