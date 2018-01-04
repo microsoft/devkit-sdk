@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
-#include "Arduino.h"
 #include "mbed.h"
 #include "EMW10xxInterface.h"
 #include "SystemVariables.h"
@@ -24,8 +23,6 @@ int GetMACWithoutColon(char* buff)
             buff[j++] = (mac[i] >= 'A' && mac[i] <= 'Z') ?  (mac[i] - 'A' + 'a') : mac[i];
         }
     }
-
-    Serial.printf("DevKit MAC address: %s\r\n", buff);
 
     return j;
 }

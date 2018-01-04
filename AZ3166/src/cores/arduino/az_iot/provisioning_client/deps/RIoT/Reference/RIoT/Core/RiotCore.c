@@ -93,9 +93,14 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     char * realRegistrationId;
 
     if (regIdLength == 0){
+        char * macAddress[24] = { "\0" };
+        GetMACWithoutColon(macAddress);
+        LogInfo("DevKit MAC Address: %s", macAddress);
+
         char * boardId = GetBoardID();
         char * fmVersion = getDevkitVersion();
         LogInfo("DevKit Firmware Version: %s", fmVersion);
+
         char generatedRegistrationId[AUTO_GEN_REGISTRATION_ID_MAX_LENGTH] = { "\0" };
         snprintf(generatedRegistrationId, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH, "%sv%s", boardId, fmVersion);
         
@@ -130,7 +135,6 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
         realRegistrationId = strdup(RegistrationId);
     }
 
-    LogInfo("realRegistrationId = %s", realRegistrationId);
     x509AliasTBSData.SubjectCommon = realRegistrationId;
 
     // Validate Compound Device Identifier, pointer and length
