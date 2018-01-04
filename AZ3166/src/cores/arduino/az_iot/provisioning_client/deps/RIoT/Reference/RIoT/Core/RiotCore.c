@@ -67,7 +67,7 @@ char * RIoTGetDeviceCert(unsigned int *len)
 RIOT_X509_TBS_DATA x509AliasTBSData = { { 0x0A, 0x0B, 0x0C, 0x0D, 0x0E },
                                        "devkitdice", "DEVKIT_TEST", "US",
                                        "170101000000Z", "370101000000Z",
-                                       "devkitriotcore", "DEVKIT_TEST", "US" };
+                                       NULL, "DEVKIT_TEST", "US" };
 
 // The static data fields that make up the DeviceID Cert "to be signed" region
 RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
@@ -90,25 +90,26 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
 
     // Verify registrationId input and given an empty input, generate one based on MAC address and firmware version of your DevKit
     int regIdLength = strlen(RegistrationId);
+    char * realRegistrationId;
+
     if (regIdLength == 0){
-        char * registrationId = (char*)malloc(AUTO_GEN_REGISTRATION_ID_MAX_LENGTH);
-        memset(registrationId, 0, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH);
-        char * macAddress = GetBoardID();
+        char * boardId = GetBoardID();
         char * fmVersion = getDevkitVersion();
         LogInfo("DevKit Firmware Version: %s", fmVersion);
-        snprintf(registrationId, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH, "%sv%s", macAddress, fmVersion);
+        char generatedRegistrationId[AUTO_GEN_REGISTRATION_ID_MAX_LENGTH] = { "\0" };
+        snprintf(generatedRegistrationId, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH, "%sv%s", boardId, fmVersion);
         
-        for(int i = 0; i < strlen(registrationId); i++){
-            if(registrationId[i] == '.'){
-                registrationId[i] = 'v';
+        for(int i = 0; i < strlen(generatedRegistrationId); i++){
+            if(generatedRegistrationId[i] == '.'){
+                generatedRegistrationId[i] = 'v';
             }
         }
 
         // Update subject common of alias certificate TBD data to auto-generated registration Id
-        x509AliasTBSData.SubjectCommon = registrationId;
+        realRegistrationId = strdup(generatedRegistrationId);
     }
     else if (regIdLength > REGISTRATION_ID_MAX_LENGTH){
-        LogError("Input value for registrationId in DPS.ino exceeds maximum.");
+        LogError("Input value for registrationId in DPS.ino exceeds maximum length %d.", REGISTRATION_ID_MAX_LENGTH);
         status = RIOT_INVALID_DEVICE_ID;
         return status;
     }
@@ -126,8 +127,11 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
             }
         }
         // Update subject common of alias certificate TBD data to input registration Id
-        x509AliasTBSData.SubjectCommon = RegistrationId;
+        realRegistrationId = strdup(RegistrationId);
     }
+
+    LogInfo("realRegistrationId = %s", realRegistrationId);
+    x509AliasTBSData.SubjectCommon = realRegistrationId;
 
     // Validate Compound Device Identifier, pointer and length
     if (!(CDI) || (CDILen != RIOT_DIGEST_LENGTH)) {
@@ -312,6 +316,8 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     g_DICertLen = length;
     
     // Clean up sensative data
+    //free(x509AliasTBSData);
+    //free(realRegistrationId);
     memset(&deviceIDPriv, 0, sizeof(RIOT_ECC_PRIVATE));
 
     // Display info for Alias Key Certificate

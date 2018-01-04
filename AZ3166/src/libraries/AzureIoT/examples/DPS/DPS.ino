@@ -11,11 +11,11 @@
 #include "utility.h"
 
 // Input DPS instance info
-char* Global_Device_Endpoint = "[Global_Device_Endpoint]";
-char* ID_Scope = "[ID_Scope]";
+char* Global_Device_Endpoint = "global.azure-devices-provisioning.net";
+char* ID_Scope = "0ne00000045";
 
 // Input your preferrred registrationId and only alphanumeric, lowercase, and hyphen are supported with maximum 128 characters long.
-// If you leave it blank, one registrationId based on MAC address and firmware version on your DevKit
+// If you leave it blank, one registrationId would be auto-generated based on MAC address and firmware version on your DevKit.
 char* registrationId = "";
 
 // UDS bytes for DICE|RIoT calculation
@@ -184,7 +184,7 @@ void setup() {
   }
 
   // Transfer control to firmware
-  if(DPSClientStart(Global_Device_Endpoint, ID_Scope, registrationId))
+  if(DPSClientStart(Global_Device_Endpoint, ID_Scope))
   {
     Screen.print(2, "DPS connected!\r\n");
   }
