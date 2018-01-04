@@ -316,8 +316,6 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     g_DICertLen = length;
     
     // Clean up sensative data
-    //free(x509AliasTBSData);
-    //free(realRegistrationId);
     memset(&deviceIDPriv, 0, sizeof(RIOT_ECC_PRIVATE));
 
     // Display info for Alias Key Certificate
