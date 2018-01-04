@@ -370,7 +370,7 @@ int main()
 	}
 	startBin = (uint8_t*)resultAddress;
 
-	// Initilize the value of riot attributes stuff
+	// Initialize the value of riot attributes stuff
 	resultAddress = findAddressInMapFile(startRiotCoreName);
 	if (resultAddress == 0)
 	{
