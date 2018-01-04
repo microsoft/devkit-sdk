@@ -9,6 +9,7 @@
 
 // User inputs
 char *udsString;
+char *registrationId;
 char *macAddress;
 char *firmwareVer;
 
@@ -18,6 +19,8 @@ const char *mapFileFullPath = ".\\DPS.ino.map";
 
 // Settings
 uint32_t udsStringLength = 64;
+uint32_t registrationIdMaxLength = 128;
+uint32_t autoGenRegistrationIdMaxLength = 32;
 uint32_t macAddressLength = 12;
 uint32_t elementSize = 1; //bytes
 uint32_t aliasCertSize = 1024; //bytes
@@ -99,13 +102,15 @@ static char* get_user_input(const char* text_value, int max_len)
 // Validate user input data sanity
 static int udsStringValidated()
 {
-	if (udsString == NULL)
+	// Check length
+	int length = strlen(udsString);
+
+	if (length == 0)
 	{
 		printf("udsString can NOT be NULL.\r\n");
 		return 1;
 	}
-	// Check length
-	int length = strlen(udsString);
+
 	if (length != udsStringLength)
 	{
 		printf("udsString must be %d in length but your input length is %d.\r\n", udsStringLength, length);
@@ -135,6 +140,34 @@ static int udsStringValidated()
 	return 0;
 }
 
+static int registrationIdValidated()
+{
+	// Check length
+	int length = strlen(registrationId);
+	if (length > registrationIdMaxLength)
+	{
+		printf("registrationId must be shorter than %d in length but your input length is %d.\r\n", registrationIdMaxLength, length);
+		return 1;
+	}
+
+	// Check each character
+	for (int i = 0; i < length; i++)
+	{
+		if ((registrationId[i] >= 'a' && registrationId[i] <= 'z')
+			|| (registrationId[i] >= '0' && registrationId[i] <= '9')
+			|| (registrationId[i] == '-')
+			) {
+			continue;
+		}
+		else {
+			printf("Input value for registrationId in DPS.ino does not meet DPS requirements - only alphanumeric, lowercase, and hyphen are supported.\r\n");
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 static int macAddressValidated()
 {
 	// Check length
@@ -149,7 +182,8 @@ static int macAddressValidated()
 
 static int firmwareVerValidated()
 {
-	if (firmwareVer == NULL)
+	int length = strlen(firmwareVer);
+	if (length == 0)
 	{
 		printf("firmwareVer can NOT be NULL.\r\n");
 		return 1;
@@ -163,7 +197,7 @@ static int firmwareVerValidated()
 	memset(element, 0, 2);
 	int badCharCount = 0;
 
-	for (int i = 0; i < strlen(firmwareVer); i++)
+	for (int i = 0; i < length; i++)
 	{
 		element[0] = firmwareVer[i];
 		if (element[0] == '.') {
@@ -204,9 +238,9 @@ static int fileFullPathValidated(const char * fileFullPath)
 	return 0;
 }
 
-static int validateUserInputData()
+static int validateInputFiles()
 {
-	if (udsStringValidated() || macAddressValidated() || firmwareVerValidated() || fileFullPathValidated(binFileFullPath) || fileFullPathValidated(mapFileFullPath))
+	if (fileFullPathValidated(binFileFullPath) || fileFullPathValidated(mapFileFullPath))
 	{
 		return 1;
 	}
@@ -216,13 +250,16 @@ static int validateUserInputData()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Prepare DICE|RIOT data
-static int getRegistrationId(char * registrationId)
+static int getRegistrationId()
 {
 	for (int i = 0; i < strlen(firmwareVer); i++) {
 		if (firmwareVer[i] == '.') {
 			firmwareVer[i] = 'v';
 		}
 	}
+
+	//registrationId = (char*)malloc(autoGenRegistrationIdMaxLength);
+	//memset(registrationId, 0, autoGenRegistrationIdMaxLength);
 	return sprintf(registrationId, "az-%sv%s", macAddress, firmwareVer);
 }
 
@@ -341,24 +378,46 @@ int main()
 {
 	int result = 0;
 
-	// Get user input
-	udsString = get_user_input("Input the UDS you saved into security chip of your DevKit: ", 64);
-	macAddress = get_user_input("Input the Mac Address on your DevKit: ", 12);
-	firmwareVer = get_user_input("Input the firmware version of the program running on your DevKit: ", 5);
-
-	// Check sanity of input data
-	if (validateUserInputData() != 0)
-	{
+	// Check sanity of input files - .bin and .map
+	if (validateInputFiles() != 0) {
 		result = 1;
 		goto EXIT;
 	}
 
-	// Prepare UDS from udsString
-	getUDSBytesFromString();
+	// Get user input
+	udsString = get_user_input("Input the UDS you saved into security chip of your DevKit: ", 64);
+	if (udsStringValidated() != 0) {
+		result = 1;
+		goto EXIT;
+	}
+	else {
+		// Prepare UDS from udsString
+		getUDSBytesFromString();
+	}
 
-	// Get desired firmware version and device's registration Id
-	char registrationId[32] = { '\0' };
-	getRegistrationId(registrationId);
+	registrationId = get_user_input("Input your preferred registrationId as you input in DPS.ino: ", 128);
+	if (strlen(registrationId) == 0) {
+		macAddress = get_user_input("Input the Mac Address on your DevKit: ", 12);
+		if (macAddressValidated() != 0) {
+			result = 1;
+			goto EXIT;
+		}
+		firmwareVer = get_user_input("Input the firmware version of the program running on your DevKit: ", 5);
+		if (firmwareVerValidated() != 0) {
+			result = 1;
+			goto EXIT;
+		}
+
+		// Get desired firmware version and device's registration Id
+		//char autoGenRegistrationId[32] = { '\0' };
+		getRegistrationId();
+	}
+	else {
+		if (registrationIdValidated()) {
+			result = 1;
+			goto EXIT;
+		}
+	}
 
 	// Get start address of flash from .bin file
 	unsigned long int resultAddress;
@@ -370,7 +429,7 @@ int main()
 	}
 	startBin = (uint8_t*)resultAddress;
 
-	// Initialize the value of riot attributes stuff
+	// Initilize the value of riot attributes stuff
 	resultAddress = findAddressInMapFile(startRiotCoreName);
 	if (resultAddress == 0)
 	{
