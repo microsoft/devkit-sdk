@@ -58,7 +58,10 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 	$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$FirmwareFileName"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob $FirmwareFileName -Force
 
-
+	# Upload task package
+	$TaskPackageName = "devkit_task_win_" + $CurrentVersionWithBuildNumber + ".zip"
+	$TaskPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$TaskPackageName"
+	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $TaskPackageFilePath -Blob "$PackageContainerForWin\$TaskPackageName" -Force
 
 	#################################################################################
 	# Step 2: Calculate package MD5 checksum and upload this MD5 info to Azure Blob #
