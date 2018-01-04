@@ -88,8 +88,46 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     uint32_t            length;
     uint32_t            dcType;
 
-    // Update subject common of alias certificate TBD data to input registration Id
-    x509AliasTBSData.SubjectCommon = RegistrationId;
+    // Verify registrationId input and given an empty input, generate one based on MAC address and firmware version of your DevKit
+    int regIdLength = strlen(RegistrationId);
+    if (regIdLength == 0){
+        char * registrationId = (char*)malloc(AUTO_GEN_REGISTRATION_ID_MAX_LENGTH);
+        memset(registrationId, 0, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH);
+        char * macAddress = GetBoardID();
+        char * fmVersion = getDevkitVersion();
+        LogInfo("DevKit Firmware Version: %s", fmVersion);
+        snprintf(registrationId, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH, "%sv%s", macAddress, fmVersion);
+        
+        for(int i = 0; i < strlen(registrationId); i++){
+            if(registrationId[i] == '.'){
+                registrationId[i] = 'v';
+            }
+        }
+
+        // Update subject common of alias certificate TBD data to auto-generated registration Id
+        x509AliasTBSData.SubjectCommon = registrationId;
+    }
+    else if (regIdLength > REGISTRATION_ID_MAX_LENGTH){
+        LogError("Input value for registrationId in DPS.ino exceeds maximum.");
+        status = RIOT_INVALID_DEVICE_ID;
+        return status;
+    }
+    else{
+        for (int i = 0; i < regIdLength; i++){
+            if ((RegistrationId[i] >= 'a' && RegistrationId[i] <= 'z') 
+            || (RegistrationId[i] >= '0' && RegistrationId[i] <= '9') 
+            || (RegistrationId[i] == '-')){
+                continue;
+            }
+            else{
+                LogError("Input value for registrationId in DPS.ino does not meet DPS requirements - only alphanumeric, lowercase, and hyphen are supported.");
+                status = RIOT_INVALID_DEVICE_ID;
+                return status;
+            }
+        }
+        // Update subject common of alias certificate TBD data to input registration Id
+        x509AliasTBSData.SubjectCommon = RegistrationId;
+    }
 
     // Validate Compound Device Identifier, pointer and length
     if (!(CDI) || (CDILen != RIOT_DIGEST_LENGTH)) {

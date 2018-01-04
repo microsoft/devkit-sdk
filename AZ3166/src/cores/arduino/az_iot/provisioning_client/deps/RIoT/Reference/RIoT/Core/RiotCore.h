@@ -15,6 +15,9 @@ extern "C" {
 #include "RiotDerEnc.h"
 #include "RiotX509Bldr.h"
 
+#define REGISTRATION_ID_MAX_LENGTH 128
+#define AUTO_GEN_REGISTRATION_ID_MAX_LENGTH 32
+
 char * __attribute__((section(".riot_core"))) RIoTGetDeviceID(unsigned int *len);
 char * __attribute__((section(".riot_core"))) RIoTGetAliasKey(unsigned int *len);
 char * __attribute__((section(".riot_core"))) RIoTGetAliasCert(unsigned int *len);
