@@ -686,7 +686,7 @@ big_mpyP(bigval_t *tgt, bigval_t const *a, bigval_t const *b,
 
         int64_t carry;
 
-        // convert to 32 bit values, except for most signifiant word
+        // convert to 32 bit values, except for most significant word
         carry = 0;
         for (i = 0; i < 2 * BIGLEN - 1; ++i) {
             w[i] += carry;
@@ -1794,7 +1794,7 @@ RIOT_DSASignDigest(const uint8_t *digest, const ecc_privatekey *signingPrivateKe
 // @param signingPrivateKey The signing private key
 // @param sig The output signature
 // @return  - RIOT_SUCCESS if the signine process succeeds
-//          - RIOT_FAILURE otherwisw
+//          - RIOT_FAILURE otherwise
 RIOT_STATUS
 RIOT_DSASign(const uint8_t *buf, uint16_t len, const ecc_privatekey *signingPrivateKey, ecc_signature *sig)
 {

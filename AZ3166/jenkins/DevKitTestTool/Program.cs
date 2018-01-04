@@ -125,6 +125,10 @@
                         UpdateBoardManagerUrl();
                         break;
 
+                    case "UpdatePlatformTxT":
+                        UpdatePlatformTxt();
+                        break;
+
                     default:
                         Console.WriteLine("Done");
                         break;
@@ -589,6 +593,20 @@
 
             content = content.Replace("BOARD_URL_PLACEHOLDER", newUrl);
             Console.WriteLine($"Set board manager URL to {newUrl}");
+
+            File.WriteAllText(filePath, content);
+        }
+
+        private static void UpdatePlatformTxt()
+        {
+            string filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["PlatformTxT"]);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Failed to find the platform.txt, file path: {filePath}");
+            }
+
+            string content = File.ReadAllText(filePath);
+            content = content.Replace("--start-group {object_files}", "--start-group {object_files} -laz_iot");
 
             File.WriteAllText(filePath, content);
         }
