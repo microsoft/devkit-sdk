@@ -50,7 +50,7 @@ public:
 	*                               {3, 5, 10} are used for wifi and iot hub connection string. {0, 2, 6} are reserved for later mini solutions.
 	*                               So we recommend user to use {7, 8}
 	*
-	* @return   Return 0 on success, otherwise return -1. The failure might be caused by input dataSize bigger than data zone could write.
+	* @return   Return read buffer size on success, otherwise return -1.
 	*/
 	int read(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex);
 
