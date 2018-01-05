@@ -92,7 +92,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     int regIdLength = strlen(RegistrationId);
     char * realRegistrationId;
 
-    if (regIdLength == 0){
+    if (RegistrationId == NULL || regIdLength == 0){
         char * macAddress[24] = { "\0" };
         GetMACWithoutColon(macAddress);
         LogInfo("DevKit MAC Address: %s", macAddress);

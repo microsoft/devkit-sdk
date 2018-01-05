@@ -6,7 +6,7 @@
 #include "SystemTickCounter.h"
 #include "SystemWiFi.h"
 #include "Telemetry.h"
-#include "DPSClient.h"
+#include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
 
 #define CONNECT_TIMEOUT_MS 30000
@@ -458,9 +458,9 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     if (is_iothub_from_dps)
     {
         // Use DPS
-        iothub_hostname = DPSGetIoTHubURI();
-        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DPSGetDeviceID(), MQTT_Protocol);
-        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", DPSGetIoTHubURI(), DPSGetDeviceID(), iotHubClientHandle);
+        iothub_hostname = DevkitDPSGetIoTHubURI();
+        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DevkitDPSGetDeviceID(), MQTT_Protocol);
+        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", iothub_hostname, DevkitDPSGetDeviceID(), iotHubClientHandle);
     }
     else
     {
