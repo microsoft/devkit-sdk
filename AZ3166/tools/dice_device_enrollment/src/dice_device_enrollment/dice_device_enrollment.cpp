@@ -2,6 +2,8 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <iostream>
 #include <ctype.h>
 #include <stdbool.h>
 #include "DiceCore.h"
@@ -59,42 +61,17 @@ static char* get_user_input(const char* text_value, int max_len)
 	}
 	else
 	{
-		int index = 0;
-		memset(result, 0, max_len + 1);
 		printf("%s", text_value);
-		// trim the leading spaces
-		while (1)
-		{
-			int c = getchar();
-			if (c == EOF || c == 0xA)
-				break;
-			if (!isspace(c))
-			{
-				ungetc(c, stdin);
-				break;
-			}
+		std::string input;
+		std::getline(std::cin, input);
+		int index = 0, inputIndex = 0;
+		while (inputIndex < input.length() && isspace(input[inputIndex])) ++inputIndex;
+		while (index < max_len && inputIndex < input.length()) {
+			result[index++] = input[inputIndex++];
 		}
-
-		while (1)
-		{
-			int input = getchar();
-			if (isspace(input) || input == EOF || input == 0xA)
-			{
-				break;
-			}
-			result[index++] = (char)input;
-			if (index == max_len)
-			{
-				// Will need to clear out the remaining buffer
-				while (input != EOF && input != 0xA)
-				{
-					input = getchar();
-				}
-				break;
-			}
-		}
+		result[index] = 0;
+		return result;
 	}
-	return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -392,7 +369,7 @@ int main()
 		getUDSBytesFromString();
 	}
 
-	registrationId = get_user_input("Input your preferred registrationId as you input in DPS.ino: ", 128);
+	registrationId = get_user_input("Input your preferred registrationId as you input in DPS.ino(Click Enter to skip if no registrationId provided in DPS.ino): ", 128);
 	if (strlen(registrationId) == 0) {
 		macAddress = get_user_input("Input the Mac Address on your DevKit: ", 12);
 		if (macAddressValidated() != 0) {
