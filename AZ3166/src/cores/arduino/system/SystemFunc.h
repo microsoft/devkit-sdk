@@ -8,6 +8,9 @@
 extern "C"{
 #endif  // __cplusplus
 
+/**
+* @brief	Reboot the system.
+*/
 void SystemReboot(void);
 
 #ifdef __cplusplus
