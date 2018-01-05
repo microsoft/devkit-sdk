@@ -3,9 +3,7 @@
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
-#include "DPSClient.h"
-#include "DiceRIoT.h"
-#include "DiceCore.h"
+#include "DevkitDPSClient.h"
 
 #include "config.h"
 #include "utility.h"
@@ -18,54 +16,11 @@ char* ID_Scope = "[ID_Scope]";
 // If you leave it blank, one registrationId would be auto-generated based on MAC address and firmware version on your DevKit.
 char* registrationId = "";
 
-// UDS bytes for DICE|RIoT calculation
-uint8_t udsBytes[DICE_UDS_LENGTH] = { 0 };
-
 // Indicate whether WiFi is ready
 static bool hasWifi = false;
 int messageCount = 1;
 static bool messageSending = true;
 static uint64_t send_interval_ms;
-
-EEPROMInterface eeprom;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Utilities
-static int getUDSBytesFromString()
-{
-  uint8_t udsString[DPS_UDS_MAX_LEN + 1] = { '\0' };
-  int ret = eeprom.read(udsString, DPS_UDS_MAX_LEN, 0x00, DPS_UDS_ZONE_IDX);
-
-  if (ret < 0)
-  { 
-      LogError("Unable to get DPS UDS string from EEPROM. Please set the value in configuration mode.");
-      return 1;
-  }
-  else if (ret == 0)
-  {
-      LogError("The DPS UDS string is empty.\r\nPlease set the value in configuration mode.");
-      return 1;
-  }
-  else if (ret < DPS_UDS_MAX_LEN)
-  {
-      LogError("The length of DPS UDS string must be 64.\r\nPlease set the value with correct length in configuration mode.");
-      return 1;
-  }
-	char element[2];
-	unsigned long int resLeft;
-	unsigned long int resRight;
-
-	memset(element, 0, 2);
-	for (int i = 0; i < (DPS_UDS_MAX_LEN/2); i++) {
-		element[0] = udsString[i * 2];
-		resLeft = strtoul(element, NULL, 16);
-		element[0] = udsString[i * 2 + 1];
-		resRight = strtoul(element, NULL, 16);
-		udsBytes[i] = (resLeft << 4) + resRight;
-	}
-
-  return 0;
-}
 
 static void InitWiFi()
 {
@@ -151,9 +106,6 @@ void setup() {
   Screen.print(0, "IoT DevKit");
   Screen.print(2, "Initializing...");
 
-  Screen.print(3, " > Serial");
-  Serial.begin(115200);
-  
   // Initialize the WiFi module
   Screen.print(3, " > WiFi");
   hasWifi = false;
@@ -163,28 +115,14 @@ void setup() {
     return;
   }
 
+  // Initialize the sensor module
   Screen.print(3, " > Sensors");
   SensorInit();
 
   Screen.print(3, " > DPS");
-  Screen.print(3, " > DPS");
-
-  // Prepare UDS Bytes
-  if(getUDSBytesFromString() != 0)
-  {
-      LogError("Getting DPS UDS failure.");
-      return;
-  }
-
-  // Transfer control to DICE|RIoT
-  if(DiceRIoTStart(registrationId) != 0)
-  {
-      LogError("Untrusted device.");
-      return;
-  }
 
   // Transfer control to firmware
-  if(DPSClientStart(Global_Device_Endpoint, ID_Scope))
+  if(DevkitDPSClientStart(Global_Device_Endpoint, ID_Scope))
   {
     Screen.print(2, "DPS connected!\r\n");
   }
