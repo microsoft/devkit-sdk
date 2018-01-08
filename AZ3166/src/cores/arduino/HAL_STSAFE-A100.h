@@ -9,7 +9,7 @@
  * @attention
  * Ultimate Liberty License Agreement v.1 for use of STSAFE-A software in Microsoft Azure IoT Developer Kit
  *
- * Copyright © 2017 STMicroelectronics International N.V.. All rights reserved.
+ * Copyright Â© 2017 STMicroelectronics International N.V.. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted, provided that the following conditions are met:
  *
@@ -54,7 +54,7 @@ extern "C"
  * This command must be executed one time before using other HAL functions
  * It set communication with STSAFE-A100, verify if STSAFE-A100 is personalized or not
  *
- * \param in  : i2c_address : i2c adress of STSAFE-A100
+ * \param in  : i2c_address : i2c address of STSAFE-A100
  * \param out : handle_se : Handle for STSAFE-A100
  * \return 0 if no error else 1
  *
@@ -80,7 +80,7 @@ uint8_t Init_HAL(uint8_t i2c_address,void **handle_se);
  * 			   pcrop_enable=1 => pcrop is enabled on dedicated sector
  *
  *
- * \param in : buff : Buffer which countains host keys Only used if perso_type=2
+ * \param in : buff : Buffer which contains host keys Only used if perso_type=2
  *
  * \return 0 if no error else 1
  *
@@ -121,7 +121,7 @@ uint8_t HAL_Store_Data_Zone (void *handle_se,uint8_t zone,uint16_t size,uint8_t*
  * \brief Store data encrypted in STSAFE-A100
  *
  * This command allow to store data encrypted inside zone
- * Max datas that could be stored is 480 bytes
+ * Max data that could be stored is 480 bytes
  *
  * \param in : handle_se : Handle for STSAFE-A100
  * \param in : zone : zone number
@@ -131,7 +131,7 @@ uint8_t HAL_Store_Data_Zone (void *handle_se,uint8_t zone,uint16_t size,uint8_t*
  *
  * Warning : Writing X bytes to Y offset inside an envelope result of writing 8+X bytes at offset Y
  *
- * Exemple of write and read data's within envelope at contiguous offset
+ * Example of write and read data's within envelope at contiguous offset
  * StatusCode=HAL_Store_Data_WithinEnvelop(handle_se,8,480,Array_1,0);
  * StatusCode=HAL_Store_Data_WithinEnvelop(handle_se,ZONE_DATA,100,Array_2,480+8);
  * StatusCode=HAL_Get_Data_WithinEnvelop(handle_se,ZONE_DATA,480, Array_Out_1,0);
@@ -148,7 +148,7 @@ uint8_t HAL_Store_Data_WithinEnvelop (void *handle_se,uint8_t zone,uint16_t size
  * \brief Get data inside zone
  *
  * This command allow to get data encrypted inside STSAFE-A100
- * Max datas that could be retrieved  is 800 bytes
+ * Max data that could be retrieved  is 800 bytes
  *
  * \param in : handle_se : Handle for STSAFE-A100
  * \param in : zone      : zone number
@@ -161,10 +161,10 @@ uint8_t HAL_Store_Data_WithinEnvelop (void *handle_se,uint8_t zone,uint16_t size
 uint8_t HAL_Get_Data_Zone (void *handle_se,uint8_t zone,uint16_t size, uint8_t* buf, uint16_t offset);
 
 /*!
- * \brief Get datas encrypted inside zone
+ * \brief Get data encrypted inside zone
  *
- * This command allow to store datas encrypted inside STSAFE-A100
- * Max datas that could be retrieved  is 480 bytes
+ * This command allow to store data encrypted inside STSAFE-A100
+ * Max data that could be retrieved  is 480 bytes
  *
  * \param in : handle_se : Handle for STSAFE-A100
  * \param in : zone      : zone number
@@ -174,7 +174,7 @@ uint8_t HAL_Get_Data_Zone (void *handle_se,uint8_t zone,uint16_t size, uint8_t* 
  *
  * Warning : if another contiguous envelope was written in zone before, pay attention to read data adding 8 bytes to offset
  *
- * Exemple of write and read data's within envelope at contiguous offset
+ * Example of write and read data's within envelope at contiguous offset
  * StatusCode=HAL_Store_Data_WithinEnvelop(handle_se,8,480,Array_1,0);
  * StatusCode=HAL_Store_Data_WithinEnvelop(handle_se,ZONE_DATA,100,Array_2,480+8);
  * StatusCode=HAL_Get_Data_WithinEnvelop(handle_se,ZONE_DATA,480, Array_Out_1,0);
@@ -191,7 +191,7 @@ uint8_t HAL_Get_Data_WithinEnvelop (void *handle_se,uint8_t zone,uint16_t size, 
  *
  * This command set to 0x0 STSAFE-A100 zone
  *
- * Exemple : for size=5, it set first 5 bytes of zone to 0x0
+ * Example : for size=5, it set first 5 bytes of zone to 0x0
 
  * \param in : handle_se : Handle for STSAFE-A100
  * \param in : zone      : zone number

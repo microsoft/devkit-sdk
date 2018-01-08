@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 #include "mbed.h"
-#include "DPSClient.h"
-#include "DiceRIoT.h"
+#include "DevkitDPSClient.h"
+#include "DiceCore.h"
+#include "RiotCore.h"
+#include "EEPROMInterface.h"
 
 #include "iothub_client_version.h"
 
@@ -32,9 +34,64 @@ typedef struct IOTHUB_CLIENT_SAMPLE_INFO_TAG
 static CLIENT_SAMPLE_INFO user_ctx = { 0 };
 bool is_iothub_from_dps = false;
 static bool g_trace_on = true;
+extern void* __start_riot_core;
+extern void* __stop_riot_core;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Event handlers
+DICE_DATA DiceData = { 0 };
+DICE_CMPND_ID DiceCDI = { DICE_CMPND_TAG , { 0x00 } };
+DICE_UDS DiceUDS = { DICE_UDS_TAG, 0 };
+
+uint8_t* getUDSBytesFromString(char* udsString)
+{
+    if (strlen(udsString) != DPS_UDS_MAX_LEN)
+    {
+        return NULL;
+    }
+	uint8_t* udsBytes = (uint8_t*)malloc(DPS_UDS_MAX_LEN / 2 + 1);
+    char element[2];
+	unsigned long int resLeft;
+	unsigned long int resRight;
+
+	memset(element, 0, 2);
+	for (int i = 0; i < (DPS_UDS_MAX_LEN/2); i++) {
+		element[0] = udsString[i * 2];
+		resLeft = strtoul(element, NULL, 16);
+		element[0] = udsString[i * 2 + 1];
+		resRight = strtoul(element, NULL, 16);
+		udsBytes[i] = (resLeft << 4) + resRight;
+	}
+
+    return udsBytes;
+}
+
+char* readUDSString()
+{
+    uint8_t* udsString = (uint8_t*)malloc(DPS_UDS_MAX_LEN + 1);
+    EEPROMInterface eeprom;
+    int ret = eeprom.read(udsString, DPS_UDS_MAX_LEN, 0x00, DPS_UDS_ZONE_IDX);
+
+    if (ret < 0)
+    { 
+        LogError("Unable to get DPS UDS string from EEPROM. Please set the value in configuration mode.");
+        delete udsString;
+        return NULL;
+    }
+    else if (ret == 0)
+    {
+        LogError("The DPS UDS string is empty.\r\nPlease set the value in configuration mode.");
+        delete udsString;
+        return NULL;
+    }
+    else if (ret < DPS_UDS_MAX_LEN)
+    {
+        LogError("The length of DPS UDS string must be 64.\r\nPlease set the value with correct length in configuration mode.");
+        delete udsString;
+        return NULL;
+    }
+    udsString[DPS_UDS_MAX_LEN] = 0;
+    return (char *)udsString;
+}
+
 static void registation_status_callback(PROV_DEVICE_REG_STATUS reg_status, void* user_context)
 {
     if (user_context == NULL)
@@ -83,7 +140,53 @@ static void register_device_callback(PROV_DEVICE_RESULT register_result, const c
     }
 }
 
-bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* global_prov_uri, const char* id_scope, const char* registration_id, const char* proxy_address, int proxy_port)
+int DiceInit(char* udsString)
+{
+    if (udsString == NULL)
+    {
+        udsString = readUDSString();
+    }
+
+    uint8_t* udsBytes = getUDSBytesFromString(udsString);
+    if (udsBytes == NULL)
+    {
+        return -1;
+    }
+    for (int i = 0; i < DICE_UDS_LENGTH; i++) {
+        DiceUDS.bytes[i] = udsBytes[i];
+    }
+    delete udsBytes;
+
+    // Up-front sanity check
+    if (DiceUDS.tag != DICE_UDS_TAG) {
+        return -1;
+    }
+
+    // Initialize CDI structure
+    memset(&DiceCDI, 0x00, sizeof(DICE_CMPND_ID));
+    DiceCDI.tag = DICE_CMPND_TAG;
+
+    // Pointers to protected DICE Data
+    DiceData.UDS = &DiceUDS;
+    DiceData.CDI = &DiceCDI;
+
+    // Start of RIoT Invariant Code
+    DiceData.riotCore = (uint8_t*)&__start_riot_core;
+
+    // Calculate size of RIoT Core
+    if((DiceData.riotSize = (uint8_t*)&__stop_riot_core - DiceData.riotCore) == 0){
+        return -1;
+    }
+
+    #if logging
+        LogInfo("The riot_core start address: %p", &__start_riot_core);
+        LogInfo("The riot_core end address: %p", &__stop_riot_core);
+    #endif
+
+    return 0;
+}
+
+bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* global_prov_uri, const char* id_scope, const char* RegistrationId, char* udsString, const char* proxy_address, int proxy_port)
 {
     if (global_prov_uri == NULL)
     {
@@ -101,6 +204,30 @@ bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* global_prov
         return true;
     }
     
+    // Initialize DICE
+    if (DiceInit(udsString) != 0)
+    {
+        LogError("DiceInit failed! Check UDS string provided or set on configuration mode");
+        return false;
+    }
+
+    // Launch protected DICE code. This will measure RIoT Core, derive the
+    // CDI value. It must execute with interrupts disabled. Therefore, it
+    // must return so we can restore interrupt state.
+    if (DiceCore() != 0)
+    {
+        return false;
+    }
+
+    // If DiceCore detects an error condition, it will not enable access to
+    // the volatile storage segment. This attempt to transfer control to RIoT
+    // will trigger a system reset. We will not be able to proceed.
+    // TODO: DETECT WHEN A RESET HAS OCCURRED AND TAKE SOME ACTION.
+    if (RiotStart(DiceCDI.bytes, (uint16_t)DICE_DIGEST_LENGTH, RegistrationId) != 0)
+    {
+        return false;
+    }
+
     if (platform_init() != 0)
     {
         LogError("Failed to initialize the platform.");
@@ -170,12 +297,12 @@ bool __attribute__((section(".riot_fw"))) DPSClientStart(const char* global_prov
     return true;
 }
 
-char* DPSGetIoTHubURI(void)
+char* DevkitDPSGetIoTHubURI(void)
 {
     return (is_iothub_from_dps ? user_ctx.iothub_uri : NULL);
 }
 
-char* DPSGetDeviceID(void)
+char* DevkitDPSGetDeviceID(void)
 {
     return (is_iothub_from_dps ? user_ctx.device_id : NULL);
 }

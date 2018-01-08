@@ -56,7 +56,7 @@ int DiceCore(DICE_DATA DiceDataInput)
        return -1;
    }
 
-    // Clean up potentially sensative data
+    // Clean up potentially sensitive data
     _BZERO(vDigest, DICE_DIGEST_LENGTH);
     _BZERO(rDigest, DICE_DIGEST_LENGTH);
     _BZERO(&DiceHashCtx, sizeof(DiceHashCtx));

@@ -1,21 +1,21 @@
 // Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. 
+// Licensed under the MIT license.
 #include "EEPROMInterface.h"
 #include "DevKitMQTTClient.h"
 #include "SerialLog.h"
 #include "SystemTickCounter.h"
 #include "SystemWiFi.h"
 #include "Telemetry.h"
-#include "DPSClient.h"
+#include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
 
-#define CONNECT_TIMEOUT_MS          30000
-#define CHECK_INTERVAL_MS           5000
-#define MQTT_KEEPALIVE_INTERVAL_S   120
-#define SEND_EVENT_RETRY_COUNT      2
-#define EVENT_TIMEOUT_MS            10000
-#define EVENT_CONFIRMED             -2
-#define EVENT_FAILED                -3
+#define CONNECT_TIMEOUT_MS 30000
+#define CHECK_INTERVAL_MS 5000
+#define MQTT_KEEPALIVE_INTERVAL_S 120
+#define SEND_EVENT_RETRY_COUNT 2
+#define EVENT_TIMEOUT_MS 10000
+#define EVENT_CONFIRMED -2
+#define EVENT_FAILED -3
 
 static int callbackCounter;
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
@@ -35,7 +35,7 @@ static bool enableDeviceTwin = false;
 
 static uint64_t iothub_check_ms;
 
-static char* iothub_hostname = NULL;
+static char *iothub_hostname = NULL;
 
 extern bool is_iothub_from_dps;
 
@@ -60,19 +60,19 @@ static void CheckConnection()
     }
 }
 
-static void AZIoTLog(LOG_CATEGORY log_category, const char* file, const char* func, const int line, unsigned int options, const char* format, ...)
+static void AZIoTLog(LOG_CATEGORY log_category, const char *file, const char *func, const int line, unsigned int options, const char *format, ...)
 {
     va_list arg;
     char temp[64];
-    char* buffer = temp;
-    
+    char *buffer = temp;
+
     va_start(arg, format);
     size_t len = vsnprintf(temp, sizeof(temp), format, arg);
     va_end(arg);
-    
+
     if (len > sizeof(temp) - 1)
     {
-        buffer = (char*)malloc(len + 1);
+        buffer = (char *)malloc(len + 1);
         if (!buffer)
         {
             return;
@@ -82,9 +82,9 @@ static void AZIoTLog(LOG_CATEGORY log_category, const char* file, const char* fu
         vsnprintf(buffer, len + 1, format, arg);
         va_end(arg);
     }
-    
+
     time_t t = time(NULL);
-    struct tm* tm_info = gmtime(&t);
+    struct tm *tm_info = gmtime(&t);
     char ct[26];
     strftime(ct, 26, "%Y-%m-%d %H:%M:%S", tm_info);
 
@@ -101,7 +101,7 @@ static void AZIoTLog(LOG_CATEGORY log_category, const char* file, const char* fu
     }
 
     serial_log(buffer);
-    
+
     if (options & LOG_LINE)
     {
         serial_log("\r\n");
@@ -110,10 +110,10 @@ static void AZIoTLog(LOG_CATEGORY log_category, const char* file, const char* fu
     if (buffer != temp)
     {
         free(buffer);
-    }   
+    }
 }
 
-static char* GetHostNameFromConnectionString(char* connectionString)
+static char *GetHostNameFromConnectionString(char *connectionString)
 {
     if (connectionString == NULL)
     {
@@ -122,7 +122,7 @@ static char* GetHostNameFromConnectionString(char* connectionString)
     int start = 0;
     int cur = 0;
     bool find = false;
-    while(connectionString[cur] > 0)
+    while (connectionString[cur] > 0)
     {
         if (connectionString[cur] == '=')
         {
@@ -134,7 +134,7 @@ static char* GetHostNameFromConnectionString(char* connectionString)
             }
             start = ++cur;
             // Value
-            while(connectionString[cur] > 0)
+            while (connectionString[cur] > 0)
             {
                 if (connectionString[cur] == ';')
                 {
@@ -144,7 +144,7 @@ static char* GetHostNameFromConnectionString(char* connectionString)
             }
             if (find && cur - start > 0)
             {
-                char* hostname = (char*)malloc(cur - start + 1);
+                char *hostname = (char *)malloc(cur - start + 1);
                 memcpy(hostname, &connectionString[start], cur - start);
                 hostname[cur - start] = 0;
                 return hostname;
@@ -158,16 +158,16 @@ static char* GetHostNameFromConnectionString(char* connectionString)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Event handlers
-static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void* userContextCallback)
+static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void *userContextCallback)
 {
     clientConnected = false;
-    
-    switch(reason)
+
+    switch (reason)
     {
     case IOTHUB_CLIENT_CONNECTION_EXPIRED_SAS_TOKEN:
         if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
         {
-            // turn off Azure led 
+            // turn off Azure led
             DigitalOut LedAzure(LED_AZURE);
             LedAzure = 0;
             resetClient = true;
@@ -183,7 +183,7 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
     case IOTHUB_CLIENT_CONNECTION_NO_NETWORK:
         if (result == IOTHUB_CLIENT_CONNECTION_UNAUTHENTICATED)
         {
-            // Turn off Azure led 
+            // Turn off Azure led
             DigitalOut LedAzure(LED_AZURE);
             LedAzure = 0;
             resetClient = true;
@@ -195,17 +195,17 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
     case IOTHUB_CLIENT_CONNECTION_OK:
         if (result == IOTHUB_CLIENT_CONNECTION_AUTHENTICATED)
         {
-            // Turn on Azure led 
+            // Turn on Azure led
             DigitalOut LedAzure(LED_AZURE);
             LedAzure = 1;
             clientConnected = true;
             LogInfo(">>>Connection status: connected");
-            
+
             LogTrace("Create", "IoT hub established");
         }
         break;
     }
-    
+
     if (_connection_status_callback)
     {
         _connection_status_callback(result, reason);
@@ -216,7 +216,7 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
 {
     EVENT_INSTANCE *event = (EVENT_INSTANCE *)userContextCallback;
     LogInfo(">>>Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, event->trackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
-    
+
     if (currentTrackingId == event->trackingId)
     {
         if (result == IOTHUB_CLIENT_CONFIRMATION_OK)
@@ -228,11 +228,11 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
             currentTrackingId = EVENT_FAILED;
         }
     }
-    
+
     // Free the message
     IoTHubMessage_Destroy(event->messageHandle);
     free(event);
-    
+
     if (_send_confirmation_callback)
     {
         _send_confirmation_callback(result);
@@ -244,7 +244,7 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
     int *counter = (int *)userContextCallback;
     const char *buffer;
     size_t size;
-    
+
     // Message content
     if (IoTHubMessage_GetByteArray(message, (const unsigned char **)&buffer, &size) != IOTHUB_MESSAGE_OK)
     {
@@ -288,11 +288,11 @@ static int DeviceMethodCallback(const char *methodName, const unsigned char *pay
     {
         return _device_method_callback(methodName, payload, size, response, (int *)response_size);
     }
-    
+
     const char *responseMessage = "\"No method found\"";
     *response_size = strlen(responseMessage);
     *response = (unsigned char *)strdup("\"No method found\"");
-    
+
     return 404;
 }
 
@@ -300,7 +300,7 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
 {
     EVENT_INSTANCE *event = (EVENT_INSTANCE *)userContextCallback;
     LogInfo(">>>Confirmation[%d] received for state tracking id = %d with state code = %d", callbackCounter++, event->trackingId, statusCode);
-    
+
     if (statusCode == 204)
     {
         if (currentTrackingId == event->trackingId)
@@ -312,10 +312,10 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
     {
         LogError("Report confirmation failed with state code %d", statusCode);
     }
-    
+
     // Free the state
     free(event);
-    
+
     if (_report_confirmation_callback)
     {
         _report_confirmation_callback(statusCode);
@@ -357,7 +357,7 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
     }
     else if (event->type == STATE)
     {
-        if (IoTHubClient_LL_SendReportedState(iotHubClientHandle, (const unsigned char*)event->stateString, strlen(event->stateString), ReportConfirmationCallback, event) != IOTHUB_CLIENT_OK)
+        if (IoTHubClient_LL_SendReportedState(iotHubClientHandle, (const unsigned char *)event->stateString, strlen(event->stateString), ReportConfirmationCallback, event) != IOTHUB_CLIENT_OK)
         {
             LogError("IoTHubClient_LL_SendReportedState..........FAILED!");
             IoTHubMessage_Destroy(event->messageHandle);
@@ -367,16 +367,16 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
         LogInfo(">>>IoTHubClient_LL_SendReportedState accepted state for transmission to IoT Hub.");
     }
 
-    while(true)
+    while (true)
     {
         IoTHubClient_LL_DoWork(iotHubClientHandle);
-        
+
         if (currentTrackingId == EVENT_CONFIRMED)
         {
             // IoT Hub got this event
             return true;
         }
-        
+
         // Check timeout
         int diff = (int)(SystemTickCounterRead() - start_ms);
         if (diff >= EVENT_TIMEOUT_MS)
@@ -398,24 +398,24 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
             ThreadAPI_Sleep(100);
         }
     }
-    
+
     return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MQTT APIs
-EVENT_INSTANCE* DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_TYPE type)
+EVENT_INSTANCE *DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_TYPE type)
 {
     if (eventString == NULL)
     {
         return NULL;
     }
 
-    EVENT_INSTANCE *event = (EVENT_INSTANCE*)malloc(sizeof(EVENT_INSTANCE));
+    EVENT_INSTANCE *event = (EVENT_INSTANCE *)malloc(sizeof(EVENT_INSTANCE));
     event->type = type;
 
     if (type == MESSAGE)
     {
-        event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char*)eventString, strlen(eventString));
+        event->messageHandle = IoTHubMessage_CreateFromByteArray((const unsigned char *)eventString, strlen(eventString));
         if (event->messageHandle == NULL)
         {
             LogError("iotHubMessageHandle is NULL!");
@@ -434,12 +434,13 @@ EVENT_INSTANCE* DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_T
 
 void DevKitMQTTClient_Event_AddProp(EVENT_INSTANCE *message, const char *key, const char *value)
 {
-    if (message == NULL || key == NULL) return;
+    if (message == NULL || key == NULL)
+        return;
     MAP_HANDLE propMap = IoTHubMessage_Properties(message->messageHandle);
     Map_AddOrUpdate(propMap, key, value);
 }
 
-bool DevKitMQTTClient_Init(bool hasDeviceTwin)
+bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
 {
     if (iotHubClientHandle != NULL)
     {
@@ -447,34 +448,34 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
     }
     enableDeviceTwin = hasDeviceTwin;
     callbackCounter = 0;
-    
+
     xlogging_set_log_function(AZIoTLog);
-    
+
     srand((unsigned int)time(NULL));
     trackingId = 0;
 
-    // Create the IoTHub client 
-    if (is_iothub_from_dps) 
+    // Create the IoTHub client
+    if (is_iothub_from_dps)
     {
-        // Use DPS 
-        iothub_hostname = DPSGetIoTHubURI(); 
-        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DPSGetDeviceID(), MQTT_Protocol); 
-        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", DPSGetIoTHubURI(), DPSGetDeviceID(), iotHubClientHandle); 
-     }
-     else
-     {
-         if (platform_init() != 0)
-         {
-             LogError("Failed to initialize the platform.");
-             return false;
+        // Use DPS
+        iothub_hostname = DevkitDPSGetIoTHubURI();
+        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DevkitDPSGetDeviceID(), MQTT_Protocol);
+        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", iothub_hostname, DevkitDPSGetDeviceID(), iotHubClientHandle);
+    }
+    else
+    {
+        if (platform_init() != 0)
+        {
+            LogError("Failed to initialize the platform.");
+            return false;
         }
 
         // Load connection from EEPROM
         EEPROMInterface eeprom;
-        uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = { '\0' };
+        uint8_t connString[AZ_IOT_HUB_MAX_LEN + 1] = {'\0'};
         int ret = eeprom.read(connString, AZ_IOT_HUB_MAX_LEN, 0x00, AZ_IOT_HUB_ZONE_IDX);
         if (ret < 0)
-        { 
+        {
             LogError("Unable to get the azure iot connection string from EEPROM. Please set the value in configuration mode.");
             return false;
         }
@@ -484,19 +485,18 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
             return false;
         }
 
-        iothub_hostname = GetHostNameFromConnectionString((char*)connString);
+        iothub_hostname = GetHostNameFromConnectionString((char *)connString);
 
         // Create the IoTHub client
-        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char*)connString, MQTT_Protocol)) == NULL)
+        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString((char *)connString, MQTT_Protocol)) == NULL)
         {
             LogTrace("Create", "IoT hub establish failed");
             return false;
         }
-     }
-    
+    }
+
     int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
-    bool traceOn = false;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
     {
@@ -504,7 +504,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
         return false;
     }
 
-    /* Setting Message call back, so we can receive Commands. */
+    // Setting Message call back, so we can receive commands.
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, ReceiveMessageCallback, &receiveContext) != IOTHUB_CLIENT_OK)
     {
         LogError("IoTHubClient_LL_SetMessageCallback..........FAILED!");
@@ -525,7 +525,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
             return false;
         }
 
-        if(IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
+        if (IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, DeviceMethodCallback, NULL) != IOTHUB_CLIENT_OK)
         {
             LogError("Failed on IoTHubClient_LL_SetDeviceMethodCallback");
             return false;
@@ -534,7 +534,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
 
     iothub_check_ms = SystemTickCounterRead();
 
-    // Waiting for the confirmation 
+    // Waiting for the confirmation
     uint64_t start_ms = SystemTickCounterRead();
     while (true)
     {
@@ -552,7 +552,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin)
         }
         ThreadAPI_Sleep(500);
     }
-    
+
     return true;
 }
 
@@ -575,10 +575,10 @@ bool DevKitMQTTClient_SendEvent(const char *text)
 bool DevKitMQTTClient_ReceiveEvent()
 {
     CheckConnection();
-    
+
     int count = receiveContext;
-    uint64_t tm =  SystemTickCounterRead();
-    while((int)(SystemTickCounterRead() - tm) < CHECK_INTERVAL_MS)
+    uint64_t tm = SystemTickCounterRead();
+    while ((int)(SystemTickCounterRead() - tm) < CHECK_INTERVAL_MS)
     {
         IoTHubClient_LL_DoWork(iotHubClientHandle);
         if (count < receiveContext)
@@ -696,7 +696,7 @@ void DevKitMQTTClient_Reset(void)
 
 void LogTrace(const char *event, const char *message)
 {
-    // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+    // Microsoft collects data to operate effectively and provide you the best experiences with our products.
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data_async(iothub_hostname, event, message);
 }

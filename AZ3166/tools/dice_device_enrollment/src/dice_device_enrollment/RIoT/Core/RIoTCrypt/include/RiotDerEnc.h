@@ -17,7 +17,7 @@ extern "C" {
 //
 // Context structure for the DER-encoder. This structure contains a fixed-
 // length array for nested SEQUENCES (which imposes a nesting limit).
-// The buffer use for encoded data is caller-allocted.
+// The buffer use for encoded data is caller-allocated.
 //
 typedef struct
 {

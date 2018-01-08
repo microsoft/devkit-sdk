@@ -99,7 +99,7 @@ DERInitContext(
     uint8_t             *Buffer,
     uint32_t             Length
 )
-// Intialize the builder context.  The caller manages the encoding buffer.
+// Initialize the builder context.  The caller manages the encoding buffer.
 // Note that the encoding routines do conservative checks that the encoding
 // will fit, so approximately 30 extra bytes are needed.  Note that if an
 // encoding routine fails because the buffer is too small, the buffer will
@@ -456,7 +456,7 @@ DERStartEnvelopingBitString(
 
     Context->Buffer[Context->Position++] = 0x03;
 
-    // The payload includes the numUnusedBits (always zero, for our endodings).
+    // The payload includes the numUnusedBits (always zero, for our encodings).
     Context->CollectionStart[Context->CollectionPos++] = Context->Position;
 
     // No unused bits
