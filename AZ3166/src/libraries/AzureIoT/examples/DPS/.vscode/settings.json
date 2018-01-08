@@ -1,8 +1,0 @@
-{
-    "files.exclude": {
-        ".build": true
-    },
-    "files.associations": {
-        "secure_device_riot.h": "c"
-    }
-}
