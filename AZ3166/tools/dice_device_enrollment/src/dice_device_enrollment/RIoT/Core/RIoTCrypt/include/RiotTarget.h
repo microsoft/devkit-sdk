@@ -58,7 +58,7 @@ typedef unsigned long long uint64_t;  // 64-bit unsigned integer
 
 #ifdef  _MSC_VER
 // This macro is used to handle LIB_EXPORT of function and variable names in lieu
-// of a .def file. Visual Studio requires that functions be explicity exported and
+// of a .def file. Visual Studio requires that functions be explicitly exported and
 // imported.
 #   define LIB_EXPORT __declspec(dllexport) // VS compatible version
 #   define LIB_IMPORT __declspec(dllimport)

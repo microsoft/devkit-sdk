@@ -45,7 +45,7 @@ Confidential Information
 
 // Number of bits in internal symmetric keys used by the RIoT framework.
 // NOTE:    This number of bits is used for key derivation. The symmetric
-//          algorithm implemenbted by the RIoT framework may use only a
+//          algorithm implemented by the RIoT framework may use only a
 //          subset of these bytes for encryption.
 #define RIOT_KEY_BITS           (RIOT_KEY_LENGTH * 8)
 

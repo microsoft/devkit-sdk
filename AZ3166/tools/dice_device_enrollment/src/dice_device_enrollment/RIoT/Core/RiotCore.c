@@ -149,7 +149,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId, uint8_t
         return status;
     }
 
-    // Clean up potentially sensative data
+    // Clean up potentially sensitive data
     memset(cDigest, 0x00, RIOT_DIGEST_LENGTH);
 
     // Build the TBS (to be signed) region of Alias Key Certificate
@@ -181,7 +181,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId, uint8_t
     g_AKCert[length] = '\0';
     g_AKCertLen = length;
 
-    // Clean up potentially sensative data
+    // Clean up potentially sensitive data
     memset(FWID, 0, sizeof(FWID));
 
     // Copy DeviceID Public
@@ -269,7 +269,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId, uint8_t
     g_DICert[length] = '\0';
     g_DICertLen = length;
     
-    // Clean up sensative data
+    // Clean up sensitive data
     memset(&deviceIDPriv, 0, sizeof(RIOT_ECC_PRIVATE));
 
     // Display info for Alias Key Certificate
