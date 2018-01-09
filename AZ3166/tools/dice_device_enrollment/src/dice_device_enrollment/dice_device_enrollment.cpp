@@ -372,7 +372,7 @@ int main()
 {
 	int result = 0;
 
-	fileName = get_user_input("Input the file name of .ino(Click Enter to use \"DPSDemo\" by default): ", fileNameLength);
+	fileName = get_user_input("Input the name of your project, default name is \"DPSDemo\" :", fileNameLength);
 	if (strlen(fileName) == 0)
 	{
 		strcpy(fileName, "DPSDemo");
