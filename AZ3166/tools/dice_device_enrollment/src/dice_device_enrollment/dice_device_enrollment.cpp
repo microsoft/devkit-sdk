@@ -372,10 +372,10 @@ int main()
 {
 	int result = 0;
 
-	fileName = get_user_input("Input the name of your project, default name is \"DPSDemo\" :", fileNameLength);
+	fileName = get_user_input("Input the name of your project, default name is \"DevKitDPS\" :", fileNameLength);
 	if (strlen(fileName) == 0)
 	{
-		strcpy(fileName, "DPSDemo");
+		strcpy(fileName, "DevKitDPS");
 	}
 
 	// Check sanity of input files - .bin and .map
