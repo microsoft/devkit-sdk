@@ -1146,12 +1146,12 @@ int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle, ON_MQTT_DISCONNECTED_CALLB
 {
     int result = 0;
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)handle;
-    if (mqtt_client == NULL)
+    if (mqtt_client == NULL || mqtt_client->xioHandle == NULL)
     {
         /*Codes_SRS_MQTT_CLIENT_07_010: [If the parameters handle is NULL then mqtt_client_disconnect shall return a non-zero value.]*/
         result = __FAILURE__;
     }
-    else if (mqtt_client->xioHandle != NULL)
+    else
     {
         BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
         if (disconnectPacket == NULL)

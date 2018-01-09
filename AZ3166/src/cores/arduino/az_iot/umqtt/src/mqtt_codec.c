@@ -541,7 +541,7 @@ static int prepareheaderDataInfo(MQTTCODEC_INSTANCE* codecData, uint8_t remainLe
     {
         result = 0;
         codecData->storeRemainLen[codecData->remainLenIndex++] = remainLen;
-        if (remainLen < 0x7f)
+        if (remainLen <= 0x7f)
         {
             int multiplier = 1;
             int totalLen = 0;
@@ -560,17 +560,33 @@ static int prepareheaderDataInfo(MQTTCODEC_INSTANCE* codecData, uint8_t remainLe
                 }
             } while ((encodeByte & NEXT_128_CHUNK) != 0);
 
-            if (totalLen > 0)
-            {
-                codecData->headerData = BUFFER_new();
-                (void)BUFFER_pre_build(codecData->headerData, totalLen);
-                codecData->bufferOffset = 0;
-            }
             codecData->codecState = CODEC_STATE_VAR_HEADER;
 
             // Reset remainLen Index
             codecData->remainLenIndex = 0;
             memset(codecData->storeRemainLen, 0, 4 * sizeof(uint8_t));
+
+            if (totalLen > 0)
+            {
+                codecData->bufferOffset = 0;
+                codecData->headerData = BUFFER_new();
+                if (codecData->headerData == NULL)
+                {
+                    /* Codes_SRS_MQTT_CODEC_07_035: [ If any error is encountered then the packet state will be marked as error and mqtt_codec_bytesReceived shall return a non-zero value. ] */
+                    LogError("Failed BUFFER_new");
+                    result = __FAILURE__;
+                }
+                else
+                {
+                    if (BUFFER_pre_build(codecData->headerData, totalLen) != 0)
+                    {
+                        /* Codes_SRS_MQTT_CODEC_07_035: [ If any error is encountered then the packet state will be marked as error and mqtt_codec_bytesReceived shall return a non-zero value. ] */
+                        LogError("Failed BUFFER_pre_build");
+                        result = __FAILURE__;
+                    }
+
+                }
+            }
         }
     }
     return result;
