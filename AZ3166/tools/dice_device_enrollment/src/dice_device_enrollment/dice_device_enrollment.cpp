@@ -198,7 +198,7 @@ static int firmwareVerValidated()
 	return 0;
 }
 
-static int fileFullPathValidated(char * fileFullPath)
+static int fileFullPathValidated(const char * fileFullPath)
 {
 	FILE *fp;
 	fp = fopen(fileFullPath, "rb"); // open the file in binary format
