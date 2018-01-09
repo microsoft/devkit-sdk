@@ -9,22 +9,12 @@
 #include "DiceCore.h"
 #include "DiceRIoT.h"
 
-// User inputs
-char *udsString;
-char *registrationId;
-char *macAddress;
-char *firmwareVer;
-
-// Input file names
-const char *binFileFullPath = ".\\DPS.ino.bin";
-const char *mapFileFullPath = ".\\DPS.ino.map";
-
 // Settings
-uint32_t udsStringLength = 64;
-uint32_t registrationIdMaxLength = 128;
-uint32_t macAddressLength = 12;
-uint32_t elementSize = 1; //bytes
-uint32_t aliasCertSize = 1024; //bytes
+const uint32_t fileNameLength = 256;
+const uint32_t udsStringLength = 64;
+const uint32_t registrationIdMaxLength = 128;
+const uint32_t macAddressLength = 12;
+const uint32_t aliasCertSize = 1024; //bytes
 
 							   // Flash start address name
 const char * flashStartname = "FLASH            0x";
@@ -34,6 +24,18 @@ const char * startRiotCoreName = "__start_riot_core = .";
 const char * stopRiotCoreName = "__stop_riot_core = .";
 const char * startRiotFwName = "__start_riot_fw = .";
 const char * stopRiotFwName = "__stop_riot_fw = .";
+
+// User inputs
+char *fileName;
+char *udsString;
+char *registrationId;
+char *macAddress;
+char *firmwareVer;
+
+// Input file names
+char binFileFullPath[fileNameLength];
+char mapFileFullPath[fileNameLength];
+
 
 // Flash start info
 uint8_t * startBin;
@@ -168,40 +170,35 @@ static int firmwareVerValidated()
 	// Check format
 	int dotCount = 0;
 
-	int tempRes = 0;
-	char element[2];
-	memset(element, 0, 2);
-	int badCharCount = 0;
-
 	for (int i = 0; i < length; i++)
 	{
-		element[0] = firmwareVer[i];
-		if (element[0] == '.') {
+		if (firmwareVer[i] == '.') {
+			if (i > 0 && firmwareVer[i - 1] == '.')
+			{
+				printf("firmwareVer must be num.num.num in format but your input is in wrong format.\r\n");
+				return 1;
+			}
 			dotCount++;
 		}
 		else
 		{
-			tempRes = strtoul(element, NULL, 10);
-			if (tempRes == 0 && element[0] != '0')
+			if (firmwareVer[i] > '9' || firmwareVer[i] < '0')
 			{
-				badCharCount++;
-				printf("firmwareVer must contain characters between dots but the %dth character in your input is %s.\r\n", i + 1, element);
+				printf("firmwareVer must contain characters between dots but the %dth character in your input is %c.\r\n", i + 1, firmwareVer[i]);
+				return 1;
 			}
 		}
 	}
-	if (dotCount != 2)
+	if (dotCount != 2 || firmwareVer[0] == '.' || firmwareVer[length - 1] == '.')
 	{
 		printf("firmwareVer must be num.num.num in format but your input is in wrong format.\r\n");
-	}
-	if (badCharCount > 0)
-	{
 		return 1;
 	}
 
 	return 0;
 }
 
-static int fileFullPathValidated(const char * fileFullPath)
+static int fileFullPathValidated(char * fileFullPath)
 {
 	FILE *fp;
 	fp = fopen(fileFullPath, "rb"); // open the file in binary format
@@ -216,6 +213,8 @@ static int fileFullPathValidated(const char * fileFullPath)
 
 static int validateInputFiles()
 {
+	snprintf(binFileFullPath, fileNameLength, "%s.ino.bin", fileName);
+	snprintf(mapFileFullPath, fileNameLength, "%s.ino.map", fileName);
 	if (fileFullPathValidated(binFileFullPath) || fileFullPathValidated(mapFileFullPath))
 	{
 		return 1;
@@ -257,7 +256,7 @@ static int getUDSBytesFromString()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Read machine code from binary file
-static int getDataFromBinFile(uint8_t * startAddress, uint8_t * buffer, uint32_t size)
+static int getDataFromBinFile(long int offset, uint8_t * buffer, uint32_t size)
 {
 	int result = 0;
 	// Open binary file
@@ -269,7 +268,6 @@ static int getDataFromBinFile(uint8_t * startAddress, uint8_t * buffer, uint32_t
 		return result;
 	}
 
-	long int offset = startAddress - startBin;
 	result = fseek(fp, offset, SEEK_SET);
 	if (result != 0)
 	{
@@ -279,15 +277,11 @@ static int getDataFromBinFile(uint8_t * startAddress, uint8_t * buffer, uint32_t
 	}
 
 	uint8_t * curser = buffer;
-	for (int i = 0; i < size; i++) {
-		result = fread(curser, elementSize, 1, fp);
-		if (result != elementSize)
-		{
-			printf("Failed to read data in size %d bytes from binary file %s.\r\n", elementSize, binFileFullPath);
-			result = 1;
-			return result;
-		}
-		curser += elementSize;
+	result = fread(curser, 1, size, fp);
+	if (result != size)
+	{
+		printf("Failed to read data in size %d bytes from binary file %s.\r\n", size, binFileFullPath);
+		return 1;
 	}
 
 	// Close binary file
@@ -346,11 +340,43 @@ static unsigned long int findAddressInMapFile(const char * attributeName)
 	return result;
 }
 
+uint8_t* getBinFileWithName(const char *startName, const char *endName, uint32_t &size)
+{
+	unsigned long int resultAddress = findAddressInMapFile(startName);
+	if (resultAddress == 0)
+	{
+		return NULL;
+	}
+	uint8_t* startAddress = (uint8_t*)resultAddress;
+
+	resultAddress = findAddressInMapFile(endName);
+	if (resultAddress == 0)
+	{
+		return NULL;
+	}
+	uint8_t* endAddress = (uint8_t*)resultAddress;
+	size = endAddress - startAddress;
+	uint8_t *buf = (uint8_t*)malloc(size);
+	memset(buf, 0, sizeof(buf));
+
+	if (getDataFromBinFile(startAddress - startBin, buf, size) != 0) {
+		delete buf;
+		return NULL;
+	}
+	return buf;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // App start
 int main()
 {
 	int result = 0;
+
+	fileName = get_user_input("Input the file name of .ino(Click Enter to use \"DPSDemo\" by default): ", fileNameLength);
+	if (strlen(fileName) == 0)
+	{
+		snprintf(fileName, fileNameLength, "DPSDemo");
+	}
 
 	// Check sanity of input files - .bin and .map
 	if (validateInputFiles() != 0) {
@@ -402,60 +428,10 @@ int main()
 	}
 	startBin = (uint8_t*)resultAddress;
 
-	// Initialize the value of riot attributes stuff
-	resultAddress = findAddressInMapFile(startRiotCoreName);
-	if (resultAddress == 0)
-	{
-		result = 1;
-		goto EXIT;
-	}
-	startRiotCore = (uint8_t*)resultAddress;
-
-	resultAddress = findAddressInMapFile(stopRiotCoreName);
-	if (resultAddress == 0)
-	{
-		result = 1;
-		goto EXIT;
-	}
-	endRiotCore = (uint8_t*)resultAddress;
-
-	resultAddress = findAddressInMapFile(startRiotFwName);
-	if (resultAddress == 0)
-	{
-		result = 1;
-		goto EXIT;
-	}
-	startRiotFw = (uint8_t*)resultAddress;
-
-	resultAddress = findAddressInMapFile(stopRiotFwName);
-	if (resultAddress == 0)
-	{
-		result = 1;
-		goto EXIT;
-	}
-	endRiotFw = (uint8_t*)resultAddress;
-
-	// Read Riot_core machine code from .bin file
-	uint32_t riotSize = endRiotCore - startRiotCore;
-	uint8_t *riotCore = (uint8_t*)malloc(riotSize);
-	memset(riotCore, 0, riotSize);
-
-	if (getDataFromBinFile(startRiotCore, riotCore, riotSize) != 0) {
-		free(riotCore);
-		result = 1;
-		goto EXIT;
-	}
-
-	// Read Riot_fw machine code from .bin file
-	uint32_t riotFwSize = endRiotFw - startRiotFw;
-	uint8_t * riotFw = (uint8_t*)malloc(riotFwSize);
-	memset(riotFw, 0, riotFwSize);
-
-	if (getDataFromBinFile(startRiotFw, riotFw, riotFwSize) != 0) {
-		free(riotFw);
-		result = 1;
-		goto EXIT;
-	}
+	uint32_t riotSize;
+	uint32_t riotFwSize;
+	uint8_t* riotCore = getBinFileWithName(startRiotCoreName, stopRiotCoreName, riotSize);
+	uint8_t* riotFw = getBinFileWithName(startRiotFwName, stopRiotFwName, riotFwSize);
 
 	// Retrieve alias certificate
 	char* aliasCertBuffer = (char*)malloc(aliasCertSize);
