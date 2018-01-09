@@ -375,7 +375,7 @@ int main()
 	fileName = get_user_input("Input the file name of .ino(Click Enter to use \"DPSDemo\" by default): ", fileNameLength);
 	if (strlen(fileName) == 0)
 	{
-		snprintf(fileName, fileNameLength, "DPSDemo");
+		strcpy(fileName, "DPSDemo");
 	}
 
 	// Check sanity of input files - .bin and .map
