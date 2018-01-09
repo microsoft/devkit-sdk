@@ -263,6 +263,7 @@ void loop() {
         showMotionAccelSensor();
         break;
     }
+	delay(100);
   }
   
 }
