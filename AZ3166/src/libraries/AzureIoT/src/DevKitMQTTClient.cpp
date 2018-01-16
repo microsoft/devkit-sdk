@@ -324,7 +324,12 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
 
 static bool SendEventOnce(EVENT_INSTANCE *event)
 {
-    if (iotHubClientHandle == NULL || event == NULL || SystemWiFiRSSI() == 0)
+    if (event == NULL)
+    {
+        return false;
+    }
+
+    if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
         if (event->type == MESSAGE)
         {
