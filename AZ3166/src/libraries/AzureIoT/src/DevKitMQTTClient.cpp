@@ -326,6 +326,10 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
 {
     if (iotHubClientHandle == NULL || event == NULL || SystemWiFiRSSI() == 0)
     {
+        if (event->type == MESSAGE)
+        {
+            IoTHubMessage_Destroy(event->messageHandle);
+        }
         free(event);
         return false;
     }
