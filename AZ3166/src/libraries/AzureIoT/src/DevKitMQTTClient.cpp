@@ -156,6 +156,18 @@ static char *GetHostNameFromConnectionString(char *connectionString)
     return NULL;
 }
 
+static FreeEventInstance(EVENT_INSTANCE *event)
+{
+    if (event != NULL)    
+    {
+        if (event->type == MESSAGE)
+        {
+            IoTHubMessage_Destroy(event->messageHandle);
+        }
+        free(event);
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Event handlers
 static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void *userContextCallback)
@@ -230,8 +242,7 @@ static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, v
     }
 
     // Free the message
-    IoTHubMessage_Destroy(event->messageHandle);
-    free(event);
+    FreeEventInstance(event);
 
     if (_send_confirmation_callback)
     {
@@ -331,11 +342,7 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
 
     if (iotHubClientHandle == NULL || SystemWiFiRSSI() == 0)
     {
-        if (event->type == MESSAGE)
-        {
-            IoTHubMessage_Destroy(event->messageHandle);
-        }
-        free(event);
+        FreeEventInstance(event);
         return false;
     }
 
@@ -345,28 +352,23 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
     uint64_t start_ms = SystemTickCounterRead();
 
     CheckConnection();
-    wait_ms(1000);
-
+    
     if (event->type == MESSAGE)
     {
         if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, event->messageHandle, SendConfirmationCallback, event) != IOTHUB_CLIENT_OK)
         {
             LogError("IoTHubClient_LL_SendEventAsync..........FAILED!");
-            IoTHubMessage_Destroy(event->messageHandle);
-            free(event);
-            wait_ms(1000);
+            FreeEventInstance(event);
             return false;
         }
         LogInfo(">>>IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub.");
-        wait_ms(1000);
     }
     else if (event->type == STATE)
     {
         if (IoTHubClient_LL_SendReportedState(iotHubClientHandle, (const unsigned char *)event->stateString, strlen(event->stateString), ReportConfirmationCallback, event) != IOTHUB_CLIENT_OK)
         {
             LogError("IoTHubClient_LL_SendReportedState..........FAILED!");
-            IoTHubMessage_Destroy(event->messageHandle);
-            free(event);
+            FreeEventInstance(event);
             return false;
         }
         LogInfo(">>>IoTHubClient_LL_SendReportedState accepted state for transmission to IoT Hub.");
