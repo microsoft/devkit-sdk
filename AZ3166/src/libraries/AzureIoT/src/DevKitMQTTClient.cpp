@@ -511,6 +511,12 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         return false;
     }
 
+    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", "IoT_DevKit") != IOTHUB_CLIENT_OK)
+    {
+        LogError("Failed to set option \"product_info\"");
+        return false;
+    }
+
     // Setting Message call back, so we can receive commands.
     if (IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, ReceiveMessageCallback, &receiveContext) != IOTHUB_CLIENT_OK)
     {
