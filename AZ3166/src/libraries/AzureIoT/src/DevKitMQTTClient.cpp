@@ -156,7 +156,7 @@ static char *GetHostNameFromConnectionString(char *connectionString)
     return NULL;
 }
 
-static FreeEventInstance(EVENT_INSTANCE *event)
+static void FreeEventInstance(EVENT_INSTANCE *event)
 {
     if (event != NULL)    
     {
