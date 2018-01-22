@@ -544,7 +544,7 @@ int tlsio_mbedtls_open(CONCRETE_IO_HANDLE tls_io, ON_IO_OPEN_COMPLETE on_io_open
             tls_io_instance->tlsio_state = TLSIO_STATE_OPENING_UNDERLYING_IO;
     
     
-            mbedtls_init(tls_io_instance);
+            mbedtls_ssl_session_reset(&tls_io_instance->ssl);
     
             if (xio_open(tls_io_instance->socket_io, on_underlying_io_open_complete, tls_io_instance, on_underlying_io_bytes_received, tls_io_instance, on_underlying_io_error, tls_io_instance) != 0)
             {
