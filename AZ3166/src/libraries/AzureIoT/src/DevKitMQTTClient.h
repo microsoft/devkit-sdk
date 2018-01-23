@@ -123,6 +123,12 @@ void DevKitMQTTClient_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_cal
 */
 void DevKitMQTTClient_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback);
 
+
+/**
+* @brief    Sets up the report confirmation callback to be invoked when report of the device's properties.
+*/
+void DevKitMQTTClient_SetReportConfirmationCallback(REPORT_CONFIRMATION_CALLBACK report_confirmation_callback);
+
 /**
 * @brief    Force reset the connection.
 */

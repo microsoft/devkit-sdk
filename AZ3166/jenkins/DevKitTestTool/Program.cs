@@ -565,6 +565,7 @@
 
         private static void UpdateFirmwareVersion()
         {
+            Console.WriteLine("Update telemetry.js");
             string filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["TelemetryFilePath"]);
             if (!File.Exists(filePath))
             {
@@ -575,6 +576,19 @@
             string content = File.ReadAllText(filePath);
 
             Console.WriteLine($"Change firmware version to {versionInfo}");
+            content = content.Replace(Constants.FirmwareVersionString, versionInfo);
+
+            File.WriteAllText(filePath, content);
+
+            Console.WriteLine("Update task-installation.js");
+            filePath = Path.Combine(workspace, ConfigurationManager.AppSettings["TaskInstallationScriptFilePath"]);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Failed to find the task-installation.js, file path: {filePath}");
+            }
+
+            Console.WriteLine($"Change firmware version to {versionInfo}");
+            content = File.ReadAllText(filePath);            
             content = content.Replace(Constants.FirmwareVersionString, versionInfo);
 
             File.WriteAllText(filePath, content);
