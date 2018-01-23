@@ -512,7 +512,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         return false;
     }
 
-    char product_info[21];
+    char product_info[24];
     snprintf(product_info, sizeof(product_info), "IoT_DevKit_%s", getDevkitVersion());
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
     {

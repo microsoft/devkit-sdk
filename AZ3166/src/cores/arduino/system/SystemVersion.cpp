@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-char version[10] = { "\0" };
+char version[12] = { "\0" };
 
 const char* getDevkitVersion()
 {
