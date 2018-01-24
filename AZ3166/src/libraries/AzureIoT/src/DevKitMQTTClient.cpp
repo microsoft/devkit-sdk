@@ -326,7 +326,7 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
     }
 
     // Free the state
-    free(event);
+    FreeEventInstance(event);
 
     if (_report_confirmation_callback)
     {
@@ -431,8 +431,7 @@ EVENT_INSTANCE *DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_T
             return NULL;
         }
     }
-
-    if (type == STATE)
+    else if (type == STATE)
     {
         event->stateString = eventString;
     }
