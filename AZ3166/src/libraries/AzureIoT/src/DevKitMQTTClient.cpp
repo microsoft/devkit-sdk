@@ -8,6 +8,7 @@
 #include "Telemetry.h"
 #include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
+#include "SystemVersion.h"
 
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
@@ -511,7 +512,9 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         return false;
     }
 
-    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", "IoT_DevKit") != IOTHUB_CLIENT_OK)
+    char product_info[24];
+    snprintf(product_info, sizeof(product_info), "IoT_DevKit_%s", getDevkitVersion());
+    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"product_info\"");
         return false;
