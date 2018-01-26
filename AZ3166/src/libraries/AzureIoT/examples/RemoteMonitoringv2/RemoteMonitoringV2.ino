@@ -212,12 +212,6 @@ void loop() {
       send_interval_ms = SystemTickCounterRead();
     }
 
-    if((int)(SystemTickCounterRead() - blink_interval_ms)>500){
-      int value= digitalRead(LED_AZURE);
-      digitalWrite(LED_AZURE, !value);          
-      blink_interval_ms = SystemTickCounterRead();
-    }
-
     if((int)(SystemTickCounterRead() - reset_interval_ms)>INTERVAL){
       if(doReset){
          NVIC_SystemReset();
