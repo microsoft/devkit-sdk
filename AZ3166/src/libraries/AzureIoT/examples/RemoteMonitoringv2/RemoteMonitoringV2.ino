@@ -33,8 +33,8 @@ const char *deviceType = "Chiller";
 const char *deviceFirmware = "1.0.0";
 const char *deviceFirmwareUpdateStatus = "";
 const char *deviceLocation = "Madrid";
-const double deviceLatitude = 40.443897; 
-const double deviceLongitude = -3.775082;
+const double deviceLatitude = 40.418371;
+const double deviceLongitude =-3.797997;
 
 #define RECONNECT_THRESHOLD 3
 
@@ -158,8 +158,6 @@ void showSensors()
 
 void setup() {
   pinMode(LED_WIFI, OUTPUT);
-  pinMode(LED_AZURE, OUTPUT);
-  pinMode(LED_USER, OUTPUT);
 
   ext_i2c = new DevI2C(D14, D15);
   
@@ -204,7 +202,7 @@ void setup() {
 
 static uint64_t send_interval_ms;
 static uint64_t reset_interval_ms;
-static uint64_t blink_interval_ms;
+
 void loop() {
   // put your main code here, to run repeatedly:
   if(isConnected)
