@@ -105,13 +105,6 @@ void InitWiFi()
     sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
     digitalWrite(LED_WIFI, 1);
-
-    DevKitMQTTClient_SetDeviceMethodCallback(&device_method_callback);
-    DevKitMQTTClient_SetDeviceTwinCallback(&twinCallback);
-    DevKitMQTTClient_Init(true); //set to true to use twin
-    bool infoSent=sendDeviceInfo();
-    digitalWrite(LED_USER,infoSent?1:0);
-    LogInfo("*** Twin update: %s",infoSent?"yes":"no");
     
     isConnected = true;
   }
@@ -192,6 +185,15 @@ void setup() {
     // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
     // We collect data about the features you use, how often you use them, and how you use them.
     send_telemetry_data_async("", "RemoteMonitoringSetupV2", "");
+
+    //setup the MQTT Client
+    DevKitMQTTClient_SetDeviceMethodCallback(&device_method_callback);
+    DevKitMQTTClient_SetDeviceTwinCallback(&twinCallback);
+    DevKitMQTTClient_Init(true); //set to true to use twin
+    
+    // Send the Twin data for the Remote Monitoring
+    bool infoSent=sendDeviceInfo();
+    LogInfo("*** Twin update: %s",infoSent?"yes":"no");
   }
 }
 
