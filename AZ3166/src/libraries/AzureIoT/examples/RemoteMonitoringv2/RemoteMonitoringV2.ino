@@ -21,7 +21,7 @@ LPS22HBSensor *lp_sensor;
 char wifiBuff[128];
 
 float temperature = 50;
-char temperatureUnit = 'C';
+char temperatureUnit = 'F';
 float humidity = 50;
 char humidityUnit = '%';
 float pressure = 55;
@@ -135,16 +135,19 @@ void showSensors()
   {
     ht_sensor->reset();
     ht_sensor->getTemperature(&temperature);
+    //convert from C to F
+    temperature = temperature*1.8 + 32;
+
     ht_sensor->getHumidity(&humidity);
 
     lp_sensor->getPressure(&pressure);
     
     char buff[128];
-    sprintf(buff, "Environment \r\n Temp:%sC    \r\n Humidity:%s%%  \r\n Atm: %spsig",f2s(temperature, 1), f2s(humidity, 1),f2s(pressure,1));
+    sprintf(buff, "Environment \r\n Temp:%s%c    \r\n Humidity:%s%c  \r\n Atm: %s%s",f2s(temperature, 1),temperatureUnit, f2s(humidity, 1), humidityUnit, f2s(pressure,1), pressureUnit);
     Screen.print(buff);
 
     char sensorData[200];
-    sprintf_s(sensorData, sizeof(sensorData), "{\"temperature\":%s,\"temperature_unit\":\"%s\",\"humidity\":%s,\"humidity_unit\":\"%s\",\"pressure\":%s,\"pressure_unit\":\"%s\"}", f2s(temperature, 1), temperatureUnit,f2s(humidity, 1), humidityUnit,f2s(pressure, 1), pressureUnit);
+    sprintf_s(sensorData, sizeof(sensorData), "{\"temperature\":%s,\"temperature_unit\":\"%c\",\"humidity\":%s,\"humidity_unit\":\"%c\",\"pressure\":%s,\"pressure_unit\":\"%s\"}", f2s(temperature, 1), temperatureUnit,f2s(humidity, 1), humidityUnit,f2s(pressure, 1), pressureUnit);
     sendData(sensorData,roomSchema);
   }
   catch(int error)
