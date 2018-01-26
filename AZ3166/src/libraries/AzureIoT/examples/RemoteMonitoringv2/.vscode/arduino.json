@@ -1,5 +1,5 @@
 {
-    "sketch": "RemoteMonitoringv2.ino",
+    "sketch": "RemoteMonitoringV2.ino",
     "board": "AZ3166:stm32f4:MXCHIP_AZ3166",
     "configuration": "upload_method=OpenOCDMethod"
 }
