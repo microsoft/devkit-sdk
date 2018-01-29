@@ -123,7 +123,12 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
 
 int WiFiClass::disconnect()
 {
-    if (is_wifi_inited)
+    if (!is_wifi_inited) 
+    {
+        return WL_CONNECT_FAILED;
+    }
+
+    if (is_station_inited)
     {
         ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
         WiFiInterface()->disconnect();
