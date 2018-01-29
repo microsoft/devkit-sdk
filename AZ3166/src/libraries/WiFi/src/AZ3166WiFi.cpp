@@ -31,14 +31,15 @@ WiFiClass::WiFiClass()
     firmware_version[0] = 0;
     ssid[0] = 0;
     ap_number = 0;
-    is_station_inited = InitSystemWiFi();
+    is_wifi_inited = InitSystemWiFi();
+    is_station_inited = false;
     is_ap_inited = false;
     current_status = WL_IDLE_STATUS;
 }
 
 const char* WiFiClass::firmwareVersion()
 {
-    if (!is_station_inited) 
+    if (!is_wifi_inited) 
     {
         return NULL;
     }
@@ -61,14 +62,20 @@ const char* WiFiClass::firmwareVersion()
 
 int WiFiClass::begin(void)
 {
-    if (!is_station_inited) 
+    if (!is_wifi_inited) 
     {
         return WL_CONNECT_FAILED;
+    }
+
+    if(is_station_inited)
+    {
+        return WL_CONNECTED;
     }
 
     if (SystemWiFiConnect())
     {
         strcpy(this->ssid, SystemWiFiSSID());
+        is_station_inited = true;
         current_status = WL_CONNECTED;
         return WL_CONNECTED;
     }
@@ -84,9 +91,14 @@ int WiFiClass::begin(char* ssid)
 
 int WiFiClass::begin(char* ssid, const char *passphrase)
 {
-    if (!is_station_inited)
+    if (!is_wifi_inited)
     {
         return WL_CONNECT_FAILED;
+    }
+
+    if(is_station_inited)
+    {
+        return WL_CONNECTED;
     }
 
     ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
@@ -100,6 +112,7 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
         send_telemetry_data_async("", "wifi", "Wi-Fi connected");
 
         strcpy(this->ssid, ssid);
+        is_station_inited = true;
         current_status = WL_CONNECTED;
         return WL_CONNECTED;
     }
@@ -110,7 +123,7 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
 
 int WiFiClass::disconnect()
 {
-    if (is_station_inited)
+    if (is_wifi_inited)
     {
         ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
         WiFiInterface()->disconnect();
@@ -156,7 +169,7 @@ int WiFiClass::disconnectAP()
 
 unsigned char* WiFiClass::macAddress(unsigned char* mac)
 {
-    if (!is_station_inited)
+    if (!is_wifi_inited)
     {
         return NULL;
     }
@@ -171,7 +184,7 @@ IPAddress WiFiClass::localIP()
 {
     IPAddress ret;
 
-    if (is_station_inited)
+    if (is_wifi_inited)
     {
         const char* ip = WiFiInterface()->get_ip_address();
         ret.fromString(ip);
@@ -183,7 +196,7 @@ IPAddress WiFiClass::subnetMask()
 {
     IPAddress ret;
 
-    if (is_station_inited)
+    if (is_wifi_inited)
     {
         const char* mask = WiFiInterface()->get_netmask();
         ret.fromString(mask);
@@ -194,7 +207,7 @@ IPAddress WiFiClass::subnetMask()
 IPAddress WiFiClass::gatewayIP()
 {
     IPAddress ret;
-    if (is_station_inited)
+    if (is_wifi_inited)
     {
         const char* ipgw = WiFiInterface()->get_gateway();
         ret.fromString(ipgw);
@@ -214,7 +227,7 @@ unsigned char* WiFiClass::BSSID(unsigned char* bssid)
 
 int WiFiClass::RSSI()
 {
-    if (is_station_inited)
+    if (is_wifi_inited)
     {
         return ((EMW10xxInterface*)WiFiInterface())->get_rssi();
     }
@@ -227,7 +240,7 @@ int WiFiClass::encryptionType()
 
 int WiFiClass::scanNetworks()
 {
-    if (!is_station_inited)
+    if (!is_wifi_inited)
     {
         return WL_FAILURE;
     }
