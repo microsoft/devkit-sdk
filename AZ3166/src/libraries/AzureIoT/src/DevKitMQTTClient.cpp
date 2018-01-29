@@ -571,6 +571,24 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     return true;
 }
 
+bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
+{
+    if (iotHubClientHandle == NULL)
+    {
+        return false;
+    }
+
+    if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
+    {
+        LogError("Failed to set option \"%s\"", optionName);
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 bool DevKitMQTTClient_SendEvent(const char *text)
 {
     if (text == NULL)
