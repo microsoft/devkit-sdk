@@ -188,6 +188,7 @@ private:
     void MacStringToBin(const char* macString, unsigned char* macBin);
 
     char firmware_version[128];
+    bool is_wifi_inited;
     bool is_station_inited;
     bool is_ap_inited;
     char ssid[33];
