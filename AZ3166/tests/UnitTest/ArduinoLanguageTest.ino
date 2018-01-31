@@ -1,29 +1,3 @@
-#include "ArduinoUnit.h"
-
-#define LOOP_DELAY          100
-#define Math_PositiveNum    10
-#define Math_Zero           0
-#define Math_NegativeNum    -1
-
-int val = 0;
-typedef struct BytesData
-{
-    unsigned int test_data;
-    byte lb;
-    byte hb;
-}BytesData;
-
-void setup() {
-  Serial.println(__FILE__);
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(USER_BUTTON_A, INPUT);
-}
-
-void loop() {  
-  Test::run();
-}
-
 test(analog_read)
 {
     analogReadResolution(10);    
@@ -35,10 +9,14 @@ test(analog_read)
     result  = analogRead(ARDUINO_PIN_A0);
     assertMoreOrEqual(result, 0);
     assertLessOrEqual(result, 4095);
+
+    delay(LOOP_DELAY);
 }
 
 test(analog_write)
 {
+    int val = 0;
+  
     analogReadResolution(10);
     val= analogRead(ARDUINO_PIN_A0);
     Serial.print("Analog Read:");
@@ -47,10 +25,13 @@ test(analog_write)
     analogWriteResolution(10);
     analogWrite(ARDUINO_PIN_A5, val);
     assertEqual(analogRead(ARDUINO_PIN_A5), val);
+
+    delay(LOOP_DELAY);
 }
 
 test(digital_io)
 {
+    int val = 0;
     Serial.println("You can press button A to check the LED status");
     val = digitalRead(USER_BUTTON_A);
     assertEqual(val, HIGH);
@@ -65,6 +46,7 @@ test(digital_io)
     
     digitalWrite(LED_BUILTIN, LOW);
     assertEqual(digitalRead(LED_BUILTIN), LOW);
+
     delay(LOOP_DELAY);
 }
 
@@ -151,6 +133,8 @@ test(bits)
 
     x= bit(2);
     assertEqual(x,4);
+
+    delay(LOOP_DELAY);
 }
 
 test(bytes)
@@ -172,6 +156,8 @@ test(bytes)
       hb= highByte(bytes[i].test_data);
       assertEqual(hb, bytes[i].hb);
     }
+
+    delay(LOOP_DELAY);
 }
 
 test(chars)

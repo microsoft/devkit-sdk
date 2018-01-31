@@ -198,37 +198,31 @@
 
         private static void RunUnitTests(string testCasePath)
         {
-            DirectoryInfo dir = new DirectoryInfo(testCasePath);
-            FileInfo[] files = dir.GetFiles("*.ino", SearchOption.AllDirectories);
+            if(!File.Exists(testCasePath))
+            {
+                throw new FileNotFoundException($"Unit test case file is not found: {testCasePath}");
+            }
 
             string error;
             string argument;
-            foreach (FileInfo file in files)
+
+            error = string.Empty;
+            argument = string.Format(Constants.ArduinoArgTemplate, "upload", testCasePath, Path.Combine(workspace, "Build"));
+
+            Console.WriteLine(string.Format("Start checking {0}...", testCasePath));
+            RunProcess(Constants.ArduinoExeFilePath, argument, out error);
+
+            if (!string.IsNullOrEmpty(error))
             {
-                if (excludeTests.Contains(file.Name))
-                {
-                    continue;
-                }
-
-                Console.WriteLine(Constants.ReportLineSeperator);
-                Console.WriteLine(string.Format("Start checking {0}...", file.Name));
-
-                error = string.Empty;
-                argument = string.Format(Constants.ArduinoArgTemplate, "upload", file.FullName, Path.Combine(workspace, "Build"));
-                RunProcess(Constants.ArduinoExeFilePath, argument, out error);
-
-                if (!string.IsNullOrEmpty(error))
-                {
-                    unitTestResult.Add(file.FullName, error);
-                    Console.WriteLine(error);
-                }
-                else
-                {
-                    unitTestResult.Add(file.FullName, "succeed");
-                }
-
-                Console.WriteLine("END\r\n");
+                unitTestResult.Add(testCasePath, error);
+                Console.WriteLine(error);
             }
+            else
+            {
+                unitTestResult.Add(testCasePath, "succeed");
+            }
+
+            Console.WriteLine("END\r\n");            
         }
 
         private static void VerifyLibraryExamples(string exampleFolderPath)
@@ -341,75 +335,40 @@
             StreamReader sr = new StreamReader(logFilePath, Encoding.Default);
             string line;
             string content = string.Empty;
-            string retStr = string.Empty;
-
             int totalUnitTestCount = 0;
             int passUnitTestCount = 0;
-
-            string fileName = string.Empty;
-            string result = string.Empty;
-            string info = string.Empty;
-            string summary = string.Empty;
-
+            //string summary = string.Empty;
+            string retStr = string.Empty;
 
             while ((line = sr.ReadLine()) != null)
             {
-                fileName = string.Empty;
-                result = string.Empty;
-                info = string.Empty;
-                summary = string.Empty;
-
-                if (line.EndsWith(".ino"))
+                if (line.StartsWith("Test summary: "))
                 {
-                    content += "<p>" + Constants.ReportLineSeperator;
-                    fileName = Path.GetFileName(line);
-                    content += "<br>start testing: " + "<strong>" + fileName + "</strong>";
-
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        if (line.StartsWith("Test"))
-                        {
-                            content += "<br>" + line;
-
-                            totalUnitTestCount++;
-                            if (line.Contains("passed"))
-                            {
-                                passUnitTestCount++;
-                            }
-                            else if (line.Contains("failed"))
-                            {
-                                if (unitTestResult.ContainsKey(fileName))
-                                {
-                                    unitTestResult[fileName] = "failed";
-                                }
-                                else
-                                {
-                                    unitTestResult.Add(fileName, "failed");
-                                }
-                            }
-                        }
-
-                        if (line.StartsWith("Test summary: "))
-                        {
-                            content += "</p>";
-                            totalUnitTestCount--;
-                            passUnitTestCount--;
-                            break;
-                        }
-                    }
+                    content += "<br>" + line;
+                    break;
                 }
-            }
 
-            foreach (KeyValuePair<string, string> kvp in unitTestResult)
-            {
-                if (!kvp.Value.Equals("succeed"))
+                if (line.StartsWith(">>End"))
                 {
+                    string[] str = line.Split(' ');
+
                     totalUnitTestCount++;
+                    content += "<br> Check "+ str[1] +"<br>Result: "+ str[2] + "<br>";
 
-                    content += "<p>" + Constants.ReportLineSeperator;
-                    content += "<br>start testing: " + "<strong>" + kvp.Key + "</strong>";
-                    content += "<br>" + kvp.Value + "</p>";
-                }
+                    if (unitTestResult.ContainsKey(str[1]))
+                    {
+                        unitTestResult[str[1]] = str[2];
+                    }
+                    else
+                    {
+                        unitTestResult.Add(str[1], str[2]);
+                    }
+
+                    if (str[2].Equals("passed"))
+                    {
+                        passUnitTestCount++;
+                    }                  
+                } 
             }
 
             retStr += Constants.ReportLineSeperator;

@@ -1,18 +1,7 @@
-#include <ArduinoUnit.h>
-#define LOOP_DELAY          500
-
-void setup(){
-    Serial.println(__FILE__);
-    
-    Screen.init(); 
-}
-
-void loop() {
-  Test::run();
-}
-
-test(oled)
+test(oledDisplay)
 {
+  Screen.init();
+  
   Serial.println("Print a string with wrapped = false");
   Screen.print("This is OLEDDisplay Testing", false);    
   delay(LOOP_DELAY);

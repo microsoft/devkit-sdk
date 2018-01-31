@@ -1,16 +1,4 @@
-#include <ArduinoUnit.h>
-#include "AZ3166WiFi.h"
-#include "SystemWiFi.h"
-
-void setup() { 
-    Serial.println(__FILE__);
-}
-
-void loop() {
-    Test::run();
-}
-
-test(Enter_APmode)
+test(APMode)
 {
     byte mac[6];
     char ap_name[24];
@@ -33,4 +21,6 @@ test(Enter_APmode)
     ret = WiFi.disconnectAP();
     assertEqual(ret, 1);  
     assertEqual(WL_DISCONNECTED, WiFi.status());
+
+    delay(LOOP_DELAY);
 }
