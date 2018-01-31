@@ -104,8 +104,6 @@ void InitWiFi()
     IPAddress ip = WiFi.localIP();
     sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
-    digitalWrite(LED_WIFI, 1);
-    
     isConnected = true;
   }
   else
@@ -157,7 +155,6 @@ void showSensors()
 }
 
 void setup() {
-  pinMode(LED_WIFI, OUTPUT);
 
   ext_i2c = new DevI2C(D14, D15);
   
