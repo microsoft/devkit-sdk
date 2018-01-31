@@ -337,7 +337,6 @@
             string content = string.Empty;
             int totalUnitTestCount = 0;
             int passUnitTestCount = 0;
-            //string summary = string.Empty;
             string retStr = string.Empty;
 
             while ((line = sr.ReadLine()) != null)
