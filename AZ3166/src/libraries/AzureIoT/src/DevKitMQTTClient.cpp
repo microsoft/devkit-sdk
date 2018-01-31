@@ -673,6 +673,31 @@ void DevKitMQTTClient_Close(void)
     }
 }
 
+bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
+{
+    if (optionName == NULL || value == NULL)
+    {
+        return false;
+    }
+
+    if (strcmp(optionName, MINI_SOLUTION_NAME) == 0)
+    {
+        int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", value, getDevkitVersion());
+        char *product_info = (char *)malloc(len + 1);
+        snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", (char *)value, getDevkitVersion());
+        if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
+        {
+            LogError("Failed to set option \"product_info\"");
+            delete product_info;
+            return false;
+        }
+        delete product_info;
+        return true;
+    }
+
+    return IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value);
+}
+
 void DevKitMQTTClient_SetConnectionStatusCallback(CONNECTION_STATUS_CALLBACK connection_status_callback)
 {
     _connection_status_callback = connection_status_callback;

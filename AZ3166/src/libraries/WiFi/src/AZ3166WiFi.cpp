@@ -263,7 +263,6 @@ int WiFiClass::RSSI(unsigned char networkItem)
     return aps[networkItem].get_rssi();
 }
 
-
 int WiFiClass::encryptionType(unsigned char networkItem)
 {
     if (networkItem >= ap_number)
@@ -290,7 +289,6 @@ int WiFiClass::encryptionType(unsigned char networkItem)
         return ENC_TYPE_NONE;
     }
 }
-
 
 unsigned char WiFiClass::status()
 {

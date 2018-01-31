@@ -118,7 +118,8 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   DevKitMQTTClient_Init(true);
-  
+
+  DevKitMQTTClient_SetOption(MINI_SOLUTION_NAME, "GetStarted");
   DevKitMQTTClient_SetSendConfirmationCallback(SendConfirmationCallback);
   DevKitMQTTClient_SetMessageCallback(MessageCallback);
   DevKitMQTTClient_SetDeviceTwinCallback(DeviceTwinCallback);
