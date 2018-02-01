@@ -53,6 +53,19 @@ void DevKitMQTTClient_Event_AddProp(EVENT_INSTANCE *message, const char * key, c
 bool DevKitMQTTClient_Init(bool hasDeviceTwin = false, bool traceOn = false);
 
 /**
+* @brief    This API sets a runtime option identified by parameter @p optionName
+*           to a value pointed to by @p value. @p optionName and the data type
+*           @p value is pointing to are specific for every option.
+*
+* @param    optionName              Name of the option.
+*
+* @param    value                   The value.
+*
+* @return   Return true if set option successfully, or false if fails.
+*/
+bool DevKitMQTTClient_SetOption(const char* optionName, const void* value);
+
+/**
 * @brief    Asynchronous call to send the message specified by @p text.
 *
 * @param    text                The text message.
