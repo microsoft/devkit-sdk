@@ -69,7 +69,7 @@
                         Console.WriteLine("Generate test report");
                         GenerateReport("UnitTestReport", watch.Elapsed.Minutes, logFilePath);
 
-                        if (unitTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
+                        if (unitTestResult.Where(kv => !string.Equals(kv.Value, "passed.", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
                             return 1;
                         }
@@ -89,7 +89,7 @@
                         Console.WriteLine("Generate test report");
                         GenerateReport("ExampleReport", watch.Elapsed.Minutes);
 
-                        if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "passed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
+                        if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
                             return 1;
                         }
@@ -219,7 +219,7 @@
             }
             else
             {
-                unitTestResult.Add(testCasePath, "succeed");
+                unitTestResult.Add(testCasePath, "passed.");
             }
 
             Console.WriteLine("END\r\n");            
@@ -350,17 +350,19 @@
                 if (line.StartsWith(">>End"))
                 {
                     string[] str = line.Split(' ');
+                    string caseName = str[1].Trim();
+                    string result = str[2].Trim();
 
                     totalUnitTestCount++;
-                    content += "<br> Check "+ str[1] +"<br>Result: "+ str[2] + "<br>";
+                    content += "<br> Check "+ caseName + "<br>Result: "+ result + "<br>";
 
-                    if (unitTestResult.ContainsKey(str[1]))
+                    if (unitTestResult.ContainsKey(caseName))
                     {
-                        unitTestResult[str[1]] = str[2];
+                        unitTestResult[caseName] = result;
                     }
                     else
                     {
-                        unitTestResult.Add(str[1], str[2]);
+                        unitTestResult.Add(caseName, result);
                     }
 
                     if (str[2].Equals("passed"))
