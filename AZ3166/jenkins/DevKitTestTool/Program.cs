@@ -365,7 +365,7 @@
                         unitTestResult.Add(caseName, result);
                     }
 
-                    if (str[2].Equals("passed"))
+                    if (result.Equals("passed."))
                     {
                         passUnitTestCount++;
                     }                  
