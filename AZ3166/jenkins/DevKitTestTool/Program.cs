@@ -89,7 +89,7 @@
                         Console.WriteLine("Generate test report");
                         GenerateReport("ExampleReport", watch.Elapsed.Minutes);
 
-                        if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "succeed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
+                        if (examplesTestResult.Where(kv => !string.Equals(kv.Value, "passed", StringComparison.OrdinalIgnoreCase)).Count() > 0)
                         {
                             return 1;
                         }

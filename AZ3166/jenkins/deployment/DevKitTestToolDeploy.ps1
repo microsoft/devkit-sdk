@@ -2,7 +2,7 @@ Param
 (
 [String]$PortName = "COM5",
 [String]$Workspace = $env:WORKSPACE,
-[String]$TestCaseRelativePath = "devkit-sdk\AZ3166\tests\UnitTest"
+[String]$TestCaseRelativePath = "devkit-sdk\AZ3166\tests\UnitTest\UnitTest.ino"
 )
 
 $AppConfig = Join-Path -Path (Get-Location).Path -ChildPath "scripts\DevKitTestTool.exe.config"
