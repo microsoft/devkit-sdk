@@ -91,7 +91,7 @@ void RIOT_KDF_SHA256(
 )
 {
     RIOT_HMAC_SHA256_CTX    ctx;
-    uint32_t                ctr = counter ? ++*counter : 1;
+    uint32_t                ctr = counter ? ++(*counter) : 1;
 
     assert(out && key && fixed);
 
