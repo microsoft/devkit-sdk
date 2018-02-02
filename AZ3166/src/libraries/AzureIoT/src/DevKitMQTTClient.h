@@ -11,6 +11,8 @@ extern "C"
 {
 #endif
 
+#define MINI_SOLUTION_NAME "mini_solution"
+
 enum EVENT_TYPE
 {
     MESSAGE, STATE
@@ -112,6 +114,11 @@ void DevKitMQTTClient_Check(bool hasDelay = true);
 void DevKitMQTTClient_Close(void);
 
 /**
+* @brief    Sets up connection options required by IOT Hub.
+*/
+bool DevKitMQTTClient_SetOption(const char* optionName, const void* value);
+
+/**
 * @brief    Sets up connection status callback to be invoked representing the status of the connection to IOT Hub.
 */
 void DevKitMQTTClient_SetConnectionStatusCallback(CONNECTION_STATUS_CALLBACK connection_status_callback);
@@ -135,7 +142,6 @@ void DevKitMQTTClient_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_cal
 * @brief    Sets up the device method callback to be invoked when IoT Hub call method on the device.
 */
 void DevKitMQTTClient_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback);
-
 
 /**
 * @brief    Sets up the report confirmation callback to be invoked when report of the device's properties.
