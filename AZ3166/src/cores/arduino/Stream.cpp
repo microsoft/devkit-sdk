@@ -22,6 +22,7 @@
 
 #include <Arduino.h>
 #include <Stream.h>
+#include "mbed.h"
 #define PARSE_TIMEOUT 1000  // default number of milli-seconds to wait
 #define NO_SKIP_CHAR  1  // a magic char not found in a valid ASCII numeric field
 
@@ -34,7 +35,7 @@ int Stream::timedRead() {
         c = read();
         if(c >= 0)
             return c;
-        //yield();
+        //Thread::yield();
     } while(timer.read_ms() < _timeout);
     return -1;     // -1 indicates timeout
 }
@@ -48,7 +49,7 @@ int Stream::timedPeek() {
         c = peek();
         if(c >= 0)
             return c;
-        yield();
+        Thread::yield();
     } while(timer.read_ms() < _timeout);
     return -1;     // -1 indicates timeout
 }

@@ -8,6 +8,7 @@
 #include "Telemetry.h"
 #include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
+#include "SystemVersion.h"
 
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
@@ -325,7 +326,7 @@ static void ReportConfirmationCallback(int statusCode, void *userContextCallback
     }
 
     // Free the state
-    free(event);
+    FreeEventInstance(event);
 
     if (_report_confirmation_callback)
     {
@@ -430,8 +431,7 @@ EVENT_INSTANCE *DevKitMQTTClient_Event_Generate(const char *eventString, EVENT_T
             return NULL;
         }
     }
-
-    if (type == STATE)
+    else if (type == STATE)
     {
         event->stateString = eventString;
     }
@@ -511,7 +511,9 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         return false;
     }
 
-    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", "IoT_DevKit") != IOTHUB_CLIENT_OK)
+    char product_info[24];
+    snprintf(product_info, sizeof(product_info), "IoT_DevKit_%s", getDevkitVersion());
+    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"product_info\"");
         return false;
@@ -567,6 +569,41 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     }
 
     return true;
+}
+
+bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
+{
+    if (iotHubClientHandle == NULL || optionName == NULL || value == NULL)
+    {
+        return false;
+    }
+
+    if (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) == 0)
+    {
+        int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
+        char *product_info = (char *)malloc(len + 1);
+        snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
+        if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
+        {
+            LogError("Failed to set option \"product_info\"");
+            free(product_info);
+            return false;
+        }
+        else
+        {
+            free(product_info);
+            return true;
+        }
+    }
+    else if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
+    {
+        LogError("Failed to set option \"%s\"", optionName);
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 bool DevKitMQTTClient_SendEvent(const char *text)

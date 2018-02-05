@@ -73,19 +73,19 @@ char* readUDSString()
     if (ret < 0)
     { 
         LogError("Unable to get DPS UDS string from EEPROM. Please set the value in configuration mode.");
-        delete udsString;
+        free(udsString);
         return NULL;
     }
     else if (ret == 0)
     {
         LogError("The DPS UDS string is empty.\r\nPlease set the value in configuration mode.");
-        delete udsString;
+        free(udsString);
         return NULL;
     }
     else if (ret < DPS_UDS_MAX_LEN)
     {
         LogError("The length of DPS UDS string must be 64.\r\nPlease set the value with correct length in configuration mode.");
-        delete udsString;
+        free(udsString);
         return NULL;
     }
     udsString[DPS_UDS_MAX_LEN] = 0;

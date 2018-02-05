@@ -13,7 +13,7 @@ compiler.libstm.c.flags="-I{build.system.path}/hal" "-I{build.system.path}/cmsis
 
 compiler.warning_flags=-w
 compiler.warning_flags.none=-w
-compiler.warning_flags.default=
+compiler.warning_flags.default=-w
 compiler.warning_flags.more=-Wall
 compiler.warning_flags.all=-Wall -Wextra
 

@@ -516,7 +516,10 @@ static void destroy_instance(PROV_INSTANCE_INFO* prov_info)
     prov_info->prov_transport_protocol->prov_transport_destroy(prov_info->transport_handle);
     cleanup_prov_info(prov_info);
     free(prov_info->scope_id);
-    free(prov_info->registration_id);
+    if (prov_info->registration_id != NULL)
+    {
+        free(prov_info->registration_id);
+    }
     prov_auth_destroy(prov_info->prov_auth_handle);
     tickcounter_destroy(prov_info->tick_counter);
     free(prov_info);
@@ -534,15 +537,13 @@ PROV_DEVICE_LL_HANDLE Prov_Device_LL_Create(const char* uri, const char* id_scop
     else
     {
         /* Codes_SRS_PROV_CLIENT_07_002: [ Prov_Device_LL_CreateFromUri shall allocate a PROV_DEVICE_LL_HANDLE and initialize all members. ] */
-        result = (PROV_INSTANCE_INFO*)malloc(sizeof(PROV_INSTANCE_INFO) );
+        result = (PROV_INSTANCE_INFO*)calloc(1, sizeof(PROV_INSTANCE_INFO));
         if (result == NULL)
         {
             LogError("unable to allocate Instance Info");
         }
         else
         {
-            memset(result, 0, sizeof(PROV_INSTANCE_INFO) );
-
             /* Codes_SRS_PROV_CLIENT_07_028: [ CLIENT_STATE_READY is the initial state after the object is created which will send a uhttp_client_open call to the http endpoint. ] */
             result->prov_state = CLIENT_STATE_READY;
             result->prov_transport_protocol = protocol();
@@ -879,6 +880,7 @@ PROV_DEVICE_RESULT Prov_Device_LL_SetOption(PROV_DEVICE_LL_HANDLE handle, const 
                 {
                     LogError("Failure setting registration id");
                     free(handle->registration_id);
+                    handle->registration_id = NULL;
                     result = PROV_DEVICE_RESULT_ERROR;
                 }
                 else

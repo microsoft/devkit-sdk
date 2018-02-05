@@ -273,6 +273,7 @@ static int getDataFromBinFile(long int offset, uint8_t * buffer, uint32_t size)
 	{
 		printf("Failed to seek offset %d for binary file %s.\r\n", offset, binFileFullPath);
 		result = 1;
+		fclose(fp);
 		return result;
 	}
 
@@ -281,6 +282,7 @@ static int getDataFromBinFile(long int offset, uint8_t * buffer, uint32_t size)
 	if (result != size)
 	{
 		printf("Failed to read data in size %d bytes from binary file %s.\r\n", size, binFileFullPath);
+		fclose(fp);
 		return 1;
 	}
 
@@ -356,11 +358,10 @@ uint8_t* getBinFileWithName(const char *startName, const char *endName, uint32_t
 	}
 	uint8_t* endAddress = (uint8_t*)resultAddress;
 	size = endAddress - startAddress;
-	uint8_t *buf = (uint8_t*)malloc(size);
-	memset(buf, 0, sizeof(buf));
-
+	uint8_t *buf = (uint8_t*)calloc(size, 1);
+	
 	if (getDataFromBinFile(startAddress - startBin, buf, size) != 0) {
-		delete buf;
+		free(buf);
 		return NULL;
 	}
 	return buf;

@@ -7,14 +7,14 @@
 
 #define DEVKIT_MAJOR_VERSION 1
 #define DEVKIT_MINOR_VERSION 3
-#define DEVKIT_PATCH_VERSION 1
+#define DEVKIT_PATCH_VERSION 2
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char version[10] = { "\0" };
+char version[12] = { "\0" };
 
 const char* getDevkitVersion()
 {

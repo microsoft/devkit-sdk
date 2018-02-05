@@ -295,6 +295,7 @@ void setup()
     return;
   }
   hasIoTHub = true;
+  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "DevKitTranslator");
   DevKitMQTTClient_SetMessageCallback(ResultMessageCallback);
 
   // Audio
