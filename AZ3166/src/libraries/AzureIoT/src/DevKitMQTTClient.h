@@ -11,6 +11,8 @@ extern "C"
 {
 #endif
 
+#define OPTION_MINI_SOLUTION_NAME "MiniSolution"
+
 enum EVENT_TYPE
 {
     MESSAGE, STATE
@@ -135,7 +137,6 @@ void DevKitMQTTClient_SetDeviceTwinCallback(DEVICE_TWIN_CALLBACK device_twin_cal
 * @brief    Sets up the device method callback to be invoked when IoT Hub call method on the device.
 */
 void DevKitMQTTClient_SetDeviceMethodCallback(DEVICE_METHOD_CALLBACK device_method_callback);
-
 
 /**
 * @brief    Sets up the report confirmation callback to be invoked when report of the device's properties.

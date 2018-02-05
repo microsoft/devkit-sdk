@@ -573,12 +573,29 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
 
 bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
 {
-    if (iotHubClientHandle == NULL)
+    if (iotHubClientHandle == NULL || optionName == NULL || value == NULL)
     {
         return false;
     }
 
-    if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
+    if (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) == 0)
+    {
+        int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
+        char *product_info = (char *)malloc(len + 1);
+        snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
+        if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
+        {
+            LogError("Failed to set option \"product_info\"");
+            free(product_info);
+            return false;
+        }
+        else
+        {
+            free(product_info);
+            return true;
+        }
+    }
+    else if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"%s\"", optionName);
         return false;
