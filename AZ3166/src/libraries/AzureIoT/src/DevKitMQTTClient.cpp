@@ -586,12 +586,12 @@ bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
         if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
         {
             LogError("Failed to set option \"product_info\"");
-            delete product_info;
+            free(product_info);
             return false;
         }
         else
         {
-            delete product_info;
+            free(product_info);
             return true;
         }
     }
