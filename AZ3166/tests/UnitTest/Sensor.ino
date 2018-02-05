@@ -1,13 +1,10 @@
 test(sensor_hts221)
 {
-    DevI2C *i2c;
     HTS221Sensor *hts221;
     float humidity = 0;
     float temperature = 0;
     uint8_t id;
-  
-    i2c = new DevI2C(D14, D15);
-    
+
     // init the hts221 sensor
     hts221 = new HTS221Sensor(*i2c); 
     assertEqual(hts221 -> init(NULL), RetVal_OK);
@@ -39,12 +36,9 @@ test(sensor_hts221)
 
 test(sensor_lis2mdl)
 {
-    DevI2C *i2c;
     LIS2MDLSensor *lis2mdl;
     uint8_t id;
     int axes[3];
-
-    i2c = new DevI2C(D14, D15);
 
     // init lis2mdl sensor
     lis2mdl = new LIS2MDLSensor(*i2c);
@@ -74,10 +68,7 @@ void accelerometer_test(){
     uint8_t id;
     int axes[3];
     float data;
-    DevI2C *i2c;
     LSM6DSLSensor *lsm6dsl;
-
-    i2c = new DevI2C(D14, D15);
 
     // init lsm6dsl sensor
     lsm6dsl = new LSM6DSLSensor(*i2c, D4, D5);
@@ -93,13 +84,10 @@ void accelerometer_test(){
     assertEqual(lsm6dsl->getXSensitivity(&data), RetVal_OK);
 }
 
-void gyroscope_test(){    
+void gyroscope_test(){
     int axes[3];
-    float data;
-    DevI2C *i2c;
+    float data;    
     LSM6DSLSensor *lsm6dsl;
-    
-    i2c = new DevI2C(D14, D15);
     
     // init lsm6dsl sensor
     lsm6dsl = new LSM6DSLSensor(*i2c, D4, D5);

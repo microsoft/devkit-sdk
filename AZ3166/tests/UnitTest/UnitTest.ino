@@ -6,9 +6,11 @@
 #include "AZ3166WiFi.h"
 #include "SystemWiFi.h"
 #include "config.h"
-                     
-void setup() {
 
+DevI2C *i2c;
+
+void setup() {
+  i2c = new DevI2C(D14, D15);
 }
 
 void loop() {
