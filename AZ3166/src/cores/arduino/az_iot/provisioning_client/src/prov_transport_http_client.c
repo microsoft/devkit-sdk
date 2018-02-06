@@ -487,8 +487,14 @@ static void free_allocated_data(PROV_TRANSPORT_HTTP_INFO* http_info)
     free(http_info->api_version);
     free(http_info->scope_id);
     free(http_info->certificate);
-    free(http_info->proxy_host);
-    free(http_info->x509_cert);
+    if (http_info->proxy_host != NULL)
+    {
+        free(http_info->proxy_host);
+    }
+    if (http_info->x509_cert != NULL)
+    {
+        free(http_info->x509_cert);
+    }
     free(http_info->private_key);
     free(http_info->username);
     free(http_info->password);
@@ -613,7 +619,7 @@ PROV_DEVICE_TRANSPORT_HANDLE prov_transport_http_create(const char* uri, TRANSPO
     else
     {
         /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_002: [ prov_transport_http_create shall allocate the memory for the PROV_DEVICE_TRANSPORT_HANDLE variables. ] */
-        result = malloc(sizeof(PROV_TRANSPORT_HTTP_INFO));
+        result = calloc(1, sizeof(PROV_TRANSPORT_HTTP_INFO));
         if (result == NULL)
         {
             /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_003: [ If any error is encountered prov_transport_http_create shall return NULL. ] */
@@ -621,7 +627,6 @@ PROV_DEVICE_TRANSPORT_HANDLE prov_transport_http_create(const char* uri, TRANSPO
         }
         else
         {
-            memset(result, 0, sizeof(PROV_TRANSPORT_HTTP_INFO));
             if (mallocAndStrcpy_s(&result->hostname, uri) != 0)
             {
                 /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_003: [ If any error is encountered prov_transport_http_create shall return NULL. ] */
@@ -1002,10 +1007,12 @@ static int prov_transport_http_x509_cert(PROV_DEVICE_TRANSPORT_HANDLE handle, co
         if (http_info->x509_cert != NULL)
         {
             free(http_info->x509_cert);
+            http_info->x509_cert = NULL;
         }
         if (http_info->private_key != NULL)
         {
             free(http_info->private_key);
+            http_info->private_key = NULL;
         }
 
         /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_045: [ prov_transport_http_x509_cert shall store the certificate and private_key for use when the http client connects. ] */
@@ -1095,6 +1102,7 @@ static int prov_transport_http_set_proxy(PROV_DEVICE_TRANSPORT_HANDLE handle, co
             if (http_info->proxy_host != NULL)
             {
                 free(http_info->proxy_host);
+                http_info->proxy_host = NULL;
             }
             if (http_info->username != NULL)
             {

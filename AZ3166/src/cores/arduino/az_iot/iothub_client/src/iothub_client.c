@@ -140,6 +140,25 @@ typedef struct IOTHUB_QUEUE_CONTEXT_TAG
 const size_t IoTHubClient_ThreadTerminationOffset = offsetof(IOTHUB_CLIENT_INSTANCE, StopThread);
 
 #ifndef DONT_USE_UPLOADTOBLOB
+static void FreeBlobSavedData(UPLOADTOBLOB_SAVED_DATA *savedData)
+{
+    if (savedData == NULL)
+    {
+        return;
+    }
+
+    if (savedData->source != NULL)
+    {
+        free(savedData->source);
+    }
+    if (savedData->destinationFileName != NULL)
+    {
+        free(savedData->destinationFileName);
+    }
+
+    free(savedData);
+}
+
 /*this function is called from _Destroy and from ScheduleWork_Thread to join finished blobUpload threads and free that memory*/
 static void garbageCollectorImpl(IOTHUB_CLIENT_INSTANCE* iotHubClientInstance)
 {
@@ -166,15 +185,13 @@ static void garbageCollectorImpl(IOTHUB_CLIENT_INSTANCE* iotHubClientInstance)
                     LogError("unable to ThreadAPI_Join");
                 }
                 (void)singlylinkedlist_remove(iotHubClientInstance->savedDataToBeCleaned, old_item);
-                free((void*)savedData->source);
-                free((void*)savedData->destinationFileName);
-
+                
                 if (Unlock(savedData->lockGarbage) != LOCK_OK)
                 {
                     LogError("unable to unlock after locking");
                 }
                 (void)Lock_Deinit(savedData->lockGarbage);
-                free((void*)savedData);
+                FreeBlobSavedData(savedData);
             }
             else
             {
@@ -1935,7 +1952,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
     else
     {
         /*Codes_SRS_IOTHUBCLIENT_02_051: [IoTHubClient_UploadToBlobAsync shall copy the souce, size, iotHubClientFileUploadCallback, context into a structure.]*/
-        UPLOADTOBLOB_SAVED_DATA *savedData = (UPLOADTOBLOB_SAVED_DATA *)malloc(sizeof(UPLOADTOBLOB_SAVED_DATA));
+        UPLOADTOBLOB_SAVED_DATA *savedData = (UPLOADTOBLOB_SAVED_DATA *)calloc(1, sizeof(UPLOADTOBLOB_SAVED_DATA));
         if (savedData == NULL)
         {
             /*Codes_SRS_IOTHUBCLIENT_02_053: [ If copying to the structure or spawning the thread fails, then IoTHubClient_UploadToBlobAsync shall fail and return IOTHUB_CLIENT_ERROR. ]*/
@@ -1948,7 +1965,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
             {
                 /*Codes_SRS_IOTHUBCLIENT_02_053: [ If copying to the structure or spawning the thread fails, then IoTHubClient_UploadToBlobAsync shall fail and return IOTHUB_CLIENT_ERROR. ]*/
                 LogError("unable to mallocAndStrcpy_s");
-                free(savedData);
+                FreeBlobSavedData(savedData);
                 result = IOTHUB_CLIENT_ERROR;
             }
             else
@@ -1957,7 +1974,6 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
                 int sourceCloned;
                 if (size == 0)
                 {
-                    savedData->source = NULL;
                     sourceCloned = 1;
                 }
                 else
@@ -1967,8 +1983,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
                     {
                         /*Codes_SRS_IOTHUBCLIENT_02_053: [ If copying to the structure or spawning the thread fails, then IoTHubClient_UploadToBlobAsync shall fail and return IOTHUB_CLIENT_ERROR. ]*/
                         LogError("unable to malloc - oom");
-                        free(savedData->destinationFileName);
-                        free(savedData);
+                        FreeBlobSavedData(savedData);
                         sourceCloned = 0;
                     }
                     else
@@ -1991,9 +2006,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
 
                     if ((result = StartWorkerThreadIfNeeded(iotHubClientHandleData)) != IOTHUB_CLIENT_OK)
                     {
-                        free(savedData->source);
-                        free(savedData->destinationFileName);
-                        free(savedData);
+                        FreeBlobSavedData(savedData);
                         result = IOTHUB_CLIENT_ERROR;
                         LogError("Could not start worker thread");
                     }
@@ -2002,9 +2015,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
                         if (Lock(iotHubClientHandleData->LockHandle) != LOCK_OK) /*locking because the next statement is changing blobThreadsToBeJoined*/
                         {
                             LogError("unable to lock");
-                            free(savedData->source);
-                            free(savedData->destinationFileName);
-                            free(savedData);
+                            FreeBlobSavedData(savedData);
                             result = IOTHUB_CLIENT_ERROR;
                         }
                         else
@@ -2014,9 +2025,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
                             if (item == NULL)
                             {
                                 LogError("unable to singlylinkedlist_add");
-                                free(savedData->source);
-                                free(savedData->destinationFileName);
-                                free(savedData);
+                                FreeBlobSavedData(savedData);
                                 result = IOTHUB_CLIENT_ERROR;
                             }
                             else
@@ -2026,9 +2035,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
                                 if ((savedData->lockGarbage = Lock_Init()) == NULL)
                                 {
                                     (void)singlylinkedlist_remove(iotHubClientHandleData->savedDataToBeCleaned, item);
-                                    free(savedData->source);
-                                    free(savedData->destinationFileName);
-                                    free(savedData);
+                                    FreeBlobSavedData(savedData);
                                     result = IOTHUB_CLIENT_ERROR;
                                     LogError("unable to Lock_Init");
                                 }
@@ -2041,9 +2048,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_UploadToBlobAsync(IOTHUB_CLIENT_HANDLE iotHubC
                                         LogError("unablet to ThreadAPI_Create");
                                         (void)Lock_Deinit(savedData->lockGarbage);
                                         (void)singlylinkedlist_remove(iotHubClientHandleData->savedDataToBeCleaned, item);
-                                        free(savedData->source);
-                                        free(savedData->destinationFileName);
-                                        free(savedData);
+                                        FreeBlobSavedData(savedData);
                                         result = IOTHUB_CLIENT_ERROR;
                                     }
                                     else
