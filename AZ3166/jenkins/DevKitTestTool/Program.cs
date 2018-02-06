@@ -209,7 +209,7 @@
             error = string.Empty;
             argument = string.Format(Constants.ArduinoArgTemplate, "upload", testCasePath, Path.Combine(workspace, "Build"));
 
-            Console.WriteLine(string.Format("Start checking {0}...", testCasePath));
+            Console.WriteLine(string.Format("Start running {0}...", testCasePath));
             RunProcess(Constants.ArduinoExeFilePath, argument, out error);
 
             if (!string.IsNullOrEmpty(error))

@@ -7,10 +7,8 @@
 #include "SystemWiFi.h"
 #include "config.h"
 
-DevI2C *i2c;
-
 void setup() {
-  i2c = new DevI2C(D14, D15);
+  I2CInit();
 }
 
 void loop() {
