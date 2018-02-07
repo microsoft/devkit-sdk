@@ -44,6 +44,7 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 
 #define LOG_NONE 0x00
 #define LOG_LINE 0x01
+#define __SUB_FILE_PATH__  (strstr(__FILE__, "az_iot") ? strstr(__FILE__, "az_iot") : __FILE__)
 
 /*no logging is useful when time and fprintf are mocked*/
 #ifdef NO_LOGGING
@@ -57,7 +58,7 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 #elif (defined MINIMAL_LOGERROR)
 #define LOG(...)
 #define LogInfo(...)
-#define LogError(...) printf("error %s: line %d\n",__FILE__,__LINE__);
+#define LogError(...) printf("error %s: line %d\n",__SUB_FILE_PATH__, __LINE__);
 #define xlogging_get_log_function() NULL
 #define xlogging_set_log_function(...)
 #define LogErrorWinHTTPWithGetLastErrorAsString(...)
@@ -80,9 +81,9 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 #else /* NOT ESP8266_RTOS */
 
 #if defined _MSC_VER
-#define LOG(log_category, log_options, format, ...) { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __FILE__, FUNC_NAME, __LINE__, log_options, format, __VA_ARGS__); }
+#define LOG(log_category, log_options, format, ...) { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __SUB_FILE_PATH__, FUNC_NAME, __LINE__, log_options, format, __VA_ARGS__); }
 #else
-#define LOG(log_category, log_options, format, ...) { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __FILE__, FUNC_NAME, __LINE__, log_options, format, ##__VA_ARGS__); } 
+#define LOG(log_category, log_options, format, ...) { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __SUB_FILE_PATH__, FUNC_NAME, __LINE__, log_options, format, ##__VA_ARGS__); } 
 #endif
 
 #if defined _MSC_VER
@@ -96,7 +97,7 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 #if !defined(WINCE)
 extern void xlogging_set_log_function_GetLastError(LOGGER_LOG_GETLASTERROR log_function);
 extern LOGGER_LOG_GETLASTERROR xlogging_get_log_function_GetLastError(void);
-#define LogLastError(FORMAT, ...) do{ LOGGER_LOG_GETLASTERROR l = xlogging_get_log_function_GetLastError(); if(l!=NULL) l(__FILE__, FUNC_NAME, __LINE__, FORMAT, __VA_ARGS__); }while((void)0,0)
+#define LogLastError(FORMAT, ...) do{ LOGGER_LOG_GETLASTERROR l = xlogging_get_log_function_GetLastError(); if(l!=NULL) l(__SUB_FILE_PATH__, FUNC_NAME, __LINE__, FORMAT, __VA_ARGS__); }while((void)0,0)
 #endif
 
 #define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, __VA_ARGS__); }while((void)0,0)
