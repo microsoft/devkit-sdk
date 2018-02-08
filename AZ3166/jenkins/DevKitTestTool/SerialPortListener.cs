@@ -47,7 +47,7 @@
         public void Stop()
         {
             try
-            {                
+            {
                 m_serialPort.Dispose();
                 m_serialPort.Close();
 

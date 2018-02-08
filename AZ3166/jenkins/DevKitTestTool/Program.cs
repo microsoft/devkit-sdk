@@ -222,7 +222,7 @@
                 unitTestResult.Add(testCasePath, "passed.");
             }
 
-            Console.WriteLine("END\r\n");            
+            Console.WriteLine("END\r\n");
         }
 
         private static void VerifyLibraryExamples(string exampleFolderPath)
@@ -368,8 +368,8 @@
                     if (result.Equals("passed."))
                     {
                         passUnitTestCount++;
-                    }                  
-                } 
+                    }
+                }
             }
 
             retStr += Constants.ReportLineSeperator;
@@ -502,7 +502,7 @@
                 {
                     bPass = false;
 
-                    errorString += "Process exited with code [ " + proc.ExitCode + " ].\n\nError Message:\n";   // TODO: include the standard error/output? 
+                    errorString += "Process exited with code [ " + proc.ExitCode + " ].\n\nError Message:\n";   // TODO: include the standard error/output?
                     errorString += proc.StandardError.ReadToEnd();
                 }
             }
@@ -548,7 +548,7 @@
             }
 
             Console.WriteLine($"Change firmware version to {versionInfo}");
-            content = File.ReadAllText(filePath);            
+            content = File.ReadAllText(filePath);
             content = content.Replace(Constants.FirmwareVersionString, versionInfo);
 
             File.WriteAllText(filePath, content);
