@@ -5,7 +5,7 @@
 #define __AUDIO_CLASS_V2_H__
 
 #include "mbed.h"
-#include "NAU88C10.h"
+#include "nau88c10.h"
 
 #define DURATION_IN_SECONDS         2
 #define DEFAULT_SAMPLE_RATE         8000
