@@ -81,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-	<IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\RIoT;$(ProjectDir)\RIoT\Core;$(ProjectDir)\RIoT\Core\RIoTCrypt;$(ProjectDir)\RIoT\Core\RIoTCrypt\include;$(ProjectDir)\DICE;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\RIoT;$(ProjectDir)\RIoT\Core;$(ProjectDir)\RIoT\Core\RIoTCrypt;$(ProjectDir)\RIoT\Core\RIoTCrypt\include;$(ProjectDir)\DICE;</IncludePath>
     <SourcePath>$(ProjectDir)\RIoT;$(ProjectDir)\RIoT\Core;$(ProjectDir)\RIoT\Core\RIoTCrypt;$(ProjectDir)\RIoT\Core\RIoTCrypt\include;$(ProjectDir)\DICE;</SourcePath>
     <ReferencePath>$(VC_ReferencesPath_x86);$(ProjectDir)\RIoT;$(ProjectDir)\RIoT\Core;$(ProjectDir)\RIoT\Core\RIoTCrypt;$(ProjectDir)\RIoT\Core\RIoTCrypt\include;$(ProjectDir)\DICE;</ReferencePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(ProjectDir)\RIoT;$(ProjectDir)\RIoT\Core;$(ProjectDir)\RIoT\Core\RIoTCrypt;$(ProjectDir)\RIoT\Core\RIoTCrypt\include;$(ProjectDir)\DICE;</LibraryPath>
@@ -162,8 +162,6 @@
     <ClInclude Include="DiceRIoT.h" />
     <ClInclude Include="DICE\DiceSha256.h" />
     <ClInclude Include="DICE\DiceCore.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="RIoT\Core\RIoTCrypt\def.h" />
     <ClInclude Include="RIoT\Core\RiotCore.h" />
     <ClInclude Include="RIoT\Core\RIoTCrypt\RiotAes128.h" />
@@ -180,7 +178,6 @@
   <ItemGroup>
     <ClCompile Include="DiceRIoT.cpp" />
     <ClCompile Include="dice_device_enrollment.cpp" />
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="DICE\DiceSha256.c" />
     <ClCompile Include="DICE\DiceCore.c" />
     <ClCompile Include="RIoT\Core\RIoTCrypt\def.c" />
