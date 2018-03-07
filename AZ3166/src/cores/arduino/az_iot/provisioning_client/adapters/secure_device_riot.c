@@ -11,7 +11,7 @@
 #include "secure_device_riot.h"
 
 #include "RiotCore.h"
-#include "Riot.h"
+#include "RIoT.h"
 #include "RiotCrypt.h"
 #include "RiotDerEnc.h"
 #include "RiotX509Bldr.h"

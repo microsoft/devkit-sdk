@@ -11,7 +11,7 @@ Confidential Information
 extern "C" {
 #endif
 #include <stdint.h>
-#include "Riot.h"
+#include "RIoT.h"
 #include "RiotDerEnc.h"
 #include "RiotX509Bldr.h"
 
