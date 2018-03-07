@@ -27,7 +27,7 @@
         }
 
         public int RunTest(string installPackageBlobUrl)
-        {         
+        {
             string packageZipFile = DownloadZipPackage(installPackageBlobUrl);
 
             string extractFolder = ExtractZipPackage(packageZipFile);
