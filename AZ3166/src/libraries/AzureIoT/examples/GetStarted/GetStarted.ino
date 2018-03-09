@@ -84,9 +84,8 @@ static int  DeviceMethodCallback(const char *methodName, const unsigned char *pa
     result = 404;
   }
 
-  *response_size = strlen(responseMessage);
-  *response = (unsigned char *)malloc(*response_size);
-  strncpy((char *)(*response), responseMessage, *response_size);
+  *response_size = strlen(responseMessage) + 1;
+  *response = (unsigned char *)strdup(responseMessage);
 
   return result;
 }
