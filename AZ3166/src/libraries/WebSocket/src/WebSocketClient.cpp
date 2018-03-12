@@ -249,13 +249,28 @@ int WebSocketClient::sendMask(char *msg)
     return 4;
 }
 
-int WebSocketClient::send(char *str, int size, char opcode, int mask)
+int WebSocketClient::send(char *str, int size)
 {
+    if (_tcpSocket == NULL)
+    {
+        Serial.println("ERROR: unable to send data when WebSocket is disconnected.");
+        return -1;
+    }
+
+    if (size <= 0)
+    {
+        Serial.println("ERROR: invalid data size.");
+        return -1;
+    }
+
     char msg[15];
     int idx = 1;
-    msg[0] = opcode;
+    msg[0] = 0x81;
     if (size == 0)
+    {
         size = strlen(str);
+    }
+
     idx += sendLength(size, msg + idx);
     idx += sendMask(msg + idx);
     int res = write(msg, idx);
@@ -264,14 +279,26 @@ int WebSocketClient::send(char *str, int size, char opcode, int mask)
         Serial.println("ERROR: send websocket frame header failed.");
         return -1;
     }
+
     res = write(str, size);
     if (res == -1)
+    {
         return -1;
-    return res + idx;
+    }
+    else
+    {
+        return res + idx;
+    }
 }
 
 WebSocketReceiveResult *WebSocketClient::receive(char *message)
 {
+    if (_tcpSocket == NULL)
+    {
+        Serial.println("ERROR: unable to receive data when WebSocket is disconnected.");
+        return NULL;
+    }
+
     int i = 0;
     uint32_t payloadLength;
     char recvByte = 0;

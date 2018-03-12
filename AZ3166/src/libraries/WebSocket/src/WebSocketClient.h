@@ -67,7 +67,7 @@ class WebSocketClient
         *
         * @returns the number of bytes sent
         */
-        int send(char * str, int size = 0, char opcode = 0x81, int mask = 0);
+        int send(char * str, int size);
 
         /**
         * Read a websocket message

@@ -9,7 +9,7 @@ char wsBuffer[1024];
 char wifiBuff[128];
 int msgCount;
 
-void InitWiFi()
+void initWiFi()
 {
   Screen.print("WiFi \r\n \r\nConnecting...\r\n             \r\n");
 
@@ -60,7 +60,7 @@ void setup()
   isWsConnected = false;
   msgCount = 0;
 
-  InitWiFi();
+  initWiFi();
   if (hasWifi)
   {
     connectWebSocket();
@@ -96,7 +96,7 @@ void loop()
       {
         // Send message to WebSocket server
         sprintf(msgBuffer, "Hello WebSocket %d", msgCount);
-        int res = wsClient->send(msgBuffer);
+        int res = wsClient->send(msgBuffer, strlen(msgBuffer));
         if (res > 0)
         {
           Screen.clean();
@@ -109,6 +109,11 @@ void loop()
         // Receive message from WebSocket Server
         bool isEndOfMessage = false;
         WebSocketReceiveResult *recvResult = NULL;
+        Screen.clean();
+        Screen.print(0, "WS receive:");
+        Screen.print(1, "receiving...");
+        Serial.print("WS receive:");
+
         while (!isEndOfMessage)
         {
           recvResult = wsClient->receive(wsBuffer);
@@ -118,8 +123,6 @@ void loop()
             len = recvResult->length;
             isEndOfMessage = recvResult->isEndOfMessage;
 
-            Screen.clean();
-            Screen.print(0, "WS receive:");
             Screen.print(1, wsBuffer, true);
             Serial.println(wsBuffer);
 
