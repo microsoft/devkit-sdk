@@ -5,7 +5,6 @@
 #include "AzureIotHub.h"
 #include "Arduino.h"
 #include "parson.h"
-#include <assert.h>
 #include "config.h"
 #include "RGB_LED.h"
 
