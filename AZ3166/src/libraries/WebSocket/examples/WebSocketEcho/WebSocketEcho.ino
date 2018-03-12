@@ -138,9 +138,6 @@ void loop()
         isWsConnected = false;
         Screen.print(1, "Close WS successfully.", true);
         Serial.println("Close WS successfully.");
-
-        free(wsClient);
-        wsClient = NULL;
       }
       else
       {

@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "WebSocketClient.h"
 #include "SystemWiFi.h"
 
@@ -26,18 +25,18 @@ void WebSocketClient::fillFields(char *url)
     int ret = parseURL(url, scheme, sizeof(scheme), host, sizeof(host), &port, path, sizeof(path));
     if (ret)
     {
-        Serial.println("ERROR: URL parsing failed; please use: \"ws://ip-or-domain[:port]/path\".");
+        ERROR("URL parsing failed; please use: \"ws://ip-or-domain[:port]/path\".");
         return;
     }
 
-    if (port == 0) //TODO: do handle WSS->443
+    if (port == 0) //TODO: support secure WebSocket with SSL (port 443)
     {
         port = 80;
     }
 
     if (strcmp(scheme, "ws"))
     {
-        Serial.println("ERROR: Wrong scheme, please use \"ws\" instead.");
+        ERROR("Wrong scheme, please use \"ws\" instead.");
     }
 }
 
@@ -47,13 +46,13 @@ int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen
     char *hostPtr = (char *)strstr(url, "://");
     if (hostPtr == NULL)
     {
-        Serial.println("ERROR: Could not find host from the WebSocket URL.");
+        ERROR("Could not find host from the WebSocket URL.");
         return -1;
     }
 
     if (maxSchemeLen < hostPtr - schemePtr + 1) // Including NULL-terminating char
     {
-        Serial.printf("ERROR: Scheme str is too small (%d >= %d)", maxSchemeLen, hostPtr - schemePtr + 1);
+        ERROR_FORMAT("Scheme str is too small (%d >= %d)", maxSchemeLen, hostPtr - schemePtr + 1);
         return -1;
     }
     memcpy(scheme, schemePtr, hostPtr - schemePtr);
@@ -69,7 +68,7 @@ int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen
         portPtr++;
         if (sscanf(portPtr, "%hu", port) != 1)
         {
-            Serial.println("ERROR: Could not find port.");
+            ERROR("Could not find port.");
             return -1;
         }
     }
@@ -80,7 +79,7 @@ int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen
     char *pathPtr = strchr(hostPtr, '/');
     if (pathPtr == NULL)
     {
-        Serial.println("ERROR: Path not specified. Please add /[path] to the end of the websocket address");
+        ERROR("Path not specified. Please add /[path] to the end of the websocket address");
         return -1;
     }
     if (hostLen == 0)
@@ -90,7 +89,7 @@ int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen
 
     if (maxHostLen < hostLen + 1) //including NULL-terminating char
     {
-        Serial.printf("ERROR: Host str is too small (%d >= %d)", maxHostLen, hostLen + 1);
+        ERROR_FORMAT("Host str is too small (%d >= %d)", maxHostLen, hostLen + 1);
         return -1;
     }
     memcpy(host, hostPtr, hostLen);
@@ -109,7 +108,7 @@ int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen
 
     if (maxPathLen < pathLen + 1) //including NULL-terminating char
     {
-        Serial.printf("ERROR: Path str is too small (%d >= %d)", maxPathLen, pathLen + 1);
+        ERROR_FORMAT("Path str is too small (%d >= %d)", maxPathLen, pathLen + 1);
         return -1;
     }
     memcpy(path, pathPtr, pathLen);
@@ -120,6 +119,8 @@ int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen
 
 bool WebSocketClient::connect()
 {
+    INFO_FORMAT("Start to connect to (%s) on port (%d)\r\n", host, port);
+
     if (_tcpSocket != NULL)
     {
         // Already connected.
@@ -135,8 +136,7 @@ bool WebSocketClient::connect()
 
         if (_tcpSocket->open(WiFiInterface()) != 0 || _tcpSocket->connect(host, port) != 0)
         {
-            Serial.printf("ERROR: Unable to connect to (%s) on port (%d)\r\n", host, port);
-            wait(0.2);
+            ERROR_FORMAT("Unable to connect to (%s) on port (%d)\r\n", host, port);
 
             delete _tcpSocket;
             _tcpSocket = NULL;
@@ -169,7 +169,7 @@ bool WebSocketClient::connect()
     if (ret != strlen(cmd))
     {
         close();
-        Serial.println("ERROR: Could not send request.");
+        ERROR("Could not send request.");
         return false;
     }
 
@@ -177,7 +177,7 @@ bool WebSocketClient::connect()
     if (ret < 0)
     {
         close();
-        Serial.println("ERROR: Could not receive answer.");
+        ERROR("Could not receive answer.");
         return false;
     }
 
@@ -185,13 +185,13 @@ bool WebSocketClient::connect()
 
     if (strstr(cmd, "DdLWT/1JcX+nQFHebYP+rqEx5xI=") == NULL)
     {
-        Serial.printf("ERROR: Wrong answer from server, got \"%s\" instead\r\n", cmd);
+        ERROR_FORMAT("Wrong answer from server, got \"%s\" instead\r\n", cmd);
         do
         {
             ret = read(cmd, 200, 100);
             if (ret < 0)
             {
-                Serial.println("ERROR: Could not receive answer.");
+                ERROR("Could not receive answer.");
                 return false;
             }
             cmd[ret] = '\0';
@@ -253,13 +253,13 @@ int WebSocketClient::send(char *str, int size)
 {
     if (_tcpSocket == NULL)
     {
-        Serial.println("ERROR: unable to send data when WebSocket is disconnected.");
+        ERROR("unable to send data when WebSocket is disconnected.");
         return -1;
     }
 
-    if (size <= 0)
+    if (str == NULL || size <= 0)
     {
-        Serial.println("ERROR: invalid data size.");
+        ERROR("Input data string is NULL or size is invalid.");
         return -1;
     }
 
@@ -276,7 +276,7 @@ int WebSocketClient::send(char *str, int size)
     int res = write(msg, idx);
     if (res != idx)
     {
-        Serial.println("ERROR: send websocket frame header failed.");
+        ERROR("Send websocket frame header failed.");
         return -1;
     }
 
@@ -295,7 +295,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
 {
     if (_tcpSocket == NULL)
     {
-        Serial.println("ERROR: unable to receive data when WebSocket is disconnected.");
+        ERROR("Unable to receive data when WebSocket is disconnected.");
         return NULL;
     }
 
@@ -315,7 +315,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
     {
         if (timer.read() > 10)
         {
-            //Serial.printf("ERROR: timeout ws, timer: %d\r\n", timer.read());
+            ERROR("WebSocket timeout\r\n");
             return NULL;
         }
 
@@ -349,7 +349,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
         }
         else if (res < 0 && res != NSAPI_ERROR_WOULD_BLOCK)
         {
-            Serial.printf("ERROR: Socket receive failed, res: %d, opcode: %x\r\n", res, opcode);
+            ERROR_FORMAT("Socket receive failed, res: %d, opcode: %x\r\n", res, opcode);
             return NULL;
         }
     }
@@ -412,14 +412,14 @@ bool WebSocketClient::close()
 {
     if (_tcpSocket == NULL)
     {
-        Serial.println("WebSocket is already disconnected.");
+        printf("WebSocket is already disconnected.");
         return true;
     }
 
     int ret = _tcpSocket->close();
     if (ret < 0)
     {
-        Serial.println("ERROR: Could not disconnect to WebSocket server.");
+        ERROR("Could not disconnect to WebSocket server.");
         return false;
     }
 

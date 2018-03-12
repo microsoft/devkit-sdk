@@ -6,6 +6,23 @@
 
 #include "mbed.h"
 
+//#define _WS_DEBUG
+
+#ifdef _WS_DEBUG
+#define INFO_FORMAT(format, args...) do {char buf[250];sprintf(buf, format, args);printf(buf);} while(0);
+#define ERROR_FORMAT(format, args...) do {char buf[250];sprintf(buf, format, args);printf(buf);} while(0);
+
+#define INFO(x) do {  } while(0);
+#define ERROR(x) do {  } while(0);
+#else
+#define INFO(format, args...) do {} while(0);
+#define ERROR(format, args...) do {} while(0);
+
+#define INFO(x) do {  } while(0);
+#define ERROR(x) do {  } while(0);
+#endif
+
+
 typedef enum
 {
     WS_Message_Text = 0,        /* The message is clear text. */
