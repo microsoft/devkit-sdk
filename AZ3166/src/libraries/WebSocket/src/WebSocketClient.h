@@ -5,8 +5,11 @@
 #define WEBSOCKET_CLIENT_H
 
 #include "mbed.h"
+#include "SystemWiFi.h"
+#include "http_common.h"
+#include "http_parsed_url.h"
 
-//#define _WS_DEBUG
+#define _WS_DEBUG
 
 #ifdef _WS_DEBUG
 #define INFO_FORMAT(format, args...) do {char buf[250];sprintf(buf, format, args);printf(buf);} while(0);
@@ -15,13 +18,12 @@
 #define INFO(x) do {  } while(0);
 #define ERROR(x) do {  } while(0);
 #else
-#define INFO(format, args...) do {} while(0);
-#define ERROR(format, args...) do {} while(0);
+#define INFO_FORMAT(format, args...) do {} while(0);
+#define ERROR_FORMAT(format, args...) do {} while(0);
 
 #define INFO(x) do {  } while(0);
 #define ERROR(x) do {  } while(0);
 #endif
-
 
 typedef enum
 {
@@ -107,7 +109,7 @@ class WebSocketClient
         *
         * @return path
         */
-        char* getPath();
+        const char* getPath();
 
     private:
         void fillFields(char * url);
@@ -119,12 +121,9 @@ class WebSocketClient
         int read(char * buf, int len, int min_len = -1);
         int write(char * buf, int len);
 
-        char scheme[8];
-        uint16_t port;
-        char host[64];
-        char path[64];
-
         TCPSocket * _tcpSocket;
+        ParsedUrl * _parsedUrl;
+        uint16_t _port;
         MessageType messageType;
 };
 

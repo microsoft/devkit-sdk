@@ -3,7 +3,7 @@
 
 static bool hasWifi;
 static bool isWsConnected;
-static char *webSocketServerUrl = "ws://devkitwebsocket.azurewebsites.net/test?nickName=test2";
+static char *webSocketServerUrl = "ws://devkitwebsocket.azurewebsites.net/test?nickName=abc";
 static WebSocketClient *wsClient;
 char wsBuffer[1024];
 char wifiBuff[128];

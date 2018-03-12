@@ -1,13 +1,26 @@
 #include "WebSocketClient.h"
-#include "SystemWiFi.h"
 
 #define MAX_TRY_WRITE 30
 #define MAX_TRY_READ 10
 
 WebSocketClient::WebSocketClient(char *url)
 {
-    fillFields(url);
     _tcpSocket = NULL;
+    _parsedUrl = NULL;
+    _parsedUrl = new ParsedUrl(url);
+
+    if (!_parsedUrl->schema()) 
+    {
+        if (strcmp(_parsedUrl->schema(), "ws") == 0)
+        {
+            _port = 80;
+        }
+        else 
+        {
+            // TODO: support secure WebSocket (port 443)
+            _port = 443;
+        }
+    }
 }
 
 WebSocketClient::~WebSocketClient()
@@ -18,109 +31,16 @@ WebSocketClient::~WebSocketClient()
         delete _tcpSocket;
         _tcpSocket = NULL;
     }
-}
 
-void WebSocketClient::fillFields(char *url)
-{
-    int ret = parseURL(url, scheme, sizeof(scheme), host, sizeof(host), &port, path, sizeof(path));
-    if (ret)
+    if (_parsedUrl != NULL)
     {
-        ERROR("URL parsing failed; please use: \"ws://ip-or-domain[:port]/path\".");
-        return;
+        delete _parsedUrl;
+        _parsedUrl = NULL;
     }
-
-    if (port == 0) //TODO: support secure WebSocket with SSL (port 443)
-    {
-        port = 80;
-    }
-
-    if (strcmp(scheme, "ws"))
-    {
-        ERROR("Wrong scheme, please use \"ws\" instead.");
-    }
-}
-
-int WebSocketClient::parseURL(const char *url, char *scheme, size_t maxSchemeLen, char *host, size_t maxHostLen, uint16_t *port, char *path, size_t maxPathLen)
-{
-    char *schemePtr = (char *)url;
-    char *hostPtr = (char *)strstr(url, "://");
-    if (hostPtr == NULL)
-    {
-        ERROR("Could not find host from the WebSocket URL.");
-        return -1;
-    }
-
-    if (maxSchemeLen < hostPtr - schemePtr + 1) // Including NULL-terminating char
-    {
-        ERROR_FORMAT("Scheme str is too small (%d >= %d)", maxSchemeLen, hostPtr - schemePtr + 1);
-        return -1;
-    }
-    memcpy(scheme, schemePtr, hostPtr - schemePtr);
-    scheme[hostPtr - schemePtr] = '\0';
-
-    hostPtr += 3;
-    size_t hostLen = 0;
-
-    char *portPtr = strchr(hostPtr, ':');
-    if (portPtr != NULL)
-    {
-        hostLen = portPtr - hostPtr;
-        portPtr++;
-        if (sscanf(portPtr, "%hu", port) != 1)
-        {
-            ERROR("Could not find port.");
-            return -1;
-        }
-    }
-    else
-    {
-        *port = 0;
-    }
-    char *pathPtr = strchr(hostPtr, '/');
-    if (pathPtr == NULL)
-    {
-        ERROR("Path not specified. Please add /[path] to the end of the websocket address");
-        return -1;
-    }
-    if (hostLen == 0)
-    {
-        hostLen = pathPtr - hostPtr;
-    }
-
-    if (maxHostLen < hostLen + 1) //including NULL-terminating char
-    {
-        ERROR_FORMAT("Host str is too small (%d >= %d)", maxHostLen, hostLen + 1);
-        return -1;
-    }
-    memcpy(host, hostPtr, hostLen);
-    host[hostLen] = '\0';
-
-    size_t pathLen;
-    char *fragmentPtr = strchr(hostPtr, '#');
-    if (fragmentPtr != NULL)
-    {
-        pathLen = fragmentPtr - pathPtr;
-    }
-    else
-    {
-        pathLen = strlen(pathPtr);
-    }
-
-    if (maxPathLen < pathLen + 1) //including NULL-terminating char
-    {
-        ERROR_FORMAT("Path str is too small (%d >= %d)", maxPathLen, pathLen + 1);
-        return -1;
-    }
-    memcpy(path, pathPtr, pathLen);
-    path[pathLen] = '\0';
-
-    return 0;
 }
 
 bool WebSocketClient::connect()
 {
-    INFO_FORMAT("Start to connect to (%s) on port (%d)\r\n", host, port);
-
     if (_tcpSocket != NULL)
     {
         // Already connected.
@@ -134,9 +54,10 @@ bool WebSocketClient::connect()
             return false;
         }
 
-        if (_tcpSocket->open(WiFiInterface()) != 0 || _tcpSocket->connect(host, port) != 0)
+        if (_tcpSocket->open(WiFiInterface()) != 0 
+            || _tcpSocket->connect(_parsedUrl->host(), _parsedUrl->port()) != 0)
         {
-            ERROR_FORMAT("Unable to connect to (%s) on port (%d)\r\n", host, port);
+            ERROR_FORMAT("Unable to connect to %s on port %d\r\n", _parsedUrl->host(), _parsedUrl->port());
 
             delete _tcpSocket;
             _tcpSocket = NULL;
@@ -148,11 +69,19 @@ bool WebSocketClient::connect()
 
     char cmd[200];
 
-    // sent http header to upgrade to the ws protocol
-    sprintf(cmd, "GET %s HTTP/1.1\r\n", path);
+    // Send handshake message to upgrade http to the ws protocol
+    if (strlen(_parsedUrl->query()) > 0)
+    {
+        sprintf(cmd, "GET %s?%s HTTP/1.1\r\n", _parsedUrl->path(), _parsedUrl->query());
+    }
+    else
+    {
+        sprintf(cmd, "GET %s HTTP/1.1\r\n", _parsedUrl->path());
+        
+    }
     write(cmd, strlen(cmd));
 
-    sprintf(cmd, "Host: %s:%d\r\n", host, port);
+    sprintf(cmd, "Host: %s:%d\r\n", _parsedUrl->host(), _parsedUrl->port());
     write(cmd, strlen(cmd));
 
     sprintf(cmd, "Upgrade: WebSocket\r\n");
@@ -173,6 +102,7 @@ bool WebSocketClient::connect()
         return false;
     }
 
+    // Receive handshake response from WebSocket server
     ret = read(cmd, 200, 100);
     if (ret < 0)
     {
@@ -182,16 +112,15 @@ bool WebSocketClient::connect()
     }
 
     cmd[ret] = '\0';
-
     if (strstr(cmd, "DdLWT/1JcX+nQFHebYP+rqEx5xI=") == NULL)
     {
-        ERROR_FORMAT("Wrong answer from server, got \"%s\" instead\r\n", cmd);
+        ERROR_FORMAT("Unable to get handshake response from server, response: \"%s\"\r\n", cmd);
         do
         {
             ret = read(cmd, 200, 100);
             if (ret < 0)
             {
-                ERROR("Could not receive answer.");
+                ERROR("Unable to get handshake response from server.");
                 return false;
             }
             cmd[ret] = '\0';
@@ -428,9 +357,9 @@ bool WebSocketClient::close()
     return true;
 }
 
-char *WebSocketClient::getPath()
+const char * WebSocketClient::getPath()
 {
-    return path;
+    return _parsedUrl->path();
 }
 
 int WebSocketClient::write(char *str, int len)
