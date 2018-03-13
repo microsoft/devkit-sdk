@@ -8,6 +8,7 @@
 #include "SystemWiFi.h"
 #include "http_common.h"
 #include "http_parsed_url.h"
+#include "nsapi_types.h"
 
 #define _WS_DEBUG
 
@@ -24,6 +25,10 @@
 #define INFO(x) do {  } while(0);
 #define ERROR(x) do {  } while(0);
 #endif
+
+// Amount of time (in ms) a user may be connected before getting disconnected
+// for timing out (i.e. not sending any data to the server).
+#define TIMEOUT_IN_MS 10000
 
 typedef enum
 {
@@ -47,6 +52,7 @@ typedef struct
     int length;
     bool isEndOfMessage;
     MessageType messageType;
+    nsapi_error_t error;
 } WebSocketReceiveResult;
 
 class WebSocketClient
@@ -112,8 +118,7 @@ class WebSocketClient
         const char* getPath();
 
     private:
-        void fillFields(char * url);
-        int parseURL(const char* url, char* scheme, size_t maxSchemeLen, char* host, size_t maxHostLen, uint16_t* port, char* path, size_t maxPathLen);
+        bool doHandshake();
         int sendLength(uint32_t len, char * msg);
         int sendMask(char * msg);
         int readChar(char * pC, bool block = true);

@@ -3,19 +3,25 @@
 #define MAX_TRY_WRITE 30
 #define MAX_TRY_READ 10
 
+// Currently we used a pre-calculated pair of based-64 strings for WebSocket opening handshake.
+// TODO: used a random generated key in client side and calculate the valid server response string
+// according to the WebSockeet protocol defenition (see https://tools.ietf.org/html/rfc6455#section-1.3)
+const char WS_HANDSHAKE_CLIENT_KEY[] = "L159VM0TWUzyDxwJEIEzjw==";
+const char WS_HANDSHAKE_SERVER_ACCEPT[] = "DdLWT/1JcX+nQFHebYP+rqEx5xI=";
+
 WebSocketClient::WebSocketClient(char *url)
 {
     _tcpSocket = NULL;
     _parsedUrl = NULL;
     _parsedUrl = new ParsedUrl(url);
 
-    if (!_parsedUrl->schema()) 
+    if (!_parsedUrl->schema())
     {
         if (strcmp(_parsedUrl->schema(), "ws") == 0)
         {
             _port = 80;
         }
-        else 
+        else
         {
             // TODO: support secure WebSocket (port 443)
             _port = 443;
@@ -54,8 +60,7 @@ bool WebSocketClient::connect()
             return false;
         }
 
-        if (_tcpSocket->open(WiFiInterface()) != 0 
-            || _tcpSocket->connect(_parsedUrl->host(), _parsedUrl->port()) != 0)
+        if (_tcpSocket->open(WiFiInterface()) != 0 || _tcpSocket->connect(_parsedUrl->host(), _parsedUrl->port()) != 0)
         {
             ERROR_FORMAT("Unable to connect to %s on port %d\r\n", _parsedUrl->host(), _parsedUrl->port());
 
@@ -67,35 +72,39 @@ bool WebSocketClient::connect()
         _tcpSocket->set_timeout(1000);
     }
 
-    char cmd[200];
+    return doHandshake();
+}
+
+bool WebSocketClient::doHandshake()
+{
+    char strBuffer[200];
 
     // Send handshake message to upgrade http to the ws protocol
     if (strlen(_parsedUrl->query()) > 0)
     {
-        sprintf(cmd, "GET %s?%s HTTP/1.1\r\n", _parsedUrl->path(), _parsedUrl->query());
+        sprintf(strBuffer, "GET %s?%s HTTP/1.1\r\n", _parsedUrl->path(), _parsedUrl->query());
     }
     else
     {
-        sprintf(cmd, "GET %s HTTP/1.1\r\n", _parsedUrl->path());
-        
+        sprintf(strBuffer, "GET %s HTTP/1.1\r\n", _parsedUrl->path());
     }
-    write(cmd, strlen(cmd));
+    write(strBuffer, strlen(strBuffer));
 
-    sprintf(cmd, "Host: %s:%d\r\n", _parsedUrl->host(), _parsedUrl->port());
-    write(cmd, strlen(cmd));
+    sprintf(strBuffer, "Host: %s:%d\r\n", _parsedUrl->host(), _parsedUrl->port());
+    write(strBuffer, strlen(strBuffer));
 
-    sprintf(cmd, "Upgrade: WebSocket\r\n");
-    write(cmd, strlen(cmd));
+    sprintf(strBuffer, "Upgrade: WebSocket\r\n");
+    write(strBuffer, strlen(strBuffer));
 
-    sprintf(cmd, "Connection: Upgrade\r\n");
-    write(cmd, strlen(cmd));
+    sprintf(strBuffer, "Connection: Upgrade\r\n");
+    write(strBuffer, strlen(strBuffer));
 
-    sprintf(cmd, "Sec-WebSocket-Key: L159VM0TWUzyDxwJEIEzjw==\r\n");
-    write(cmd, strlen(cmd));
+    sprintf(strBuffer, "Sec-WebSocket-Key: %s\r\n", WS_HANDSHAKE_CLIENT_KEY);
+    write(strBuffer, strlen(strBuffer));
 
-    sprintf(cmd, "Sec-WebSocket-Version: 13\r\n\r\n");
-    int ret = write(cmd, strlen(cmd));
-    if (ret != strlen(cmd))
+    sprintf(strBuffer, "Sec-WebSocket-Version: 13\r\n\r\n");
+    int ret = write(strBuffer, strlen(strBuffer));
+    if (ret != strlen(strBuffer))
     {
         close();
         ERROR("Could not send request.");
@@ -103,39 +112,35 @@ bool WebSocketClient::connect()
     }
 
     // Receive handshake response from WebSocket server
-    ret = read(cmd, 200, 100);
-    if (ret < 0)
-    {
-        close();
-        ERROR("Could not receive answer.");
-        return false;
-    }
+    Timer timer;
+    timer.start();
 
-    cmd[ret] = '\0';
-    if (strstr(cmd, "DdLWT/1JcX+nQFHebYP+rqEx5xI=") == NULL)
+    do
     {
-        ERROR_FORMAT("Unable to get handshake response from server, response: \"%s\"\r\n", cmd);
-        do
+        ret = read(strBuffer, 200, 100);
+        if (ret < 0)
         {
-            ret = read(cmd, 200, 100);
-            if (ret < 0)
+            ERROR("Unable to get handshake response from server.");
+            return false;
+        }
+        else
+        {
+            strBuffer[ret] = '\0';
+
+            // Server accepted the client handshake
+            if (strstr(strBuffer, WS_HANDSHAKE_SERVER_ACCEPT) != NULL)
             {
-                ERROR("Unable to get handshake response from server.");
-                return false;
+                return true;
             }
-            cmd[ret] = '\0';
-        } while (ret > 0);
+        }
+    } while (ret > 0 && timer.read_ms() < TIMEOUT_IN_MS);
 
-        close();
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 bool WebSocketClient::connected()
 {
-    return ( _tcpSocket == NULL ) ? false : true;
+    return (_tcpSocket == NULL) ? false : true;
 }
 
 int WebSocketClient::sendLength(uint32_t len, char *msg)
@@ -210,14 +215,7 @@ int WebSocketClient::send(char *str, int size)
     }
 
     res = write(str, size);
-    if (res == -1)
-    {
-        return -1;
-    }
-    else
-    {
-        return res + idx;
-    }
+    return res == -1 ? -1 : res + idx;
 }
 
 WebSocketReceiveResult *WebSocketClient::receive(char *message)
@@ -333,12 +331,16 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
     receiveResult->isEndOfMessage = isFinal;
     receiveResult->length = payloadLength;
     receiveResult->messageType = messageType;
+    receiveResult->error = NSAPI_ERROR_OK;
 
     return receiveResult;
 }
 
 bool WebSocketClient::close()
 {
+    // Send a close frame (0x8700) to server to tell it client is closing from here.
+    write((uint8_t)0x8700, 8);
+
     if (_tcpSocket == NULL)
     {
         printf("WebSocket is already disconnected.");
@@ -357,7 +359,7 @@ bool WebSocketClient::close()
     return true;
 }
 
-const char * WebSocketClient::getPath()
+const char *WebSocketClient::getPath()
 {
     return _parsedUrl->path();
 }
@@ -368,7 +370,6 @@ int WebSocketClient::write(char *str, int len)
 
     for (int j = 0; j < MAX_TRY_WRITE; j++)
     {
-
         if ((res = _tcpSocket->send(str + idx, len - idx)) < 0)
         {
             continue;
@@ -377,7 +378,10 @@ int WebSocketClient::write(char *str, int len)
         idx += res;
 
         if (idx == len)
+        {
             return len;
+        }
+
         wait_ms(40);
     }
 
