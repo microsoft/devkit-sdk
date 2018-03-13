@@ -37,7 +37,7 @@ static bool enableDeviceTwin = false;
 static uint64_t iothub_check_ms;
 
 static char *iothub_hostname = NULL;
-static char *product_info = NULL;
+static char *miniSolutionName = NULL;
 
 extern bool is_iothub_from_dps;
 
@@ -512,16 +512,28 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         return false;
     }
 
-    if (product_info == NULL)
+    char *product_info = NULL;
+    if (miniSolutionName == NULL)
     {
         int len = snprintf(NULL, 0, "IoT_DevKit_%s", getDevkitVersion());
         product_info = (char *)malloc(len + 1);
         snprintf(product_info, len + 1, "IoT_DevKit_%s", getDevkitVersion());
     }
+    else
+    {
+        int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", getDevkitVersion(), miniSolutionName);
+        product_info = (char *)malloc(len + 1);
+        snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", getDevkitVersion(), miniSolutionName);
+    }
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"product_info\"");
+        free(product_info);
         return false;
+    }
+    else
+    {
+        free(product_info);
     }
 
     // Setting Message call back, so we can receive commands.
@@ -586,17 +598,12 @@ bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
 
     if (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) == 0)
     {
-        if (product_info == NULL)
+        if (miniSolutionName != NULL)
         {
-            int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
-            product_info = (char *)malloc(len + 1);
-            snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
-            return true;
+            free(miniSolutionName);
         }
-        else
-        {
-            return false;
-        }
+        miniSolutionName = strdup((char *)value);
+        return true;
     }
     else if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
     {
