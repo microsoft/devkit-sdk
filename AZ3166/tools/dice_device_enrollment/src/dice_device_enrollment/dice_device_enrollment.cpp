@@ -297,7 +297,7 @@ static unsigned long int findAddressInMapFile(const char * attributeName)
 {
 	unsigned long int result = 0;
 	FILE *fpm;
-	char str[64];
+	char str[128];
 
 	/* opening file for reading */
 	fpm = fopen(mapFileFullPath, "r");
@@ -306,27 +306,15 @@ static unsigned long int findAddressInMapFile(const char * attributeName)
 		return(-1);
 	}
 
-	while ((fgets(str, 64, fpm)) != NULL) {
-		if ((strstr(str, attributeName)) != NULL) {
+	while ((fgets(str, 128, fpm)) != NULL) {
+		if ((strstr(str, attributeName)) != NULL && strstr(str, "0x") != NULL) {
 #if logging
 			printf("A match found on line: %s\r\n", str);
 #endif
-			int pos = 0;
-			for (int i = 0; i < 64; i++) {
-				if (str[i] == 'x') {
-					pos = i + 1;
-					break;
-				}
-			}
-
-			unsigned long int tempInt = 0;
-			char temp[2];
-			memset(temp, 0, 2);
-			for (int i = 0; i < 8; i++) {
-				temp[0] = str[pos + i];
-				tempInt = strtoul(temp, NULL, 16);
-				result = result + (tempInt << ((8 - i - 1) * 4));
-			}
+            char *start = strstr(str, "0x");
+			char *end = start + 2;
+			while (isxdigit(*end)) ++end;
+			result = strtoul(start, NULL, 16);
 #if logging
 			printf("%x", result);
 #endif
