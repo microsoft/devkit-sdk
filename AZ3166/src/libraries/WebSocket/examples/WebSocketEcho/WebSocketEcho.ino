@@ -3,7 +3,8 @@
 
 static bool hasWifi;
 static bool isWsConnected;
-static char *webSocketServerUrl = "ws://devkitwebsocket.azurewebsites.net/test?nickName=abc";
+
+static char *webSocketServerUrl = "ws://echo.websocket.org/"; // or use ws://demos.kaazing.com/echo/
 static WebSocketClient *wsClient;
 char wsBuffer[1024];
 char wifiBuff[128];
@@ -116,7 +117,7 @@ void loop()
 
         while (!isEndOfMessage)
         {
-          recvResult = wsClient->receive(wsBuffer);
+          recvResult = wsClient->receive(wsBuffer, sizeof(wsBuffer));
 
           if (!recvResult && recvResult->length > 0)
           {

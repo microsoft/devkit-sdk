@@ -39,13 +39,26 @@ typedef enum
 
 typedef enum
 {
-    WS_OPCODE_CONT = 0x00,      /* denotes a continuation frame */
-    WS_OPCODE_TEXT = 0x01,      /* denotes a text frame */
-    WS_OPCODE_BINARY = 0x02,    /* denotes a binary frame */
-    WS_OPCODE_CLOSE = 0x08,     /* denotes a connection close */
-    WS_OPCODE_PING = 0x09,      /* denotes a ping */
-    WS_OPCODE_PONG = 0x0A       /* denotes a pong */
+    WS_OPCODE_CONT = 0x00,          /* Denotes a continuation frame */
+    WS_OPCODE_TEXT = 0x01,          /* Denotes a text frame */
+    WS_OPCODE_BINARY = 0x02,        /* Denotes a binary frame */
+    WS_OPCODE_CLOSE = 0x08,         /* Denotes a connection close */
+    WS_OPCODE_PING = 0x09,          /* Denotes a ping */
+    WS_OPCODE_PONG = 0x0A           /* Denotes a pong */
 };
+
+typedef enum
+{
+    WS_NORMAL = 1000,               /* Normal closure */
+    WS_GOING_AWAY = 1001,           /* An endpoint is "going away" */
+    WS_PROTOCOL_ERROR = 1002,       /* A protocol error occurred. */
+    WS_UNSOPPORTED_DATA = 1003,     /* An endpoint has received a type of data it cannot accept. */
+    WS_NO_STATUS = 1005,            /* A dummy value to indicate that no status code was received. */
+    WS_ABNOMAL_CLOSE = 1006,        /* A dummy value to indicate that the connection was closed abnormally. */
+    WS_INVALID_PAYLOAD = 1007,      /* An endpoint received message data inconsistent with its type. */
+    WS_POLICY_VIOLATION = 1008,     /* An endpoint received a message that violated its policy. */
+    WS_MESSAGE_TOO_BIG = 1009       /* An endpoint received a message too large to process. */
+} WSCloseSatusCode;
 
 typedef struct
 {
@@ -90,18 +103,28 @@ class WebSocketClient
         *
         * @param str string to be sent
         *
-        * @returns the number of bytes sent
+        * @returns the number of bytes sent, or negative number on error
         */
         int send(char * str, int size);
 
         /**
+        * Send a ping message according to the websocket format (see rfc 6455)
+        *
+        * @param application data in ping frame
+        *
+        * @returns the number of bytes sent, or negative number on error
+        */
+        int sendPing(char * str, int size);
+
+        /**
         * Read a websocket message
         *
-        * @param message pointer to the string to be read (null if drop frame)
+        * @param msgBuffer  pointer to the string to be read (null if drop frame)
+        * @param size       Size of the buffer in bytes
         *
         * @return true if a websocket frame has been read
         */
-        WebSocketReceiveResult* receive(char *message);
+        WebSocketReceiveResult* receive(char * msgBuffer, int size);
 
         /**
         * Close the websocket connection

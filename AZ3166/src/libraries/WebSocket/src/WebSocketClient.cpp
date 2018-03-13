@@ -79,7 +79,7 @@ bool WebSocketClient::doHandshake()
 {
     char strBuffer[200];
 
-    // Send handshake message to upgrade http to the ws protocol
+    // Send handshake msgBuffer to upgrade http to the ws protocol
     if (strlen(_parsedUrl->query()) > 0)
     {
         sprintf(strBuffer, "GET %s?%s HTTP/1.1\r\n", _parsedUrl->path(), _parsedUrl->query());
@@ -188,23 +188,18 @@ int WebSocketClient::send(char *str, int size)
     if (_tcpSocket == NULL)
     {
         ERROR("unable to send data when WebSocket is disconnected.");
-        return -1;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (str == NULL || size <= 0)
     {
-        ERROR("Input data string is NULL or size is invalid.");
-        return -1;
+        return 0;
     }
 
     char msg[15];
-    int idx = 1;
     msg[0] = 0x81;
-    if (size == 0)
-    {
-        size = strlen(str);
-    }
 
+    int idx = 1;
     idx += sendLength(size, msg + idx);
     idx += sendMask(msg + idx);
     int res = write(msg, idx);
@@ -218,11 +213,17 @@ int WebSocketClient::send(char *str, int size)
     return res == -1 ? -1 : res + idx;
 }
 
-WebSocketReceiveResult *WebSocketClient::receive(char *message)
+WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
 {
     if (_tcpSocket == NULL)
     {
         ERROR("Unable to receive data when WebSocket is disconnected.");
+        return NULL;
+    }
+
+    if (msgBuffer == NULL || size <= 0)
+    {
+        ERROR("Invalid message buffer to be read in WebSocket.");
         return NULL;
     }
 
@@ -240,9 +241,9 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
     timer.start();
     while (true)
     {
-        if (timer.read() > 10)
+        if (timer.read_ms() > TIMEOUT_IN_MS)
         {
-            ERROR("WebSocket timeout\r\n");
+            ERROR("WebSocket receive timeout\r\n");
             return NULL;
         }
 
@@ -272,6 +273,10 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
             else if (opcode == WS_OPCODE_CLOSE)
             {
                 close();
+            }
+            else if (opcode == WS_OPCODE_PING)
+            {
+                // TODO: send a pong frame as response to previous ping
             }
         }
         else if (res < 0 && res != NSAPI_ERROR_WOULD_BLOCK)
@@ -306,6 +311,11 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
     {
         return NULL;
     }
+    else if (payloadLength > size)
+    {
+        ERROR("Message payload is too big.");
+        return NULL;
+    }
 
     if (isMasked)
     {
@@ -316,16 +326,16 @@ WebSocketReceiveResult *WebSocketClient::receive(char *message)
         }
     }
 
-    int nb = read(message, payloadLength, payloadLength);
+    int nb = read(msgBuffer, payloadLength, payloadLength);
     if (nb != payloadLength)
         return NULL;
 
     for (i = 0; i < payloadLength; i++)
     {
-        message[i] = message[i] ^ mask[i % 4];
+        msgBuffer[i] = msgBuffer[i] ^ mask[i % 4];
     }
 
-    message[payloadLength] = '\0';
+    msgBuffer[payloadLength] = '\0';
 
     WebSocketReceiveResult *receiveResult = new WebSocketReceiveResult();
     receiveResult->isEndOfMessage = isFinal;
@@ -343,7 +353,7 @@ bool WebSocketClient::close()
 
     if (_tcpSocket == NULL)
     {
-        printf("WebSocket is already disconnected.");
+        INFO("WebSocket is already disconnected.");
         return true;
     }
 
@@ -394,7 +404,6 @@ int WebSocketClient::read(char *str, int len, int min_len)
 
     for (int j = 0; j < MAX_TRY_WRITE; j++)
     {
-
         if ((res = _tcpSocket->recv(str + idx, len - idx)) < 0)
             continue;
 
