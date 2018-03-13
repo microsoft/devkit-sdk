@@ -9,8 +9,6 @@
 #include "DiceCore.h"
 #include "DiceRIoT.h"
 
-#define logging 1
-
 // Settings
 const uint32_t fileNameLength = 256;
 const uint32_t udsStringLength = 64;
