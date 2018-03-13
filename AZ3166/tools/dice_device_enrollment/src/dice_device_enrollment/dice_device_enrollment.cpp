@@ -9,6 +9,8 @@
 #include "DiceCore.h"
 #include "DiceRIoT.h"
 
+#define logging 1
+
 // Settings
 const uint32_t fileNameLength = 256;
 const uint32_t udsStringLength = 64;
@@ -311,9 +313,7 @@ static unsigned long int findAddressInMapFile(const char * attributeName)
 #if logging
 			printf("A match found on line: %s\r\n", str);
 #endif
-            char *start = strstr(str, "0x");
-			char *end = start + 2;
-			while (isxdigit(*end)) ++end;
+			char *start = strstr(str, "0x");
 			result = strtoul(start, NULL, 16);
 #if logging
 			printf("%x", result);
