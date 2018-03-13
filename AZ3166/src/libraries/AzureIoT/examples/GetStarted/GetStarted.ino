@@ -116,9 +116,9 @@ void setup()
   SensorInit();
 
   Screen.print(3, " > IoT Hub");
+  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "GetStarted");
   DevKitMQTTClient_Init(true);
 
-  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "GetStarted");
   DevKitMQTTClient_SetSendConfirmationCallback(SendConfirmationCallback);
   DevKitMQTTClient_SetMessageCallback(MessageCallback);
   DevKitMQTTClient_SetDeviceTwinCallback(DeviceTwinCallback);

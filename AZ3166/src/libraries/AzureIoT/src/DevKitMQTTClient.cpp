@@ -37,6 +37,7 @@ static bool enableDeviceTwin = false;
 static uint64_t iothub_check_ms;
 
 static char *iothub_hostname = NULL;
+static char *product_info = NULL;
 
 extern bool is_iothub_from_dps;
 
@@ -511,8 +512,12 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         return false;
     }
 
-    char product_info[24];
-    snprintf(product_info, sizeof(product_info), "IoT_DevKit_%s", getDevkitVersion());
+    if (product_info == NULL)
+    {
+        int len = snprintf(NULL, 0, "IoT_DevKit_%s", getDevkitVersion());
+        product_info = (char *)malloc(len + 1);
+        snprintf(product_info, len + 1, "IoT_DevKit_%s", getDevkitVersion());
+    }
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"product_info\"");
@@ -573,26 +578,24 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
 
 bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
 {
-    if (iotHubClientHandle == NULL || optionName == NULL || value == NULL)
+    if ((iotHubClientHandle == NULL && (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) != 0))
+            || optionName == NULL || value == NULL)
     {
         return false;
     }
 
     if (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) == 0)
     {
-        int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
-        char *product_info = (char *)malloc(len + 1);
-        snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
-        if (IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", product_info) != IOTHUB_CLIENT_OK)
+        if (product_info == NULL)
         {
-            LogError("Failed to set option \"product_info\"");
-            free(product_info);
-            return false;
+            int len = snprintf(NULL, 0, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
+            product_info = (char *)malloc(len + 1);
+            snprintf(product_info, len + 1, "IoT_DevKit_%s_%s", getDevkitVersion(), (char *)value);
+            return true;
         }
         else
         {
-            free(product_info);
-            return true;
+            return false;
         }
     }
     else if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
