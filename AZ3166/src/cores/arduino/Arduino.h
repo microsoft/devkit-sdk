@@ -96,4 +96,6 @@ extern const PinDescription g_APinDescription[] ;
 #include "SystemVariables.h"
 #include "EEPROMInterface.h"
 
+#include "mbed_stats.h"
+
 #endif
