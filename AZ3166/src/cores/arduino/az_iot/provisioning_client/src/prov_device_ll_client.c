@@ -869,6 +869,7 @@ PROV_DEVICE_RESULT Prov_Device_LL_SetOption(PROV_DEVICE_LL_HANDLE handle, const 
                 if (handle->registration_id != NULL)
                 {
                     free(handle->registration_id);
+                    handle->registration_id = NULL;
                 }
                 
                 if (mallocAndStrcpy_s(&handle->registration_id, (const char*)value) != 0)
