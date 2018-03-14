@@ -162,7 +162,8 @@ int WebSocketClient::sendLength(uint32_t len, char *msg)
         msg[0] = 127 | (1 << 7);
         for (int i = 0; i < 8; i++)
         {
-            msg[i + 1] = (len >> (i * 8) % 32) & 0xff;
+            int shift = (i * 8 > 32) ? 32 : i * 8;
+            msg[i + 1] = (len >> shift) & 0xff;
         }
         return 9;
     }
@@ -303,7 +304,8 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
         for (int i = 0; i < 8; i++)
         {
             readChar(&c);
-            payloadLength += (c << ((7 - i) * 8) % 32) ;
+            int shif = (7 - i) * 8 > 32 ? 32 : (7 - i) * 8;
+            payloadLength += (c << shif);
         }
     }
 
