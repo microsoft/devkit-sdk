@@ -4,7 +4,7 @@
 static bool hasWifi;
 static bool isWsConnected;
 
-static char *webSocketServerUrl = "ws://echo.websocket.org/"; // or use ws://demos.kaazing.com/echo/
+static char *webSocketServerUrl = "ws://echo.websocket.org/"; // or use ws://demos.kaazing.com/echo
 static WebSocketClient *wsClient;
 char wsBuffer[1024];
 char wifiBuff[128];
@@ -76,8 +76,9 @@ void loop()
   {
     if (!isWsConnected)
     {
+      Screen.clean();
       Screen.print(0, "DevKit WebSocket");
-      Screen.print(1, "Press button A to  connect WS.", true);
+      Screen.print(1, "Press button A to connect WS.", true);
 
       while (digitalRead(USER_BUTTON_A) != LOW)
       {
@@ -90,8 +91,7 @@ void loop()
     if (isWsConnected)
     {
       int len = 0;
-      char msgBuffer[128];
-      unsigned char opcode = 0;
+      char msgBuffer[256];
 
       for (int i = 0; i < 3; i++)
       {
@@ -115,7 +115,7 @@ void loop()
         Screen.print(1, "receiving...");
         Serial.print("WS receive:");
 
-        while (!isEndOfMessage)
+        do
         {
           recvResult = wsClient->receive(wsBuffer, sizeof(wsBuffer));
 
@@ -130,7 +130,7 @@ void loop()
             memset(wsBuffer, 0, sizeof(wsBuffer));
             delay(100);
           }
-        }
+        } while (!isEndOfMessage);
       }
 
       // Close WebSocket after sending/receiving messages
