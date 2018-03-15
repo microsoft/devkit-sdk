@@ -309,8 +309,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
         for (int i = 0; i < 8; i++)
         {
             readChar(&c);
-            int shif = (7 - i) * 8 > 32 ? 32 : (7 - i) * 8;
-            payloadLength += (c << shif);
+            payloadLength += (c << (7 - i) * 8);
         }
     }
 
