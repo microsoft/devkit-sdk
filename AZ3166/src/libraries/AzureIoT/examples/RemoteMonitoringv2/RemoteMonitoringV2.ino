@@ -187,6 +187,7 @@ void setup() {
     //setup the MQTT Client
     DevKitMQTTClient_SetDeviceMethodCallback(&device_method_callback);
     DevKitMQTTClient_SetDeviceTwinCallback(&twinCallback);
+    DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "RemoteMonitoringV2");
     DevKitMQTTClient_Init(true); //set to true to use twin
     
     // Send the Twin data for the Remote Monitoring
