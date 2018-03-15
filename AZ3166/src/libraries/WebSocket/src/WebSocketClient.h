@@ -105,7 +105,7 @@ class WebSocketClient
         *
         * @returns the number of bytes sent, or negative number on error
         */
-        int send(char * str, int size);
+        int send(char * str, long size);
 
         /**
         * Send a ping message according to the websocket format (see rfc 6455)
