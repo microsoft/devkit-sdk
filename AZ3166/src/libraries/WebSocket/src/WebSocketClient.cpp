@@ -143,7 +143,7 @@ bool WebSocketClient::connected()
     return (_tcpSocket == NULL) ? false : true;
 }
 
-int WebSocketClient::sendLength(uint32_t len, char *msg)
+int WebSocketClient::sendLength(long len, char *msg)
 {
     // According to rfc6455: https://tools.ietf.org/html/rfc6455
     // If the length of the "payload data" in bytes is 0-125, then that is the payload length.

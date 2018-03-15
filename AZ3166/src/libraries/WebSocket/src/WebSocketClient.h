@@ -142,7 +142,7 @@ class WebSocketClient
 
     private:
         bool doHandshake();
-        int sendLength(uint32_t len, char * msg);
+        int sendLength(long len, char * msg);
         int sendMask(char * msg);
         int readChar(char * pC, bool block = true);
 
