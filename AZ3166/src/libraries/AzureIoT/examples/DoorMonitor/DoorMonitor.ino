@@ -154,6 +154,7 @@ void setup()
 
   // IoT hub
   Screen.print(3, " > IoT Hub");
+  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "DoorMonitor");
   if (!DevKitMQTTClient_Init())
   {
     Screen.clean();
@@ -163,7 +164,6 @@ void setup()
     return;
   }
   hasIoTHub = true;
-  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "DoorMonitor");
 
   Screen.print(3, " > Magnetometer");
   InitMagnetometer();

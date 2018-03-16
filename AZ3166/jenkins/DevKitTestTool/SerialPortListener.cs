@@ -28,7 +28,13 @@
         {
             try
             {
+               if(m_serialPort.IsOpen)
+                {
+                    Stop();
+                }
                 m_serialPort.Open();
+                m_serialPort.DiscardInBuffer();
+                m_serialPort.DiscardOutBuffer();
 
                 return true;
             }
@@ -42,6 +48,7 @@
         {
             try
             {
+                m_serialPort.Dispose();
                 m_serialPort.Close();
 
                 m_sw.Flush();
