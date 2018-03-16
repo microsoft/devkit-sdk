@@ -428,6 +428,7 @@ void setup()
 
   Screen.print(3, " > IoT Hub");
   
+  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "ShakeShake");
   if (!DevKitMQTTClient_Init())
   {
     Screen.clean();
@@ -437,7 +438,6 @@ void setup()
     return;
   }
   hasIoTHub = true;
-  DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "ShakeShake");
   DevKitMQTTClient_SetMessageCallback(TwitterMessageCallback);
   
   rgbLed.setColor(RGB_LED_BRIGHTNESS, 0, 0);

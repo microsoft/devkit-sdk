@@ -1,0 +1,7 @@
+{
+  "sketch": "../RemoteMonitoringV2.ino",
+  "config": "deviceConnectionString",
+  "tasks": {
+    "provision": ["subscription", "iothub", "device"]
+    }
+}

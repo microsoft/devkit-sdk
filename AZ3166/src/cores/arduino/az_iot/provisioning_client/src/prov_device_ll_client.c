@@ -869,6 +869,7 @@ PROV_DEVICE_RESULT Prov_Device_LL_SetOption(PROV_DEVICE_LL_HANDLE handle, const 
                 if (handle->registration_id != NULL)
                 {
                     free(handle->registration_id);
+                    handle->registration_id = NULL;
                 }
                 
                 if (mallocAndStrcpy_s(&handle->registration_id, (const char*)value) != 0)
@@ -879,8 +880,11 @@ PROV_DEVICE_RESULT Prov_Device_LL_SetOption(PROV_DEVICE_LL_HANDLE handle, const 
                 else if (prov_auth_set_registration_id(handle->prov_auth_handle, handle->registration_id) != 0)
                 {
                     LogError("Failure setting registration id");
-                    free(handle->registration_id);
-                    handle->registration_id = NULL;
+                    if (handle->registration_id != NULL)
+                    {
+                        free(handle->registration_id);
+                        handle->registration_id = NULL;
+                    }
                     result = PROV_DEVICE_RESULT_ERROR;
                 }
                 else
