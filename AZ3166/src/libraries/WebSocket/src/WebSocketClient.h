@@ -105,7 +105,7 @@ class WebSocketClient
         *
         * @returns the number of bytes sent, or negative number on error
         */
-        int send(char * str, int size);
+        int send(char * str, long size);
 
         /**
         * Send a ping message according to the websocket format (see rfc 6455)
@@ -142,7 +142,7 @@ class WebSocketClient
 
     private:
         bool doHandshake();
-        int sendLength(uint32_t len, char * msg);
+        int sendLength(long len, char * msg);
         int sendMask(char * msg);
         int readChar(char * pC, bool block = true);
 

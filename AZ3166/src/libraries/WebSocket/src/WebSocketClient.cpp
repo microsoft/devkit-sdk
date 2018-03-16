@@ -143,13 +143,17 @@ bool WebSocketClient::connected()
     return (_tcpSocket == NULL) ? false : true;
 }
 
-int WebSocketClient::sendLength(uint32_t len, char *msg)
+int WebSocketClient::sendLength(long len, char *msg)
 {
+    // According to rfc6455: https://tools.ietf.org/html/rfc6455
+    // If the length of the "payload data" in bytes is 0-125, then that is the payload length.
     if (len < 126)
     {
         msg[0] = len | (1 << 7);
         return 1;
     }
+    // if 126, then the following 2 bytes interpreted as a
+    // 16-bit unsigned integer are the payload length
     else if (len < 65535)
     {
         msg[0] = 126 | (1 << 7);
@@ -157,6 +161,8 @@ int WebSocketClient::sendLength(uint32_t len, char *msg)
         msg[2] = len & 0xff;
         return 3;
     }
+    // If 127, the following 8 bytes interpreted as a 64-bit unsigned integer
+    // (the most significant bit MUST be 0) are the payload length.
     else
     {
         msg[0] = 127 | (1 << 7);
@@ -183,7 +189,7 @@ int WebSocketClient::sendMask(char *msg)
     return 4;
 }
 
-int WebSocketClient::send(char *str, int size)
+int WebSocketClient::send(char *str, long size)
 {
     if (_tcpSocket == NULL)
     {
