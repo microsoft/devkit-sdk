@@ -33,9 +33,8 @@
 typedef enum
 {
     WS_Message_Text = 0,        /* The message is clear text. */
-    WS_Message_Binary,          /* The message is in binary format. */
-    WS_Close                    /* A receive has completed because a close message was received. */
-} MessageType;
+    WS_Message_Binary           /* The message is in binary format. */
+} WS_Message_Type;
 
 typedef enum
 {
@@ -64,8 +63,7 @@ typedef struct
 {
     int length;
     bool isEndOfMessage;
-    MessageType messageType;
-    nsapi_error_t error;
+    WS_Message_Type messageType;
 } WebSocketReceiveResult;
 
 class WebSocketClient
@@ -101,11 +99,16 @@ class WebSocketClient
         /**
         * Send a string according to the websocket format (see rfc 6455)
         *
-        * @param str string to be sent
+        * @param data           message data to be sent.
+        * @param size           length of message payload in bytes.
+        * @param messageType    data message type, can be WS_Message_Text or WS_Message_Binary
+        * @param isFinal        Flag indicates whether this is a final data frame.
+                                By default it is true. For a message with a big payload you may need to send 
+                                it with smaller pieces and mark the final piece with this flag.
         *
         * @returns the number of bytes sent, or negative number on error
         */
-        int send(char * str, long size);
+        int send(const char * data, long size, WS_Message_Type messageType = WS_Message_Text, bool isFinal = true);
 
         /**
         * Send a ping message according to the websocket format (see rfc 6455)
@@ -122,7 +125,7 @@ class WebSocketClient
         * @param msgBuffer  pointer to the string to be read (null if drop frame)
         * @param size       Size of the buffer in bytes
         *
-        * @return true if a websocket frame has been read
+        * @return A WebSocketReceiveResult object contains the information of the received message.
         */
         WebSocketReceiveResult* receive(char * msgBuffer, int size);
 
@@ -147,12 +150,12 @@ class WebSocketClient
         int readChar(char * pC, bool block = true);
 
         int read(char * buf, int len, int min_len = -1);
-        int write(char * buf, int len);
+        int write(const char * buf, int len);
 
         TCPSocket * _tcpSocket;
         ParsedUrl * _parsedUrl;
         uint16_t _port;
-        MessageType messageType;
+        WS_Message_Type messageType;
 };
 
 #endif
