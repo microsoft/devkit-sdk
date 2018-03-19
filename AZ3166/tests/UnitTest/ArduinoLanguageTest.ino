@@ -1,44 +1,22 @@
-#include "ArduinoUnit.h"
-
-#define LOOP_DELAY          100
-#define Math_PositiveNum    10
-#define Math_Zero           0
-#define Math_NegativeNum    -1
-
-int val = 0;
-typedef struct BytesData
-{
-    unsigned int test_data;
-    byte lb;
-    byte hb;
-}BytesData;
-
-void setup() {
-  Serial.println(__FILE__);
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(USER_BUTTON_A, INPUT);
-}
-
-void loop() {  
-  Test::run();
-}
-
 test(analog_read)
 {
-    analogReadResolution(10);    
+    analogReadResolution(10);
     int result  = analogRead(ARDUINO_PIN_A0);
     assertMoreOrEqual(result, 0);
     assertLessOrEqual(result, 1023);
-    
+
     analogReadResolution(12);
     result  = analogRead(ARDUINO_PIN_A0);
     assertMoreOrEqual(result, 0);
     assertLessOrEqual(result, 4095);
+
+    delay(LOOP_DELAY);
 }
 
 test(analog_write)
 {
+    int val = 0;
+
     analogReadResolution(10);
     val= analogRead(ARDUINO_PIN_A0);
     Serial.print("Analog Read:");
@@ -47,30 +25,34 @@ test(analog_write)
     analogWriteResolution(10);
     analogWrite(ARDUINO_PIN_A5, val);
     assertEqual(analogRead(ARDUINO_PIN_A5), val);
+
+    delay(LOOP_DELAY);
 }
 
 test(digital_io)
 {
+    int val = 0;
     Serial.println("You can press button A to check the LED status");
     val = digitalRead(USER_BUTTON_A);
     assertEqual(val, HIGH);
-    
+
     digitalWrite(LED_BUILTIN, val);
-    assertEqual(digitalRead(LED_BUILTIN), val);    
-    delay(LOOP_DELAY); 
+    assertEqual(digitalRead(LED_BUILTIN), val);
+    delay(LOOP_DELAY);
 
     digitalWrite(LED_BUILTIN, HIGH);
     assertEqual(digitalRead(LED_BUILTIN), HIGH);
     delay(LOOP_DELAY);
-    
+
     digitalWrite(LED_BUILTIN, LOW);
     assertEqual(digitalRead(LED_BUILTIN), LOW);
+
     delay(LOOP_DELAY);
 }
 
 test(serial_print)
 {
-    int x =0;  
+    int x =0;
 
     Serial.print("No Format");
     Serial.print("\t");
@@ -103,7 +85,7 @@ test(serial_print)
 
         Serial.print(x, BIN);
         Serial.println();
-        
+
         delay(LOOP_DELAY);
     }
 
@@ -125,13 +107,13 @@ test(serial_print)
     // test print(double n, int digits)
     Serial.print(11.2233,2);
     Serial.println();
-    
+
     delay(LOOP_DELAY);
 }
 
 /***************************************************************************************
  *                            Arduino Data Type Testing                                *
- ***************************************************************************************                            
+ ***************************************************************************************
  */
 test(bits)
 {
@@ -143,7 +125,7 @@ test(bits)
     x=bitWrite(value,3,1);
     assertEqual(x,30);
 
-    x = bitSet(value,3); 
+    x = bitSet(value,3);
     assertEqual(x,30);
 
     x = bitClear(value, 2);
@@ -151,13 +133,15 @@ test(bits)
 
     x= bit(2);
     assertEqual(x,4);
+
+    delay(LOOP_DELAY);
 }
 
 test(bytes)
 {
     BytesData bytes[3]= {
-      {1022, 254, 3}, 
-      {1, 1, 0},  
+      {1022, 254, 3},
+      {1, 1, 0},
       {2048,0,8}
     };
     byte lb, hb;
@@ -172,6 +156,8 @@ test(bytes)
       hb= highByte(bytes[i].test_data);
       assertEqual(hb, bytes[i].hb);
     }
+
+    delay(LOOP_DELAY);
 }
 
 test(chars)
@@ -187,7 +173,7 @@ test(chars)
       assertFalse(isGraph(i));
       assertTrue(isControl(i));
 
-      continue;   
+      continue;
     }
 
     // 32: space
@@ -208,10 +194,10 @@ test(chars)
       assertFalse(isWhitespace(i));
 
       //33-47, 58-64, 91-96, 123-126: is Punct
-      if((i>=33 && i<=47) || 
-      (i>=58 && i<=64) ||
-      (i>=91 && i<=96) ||
-      (i>=123 && i<=126))
+      if((i>=33 && i<=47) ||
+        (i>=58 && i<=64) ||
+        (i>=91 && i<=96) ||
+        (i>=123 && i<=126))
       {
         assertTrue(isPunct(i));
       }
@@ -276,8 +262,8 @@ test(chars)
   }
 
   assertFalse(isAscii(128));
-  
-  delay(LOOP_DELAY);    
+
+  delay(LOOP_DELAY);
 }
 
 test(random)
@@ -296,7 +282,7 @@ test(random)
 
 /***************************************************************************************
  *                            Arduino Data Type Testing                                *
- ***************************************************************************************                            
+ ***************************************************************************************
  */
 test(math_abs)
 {
@@ -336,8 +322,8 @@ test(math_map)
 test(math_max)
 {
     assertEqual(max(Math_NegativeNum,Math_PositiveNum), Math_PositiveNum);
-    
-    delay(LOOP_DELAY); 
+
+    delay(LOOP_DELAY);
 }
 
 test(math_min)
@@ -352,14 +338,14 @@ test(math_pow)
     assertEqual(pow(2,3), 8);
     assertEqual(pow(9,0.5), 3);
 
-    delay(LOOP_DELAY); 
+    delay(LOOP_DELAY);
 }
 
 test(math_sqrt)
 {
     assertEqual(sqrt(9), 3);
     assertEqual(sqrt(1.0), 1);
-    
+
     delay(LOOP_DELAY);
 }
 
@@ -368,7 +354,7 @@ test(trigonometry)
     double data[9]={PI, PI/2,PI/3, PI/4, 0, -PI/2,-PI/3, -PI/4, -PI};
 
     for(int i=0; i<9; ++i)
-    {        
+    {
         if(data[i] ==0)
         {
             // for sin(0) should be 0
@@ -393,18 +379,18 @@ test(trigonometry)
             //not check the tan() here as it caused out of memory
         }
     }
-    
+
     delay(LOOP_DELAY);
 }
 
 /***************************************************************************************
  *                            Arduino Date Time Testing                                *
- ***************************************************************************************                            
+ ***************************************************************************************
  */
 test(time_delay)
 {
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(LOOP_DELAY); 
+    delay(LOOP_DELAY);
     digitalWrite(LED_BUILTIN, LOW);
     delay(LOOP_DELAY);
 
@@ -419,13 +405,13 @@ test(time_micros_millis)
     unsigned long T_time;
     Serial.print("Time:");
     T_time = micros();
-    
+
     //print time
     Serial.println(T_time);
-    delay(LOOP_DELAY); 
+    delay(LOOP_DELAY);
 
     T_time = millis();
-  
+
     //print time
     Serial.println(T_time);
     delay(LOOP_DELAY);
@@ -439,4 +425,3 @@ test(interrupt)
 
     delay(LOOP_DELAY);
 }
-
