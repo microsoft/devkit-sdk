@@ -34,8 +34,8 @@ void InitWiFi()
     sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n",WiFi.SSID(),ip.get_address());
     Screen.print(wifiBuff);
     digitalWrite(LED_WIFI, 1);
-    DevKitMQTTClient_Init();
     DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "RemoteMonitoring");
+    DevKitMQTTClient_Init();
     sendDeviceInfo();
     hasWifi = true;
   }

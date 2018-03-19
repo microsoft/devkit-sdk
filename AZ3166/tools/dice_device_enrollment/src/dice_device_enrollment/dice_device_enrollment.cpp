@@ -16,7 +16,7 @@ const uint32_t registrationIdMaxLength = 128;
 const uint32_t macAddressLength = 12;
 const uint32_t aliasCertSize = 1024; //bytes
 
-							   // Flash start address name
+// Flash start address name
 const char * flashStartname = "FLASH            0x";
 
 // Riot attribute names
@@ -64,11 +64,11 @@ static char* get_user_input(const char* text_value, int max_len)
 	else
 	{
 		printf("%s", text_value);
-		std::string input;
-		std::getline(std::cin, input);
+		char input[fileNameLength + 2];
+		fgets(input, fileNameLength + 2, stdin);
 		int index = 0, inputIndex = 0;
-		while (inputIndex < input.length() && isspace(input[inputIndex])) ++inputIndex;
-		while (index < max_len && inputIndex < input.length()) {
+		while (inputIndex < strlen(input) && isspace(input[inputIndex])) ++inputIndex;
+		while (index < max_len && inputIndex < strlen(input) && isprint(input[inputIndex])) {
 			result[index++] = input[inputIndex++];
 		}
 		result[index] = 0;
@@ -132,9 +132,9 @@ static int registrationIdValidated()
 	for (int i = 0; i < length; i++)
 	{
 		if ((registrationId[i] >= 'a' && registrationId[i] <= 'z')
-			|| (registrationId[i] >= '0' && registrationId[i] <= '9')
-			|| (registrationId[i] == '-')
-			) {
+				|| (registrationId[i] >= '0' && registrationId[i] <= '9')
+				|| (registrationId[i] == '-')
+		   ) {
 			continue;
 		}
 		else {
@@ -297,7 +297,7 @@ static unsigned long int findAddressInMapFile(const char * attributeName)
 {
 	unsigned long int result = 0;
 	FILE *fpm;
-	char str[64];
+	char str[128];
 
 	/* opening file for reading */
 	fpm = fopen(mapFileFullPath, "r");
@@ -306,27 +306,13 @@ static unsigned long int findAddressInMapFile(const char * attributeName)
 		return(-1);
 	}
 
-	while ((fgets(str, 64, fpm)) != NULL) {
-		if ((strstr(str, attributeName)) != NULL) {
+	while ((fgets(str, 128, fpm)) != NULL) {
+		if ((strstr(str, attributeName)) != NULL && strstr(str, "0x") != NULL) {
 #if logging
 			printf("A match found on line: %s\r\n", str);
 #endif
-			int pos = 0;
-			for (int i = 0; i < 64; i++) {
-				if (str[i] == 'x') {
-					pos = i + 1;
-					break;
-				}
-			}
-
-			unsigned long int tempInt = 0;
-			char temp[2];
-			memset(temp, 0, 2);
-			for (int i = 0; i < 8; i++) {
-				temp[0] = str[pos + i];
-				tempInt = strtoul(temp, NULL, 16);
-				result = result + (tempInt << ((8 - i - 1) * 4));
-			}
+			char *start = strstr(str, "0x");
+			result = strtoul(start, NULL, 16);
 #if logging
 			printf("%x", result);
 #endif
@@ -359,7 +345,7 @@ uint8_t* getBinFileWithName(const char *startName, const char *endName, uint32_t
 	uint8_t* endAddress = (uint8_t*)resultAddress;
 	size = endAddress - startAddress;
 	uint8_t *buf = (uint8_t*)calloc(size, 1);
-	
+
 	if (getDataFromBinFile(startAddress - startBin, buf, size) != 0) {
 		free(buf);
 		return NULL;
@@ -367,12 +353,16 @@ uint8_t* getBinFileWithName(const char *startName, const char *endName, uint32_t
 	return buf;
 }
 
+int exitFunction(int result){
+	(void)printf("Press any key to continue:\r\n");
+	(void)getchar();
+	return result;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // App start
 int main()
 {
-	int result = 0;
-
 	fileName = get_user_input("Input the name of your project, default name is \"DevKitDPS\" :", fileNameLength);
 	if (strlen(fileName) == 0)
 	{
@@ -381,15 +371,13 @@ int main()
 
 	// Check sanity of input files - .bin and .map
 	if (validateInputFiles() != 0) {
-		result = 1;
-		goto EXIT;
+		return exitFunction(1);
 	}
 
 	// Get user input
 	udsString = get_user_input("Input the UDS you saved into security chip of your DevKit: ", 64);
 	if (udsStringValidated() != 0) {
-		result = 1;
-		goto EXIT;
+		return exitFunction(1);
 	}
 	else {
 		// Prepare UDS from udsString
@@ -400,13 +388,11 @@ int main()
 	if (strlen(registrationId) == 0) {
 		macAddress = get_user_input("Input the Mac Address on your DevKit: ", 12);
 		if (macAddressValidated() != 0) {
-			result = 1;
-			goto EXIT;
+			return exitFunction(1);
 		}
 		firmwareVer = get_user_input("Input the firmware version of the program running on your DevKit: ", 5);
 		if (firmwareVerValidated() != 0) {
-			result = 1;
-			goto EXIT;
+			return exitFunction(1);
 		}
 
 		// Auto Generate registrationId based on firmware version and device MAC address
@@ -414,8 +400,7 @@ int main()
 	}
 	else {
 		if (registrationIdValidated()) {
-			result = 1;
-			goto EXIT;
+			return exitFunction(1);
 		}
 	}
 
@@ -424,8 +409,7 @@ int main()
 	resultAddress = findAddressInMapFile(flashStartname);
 	if (resultAddress == 0)
 	{
-		result = 1;
-		goto EXIT;
+		return exitFunction(1);
 	}
 	startBin = (uint8_t*)resultAddress;
 
@@ -453,8 +437,5 @@ int main()
 	free(riotFw);
 	free(aliasCertBuffer);
 
-EXIT:
-	(void)printf("Press any key to continue:\r\n");
-	(void)getchar();
-	return result;
+	return exitFunction(0);
 }
