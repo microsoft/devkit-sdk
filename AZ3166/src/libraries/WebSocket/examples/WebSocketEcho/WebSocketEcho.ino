@@ -4,7 +4,7 @@
 static bool hasWifi;
 static bool isWsConnected;
 
-static char *webSocketServerUrl = "ws://echo.websocket.org/"; // or use ws://demos.kaazing.com/echo
+static char webSocketServerUrl[] = "ws://echo.websocket.org/"; // or use ws://demos.kaazing.com/echo
 static WebSocketClient *wsClient;
 char wsBuffer[1024];
 char wifiBuff[128];

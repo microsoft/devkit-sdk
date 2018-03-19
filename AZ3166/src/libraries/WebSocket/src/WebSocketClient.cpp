@@ -168,7 +168,9 @@ int WebSocketClient::sendLength(long len, char *msg)
         msg[0] = 127 | (1 << 7);
         for (int i = 0; i < 8; i++)
         {
-            msg[i + 1] = (len >> i * 8) & 0xff;
+            // Acctually, we only support message size less than 2^32
+            int shift = i * 8 > 32 ? 32 : i * 8;
+            msg[i + 1] = (len >> shift) & 0xff;
         }
         return 9;
     }
@@ -189,7 +191,7 @@ int WebSocketClient::sendMask(char *msg)
     return 4;
 }
 
-int WebSocketClient::send(char *str, long size)
+int WebSocketClient::send(const char *str, long size, WS_Message_Type messageType, bool isFinal)
 {
     if (_tcpSocket == NULL)
     {
@@ -203,7 +205,15 @@ int WebSocketClient::send(char *str, long size)
     }
 
     char msg[15];
-    msg[0] = 0x81;
+
+    if (messageType == WS_Message_Text)
+    {
+        msg[0] = isFinal ? 0x81 : 0x01;
+    }
+    else
+    {
+        msg[0] = isFinal ? 0x82 : 0x02;
+    }
 
     int idx = 1;
     idx += sendLength(size, msg + idx);
@@ -309,7 +319,9 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
         for (int i = 0; i < 8; i++)
         {
             readChar(&c);
-            payloadLength += (c << (7 - i) * 8);
+
+            int shift = (7 - i) * 8 > 32 ? 32 : (7 - i) * 8;
+            payloadLength += (c << shift);
         }
     }
 
@@ -347,7 +359,6 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
     receiveResult->isEndOfMessage = isFinal;
     receiveResult->length = payloadLength;
     receiveResult->messageType = messageType;
-    receiveResult->error = NSAPI_ERROR_OK;
 
     return receiveResult;
 }
@@ -380,7 +391,7 @@ const char *WebSocketClient::getPath()
     return _parsedUrl->path();
 }
 
-int WebSocketClient::write(char *str, int len)
+int WebSocketClient::write(const char *str, int len)
 {
     int res = 0, idx = 0;
 
