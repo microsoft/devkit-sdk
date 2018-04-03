@@ -43,7 +43,8 @@ typedef enum
     WS_OPCODE_BINARY = 0x02,        /* Denotes a binary frame */
     WS_OPCODE_CLOSE = 0x08,         /* Denotes a connection close */
     WS_OPCODE_PING = 0x09,          /* Denotes a ping */
-    WS_OPCODE_PONG = 0x0A           /* Denotes a pong */
+    WS_OPCODE_PONG = 0x0A,          /* Denotes a pong */
+    WS_FINAL_BIT = 0x80             /* Denotes a final message frame */
 };
 
 typedef enum
@@ -155,7 +156,8 @@ class WebSocketClient
         TCPSocket * _tcpSocket;
         ParsedUrl * _parsedUrl;
         uint16_t _port;
-        WS_Message_Type messageType;
+        WS_Message_Type _messageType;
+        bool _firstFrame;
 };
 
 #endif
