@@ -169,7 +169,7 @@ int WebSocketClient::sendLength(long len, char *msg)
         msg[0] = 127 | (1 << 7);
         for (int i = 0; i < 8; i++)
         {
-            // Acctually, we only support message size less than 2^32
+            // Actually, we only support message size less than 2^32
             int shift = i * 8 > 32 ? 32 : i * 8;
             msg[i + 1] = (len >> shift) & 0xff;
         }
