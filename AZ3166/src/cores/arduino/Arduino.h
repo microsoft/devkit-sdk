@@ -95,6 +95,7 @@ extern const PinDescription g_APinDescription[] ;
 #include "SystemTickCounter.h"
 #include "SystemVariables.h"
 #include "EEPROMInterface.h"
+#include "AttachInterrupt.h"
 
 #include "mbed_stats.h"
 
