@@ -54,11 +54,11 @@ typedef enum
     WS_PROTOCOL_ERROR = 1002,       /* A protocol error occurred. */
     WS_UNSOPPORTED_DATA = 1003,     /* An endpoint has received a type of data it cannot accept. */
     WS_NO_STATUS = 1005,            /* A dummy value to indicate that no status code was received. */
-    WS_ABNOMAL_CLOSE = 1006,        /* A dummy value to indicate that the connection was closed abnormally. */
+    WS_ABNORMAL_CLOSE = 1006,        /* A dummy value to indicate that the connection was closed abnormally. */
     WS_INVALID_PAYLOAD = 1007,      /* An endpoint received message data inconsistent with its type. */
     WS_POLICY_VIOLATION = 1008,     /* An endpoint received a message that violated its policy. */
     WS_MESSAGE_TOO_BIG = 1009       /* An endpoint received a message too large to process. */
-} WSCloseSatusCode;
+} WSCloseStatusCode;
 
 typedef struct
 {
