@@ -7,6 +7,8 @@
 * @brief    Attach interrupt callback to digital pin.
 **
 * @param    pin               The PinName of digital pin.
+*                             Valid PinNames are: PA_4, PA_5, PA_10, PB_0, PB_2, PB_3, PB_6,
+*                                                 PB_7, PB_8, PB_9, PB_13, PB_14, PB_15
 * @param    ISR               The callback function.
 * @param    mode              Triggered event type, support CHANGE, RISING, FALLING now.
 *
