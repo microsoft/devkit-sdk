@@ -8,6 +8,7 @@
 #include "config.h"
 
 void setup() {
+  pinInit();
   I2CInit();
 }
 
