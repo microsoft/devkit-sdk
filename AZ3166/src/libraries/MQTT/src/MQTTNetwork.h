@@ -29,11 +29,23 @@ class MQTTNetwork
 
     int read(unsigned char *buffer, int len, int timeout)
     {
+        if (_tcpSocket == NULL)
+        {
+            return NSAPI_ERROR_NO_SOCKET;
+        }
+
+        _tcpSocket->set_timeout(timeout);
         return _tcpSocket->recv(buffer, len);
     }
 
     int write(unsigned char *buffer, int len, int timeout)
     {
+        if (_tcpSocket == NULL)
+        {
+            return NSAPI_ERROR_NO_SOCKET;
+        }
+
+        _tcpSocket->set_timeout(timeout);
         return _tcpSocket->send(buffer, len);
     }
 
