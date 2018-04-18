@@ -1,9 +1,9 @@
 volatile byte state = LOW;
+byte state_bk = LOW;
 RGB_LED rgb;
 
 void pinInit()
 {
-  pinMode(LED_USER, OUTPUT);
   pinMode(PA_5, OUTPUT);
   pinMode(PB_0, OUTPUT);
   pinMode(PB_2, OUTPUT);
@@ -13,9 +13,10 @@ void pinInit()
   pinMode(PB_15, OUTPUT);
 
   digitalWrite(PB_2, state);
+  digitalWrite(LED_USER, state);
   rgb.setColor(0, 0, 0);
 
-  attachInterrupt(PA_4, blink, FALLING);
+  attachInterrupt(PA_4, blink, RISING);
   attachInterrupt(PA_5, blink, CHANGE);
   attachInterrupt(PA_10, blink, FALLING);
   attachInterrupt(PB_0, blink, CHANGE);
@@ -32,7 +33,8 @@ test(PA_5)
   for (int i = 0; i < 5; i++)
   {
     digitalWrite(PA_5, !digitalRead(PA_5));
-    delay(1000);
+    assertEqual(digitalRead(LED_USER), state_bk);
+    delay(LOOP_DELAY);
   }
 }
 
@@ -40,8 +42,10 @@ test(PB_0)
 {
   for (int i = 0; i < 5; i++)
   {
+    digitalWrite(LED_USER, state);
     digitalWrite(PB_0, !digitalRead(PB_0));
-    delay(1000);
+    assertEqual(digitalRead(LED_USER), state_bk);
+    delay(LOOP_DELAY);
   }
 }
 
@@ -50,6 +54,7 @@ test(PB_2)
   for (int i = 0; i < 5; i++)
   {
     digitalWrite(PB_2, !digitalRead(PB_2));
+    assertEqual(digitalRead(LED_USER), state_bk);
     delay(LOOP_DELAY);
   }
 }
@@ -71,7 +76,8 @@ test(PB_6)
   for (int i = 0; i < 5; i++)
   {
     digitalWrite(PB_6, !digitalRead(PB_6));
-    delay(1000);
+    assertEqual(digitalRead(LED_USER), state_bk);
+    delay(LOOP_DELAY);
   }
 }
 
@@ -80,7 +86,8 @@ test(PB_7)
   for (int i = 0; i < 5; i++)
   {
     digitalWrite(PB_7, !digitalRead(PB_7));
-    delay(1000);
+    assertEqual(digitalRead(LED_USER), state_bk);
+    delay(LOOP_DELAY);
   }
 }
 
@@ -89,7 +96,8 @@ test(PB_13)
   for (int i = 0; i < 5; i++)
   {
     digitalWrite(PB_13, !digitalRead(PB_13));
-    delay(1000);
+    assertEqual(digitalRead(LED_USER), state_bk);
+    delay(LOOP_DELAY);
   }
 }
 
@@ -98,13 +106,14 @@ test(PB_15)
   for (int i = 0; i < 5; i++)
   {
     digitalWrite(PB_15, !digitalRead(PB_15));
-    delay(1000);
+    assertEqual(digitalRead(LED_USER), state_bk);
+    delay(LOOP_DELAY);
   }
 }
 
 void blink()
 {
   state = !state;
-
+  state_bk = state;
   digitalWrite(LED_USER, state);
 }
