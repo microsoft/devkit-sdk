@@ -26,7 +26,7 @@ class Watchdog
     
     /**
     * @brief                    enable Watchdog timer with reset interval.
-    * @param   timeout          timeout interval in milliseconds, as a float.
+    * @param   timeoutInMs      timeout interval in milliseconds, as a float.
     * @returns none
     */
     bool configure(float timeoutInMs);
