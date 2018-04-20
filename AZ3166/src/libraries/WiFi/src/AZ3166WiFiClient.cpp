@@ -132,7 +132,7 @@ void WiFiClient::stop()
 
 int WiFiClient::connected()
 {
-    return ( _pTcpSocket == NULL ) ? 0 : 1;
+    return ( _pTcpSocket == NULL || _pTcpSocket -> send(NULL, 0) == NSAPI_ERROR_NO_SOCKET) ? 0 : 1;
 }
 
 WiFiClient::operator bool() 
