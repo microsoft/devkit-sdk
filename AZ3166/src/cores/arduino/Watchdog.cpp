@@ -2,18 +2,26 @@
 
 Watchdog::Watchdog()
 {
+    _causedReset = false;
 }
 
 // Reference: STM32F412 user manual
 // http://www.st.com/content/ccc/resource/technical/document/reference_manual/group0/4f/7b/2b/bd/04/b3/49/25/DM00180369/files/DM00180369.pdf/jcr:content/translations/en.DM00180369.pdf
-void Watchdog::configure(int timeout)
+bool Watchdog::configure(float timeout)
 {
-    uint16_t prescalerCode;
-    uint16_t prescalerDivider;
-    uint16_t reloadValue;
-
     // The internal Low Speed oscillator (LSI) has a frequency of 32kHz.
     // #define LSI_VALUE  ((uint32_t)32000U)
+
+    // Min timeout period at 32kHz LSI: 0.125ms, with 4 prescaler divider
+    // Max timeout period: 32768ms, with 256 prescaler divider
+    if (timeout < 0.125 || timeout > 32768)
+    {
+        return false;
+    }
+
+    uint16_t prescalerCode;
+    uint16_t prescalerDivider;
+    uint16_t reloadValue;  
 
     // Calculate prescaler value for prescaler registry (IWDG_PR)
     float timeoutSeconds = timeout / 1000;
@@ -56,17 +64,33 @@ void Watchdog::configure(int timeout)
     // Calculate the IWDG reload value for reload register (IWDG_RLR)
     int clk = LSI_VALUE / prescalerDivider;
     reloadValue  = (uint16_t)(timeoutSeconds * clk);
-    
-    printf("Watchdog is configured with: prescaler = %d, reload = 0x%X, timeout miliiseconds: %d\r\n", prescalerDivider, reloadValue, timeout);
+
+    // printf("Watchdog is configured with: prescaler = %d, reload = 0x%X, timeout miliiseconds: %d\r\n", prescalerDivider, reloadValue, timeout);
 
     IWDG->KR = 0x5555;              // Enable write access to prescaler (IWDG_PR) and reload (IWDG_PLR) register
     IWDG->PR = prescalerCode;       // Set prescaler register
     IWDG->RLR = reloadValue;        // Set reload register
     IWDG->KR = 0xAAAA;              // Reload max counter value from IWDG_PLR register to the counter
     IWDG->KR = 0xCCCC;              // Start Watchdog
+
+    return true;
 }
 
 void Watchdog::resetTimer()
 {
     IWDG->KR = 0xAAAA;
+}
+
+bool Watchdog::resetTriggered()
+{
+    // Check if the Watchdog trigger a reset by the RCC_CSR register
+    // RCC_CSR reset value: 0x0E00 0000
+    if (RCC->CSR & (1<<29)) {
+        _causedReset = true;
+
+        // Clear reset flag
+        RCC->CSR |= (1<<24);
+    }
+
+    return _causedReset;
 }
