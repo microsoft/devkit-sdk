@@ -26,16 +26,25 @@ class Watchdog
     
     /**
     * @brief                    enable Watchdog timer with reset interval.
-    * @param   timeout          timeout interval in milliseconds, as an integer.
+    * @param   timeoutInMs      timeout interval in milliseconds, as a float.
     * @returns none
     */
-    void configure(int timeout);
+    bool configure(float timeoutInMs);
 
     /**
      * @brief                   reset Watchdog timer to prevent it from a system reset.
      * @returns none
      */
     void resetTimer();
+
+    /**
+     * @brief                   get the flag to indicate if the Watchdog trigger a system reset.
+     * @returns                 return true if the Watchdog reset is triggered, else return false.
+     */
+    bool resetTriggered();
+
+  private:
+    bool _causedReset;
 };
 
 #endif // __WATCHDOG_H__
