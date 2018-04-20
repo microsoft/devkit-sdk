@@ -7,14 +7,14 @@ Watchdog::Watchdog()
 
 // Reference: STM32F412 user manual
 // http://www.st.com/content/ccc/resource/technical/document/reference_manual/group0/4f/7b/2b/bd/04/b3/49/25/DM00180369/files/DM00180369.pdf/jcr:content/translations/en.DM00180369.pdf
-bool Watchdog::configure(float timeout)
+bool Watchdog::configure(float timeoutInMs)
 {
     // The internal Low Speed oscillator (LSI) has a frequency of 32kHz.
     // #define LSI_VALUE  ((uint32_t)32000U)
 
     // Min timeout period at 32kHz LSI: 0.125ms, with 4 prescaler divider
     // Max timeout period: 32768ms, with 256 prescaler divider
-    if (timeout < 0.125 || timeout > 32768)
+    if (timeoutInMs < 0.125 || timeoutInMs > 32768)
     {
         return false;
     }
@@ -24,7 +24,7 @@ bool Watchdog::configure(float timeout)
     uint16_t reloadValue;  
 
     // Calculate prescaler value for prescaler registry (IWDG_PR)
-    float timeoutSeconds = timeout / 1000;
+    float timeoutSeconds = timeoutInMs / 1000;
     if ((timeoutSeconds * (LSI_VALUE / 4)) < 0xFFF)
     {
         prescalerCode = IWDG_PRESCALER_4;
