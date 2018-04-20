@@ -98,5 +98,6 @@ extern const PinDescription g_APinDescription[] ;
 #include "AttachInterrupt.h"
 
 #include "mbed_stats.h"
+#include "Watchdog.h"
 
 #endif
