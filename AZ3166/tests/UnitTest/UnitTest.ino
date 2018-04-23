@@ -5,10 +5,10 @@
 #include "RGB_LED.h"
 #include "AZ3166WiFi.h"
 #include "SystemWiFi.h"
+#include "PinNames.h"
 #include "config.h"
 
 void setup() {
-  pinInit();
   I2CInit();
 }
 
