@@ -28,3 +28,14 @@ int attachInterrupt(PinName pin, Callback<void()> ISR, int mode)
     }
     return 0;
 }
+
+int detachInterrupt(PinName pin)
+{
+    if (pin == NC || validPinames[pin & 0x0F] != pin)
+    {
+        return -1;
+    }
+    event[pin & 0x0F].rise(NULL);
+    event[pin & 0x0F].fall(NULL);
+    return 0;
+}
