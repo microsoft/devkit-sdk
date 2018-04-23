@@ -3,40 +3,56 @@ volatile int counter = 0;
 test(PA_5)
 {
   check_rising(PA_5);
+  check_falling(PA_5);
+  check_change(PA_5);
 }
 
 test(PB_2)
 {
+  check_rising(PB_2);
+  check_falling(PB_2);
   check_change(PB_2);
 }
 
 test(PB_3)
 {
   check_rising(PB_3);
+  check_falling(PB_3);
+  check_change(PB_3);
 }
 
 test(PB_6)
 {
+  check_rising(PB_6);
   check_falling(PB_6);
+  check_change(PB_6);
 }
 
 test(PB_7)
 {
+  check_rising(PB_7);
+  check_falling(PB_7);
   check_change(PB_7);
 }
 
 test(PB_13)
 {
   check_rising(PB_13);
+  check_falling(PB_13);
+  check_change(PB_13);
 }
 
 test(PB_14)
 {
+  check_rising(PB_14);
   check_falling(PB_14);
+  check_change(PB_14);
 }
 
 test(PB_15)
 {
+  check_rising(PB_15);
+  check_falling(PB_15);
   check_change(PB_15);
 }
 
@@ -62,6 +78,8 @@ void check_rising(PinName pin)
   digitalWrite(pin, HIGH);
   assertEqual(counter, 2);
   delay(LOOP_DELAY);
+
+  detachInterrupt(pin);
 }
 
 void check_falling(PinName pin)
@@ -86,6 +104,8 @@ void check_falling(PinName pin)
   digitalWrite(pin, HIGH);
   assertEqual(counter, 2);
   delay(LOOP_DELAY);
+
+  detachInterrupt(pin);
 }
 
 void check_change(PinName pin)
@@ -110,6 +130,8 @@ void check_change(PinName pin)
   digitalWrite(pin, HIGH);
   assertEqual(counter, 4);
   delay(LOOP_DELAY);
+
+  detachInterrupt(pin);
 }
 
 void change()
