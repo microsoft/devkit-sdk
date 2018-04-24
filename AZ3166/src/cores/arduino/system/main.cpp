@@ -112,8 +112,7 @@ static void EnterAPMode()
         return;
     }
 
-    char ap_name[24] = "AZ-";
-    ap_name[3 + GetMACWithoutColon(ap_name + 3)] = 0;
+    const char* ap_name = GetBoardAPName();
 
     int ret = SystemWiFiAPStart(ap_name, "");
     if ( ret == false) 

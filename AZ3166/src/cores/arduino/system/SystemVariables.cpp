@@ -9,7 +9,8 @@
 extern "C" {
 #endif
 
-static char boardID[24] = { "\0" };
+static char boardID[BOARD_ID_LENGTH + 1] = { "\0" };
+static char boardAPName[BOARD_AP_LENGTH + 1] = { "\0" };
 
 int GetMACWithoutColon(char* buff)
 {
@@ -31,12 +32,20 @@ const char* GetBoardID(void)
 {
     if (boardID[0] == 0)
     {
-        boardID[0] = 'a';
-        boardID[1] = 'z';
-        boardID[2] = '-';
-        boardID[3 + GetMACWithoutColon(boardID + 3)] = 0;
+        memcpy(boardID, boardIDHeader, strlen(boardIDHeader));
+        boardID[strlen(boardIDHeader) + GetMACWithoutColon(boardID + strlen(boardIDHeader))] = 0;
     }
     return boardID;
+}
+
+const char* GetBoardAPName(void)
+{
+    if (boardAPName[0] == 0)
+    {
+        memcpy(boardAPName, boardAPHeader, strlen(boardAPHeader));
+        boardAPName[strlen(boardAPHeader) + GetMACWithoutColon(boardAPName + strlen(boardAPHeader))] = 0;
+    }
+    return boardAPName;
 }
 
 #ifdef __cplusplus
