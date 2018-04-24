@@ -14,6 +14,7 @@ WebSocketClient::WebSocketClient(char *url)
     _tcpSocket = NULL;
     _parsedUrl = NULL;
     _parsedUrl = new ParsedUrl(url);
+    _firstFrame = true;
 
     if (!_parsedUrl->schema())
     {
@@ -168,7 +169,7 @@ int WebSocketClient::sendLength(long len, char *msg)
         msg[0] = 127 | (1 << 7);
         for (int i = 0; i < 8; i++)
         {
-            // Acctually, we only support message size less than 2^32
+            // Actually, we only support message size less than 2^32
             int shift = i * 8 > 32 ? 32 : i * 8;
             msg[i + 1] = (len >> shift) & 0xff;
         }
@@ -206,14 +207,38 @@ int WebSocketClient::send(const char *str, long size, WS_Message_Type messageTyp
 
     char msg[15];
 
-    if (messageType == WS_Message_Text)
+    char opcode = 0x00;
+    if (_firstFrame)
     {
-        msg[0] = isFinal ? 0x81 : 0x01;
+        _messageType = messageType;
+        if (messageType == WS_Message_Text)
+        {
+            opcode = WS_OPCODE_TEXT;
+        }
+        else if (messageType == WS_Message_Binary)
+        {
+            opcode = WS_OPCODE_BINARY;
+        }
     }
     else
     {
-        msg[0] = isFinal ? 0x82 : 0x02;
+        opcode = WS_OPCODE_CONT;
     }
+
+    if (isFinal)
+    {
+        opcode |= WS_FINAL_BIT;
+
+        // Reset the states of next message to send
+        _firstFrame = true;
+    }
+    else
+    {
+        // Next frame will be a continuation frame
+        _firstFrame = false;
+    }
+
+    msg[0] = opcode;
 
     int idx = 1;
     idx += sendLength(size, msg + idx);
@@ -275,11 +300,11 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
             {
                 if (opcode == WS_OPCODE_TEXT)
                 {
-                    messageType = WS_Message_Text;
+                    _messageType = WS_Message_Text;
                 }
                 else if (opcode == WS_OPCODE_BINARY)
                 {
-                    messageType = WS_Message_Binary;
+                    _messageType = WS_Message_Binary;
                 }
 
                 isFinal = ((recvByte & 0x80) == 0x80);
@@ -298,6 +323,10 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
         else if (res < 0 && res != NSAPI_ERROR_WOULD_BLOCK)
         {
             ERROR_FORMAT("Socket receive failed, res: %d, opcode: %x\r\n", res, opcode);
+            if (res == NSAPI_ERROR_NO_CONNECTION)
+            {
+                close();
+            }
             return NULL;
         }
     }
@@ -358,7 +387,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
     WebSocketReceiveResult *receiveResult = new WebSocketReceiveResult();
     receiveResult->isEndOfMessage = isFinal;
     receiveResult->length = payloadLength;
-    receiveResult->messageType = messageType;
+    receiveResult->messageType = _messageType;
 
     return receiveResult;
 }

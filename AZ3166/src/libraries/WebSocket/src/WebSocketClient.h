@@ -43,7 +43,8 @@ typedef enum
     WS_OPCODE_BINARY = 0x02,        /* Denotes a binary frame */
     WS_OPCODE_CLOSE = 0x08,         /* Denotes a connection close */
     WS_OPCODE_PING = 0x09,          /* Denotes a ping */
-    WS_OPCODE_PONG = 0x0A           /* Denotes a pong */
+    WS_OPCODE_PONG = 0x0A,          /* Denotes a pong */
+    WS_FINAL_BIT = 0x80             /* Denotes a final message frame */
 };
 
 typedef enum
@@ -53,11 +54,11 @@ typedef enum
     WS_PROTOCOL_ERROR = 1002,       /* A protocol error occurred. */
     WS_UNSOPPORTED_DATA = 1003,     /* An endpoint has received a type of data it cannot accept. */
     WS_NO_STATUS = 1005,            /* A dummy value to indicate that no status code was received. */
-    WS_ABNOMAL_CLOSE = 1006,        /* A dummy value to indicate that the connection was closed abnormally. */
+    WS_ABNORMAL_CLOSE = 1006,        /* A dummy value to indicate that the connection was closed abnormally. */
     WS_INVALID_PAYLOAD = 1007,      /* An endpoint received message data inconsistent with its type. */
     WS_POLICY_VIOLATION = 1008,     /* An endpoint received a message that violated its policy. */
     WS_MESSAGE_TOO_BIG = 1009       /* An endpoint received a message too large to process. */
-} WSCloseSatusCode;
+} WSCloseStatusCode;
 
 typedef struct
 {
@@ -155,7 +156,8 @@ class WebSocketClient
         TCPSocket * _tcpSocket;
         ParsedUrl * _parsedUrl;
         uint16_t _port;
-        WS_Message_Type messageType;
+        WS_Message_Type _messageType;
+        bool _firstFrame;
 };
 
 #endif
