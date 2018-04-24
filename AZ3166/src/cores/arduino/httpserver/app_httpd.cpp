@@ -36,6 +36,7 @@
 #include "app_httpd.h"
 #include "OledDisplay.h"
 #include "EMW10xxInterface.h"
+#include "SystemVariables.h"
 
 #define app_httpd_log(...)
 
@@ -169,9 +170,9 @@ int web_send_wifisetting_page(httpd_request_t *req)
 
     ssid = (char *)wifiScanResult[i].get_ssid();
     ssidLen = strlen(ssid);
-    if (ssidLen == 15 && strncmp(ssid, "AZ-", 3) == 0) {
+    if (ssidLen == BOARD_AP_LENGTH && strncmp(ssid, boardAPHeader, strlen(boardAPHeader)) == 0) {
       shouldSkip = true;
-      for (int j = 3; j < 15; ++j) {
+      for (int j = strlen(boardAPHeader); j < BOARD_AP_LENGTH; ++j) {
         if (!isxdigit(ssid[j])) {
           shouldSkip = false;
         }

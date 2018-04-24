@@ -16,9 +16,16 @@ extern "C" {
 
 #endif
 
+static char* boardIDHeader = "az-";
+static char* boardAPHeader = "AZ-";
+static const int BOARD_ID_LENGTH = 15;
+static const int BOARD_AP_LENGTH = 15;
+
 int GetMACWithoutColon(char* buff);
 
 const char* GetBoardID(void);
+
+const char* GetBoardAPName(void);
 
 #ifdef __cplusplus
 }
