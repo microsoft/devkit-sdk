@@ -80,6 +80,14 @@ void check_rising(PinName pin)
   delay(LOOP_DELAY);
 
   detachInterrupt(pin);
+
+  digitalWrite(pin, LOW);
+  assertEqual(counter, 2);
+  delay(LOOP_DELAY);
+
+  digitalWrite(pin, HIGH);
+  assertEqual(counter, 2);
+  delay(LOOP_DELAY);
 }
 
 void check_falling(PinName pin)
@@ -106,6 +114,10 @@ void check_falling(PinName pin)
   delay(LOOP_DELAY);
 
   detachInterrupt(pin);
+
+  digitalWrite(pin, LOW);
+  assertEqual(counter, 2);
+  delay(LOOP_DELAY);
 }
 
 void check_change(PinName pin)
@@ -132,6 +144,10 @@ void check_change(PinName pin)
   delay(LOOP_DELAY);
 
   detachInterrupt(pin);
+
+  digitalWrite(pin, LOW);
+  assertEqual(counter, 4);
+  delay(LOOP_DELAY);
 }
 
 void change()
