@@ -162,6 +162,14 @@ bool IsButtonClicked(unsigned char ulPin)
     return false;
 }
 
+void ShowIPInfo()
+{
+  IPAddress ip = WiFi.localIP();
+  char buff[128];
+  snprintf(buff, 128, "IP Address\r\n          \r\n%s\r\n          \r\n",ip.get_address());
+  Screen.print(buff);
+}
+
 void setup() {
   pinMode(LED_WIFI, OUTPUT);
   pinMode(LED_AZURE, OUTPUT);
@@ -239,7 +247,7 @@ void loop() {
   if(isConnected && IsButtonClicked(USER_BUTTON_A))
   {
       showSensor = false;
-      Screen.print("Who said\r\nCogito ergo\r\nsum?\r\n \r\n");
+      ShowIPInfo();
       delay(50);
   }
 
