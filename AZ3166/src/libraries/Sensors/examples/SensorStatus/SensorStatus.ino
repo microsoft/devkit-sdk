@@ -165,8 +165,9 @@ bool IsButtonClicked(unsigned char ulPin)
 void ShowIPInfo()
 {
   IPAddress ip = WiFi.localIP();
+
   char buff[128];
-  snprintf(buff, 128, "IP Address\r\n          \r\n%s\r\n          \r\n",ip.get_address());
+  snprintf(buff, 128, "Who said\r\nCogito ergo\r\nsum?\r\n%s\r\n",ip.get_address());
   Screen.print(buff);
 }
 
