@@ -8,39 +8,39 @@ import fs from 'fs';
 const constants = {
     projectDir: __dirname,
     scriptDir: path.join(__dirname, '../IoTDevKitInstallation.Win'),
-	packageOrigin: path.join(__dirname, `../TestResult/AZ3166-{version}.${process.env.BUILD_NUMBER}.zip`),
-	versionFile: path.join(__dirname, '../system_version.txt'),
-	
-	devkitTaskDir: path.join(__dirname, '../devkit_task_win'),
-	invalidFolderForTask: path.join(__dirname, '../devkit_task_win/tools'),
-	devkitTaskDestDir: path.join(__dirname, `../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}/devkit_task_win_{version}.${process.env.BUILD_NUMBER}`),
-	
+    packageOrigin: path.join(__dirname, `../TestResult/AZ3166-{version}.${process.env.BUILD_NUMBER}.zip`),
+    versionFile: path.join(__dirname, '../system_version.txt'),
+
+    devkitTaskDir: path.join(__dirname, '../devkit_task_win'),
+    invalidFolderForTask: path.join(__dirname, '../devkit_task_win/tools'),
+    devkitTaskDestDir: path.join(__dirname, `../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}/devkit_task_win_{version}.${process.env.BUILD_NUMBER}`),
+
     devkitDirForWin: path.join(__dirname, '../devkit_install_win'),
-	packageDestForWin : path.join(__dirname, '../devkit_install_win/tools/staging/AZ3166-{version}.zip'),
-	toolsOriginForWin: path.join(__dirname, '../Tools/win'),		
-	toolsDestForWin: path.join(__dirname, '../devkit_install_win/tools/staging'),    
-	invalidFolderForWin: path.join(__dirname, '../devkit_install_win/tools/darwin'),
-	jsonFileDirForWin: path.join(__dirname, '../devkit_install_win/package.json'),
-	finalZipForWin: path.join(__dirname, `../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip`),
-	
-	devkitDirForMac: path.join(__dirname, '../devkit_install_mac'),
-	packageDestForMac : path.join(__dirname, '../devkit_install_mac/tools/staging/AZ3166-{version}.zip'),
-	toolsOriginForMac: path.join(__dirname, '../Tools/mac'),
-	toolsDestForMac: path.join(__dirname, '../devkit_install_mac/tools/staging'),
-	invalidFolderForMac: path.join(__dirname, '../devkit_install_mac/tools/win32'),
-	jsonFileDirForMac: path.join(__dirname, '../devkit_install_mac/package.json'),
-	finalZipForMac: path.join(__dirname, `../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip`)
+    packageDestForWin: path.join(__dirname, '../devkit_install_win/tools/staging/AZ3166-{version}.zip'),
+    toolsOriginForWin: path.join(__dirname, '../Tools/win'),
+    toolsDestForWin: path.join(__dirname, '../devkit_install_win/tools/staging'),
+    invalidFolderForWin: path.join(__dirname, '../devkit_install_win/tools/darwin'),
+    jsonFileDirForWin: path.join(__dirname, '../devkit_install_win/package.json'),
+    finalZipForWin: path.join(__dirname, `../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip`),
+
+    devkitDirForMac: path.join(__dirname, '../devkit_install_mac'),
+    packageDestForMac: path.join(__dirname, '../devkit_install_mac/tools/staging/AZ3166-{version}.zip'),
+    toolsOriginForMac: path.join(__dirname, '../Tools/mac'),
+    toolsDestForMac: path.join(__dirname, '../devkit_install_mac/tools/staging'),
+    invalidFolderForMac: path.join(__dirname, '../devkit_install_mac/tools/win32'),
+    jsonFileDirForMac: path.join(__dirname, '../devkit_install_mac/package.json'),
+    finalZipForMac: path.join(__dirname, `../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip`)
 };
 
 const command = {
     npmInstall: 'npm install',
     gulpBabel: 'gulp babel',
-		
+
     zipFinalForWin: `7z a -r ../TestResult/devkit_install_win_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_win/*`,
 
-	zipFinalForMac: `7z a -r ../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_mac/*`,
-	
-	zipTaskFinal: `7z a -r ../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}.zip ../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}/*`
+    zipFinalForMac: `7z a -r ../TestResult/devkit_install_mac_{version}.${process.env.BUILD_NUMBER}.zip ../devkit_install_mac/*`,
+
+    zipTaskFinal: `7z a -r ../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}.zip ../TestResult/devkit_task_win_{version}.${process.env.BUILD_NUMBER}/*`
 };
 
 const timeout = 600 * 1000;
@@ -59,11 +59,11 @@ export function removeDevKitInstall() {
     console.log('remove devkit_install');
     fsExtra.removeSync(constants.devkitDirForWin);
     fsExtra.mkdirSync(constants.devkitDirForWin);
-	
-	fsExtra.removeSync(constants.devkitDirForMac);
+
+    fsExtra.removeSync(constants.devkitDirForMac);
     fsExtra.mkdirSync(constants.devkitDirForMac);
-	
-	fsExtra.removeSync(constants.devkitTaskDir);
+
+    fsExtra.removeSync(constants.devkitTaskDir);
     fsExtra.mkdirSync(constants.devkitTaskDir);
 }
 
@@ -73,22 +73,15 @@ export function copyScripts() {
     for (let i = 0; i < files.length; ++i) {
         if (['node_modules', '.git', '.gitignore', 'LICENSE', 'README.md', 'src'].indexOf(files[i]) === -1) {
             fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitDirForWin, files[i]));
-			fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitDirForMac, files[i]));
-			fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitTaskDir, files[i]));
+            fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitDirForMac, files[i]));
+            fsExtra.copySync(path.join(constants.scriptDir, files[i]), path.join(constants.devkitTaskDir, files[i]));
         }
     }
 }
 
-export function getVersionInfo(){
-	let data = fs.readFileSync(constants.versionFile);
-	versionInfo = data.toString();
-}
-
-export function copyAZ3166Package() {
-    console.log('copy AZ3166 zip package');
-		
-	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo), constants.packageDestForWin.replace("{version}",versionInfo));
-	fsExtra.copySync(constants.packageOrigin.replace("{version}",versionInfo), constants.packageDestForMac.replace("{version}",versionInfo));
+export function getVersionInfo() {
+    let data = fs.readFileSync(constants.versionFile);
+    versionInfo = data.toString();
 }
 
 export function copyToolChain() {
@@ -97,67 +90,65 @@ export function copyToolChain() {
     for (let i = 0; i < winFiles.length; ++i) {
         fsExtra.copySync(path.join(constants.toolsOriginForWin, winFiles[i]), path.join(constants.toolsDestForWin, winFiles[i]));
     }
-	 
-	let macFiles = fsExtra.readdirSync(constants.toolsOriginForMac);
+
+    let macFiles = fsExtra.readdirSync(constants.toolsOriginForMac);
     for (let i = 0; i < macFiles.length; ++i) {
         fsExtra.copySync(path.join(constants.toolsOriginForMac, macFiles[i]), path.join(constants.toolsDestForMac, macFiles[i]));
     }
 }
 
-export function removeInvalidFiles()
-{
-	console.log('remove invalid files');
-	fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));	
-	fsExtra.removeSync(constants.invalidFolderForWin);
-	 
-	fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));	
-	fsExtra.removeSync(constants.invalidFolderForMac);
-	
-	fsExtra.removeSync(path.join(constants.devkitTaskDir, 'install.cmd'));
-	fsExtra.removeSync(path.join(constants.devkitTaskDir, 'install.sh'));
-	fsExtra.removeSync(constants.invalidFolderForTask);	
+export function removeInvalidFiles() {
+    console.log('remove invalid files');
+    fsExtra.removeSync(path.join(constants.devkitDirForWin, 'install.sh'));
+    fsExtra.removeSync(constants.invalidFolderForWin);
+
+    fsExtra.removeSync(path.join(constants.devkitDirForMac, 'install.cmd'));
+    fsExtra.removeSync(constants.invalidFolderForMac);
+
+    fsExtra.removeSync(path.join(constants.devkitTaskDir, 'install.cmd'));
+    fsExtra.removeSync(path.join(constants.devkitTaskDir, 'install.sh'));
+    fsExtra.removeSync(constants.invalidFolderForTask);
 }
 
 export function copyTaskFolder() {
     console.log('copy task folder');
     let files = fsExtra.readdirSync(constants.devkitTaskDir);
     for (let i = 0; i < files.length; ++i) {
-        fsExtra.copySync(path.join(constants.devkitTaskDir, files[i]), path.join(constants.devkitTaskDestDir.replace(new RegExp("{version}","gm"),versionInfo), files[i]));
-    }	
+        fsExtra.copySync(path.join(constants.devkitTaskDir, files[i]), path.join(constants.devkitTaskDestDir.replace(new RegExp("{version}", "gm"), versionInfo), files[i]));
+    }
 }
 
-export function updateSerialPort()
-{
-	console.log('update serialPort');	 
-	 	 
-	var winFile = require(constants.jsonFileDirForWin);	  
-	winFile.dependencies["serialport"] = "^6.0.4";
-	 
-	var winDest = JSON.stringify(winFile, null, 2);
-	fs.writeFile(constants.jsonFileDirForWin, winDest);
-	  
-	var macFile = require(constants.jsonFileDirForMac);	  
-	macFile.dependencies["serialport"] = "^6.0.3";
-	 
-	var macDest = JSON.stringify(macFile, null, 2);
-	fs.writeFile(constants.jsonFileDirForMac, macDest);	  
+export function updateSerialPort() {
+    console.log('update serialPort');
+
+    var winFile = require(constants.jsonFileDirForWin);
+    winFile.dependencies["serialport"] = "^6.0.4";
+
+    var winDest = JSON.stringify(winFile, null, 2);
+    fs.writeFile(constants.jsonFileDirForWin, winDest);
+
+    var macFile = require(constants.jsonFileDirForMac);
+    macFile.dependencies["serialport"] = "^6.0.3";
+
+    var macDest = JSON.stringify(macFile, null, 2);
+    fs.writeFile(constants.jsonFileDirForMac, macDest);
 }
- 
+
 export async function zipFinal() {
     console.log('zip the final package');
-    let winFiles = glob.sync(path.dirname(constants.finalZipForWin.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_win*.zip');
+    let winFiles = glob.sync(path.dirname(constants.finalZipForWin.replace("{version}", versionInfo)).replace(/\\/g, '/') + '/usb_install_win*.zip');
     _.each(winFiles, file => {
-        console.log('deleting' ,file);
-        fs.unlinkSync(file);
-    });
-	 
-	let macFiles = glob.sync(path.dirname(constants.finalZipForMac.replace("{version}",versionInfo)).replace(/\\/g, '/') + '/usb_install_mac*.zip');
-    _.each(macFiles, file => {
-        console.log('deleting' ,file);
+        console.log('deleting', file);
         fs.unlinkSync(file);
     });
 
-	await util.execStdout(command.zipFinalForMac.replace("{version}",versionInfo), timeout);
-    await util.execStdout(command.zipFinalForWin.replace("{version}",versionInfo), timeout);
-	await util.execStdout(command.zipTaskFinal.replace(new RegExp("{version}","gm"),versionInfo), timeout);
+    let macFiles = glob.sync(path.dirname(constants.finalZipForMac.replace("{version}", versionInfo)).replace(/\\/g, '/') + '/usb_install_mac*.zip');
+    _.each(macFiles, file => {
+        console.log('deleting', file);
+        fs.unlinkSync(file);
+    });
+
+    await util.execStdout(command.zipFinalForMac.replace("{version}", versionInfo), timeout);
+    await util.execStdout(command.zipFinalForWin.replace("{version}", versionInfo), timeout);
+    await util.execStdout(command.zipTaskFinal.replace(new RegExp("{version}", "gm"), versionInfo), timeout);
 }

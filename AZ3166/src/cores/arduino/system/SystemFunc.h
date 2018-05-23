@@ -13,6 +13,12 @@ extern "C"{
 */
 void SystemReboot(void);
 
+/**
+* @brief	           Enter sleep mode and restart after reset interval.
+* @param    timeout    Timeout interval in second.
+*/
+void SystemStandby(int timeout);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
