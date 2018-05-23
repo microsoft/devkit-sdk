@@ -2,12 +2,11 @@ import {
     buildNewCode,
     removeDevKitInstall,
     copyScripts,
-	getVersionInfo,
-    copyAZ3166Package,
+    getVersionInfo,
     copyToolChain,
-	removeInvalidFiles,
-	copyTaskFolder,
-	updateSerialPort,
+    removeInvalidFiles,
+    copyTaskFolder,
+    updateSerialPort,
     zipFinal,
 } from './generate';
 
@@ -15,12 +14,11 @@ async function main() {
     await buildNewCode();
     removeDevKitInstall();
     copyScripts();
-	getVersionInfo();
-    copyAZ3166Package();
+    getVersionInfo();
     copyToolChain();
-	removeInvalidFiles();
-	copyTaskFolder();
-	updateSerialPort();
+    removeInvalidFiles();
+    copyTaskFolder();
+    updateSerialPort();
     await zipFinal();
 }
 
