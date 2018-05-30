@@ -59,21 +59,14 @@ SECTIONS
 
         *(.rodata*)
 
-        KEEP(*(.eh_frame*))
-    } > FLASH
-
-    .riot_core 0x080E0000 :
-    {
         __start_riot_core = .;
         *(.riot_core)
         __stop_riot_core = .;
-    } > FLASH
-	
-    .riot_fw 0x080E8000 :
-    {
         __start_riot_fw = .;
         *(.riot_fw)
         __stop_riot_fw = .;
+
+        KEEP(*(.eh_frame*))
     } > FLASH
 
     .ARM.extab :
@@ -124,7 +117,6 @@ SECTIONS
         /* All data end */
         __data_end__ = .;
         _edata = .;
-
     } > RAM
 
     .bss :
