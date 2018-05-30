@@ -28,3 +28,6 @@ The DevKit board features ARM Cortex-M processors. At its core, it comes with a 
 
 You can purchase the DevKit from: **[https://aka.ms/iot-devkit-purchase](https://aka.ms/iot-devkit-purchase)**. We have opened purchase channel on [DFRobot](https://www.dfrobot.com/), [SeeedStudio](https://www.seeedstudio.com/) and [Plugable](http://plugable.com/)
 
+### Data / Telemetry
+This project collects usage data and sends it to Microsoft to help improve our products and services. Read Microsoft's [privacy statement to learn more](https://privacy.microsoft.com/en-us/privacystatement).  
+If you choose to participate, you can stop at any time by following this [document](https://aka.ms/devkit/disable-data-collection).
