@@ -38,51 +38,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "nau88c10.h"
 
-/** @addtogroup BSP
-  * @{
-  */
-  
-/** @addtogroup Components
-  * @{
-  */ 
-
-/** @addtogroup nau88c10
-  * @brief     This file provides a set of functions needed to drive the 
-  *            nau88c10 audio codec.
-  * @{
-  */
-
-/** @defgroup nau88c10_Private_Types
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-  
-/** @defgroup nau88c10_Private_Defines
-  * @{
-  */
 /* Uncomment this line to enable verifying data sent to codec after each write 
    operation (for debug purpose) */
 #if !defined (VERIFY_WRITTENDATA)  
 /*#define VERIFY_WRITTENDATA*/
 #endif /* VERIFY_WRITTENDATA */
-/**
-  * @}
-  */ 
 
-/** @defgroup nau88c10_Private_Macros
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-  
-/** @defgroup nau88c10_Private_Variables
-  * @{
-  */
 
 /* Audio codec driver structure initialization */  
 AUDIO_DrvTypeDef nau88c10_drv =
@@ -141,78 +102,78 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   uint16_t output_device = OutputInputDevice & 0xFF;
   uint16_t input_device = OutputInputDevice & 0xFF00;
   uint16_t power_mgnt_reg_1 = 0;
-  
-  /* Initialize the Control interface of the Audio Codec */
-//  AUDIO_IO_Init();
-  /*Software Reset*/
-//  CODEC_IO_Write(DeviceAddr,0x0,0x0000);
-  /*Power Management*/
-  CODEC_IO_Write(DeviceAddr,0x1,0x015d);
-  CODEC_IO_Write(DeviceAddr,0x2,0x0015);
-//  CODEC_IO_Write(DeviceAddr,0x3,0x0065);
-  /*output in HeadPhone*/
-  CODEC_IO_Write(DeviceAddr,0x3,0x00ED);
-  /*Audio Control*/
-  CODEC_IO_Write(DeviceAddr,0x4,0x0010);
-  CODEC_IO_Write(DeviceAddr,0x5,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x6,0x000c);
-  CODEC_IO_Write(DeviceAddr,0x7,0x000a);
-  CODEC_IO_Write(DeviceAddr,0x8,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x9,0x0000);
-  CODEC_IO_Write(DeviceAddr,0xa,0x0008);
-  CODEC_IO_Write(DeviceAddr,0xb,0x01ff);
-  CODEC_IO_Write(DeviceAddr,0xc,0x0000);
-  CODEC_IO_Write(DeviceAddr,0xd,0x0000);
-  CODEC_IO_Write(DeviceAddr,0xe,0x0108);
-  CODEC_IO_Write(DeviceAddr,0xf,0x01ff);
-  /*Equalizer*/
-  CODEC_IO_Write(DeviceAddr,0x12,0x012c);
-  CODEC_IO_Write(DeviceAddr,0x13,0x002c);
-  CODEC_IO_Write(DeviceAddr,0x14,0x002c);
-  CODEC_IO_Write(DeviceAddr,0x15,0x002c);
-  CODEC_IO_Write(DeviceAddr,0x16,0x002c);
-  /*DAC Limiter*/
-  CODEC_IO_Write(DeviceAddr,0x18,0x0032);
-  CODEC_IO_Write(DeviceAddr,0x19,0x0000);
-  /*Notch Filter*/
-  CODEC_IO_Write(DeviceAddr,0x1b,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x1c,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x1d,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x1e,0x0000);
-  /*ALC Control*/
-  CODEC_IO_Write(DeviceAddr,0x20,0x0038);
-  CODEC_IO_Write(DeviceAddr,0x21,0x000b);
-  CODEC_IO_Write(DeviceAddr,0x22,0x0032);
-  CODEC_IO_Write(DeviceAddr,0x23,0x0000);
-  /*PLL Control*/
-  CODEC_IO_Write(DeviceAddr,0x24,0x0008);
-  CODEC_IO_Write(DeviceAddr,0x25,0x000c);
-  CODEC_IO_Write(DeviceAddr,0x26,0x0093);
-  CODEC_IO_Write(DeviceAddr,0x27,0x00e9);
-  /*BYP Control*/
-  CODEC_IO_Write(DeviceAddr,0x28,0x0000);
-  /*Input Output Mixer*/
-  CODEC_IO_Write(DeviceAddr,0x2c,0x0003);
-  CODEC_IO_Write(DeviceAddr,0x2d,0x0010);
-  CODEC_IO_Write(DeviceAddr,0x2e,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x2f,0x0100);
-  CODEC_IO_Write(DeviceAddr,0x30,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x31,0x0002);
-  CODEC_IO_Write(DeviceAddr,0x32,0x0001);
-  CODEC_IO_Write(DeviceAddr,0x33,0x0000);
-  CODEC_IO_Write(DeviceAddr,0x34,0x0040);
-  CODEC_IO_Write(DeviceAddr,0x35,0x0040);
-  CODEC_IO_Write(DeviceAddr,0x36,0x00b9);
-  CODEC_IO_Write(DeviceAddr,0x37,0x0040);
-  /*output in HeadPhone*/
-  CODEC_IO_Write(DeviceAddr,0x38,0x0001);
-//  CODEC_IO_Write(DeviceAddr,0x38,0x0040);
 
-  CODEC_IO_Write(DeviceAddr,0x3C,0x0004);
+  /* Initialize the Control interface of the Audio Codec */
+  //  AUDIO_IO_Init();
+  /*Software Reset*/
+  //  CODEC_IO_Write(DeviceAddr,0x0,0x0000);
+  /*Power Management*/
+  CODEC_IO_Write(DeviceAddr, 0x1, 0x015d);
+  CODEC_IO_Write(DeviceAddr, 0x2, 0x0015);
+  //  CODEC_IO_Write(DeviceAddr,0x3,0x0065);
+  /*output in HeadPhone*/
+  CODEC_IO_Write(DeviceAddr, 0x3, 0x00ED);
+  /*Audio Control*/
+  CODEC_IO_Write(DeviceAddr, 0x4, 0x0010);
+  CODEC_IO_Write(DeviceAddr, 0x5, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x6, 0x000c);
+  CODEC_IO_Write(DeviceAddr, 0x7, 0x000a);
+  CODEC_IO_Write(DeviceAddr, 0x8, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x9, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0xa, 0x0008);
+  CODEC_IO_Write(DeviceAddr, 0xb, 0x01FF);
+  CODEC_IO_Write(DeviceAddr, 0xc, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0xd, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0xe, 0x0108);
+  CODEC_IO_Write(DeviceAddr, 0xf, 0x01ff);
+  /*Equalizer*/
+  CODEC_IO_Write(DeviceAddr, 0x12, 0x012c);
+  CODEC_IO_Write(DeviceAddr, 0x13, 0x002c);
+  CODEC_IO_Write(DeviceAddr, 0x14, 0x002c);
+  CODEC_IO_Write(DeviceAddr, 0x15, 0x002c);
+  CODEC_IO_Write(DeviceAddr, 0x16, 0x002c);
+  /*DAC Limiter*/
+  CODEC_IO_Write(DeviceAddr, 0x18, 0x0032);
+  CODEC_IO_Write(DeviceAddr, 0x19, 0x0000);
+  /*Notch Filter*/
+  CODEC_IO_Write(DeviceAddr, 0x1b, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x1c, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x1d, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x1e, 0x0000);
+  /*ALC Control*/
+  CODEC_IO_Write(DeviceAddr, 0x20, 0x0038);
+  CODEC_IO_Write(DeviceAddr, 0x21, 0x000b);
+  CODEC_IO_Write(DeviceAddr, 0x22, 0x0032);
+  CODEC_IO_Write(DeviceAddr, 0x23, 0x0000);
+  /*PLL Control*/
+  CODEC_IO_Write(DeviceAddr, 0x24, 0x0008);
+  CODEC_IO_Write(DeviceAddr, 0x25, 0x000c);
+  CODEC_IO_Write(DeviceAddr, 0x26, 0x0093);
+  CODEC_IO_Write(DeviceAddr, 0x27, 0x00e9);
+  /*BYP Control*/
+  CODEC_IO_Write(DeviceAddr, 0x28, 0x0000);
+  /*Input Output Mixer*/
+  CODEC_IO_Write(DeviceAddr, 0x2c, 0x0003);
+  CODEC_IO_Write(DeviceAddr, 0x2d, 0x0010);
+  CODEC_IO_Write(DeviceAddr, 0x2e, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x2f, 0x0100);
+  CODEC_IO_Write(DeviceAddr, 0x30, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x31, 0x0002);
+  CODEC_IO_Write(DeviceAddr, 0x32, 0x0001);
+  CODEC_IO_Write(DeviceAddr, 0x33, 0x0000);
+  CODEC_IO_Write(DeviceAddr, 0x34, 0x0040);
+  CODEC_IO_Write(DeviceAddr, 0x35, 0x0040);
+  CODEC_IO_Write(DeviceAddr, 0x36, 0x00bF);
+  CODEC_IO_Write(DeviceAddr, 0x37, 0x0040);
+  /*output in HeadPhone*/
+  CODEC_IO_Write(DeviceAddr, 0x38, 0x0001);
+  //  CODEC_IO_Write(DeviceAddr,0x38,0x0040);
+
+  CODEC_IO_Write(DeviceAddr, 0x3C, 0x0004);
 }
 
 /**
-  * @brief  Deinitialize the audio codec.
+  * @brief  Deinitializes the audio codec.
   * @param  None
   * @retval  None
   */
@@ -249,11 +210,10 @@ uint32_t nau88c10_ReadRegister(uint16_t DeviceAddr)
 
 uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr)
 {
-    AUDIO_IO_Init();
-    CODEC_IO_Write(DeviceAddr, 0x05, 0x01);
-    return 0;
+  AUDIO_IO_Init();
+  CODEC_IO_Write(DeviceAddr, 0x05, 0x01);
+  return 0;
 }
-
 
 /**
   * @brief Start the audio Codec play feature.
@@ -261,14 +221,14 @@ uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr)
   * @param DeviceAddr: Device address on communication Bus.   
   * @retval 0 if correct communication, else wrong communication
   */
-uint32_t nau88c10_Play(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size)
+uint32_t nau88c10_Play(uint16_t DeviceAddr, uint16_t *pBuffer, uint16_t Size)
 {
   uint32_t counter = 0;
- 
-  /* Resumes the audio file playing */  
+
+  /* Resumes the audio file playing */
   /* Unmute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_OFF);
-  
+
   return counter;
 }
 
@@ -278,16 +238,16 @@ uint32_t nau88c10_Play(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size)
   * @retval 0 if correct communication, else wrong communication
   */
 uint32_t nau88c10_Pause(uint16_t DeviceAddr)
-{  
+{
   uint32_t counter = 0;
- 
+
   /* Pause the audio file playing */
   /* Mute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_ON);
-  
+
   /* Put the Codec in Power save mode */
   counter += CODEC_IO_Write(DeviceAddr, 0x02, 0x01);
- 
+
   return counter;
 }
 
@@ -299,11 +259,11 @@ uint32_t nau88c10_Pause(uint16_t DeviceAddr)
 uint32_t nau88c10_Resume(uint16_t DeviceAddr)
 {
   uint32_t counter = 0;
- 
-  /* Resumes the audio file playing */  
+
+  /* Resumes the audio file playing */
   /* Unmute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_OFF);
-  
+
   return counter;
 }
 
@@ -324,38 +284,35 @@ uint32_t nau88c10_Stop(uint16_t DeviceAddr, uint32_t CodecPdwnMode)
 {
   uint32_t counter = 0;
 
-  if (outputEnabled != 0)
+  counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_ON);
+
+  if (CodecPdwnMode == CODEC_PDWN_SW)
   {
-    /* Mute the output first */
-    counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_ON);
-
-    if (CodecPdwnMode == CODEC_PDWN_SW)
-    {
-       /* Only output mute required*/
-    }
-    else /* CODEC_PDWN_HW */
-    {
-      /* Mute the AIF1 Timeslot 0 DAC1 path */
-      counter += CODEC_IO_Write(DeviceAddr, 0x420, 0x0200);
-
-      /* Mute the AIF1 Timeslot 1 DAC2 path */
-      counter += CODEC_IO_Write(DeviceAddr, 0x422, 0x0200);
-
-      /* Disable DAC1L_TO_HPOUT1L */
-      counter += CODEC_IO_Write(DeviceAddr, 0x2D, 0x0000);
-
-      /* Disable DAC1R_TO_HPOUT1R */
-      counter += CODEC_IO_Write(DeviceAddr, 0x2E, 0x0000);
-
-      /* Disable DAC1 and DAC2 */
-      counter += CODEC_IO_Write(DeviceAddr, 0x05, 0x0000);
-
-      /* Reset Codec by writing in 0x0000 address register */
-      counter += CODEC_IO_Write(DeviceAddr, 0x0000, 0x0000);
-
-      outputEnabled = 0;
-    }
+      /* Only output mute required*/
   }
+  else /* CODEC_PDWN_HW */
+  {
+    /* Mute the AIF1 Timeslot 0 DAC1 path */
+    counter += CODEC_IO_Write(DeviceAddr, 0x420, 0x0200);
+
+    /* Mute the AIF1 Timeslot 1 DAC2 path */
+    counter += CODEC_IO_Write(DeviceAddr, 0x422, 0x0200);
+
+    /* Disable DAC1L_TO_HPOUT1L */
+    counter += CODEC_IO_Write(DeviceAddr, 0x2D, 0x0000);
+
+    /* Disable DAC1R_TO_HPOUT1R */
+    counter += CODEC_IO_Write(DeviceAddr, 0x2E, 0x0000);
+
+    /* Disable DAC1 and DAC2 */
+    counter += CODEC_IO_Write(DeviceAddr, 0x05, 0x0000);
+
+    /* Reset Codec by writing in 0x0000 address register */
+    counter += CODEC_IO_Write(DeviceAddr, 0x0000, 0x0000);
+
+    outputEnabled = 0;
+  }
+
   return counter;
 }
 
@@ -371,67 +328,8 @@ uint32_t nau88c10_SetVolume(uint16_t DeviceAddr, uint8_t Volume)
   uint32_t counter = 0;
   uint8_t convertedvol = VOLUME_CONVERT(Volume);
 
-  /* Output volume */
-  if (outputEnabled != 0)
-  {
-    if(convertedvol > 0x3E)
-    {
-      /* Unmute audio codec */
-      counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_OFF);
+  counter = CODEC_IO_Write(DeviceAddr,0xb,convertedvol);
 
-      /* Left Headphone Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x1C, 0x3F | 0x140);
-
-      /* Right Headphone Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x1D, 0x3F | 0x140);
-
-      /* Left Speaker Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x26, 0x3F | 0x140);
-
-      /* Right Speaker Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x27, 0x3F | 0x140);
-    }
-    else if (Volume == 0)
-    {
-      /* Mute audio codec */
-      counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_ON);
-    }
-    else
-    {
-      /* Unmute audio codec */
-      counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_OFF);
-
-      /* Left Headphone Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x1C, convertedvol | 0x140);
-
-      /* Right Headphone Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x1D, convertedvol | 0x140);
-
-      /* Left Speaker Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x26, convertedvol | 0x140);
-
-      /* Right Speaker Volume */
-      counter += CODEC_IO_Write(DeviceAddr, 0x27, convertedvol | 0x140);
-    }
-  }
-
-  /* Input volume */
-  if (inputEnabled != 0)
-  {
-    convertedvol = VOLUME_IN_CONVERT(Volume);
-
-    /* Left AIF1 ADC1 volume */
-    counter += CODEC_IO_Write(DeviceAddr, 0x400, convertedvol | 0x100);
-
-    /* Right AIF1 ADC1 volume */
-    counter += CODEC_IO_Write(DeviceAddr, 0x401, convertedvol | 0x100);
-
-    /* Left AIF1 ADC2 volume */
-    counter += CODEC_IO_Write(DeviceAddr, 0x404, convertedvol | 0x100);
-
-    /* Right AIF1 ADC2 volume */
-    counter += CODEC_IO_Write(DeviceAddr, 0x405, convertedvol | 0x100);
-  }
   return counter;
 }
 
@@ -445,27 +343,19 @@ uint32_t nau88c10_SetVolume(uint16_t DeviceAddr, uint8_t Volume)
 uint32_t nau88c10_SetMute(uint16_t DeviceAddr, uint32_t Cmd)
 {
   uint32_t counter = 0;
-  
-  if (outputEnabled != 0)
+
+  /* Set the Mute mode */
+  if(Cmd == AUDIO_MUTE_ON)
   {
-    /* Set the Mute mode */
-    if(Cmd == AUDIO_MUTE_ON)
-    {
-      /* Soft Mute the AIF1 Timeslot 0 DAC1 path L&R */
-      counter += CODEC_IO_Write(DeviceAddr, 0x420, 0x0200);
-
-      /* Soft Mute the AIF1 Timeslot 1 DAC2 path L&R */
-      counter += CODEC_IO_Write(DeviceAddr, 0x422, 0x0200);
-    }
-    else /* AUDIO_MUTE_OFF Disable the Mute */
-    {
-      /* Unmute the AIF1 Timeslot 0 DAC1 path L&R */
-      counter += CODEC_IO_Write(DeviceAddr, 0x420, 0x0000);
-
-      /* Unmute the AIF1 Timeslot 1 DAC2 path L&R */
-      counter += CODEC_IO_Write(DeviceAddr, 0x422, 0x0000);
-    }
+    /* Soft Mute the AIF1 Timeslot 0 DAC1 path L&R */
+    counter += CODEC_IO_Write(DeviceAddr, 0x36, 0x60);
   }
+  else /* AUDIO_MUTE_OFF Disable the Mute */
+  {
+    /* Unmute the AIF1 Timeslot 0 DAC1 path L&R */
+    counter += CODEC_IO_Write(DeviceAddr, 0x36, 0x5F);
+  }
+
   return counter;
 }
 
@@ -651,21 +541,3 @@ static uint8_t CODEC_IO_Write(uint8_t Addr, uint16_t Reg, uint16_t Value)
   
   return result;
 }
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
