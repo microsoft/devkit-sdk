@@ -53,7 +53,7 @@ typedef struct {
  *
  *  @param stats    A pointer to the mbed_stats_stack_t structure to fill
  */
-void mbed_stats_stack_get(mbed_stats_stack_t *stats);
+//void mbed_stats_stack_get(mbed_stats_stack_t *stats);
 
 /**
  *  Fill the passed array of stat structures with the stack stats
@@ -64,7 +64,7 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats);
  *  @return         The number of mbed_stats_stack_t structures that have been filled,
  *                  this is equal to the number of stacks on the system.
  */
-size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
+//size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
 
 #ifdef __cplusplus
 }
