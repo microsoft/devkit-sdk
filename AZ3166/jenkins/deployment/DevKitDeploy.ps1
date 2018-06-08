@@ -58,6 +58,11 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 	$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$FirmwareFileName"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob $FirmwareFileName -Force
 
+	# Upload Firmware bin file for OTA
+	$OTAFirmwareFileName = "devkit-firmware-latest.ota.bin"
+	$OTAFirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$OTAFirmwareFileName"
+	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $OTAFirmwareFilePath -Blob $OTAFirmwareFileName -Force
+
 	# Upload task package
 	$TaskPackageName = "devkit_task_win_" + $CurrentVersionWithBuildNumber + ".zip"
 	$TaskPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$TaskPackageName"

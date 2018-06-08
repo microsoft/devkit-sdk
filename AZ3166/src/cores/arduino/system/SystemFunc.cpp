@@ -8,3 +8,8 @@ void SystemReboot(void)
 {
     mico_system_reboot();
 }
+
+void SystemStandby(int timeout)
+{
+    MicoSystemStandBy(timeout);
+}
