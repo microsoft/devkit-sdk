@@ -171,7 +171,7 @@ int WebSocketClient::sendLength(long len, char *msg)
         {
             // Actually, we only support message size less than 2^32
             int shift = i * 8 > 32 ? 32 : i * 8;
-            msg[i + 1] = (len >> shift) & 0xff;
+            msg[i + 1] = (shift < 32 ? (len >> shift) : 0) & 0xff;
         }
         return 9;
     }
@@ -350,7 +350,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
             readChar(&c);
 
             int shift = (7 - i) * 8 > 32 ? 32 : (7 - i) * 8;
-            payloadLength += (c << shift);
+            payloadLength += shift < 32 ? (c << shift) : 0;
         }
     }
 
