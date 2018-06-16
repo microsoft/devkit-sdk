@@ -152,6 +152,7 @@ static const uint8_t SCK  = 13;
 
 #ifdef __cplusplus
 extern UARTClass Serial;
+extern UARTClass Serial1;
 extern OLEDDisplay Screen;
 #endif
 
