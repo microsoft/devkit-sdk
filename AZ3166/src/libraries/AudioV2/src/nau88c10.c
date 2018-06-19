@@ -103,10 +103,6 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   uint16_t input_device = OutputInputDevice & 0xFF00;
   uint16_t power_mgnt_reg_1 = 0;
 
-  /* Initialize the Control interface of the Audio Codec */
-  //  AUDIO_IO_Init();
-  /*Software Reset*/
-  //  CODEC_IO_Write(DeviceAddr,0x0,0x0000);
   /*Power Management*/
   CODEC_IO_Write(DeviceAddr, 0x1, 0x015d);
   CODEC_IO_Write(DeviceAddr, 0x2, 0x0015);
