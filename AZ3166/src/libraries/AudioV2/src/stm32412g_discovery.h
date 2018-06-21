@@ -260,10 +260,9 @@
 
 /* Exported constant IO ------------------------------------------------------*/
 
-#define AUDIO_I2C_WRITE_ADDRESS                ((uint16_t)0x34)
-#define AUDIO_I2C_READ_ADDRESS                ((uint16_t)0x35)
-#define AUDIO_I2C_ADDRESS                       ((uint16_t)0x35)
-//#define AUDIO_I2C_ADDRESS                ((uint16_t)0x1A)
+#define AUDIO_I2C_WRITE_ADDRESS          ((uint16_t)0x34)
+#define AUDIO_I2C_READ_ADDRESS           ((uint16_t)0x35)
+#define AUDIO_I2C_ADDRESS                ((uint16_t)0x35)
 #define EEPROM_I2C_ADDRESS_A01           ((uint16_t)0xA0)
 #define EEPROM_I2C_ADDRESS_A02           ((uint16_t)0xA6)  
 #define TS_I2C_ADDRESS                   ((uint16_t)0x70)
