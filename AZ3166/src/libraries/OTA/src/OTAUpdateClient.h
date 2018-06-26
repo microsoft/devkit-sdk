@@ -1,23 +1,23 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
 
-#ifndef __OTA_CLASS_H__
-#define __OTA_CLASS_H__
+#ifndef __OTA_UPDATE_CLIENT_H__
+#define __OTA_UPDATE_CLIENT_H__
 
 #include "http_client.h"
 #include "CheckSumUtils.h"
 #include "mico.h"
 
-class OTAClass
+class OTAUpdateClient
 {
     public:
         // Singleton class:
         // This is creation point for static instance variable
-        static OTAClass& getInstance()
+        static OTAUpdateClient& getInstance()
         {
             // Single audio instance
-            static OTAClass otaInstance;
-            return otaInstance;
+            static OTAUpdateClient instance;
+            return instance;
         }
 
         /**
@@ -28,10 +28,10 @@ class OTAClass
         *
         * @return   Return 0 on success, otherwise return -1.
         */
-        int OTAFromUrl(char *url, const char* ssl_ca_pem = NULL);
+        int updateFromUrl(char *url, const char* ssl_ca_pem = NULL);
 
     private:
-        OTAClass();
+        OTAUpdateClient();
 };
 
 

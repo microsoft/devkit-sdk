@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
 
-#include "OTAClass.h"
+#include "OTAUpdateClient.h"
 static int status;
 static CRC16_Context contex;
 static volatile uint32_t flashIdx = 0;
@@ -14,10 +14,10 @@ static void getFwCalback(const char *at, size_t length){
     body_length += length;
 }
 
-OTAClass::OTAClass(){
+OTAUpdateClient::OTAUpdateClient(){
 }
 
-int OTAClass::OTAFromUrl(char *url, const char* ssl_ca_pem){
+int OTAUpdateClient::updateFromUrl(char *url, const char* ssl_ca_pem){
     uint16_t crc = 0;
     status = 0;
     flashIdx = 0;

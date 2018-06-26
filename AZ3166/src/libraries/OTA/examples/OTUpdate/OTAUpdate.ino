@@ -1,8 +1,8 @@
 #include "AZ3166WiFi.h"
-#include "OTAClass.h"
+#include "OTAUpdateClient.h"
 
 static bool isConnected = false;
-char* OTA_Url = "https://azureboard2.azureedge.net/prod/devkit-firmware-latest.ota.bin";
+char* Firmware_Url = "https://azureboard2.azureedge.net/prod/devkit-firmware-latest.ota.bin";
 
 void InitWiFi()
 {
@@ -22,13 +22,13 @@ void setup() {
     return;
   }
 
-  OTAClass& ota = OTAClass::getInstance();
-  int result = ota.OTAFromUrl(OTA_Url);
+  OTAUpdateClient& ota = OTAUpdateClient::getInstance();
+  int result = ota.updateFromUrl(Firmware_Url);
   if (result == 0) {
-    Screen.print("OTA success\nReset to start\nnew firmware\n");
+    Screen.print("Update success\nReset to start\nnew firmware\n");
   }
   else {
-    Screen.print("OTA failed\n");
+    Screen.print("Update failed\n");
   }
 }
 
