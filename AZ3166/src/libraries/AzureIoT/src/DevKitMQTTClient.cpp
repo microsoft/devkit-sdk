@@ -19,7 +19,7 @@
 #define EVENT_FAILED -3
 
 static int callbackCounter;
-static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
+IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
 static int receiveContext = 0;
 static int statusContext = 0;
 static int trackingId = 0;
@@ -38,6 +38,7 @@ static uint64_t iothub_check_ms;
 
 static char *iothub_hostname = NULL;
 static char *miniSolutionName = NULL;
+char *deviceTwinPayLoad = NULL;
 
 extern bool is_iothub_from_dps;
 
@@ -291,6 +292,13 @@ static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsig
 {
     if (_device_twin_callback)
     {
+        free(deviceTwinPayLoad);
+        deviceTwinPayLoad = (char *)malloc(size + 1);
+        if (deviceTwinPayLoad != NULL)
+        {
+            memcpy(deviceTwinPayLoad, payLoad, size);
+            deviceTwinPayLoad[size] = '\0';
+        }
         _device_twin_callback(updateState, payLoad, size);
     }
 }
