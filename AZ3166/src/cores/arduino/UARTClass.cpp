@@ -20,13 +20,18 @@
 #include "UARTClass.h"
 #include "BufferedSerial.h"
 
-UARTClass::UARTClass(const uint8_t p)
+UARTClass::UARTClass()
+{
+  serial = NULL;
+}
+
+UARTClass::UARTClass(UARTName p)
 {
   serial = NULL;
   port = p;
 }
 
-UARTClass::~UARTClass()
+UARTClass::~UARTClass(
 {
   //delete serial;
 }
@@ -90,13 +95,13 @@ void UARTClass::init(void)
 {
   if(serial == NULL)
   {
-    if(port == 0) 
+    if(port == UART_1) 
     {
-      serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
+      serial = new BufferedSerial(STDIO_UART1_TX, STDIO_UART1_RX, UART_RCV_SIZE);
     }
     else
     {
-      serial = new BufferedSerial(STDIO_UART1_TX, STDIO_UART1_RX, UART_RCV_SIZE);
+      serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
     }
   }
 }

@@ -87,8 +87,7 @@ extern const PinDescription g_APinDescription[]=
 /*
  * UART objects
  */
-UARTClass Serial(0);
-UARTClass Serial1(1);
+UARTClass Serial;
 
 /*
 * Screen objects
