@@ -17,14 +17,14 @@ static void getFwCalback(const char *at, size_t length){
 OTAClass::OTAClass(){
 }
 
-int OTAClass::OTAFromUrl(char *url){
+int OTAClass::OTAFromUrl(char *url, const char* ssl_ca_pem){
     uint16_t crc = 0;
     status = 0;
     flashIdx = 0;
     body_length = 0;
     CRC16_Init(&contex);
 
-    HTTPClient client = HTTPClient(HTTP_GET, url, getFwCalback);
+    HTTPClient client = ssl_ca_pem ? HTTPClient(ssl_ca_pem, HTTP_GET, url, getFwCalback) : HTTPClient(HTTP_GET, url, getFwCalback);
     client.send(NULL, 0);
 
     CRC16_Final(&contex, &crc);

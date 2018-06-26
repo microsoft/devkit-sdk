@@ -17,6 +17,11 @@ void InitWiFi()
 void setup() {
   isConnected = false;
   InitWiFi();
+  if (isConnected == false)
+  {
+    return;
+  }
+
   OTAClass& ota = OTAClass::getInstance();
   int result = ota.OTAFromUrl(OTA_Url);
   if (result == 0) {

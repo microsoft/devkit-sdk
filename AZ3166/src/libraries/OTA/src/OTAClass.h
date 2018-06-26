@@ -24,10 +24,11 @@ class OTAClass
         * @brief    Download new firmware from given url.
         *
         * @param    url                 The url to download firmware from.
+        *           ssl_ca_pem          Certificate of given url.
         *
         * @return   Return 0 on success, otherwise return -1.
         */
-        int OTAFromUrl(char *url);
+        int OTAFromUrl(char *url, const char* ssl_ca_pem = NULL);
 
     private:
         OTAClass();
