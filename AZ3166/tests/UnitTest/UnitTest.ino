@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "ArduinoUnit.h"
 #include "HTS221Sensor.h"
 #include "lis2mdlSensor.h"

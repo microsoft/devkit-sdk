@@ -139,7 +139,7 @@ void loop()
 
       bool temperatureAlert = readMessage(messageCount++, messagePayload);
       EVENT_INSTANCE* message = DevKitMQTTClient_Event_Generate(messagePayload, MESSAGE);
-      DevKitMQTTClient_Event_AddProp(message, "temperatureAlert", temperatureAlert ? "true" : "false");
+      DevKitMQTTClient_Event_AddProp(message, "temperatureAlert", temperatureAlert > 30 ? "true" : "false");
       DevKitMQTTClient_SendEventInstance(message);
       
       send_interval_ms = SystemTickCounterRead();
