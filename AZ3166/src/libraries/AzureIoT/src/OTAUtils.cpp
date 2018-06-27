@@ -52,17 +52,20 @@ IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion)
 
 bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion, const char* fwUpdateSubstatus) {
     if (currentFwVersion == NULL || fwUpdateStatus == NULL) return false;
-    JSON_Value *root_value = json_value_init_object();
-    JSON_Object *root_object = json_value_get_object(root_value);
+    JSON_Value *firmware_value = json_value_init_object();
+    JSON_Object *firmware_object = json_value_get_object(firmware_value);
     char *serialized_string = NULL;
-    json_object_set_string(root_object, "currentFwVersion", currentFwVersion);
-    json_object_set_string(root_object, "fwUpdateStatus", fwUpdateStatus);
+    json_object_set_string(firmware_object, "currentFwVersion", currentFwVersion);
+    json_object_set_string(firmware_object, "fwUpdateStatus", fwUpdateStatus);
     if (pendingFwVersion != NULL) {
-        json_object_set_string(root_object, "pendingFwVersion", pendingFwVersion);
+        json_object_set_string(firmware_object, "pendingFwVersion", pendingFwVersion);
     }
     if (fwUpdateSubstatus != NULL) {
-        json_object_set_string(root_object, "pendingFwVersion", fwUpdateSubstatus);
+        json_object_set_string(firmware_object, "pendingFwVersion", fwUpdateSubstatus);
     }
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *root_object = json_value_get_object(root_value);
+    json_object_set_value(root_object, "firmware", firmware_value);
     serialized_string = json_serialize_to_string_pretty(root_value);
     json_value_free(root_value);
     return DevKitMQTTClient_ReportState(serialized_string);
