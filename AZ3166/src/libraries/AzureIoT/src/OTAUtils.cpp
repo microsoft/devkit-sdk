@@ -1,7 +1,7 @@
 #include "OTAUtils.h"
 #include "parson.h"
 #include "DevKitMQTTClient.h"
-
+#include "ctype.h"
 static char *currentFirmwareVersion = NULL;
 static FW_INFO* otaFwInfo = NULL;
 /**
@@ -16,12 +16,12 @@ int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion
     size_t ver1Len = strlen(fwVersion1), ver2Len = strlen(fwVersion2);
     for (int i = 0, j = 0; (i < ver1Len || j < ver2Len); ++i, ++j) {
         while (i < ver1Len && fwVersion1[i] != '.') {
-            if (isDigit(fwVersion1[i]))
+            if (isdigit(fwVersion1[i]))
                 vnum1 = vnum1 * 10 + (fwVersion1[i] - '0');
             i++;
         }
         while (j < ver2Len && fwVersion2[j] != '.') {
-            if (isDigit(fwVersion2[j]))
+            if (isdigit(fwVersion2[j]))
                 vnum2 = vnum2 * 10 + (fwVersion2[j] - '0');
             j++;
         }
