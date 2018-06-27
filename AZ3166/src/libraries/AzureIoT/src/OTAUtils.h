@@ -18,13 +18,15 @@ typedef struct {
     int fwSize;
 } FW_INFO;
 
-int cmpVersionStr(const char* fwVersion1, const char* fwVersion2);
+int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion2);
 
 bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo);
 
 IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion);
 
 bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion = NULL, const char* fwUpdateSubstatus = NULL);
+
+void ota_callback(const unsigned char *payLoad, size_t size);
 
 #ifdef __cplusplus
 }
