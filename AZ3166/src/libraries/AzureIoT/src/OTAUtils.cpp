@@ -21,7 +21,7 @@ int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion
             i++;
         }
         while (j < ver2Len && fwVersion2[j] != '.') {
-            if (isDigit(fwVersion2[i]))
+            if (isDigit(fwVersion2[j]))
                 vnum2 = vnum2 * 10 + (fwVersion2[j] - '0');
             j++;
         }
