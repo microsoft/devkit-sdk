@@ -54,32 +54,115 @@ class AudioClass {
             static AudioClass audioInstance;
             return audioInstance;
         }
-        // Configure the audio data format.
+
+        /**
+         * @brief   Configures the audio driver.
+         * @param   sampleRate:              audio sample rate.
+         *          sampleBitLength:         bit length of the audio sample.
+         */
         void format(unsigned int sampleRate = DEFAULT_SAMPLE_RATE, unsigned short sampleBitLength = DEFAULT_BITS_PER_SAMPLE);
-        // Stop audio data transmition.
+
+        /**
+         * @brief  Stop audio data transmition.
+         */
         void stop();
-        // Get status of the audio driver. Please use this API to query whether the playing/recording process is completed.
+
+        /**
+         * @brief   Get current state of the audio driver. This API can be used to query whether the playing/recording process is completed.
+         * 
+         * @returns enum value of AUDIO_STATE_TypeDef.
+         */
         int getAudioState();
 
-        // Callback scenario methods :
-        // Start recording audio data and call func after every 512 bytes buffer was recorded.
+        // Audio record/play callback methods:
+
+        /**
+         * @brief   Start recording audio data, the attached callback function will be invoked when each DMA transfer is completed.
+         * 
+         * @param   func:                   function to be called when each audio chunk (size is defined with AUDIO_CHUNK_SIZE) is recorded.
+         *                                  e.g. user can use copy the recorded audio data out to the application buffer.
+         * 
+         * @returns 0 (AUDIO_OK) if success, error code otherwise.
+         */
         int startRecord(callbackFunc func = NULL);
-        // Start playing audio data and call func after every 512 bytes buffer was played.
+
+        /**
+         * @brief   Start playing audio data, the attached callback function will be invoked when each DMA transfer is completed.
+         * 
+         * @param   func:                   function to be called when each audio chunk (size is defined with AUDIO_CHUNK_SIZE) is played.
+         *                                  e.g. user can use copy the new audio data to the internal play buffer.
+         * @returns 0 (AUDIO_OK) if success, error code otherwise.
+         */
         int startPlay(callbackFunc func = NULL);
-        // Read recorded data from buffer inside AudioClass to given buffer.
+
+        /**
+         * @brief   Read recorded data from internal driver buffer to user application buffer.
+         * 
+         * @param   buffer:                 user buffer to save the recorded audio data.
+         *          length:                 size of the user buffer in bytes.
+         *
+         * @returns 0 (AUDIO_OK) if success, error code otherwise.
+         */
         int readFromRecordBuffer(char* buffer, int length);
-        // Write played data from given buffer to buffer inside AudioClass.
+
+        /**
+         * @brief   write the audio data to be played from user application buffer to the internal driver buffer.
+         * 
+         * @param   buffer:                 user buffer has the audio data to be played.
+         *          length:                 size of the user buffer in bytes.
+         *
+         * @returns 0 (AUDIO_OK) if success, error code otherwise.
+         */
         int writeToPlayBuffer(char* buffer, int length);
 
-        // WAV format data scenario methods :
-        // Start recording audio data and save a WAV format data to audioBuffer.
+        // Record/play wav audio directly:
+
+        /**
+         * @brief   Start recording audio data and save a WAV format data to user buffer.
+         * 
+         * @param   buffer:                 user buffer to save the recorded audio data.
+         *          length:                 size of the user buffer in bytes.
+         *
+         * @returns size of the recorded audio in bytes.
+         */
         int startRecord(char* audioBuffer, int size);
-        // Start playing WAV format data in audioBuffer.
+
+        /**
+         * @brief  Start playing WAV format data in audioBuffer.
+         * 
+         * @param   buffer:                 user buffer to save the recorded audio data.
+         *          length:                 size of the user buffer in bytes.
+         *
+         * @returns 0 (AUDIO_OK) if success, error code otherwise.
+         */
         int startPlay(char* audioBuffer, int size);
-        // Get current recorded or played WAV format data size in byte.
+
+        /**
+         * @brief  Get current recorded or played WAV format data size in byte.
+         *
+         * @returns size of the current audio size.
+         */
         int getCurrentSize();
-        // Convert the given stereo WAV format data to mono WAV format data.
+
+        /**
+         * @brief  Convert the given stereo WAV format data to mono WAV format data.
+         *
+         * @param   buffer:                 user buffer to save the recorded audio data.
+         *          size:                   size of stereo audio in the buffer.
+         *          sampleBitLength:        bit length of the audio sample.
+         * 
+         * @returns size of the mono audio size.
+         */
         int convertToMono(char* audioBuffer, int size, int sampleBitLength);
+
+        /**
+         * @brief  Controls the current audio volume level.
+         * 
+         * @param  volume       Volume level to be set in percentage from 0% to 100% (0 for Mute and 100 for Max volume level).
+         * 
+         * @returns true on success, or false on failure.
+         */
+        bool setVolume(uint8_t volume);
 
     private:
         void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, uint16_t sampleBitDepth, uint8_t channels);

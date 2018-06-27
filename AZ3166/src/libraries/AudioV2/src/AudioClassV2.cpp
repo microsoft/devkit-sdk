@@ -319,6 +319,16 @@ int AudioClass::convertToMono(char* audioBuffer, int size, int sampleBitLength)
     return curBufferSize;
 }
 
+bool AudioClass::setVolume(uint8_t volume)
+{
+    if (volume < 0 || volume > 100)
+    {
+        return false;
+    }
+
+    return BSP_AUDIO_OUT_SetVolume(volume) == AUDIO_OK ? true : false;
+}
+
 /*------------------------------------------------------------------------------
        Callbacks implementation:
            the callbacks API are defined __weak in the stm32412g_discovery_audio.c file
