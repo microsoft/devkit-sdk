@@ -7,6 +7,7 @@
 #include "http_client.h"
 #include "CheckSumUtils.h"
 #include "mico.h"
+#include "AzureIotHub.h"
 
 class OTAUpdateClient
 {
@@ -15,7 +16,7 @@ class OTAUpdateClient
         // This is creation point for static instance variable
         static OTAUpdateClient& getInstance()
         {
-            // Single audio instance
+            // Single client instance
             static OTAUpdateClient instance;
             return instance;
         }
@@ -28,7 +29,7 @@ class OTAUpdateClient
         *
         * @return   Return 0 on success, otherwise return -1.
         */
-        int updateFromUrl(char *url, const char* ssl_ca_pem = NULL);
+        int updateFromUrl(const char *url, const char* ssl_ca_pem = NULL);
 
     private:
         OTAUpdateClient();
