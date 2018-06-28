@@ -1,10 +1,10 @@
 #ifndef __OTA_UTILS_H__
 #define __OTA_UTILS_H__
 #include "SystemWiFi.h"
-#include "Telemetry.h"
-#include "DevkitDPSClient.h"
+// #include "Telemetry.h"
+// #include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
-#include "SystemVersion.h"
+// #include "SystemVersion.h"
 
 #ifdef __cplusplus
 extern "C"

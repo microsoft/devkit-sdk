@@ -5,22 +5,11 @@
 #include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
 #include "OTAUtils.h"
-#include "http_client.h"
-#include "SystemTickCounter.h"
-#include "mbed_memory_status.h"
 #include "mico.h"
 #include "OTAUpdateClient.h"
 
 static bool hasWifi = false;
-int messageCount = 1;
-static bool messageSending = true;
-static uint64_t send_interval_ms;
 const char* currentFirmwareVersion = "1.3.7";
-void printMemoryStatus() {
-    mbed_stats_heap_t heap_info;
-    mbed_stats_heap_get(&heap_info);
-    printf("Current heap: %lu \\ %lu\r\n", heap_info.current_size, heap_info.max_size);
-}
 
 char *checksumToString(uint16_t checksum) {
   char *result = (char *)malloc(5);
