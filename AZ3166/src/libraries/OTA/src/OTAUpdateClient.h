@@ -7,7 +7,6 @@
 #include "http_client.h"
 #include "CheckSumUtils.h"
 #include "mico.h"
-#include "AzureIotHub.h"
 
 class OTAUpdateClient
 {
