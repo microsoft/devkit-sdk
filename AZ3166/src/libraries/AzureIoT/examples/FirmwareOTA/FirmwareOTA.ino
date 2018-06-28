@@ -9,8 +9,7 @@
 #include "SystemTickCounter.h"
 #include "mbed_memory_status.h"
 #include "mico.h"
-#include "OTAUpdateClient.h";
-#include "md5.h"
+#include "OTAUpdateClient.h"
 
 static bool hasWifi = false;
 int messageCount = 1;
@@ -93,7 +92,6 @@ void setup()
   DevKitMQTTClient_Init(true);
   IoTHubClient_SetCurrentFwInfo(currentFirmwareVersion);
   IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "current");
-  send_interval_ms = SystemTickCounterRead();
 }
 
 void loop()
