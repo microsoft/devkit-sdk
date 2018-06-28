@@ -9,11 +9,13 @@ extern "C"
 #endif
 
 typedef struct {
-    const char* fwVersion;
-    const char* fwPackageURI;
-    const char* fwPackageCheckValue;
+    char* fwVersion = NULL;
+    char* fwPackageURI = NULL;
+    char* fwPackageCheckValue = NULL;
     int fwSize;
 } FW_INFO;
+
+void fw_info_free_string(FW_INFO &fwInfo);
 
 int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion2);
 

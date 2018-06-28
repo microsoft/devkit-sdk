@@ -19,7 +19,6 @@
 #define EVENT_FAILED -3
 
 static int callbackCounter;
-
 static IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle = NULL;
 static int receiveContext = 0;
 static int statusContext = 0;

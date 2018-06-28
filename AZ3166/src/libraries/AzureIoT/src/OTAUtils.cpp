@@ -2,8 +2,26 @@
 #include "parson.h"
 #include "DevKitMQTTClient.h"
 #include "ctype.h"
+
 static char *currentFirmwareVersion = NULL;
-static FW_INFO* otaFwInfo = NULL;
+static FW_INFO otaFwInfo;
+
+
+void fw_info_free_string(FW_INFO &fwInfo) {
+    if (fwInfo.fwVersion != NULL) {
+        free(fwInfo.fwVersion);
+        fwInfo.fwVersion = NULL;
+    }
+    if (fwInfo.fwPackageURI != NULL) {
+        free(fwInfo.fwPackageURI);
+        fwInfo.fwPackageURI = NULL;
+    }
+    if (fwInfo.fwPackageCheckValue != NULL) {
+        free(fwInfo.fwPackageCheckValue);
+        fwInfo.fwPackageCheckValue = NULL;
+    }
+}
+
 /**
 * @brief	Compare two firmware version string.
 *
@@ -12,6 +30,7 @@ static FW_INFO* otaFwInfo = NULL;
 * 			                  = -1 : fwVersion1 < fwVersion2
 */
 int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion2) {
+    if (fwVersion1 == NULL || fwVersion2 == NULL) return ((fwVersion1 == fwVersion2) ? 0 : (fwVersion1 ? 1 : -1));
     int vnum1 = 0, vnum2 = 0;
     size_t ver1Len = strlen(fwVersion1), ver2Len = strlen(fwVersion2);
     for (int i = 0, j = 0; (i < ver1Len || j < ver2Len); ++i, ++j) {
@@ -35,11 +54,12 @@ int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion
 }
 
 bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo) {
-    if (otaFwInfo == NULL || fwInfo == NULL) return false;
-    fwInfo -> fwVersion = strdup(otaFwInfo -> fwVersion);
-    fwInfo -> fwPackageURI = strdup(otaFwInfo -> fwPackageURI);
-    fwInfo -> fwPackageCheckValue = strdup(otaFwInfo -> fwPackageCheckValue);
-    fwInfo -> fwSize = otaFwInfo -> fwSize;
+    if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL || otaFwInfo.fwPackageCheckValue == NULL || fwInfo == NULL) return false;
+    fw_info_free_string(*fwInfo);
+    fwInfo -> fwVersion = strdup(otaFwInfo.fwVersion);
+    fwInfo -> fwPackageURI = strdup(otaFwInfo.fwPackageURI);
+    fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
+    fwInfo -> fwSize = otaFwInfo.fwSize;
     return true;
 }
 
@@ -72,15 +92,14 @@ bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUp
 }
 
 void ota_callback(const unsigned char *payLoad, size_t size) {
-    if (otaFwInfo != NULL)
-        delete otaFwInfo;
-    otaFwInfo = new FW_INFO;
+    fw_info_free_string(otaFwInfo);
     char *deviceTwinPayLoad = (char *)malloc(size + 1);
     if (deviceTwinPayLoad != NULL)
     {
         memcpy(deviceTwinPayLoad, payLoad, size);
         deviceTwinPayLoad[size] = '\0';
     } else {
+        free(deviceTwinPayLoad);
         return;
     }
     JSON_Value *root_value;
@@ -91,6 +110,7 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
         {
             json_value_free(root_value);
         }
+        free(deviceTwinPayLoad);
         LogError("parse %s failed", deviceTwinPayLoad);
         return;
     }
@@ -103,17 +123,15 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
         JSON_Object* firmwareVal = json_object_get_object(desired_object, "firmware");
         if (firmwareVal != NULL) {
             LogInfo("Get firmware value from device twin.");
-            otaFwInfo -> fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
-            otaFwInfo -> fwPackageURI = strdup(json_object_get_string(firmwareVal, "fwPackageURI"));
-            otaFwInfo -> fwPackageCheckValue = strdup(json_object_get_string(firmwareVal, "fwPackageCheckValue"));
-            otaFwInfo -> fwSize = json_object_get_number(firmwareVal, "fwSize");
-            if (otaFwInfo -> fwVersion != NULL && otaFwInfo -> fwPackageURI != NULL && otaFwInfo -> fwPackageCheckValue != NULL) {
+            otaFwInfo.fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
+            otaFwInfo.fwPackageURI = strdup(json_object_get_string(firmwareVal, "fwPackageURI"));
+            otaFwInfo.fwPackageCheckValue = strdup(json_object_get_string(firmwareVal, "fwPackageCheckValue"));
+            otaFwInfo.fwSize = json_object_get_number(firmwareVal, "fwSize");
+            if (otaFwInfo.fwVersion != NULL && otaFwInfo.fwPackageURI != NULL && otaFwInfo.fwPackageCheckValue != NULL) {
                 json_value_free(root_value);
                 return;
             }
         }
     }
     json_value_free(root_value);
-    delete otaFwInfo;
-    otaFwInfo = NULL;
 }
