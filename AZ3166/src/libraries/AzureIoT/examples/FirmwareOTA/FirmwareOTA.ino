@@ -119,6 +119,7 @@ void loop()
             int i = fwInfo -> fwSize;
             uint16_t checkSum = 0;
             CRC16_Context contex;
+            CRC16_Init(&contex);
             while (i--) {
               MicoFlashRead((mico_partition_t)MICO_PARTITION_OTA_TEMP, &flashIdx, checkBuffer, 1);
               CRC16_Update(&contex, checkBuffer, 1);
