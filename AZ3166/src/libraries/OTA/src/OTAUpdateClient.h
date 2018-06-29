@@ -31,7 +31,7 @@ class OTAUpdateClient
         */
         int updateFromUrl(const char *url, const char* ssl_ca_pem = NULL);
 
-        bool firmwarePackageCheckCRC16(const char* fwPackageCheckValue, int fwSize);
+        int checkFirmwareCRC16(uint16_t fwPackageCheckValue, int fwSize);
 
     private:
         OTAUpdateClient();

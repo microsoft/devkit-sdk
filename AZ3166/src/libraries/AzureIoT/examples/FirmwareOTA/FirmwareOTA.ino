@@ -87,7 +87,6 @@ void loop()
     if (hasNewOTA) {
       if (strlen(fwInfo -> fwPackageURI) >= 6 && (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0)) {
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
-        IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "URINotHTTPS");
       } else {
         if (IoTHubClient_OTAVersionCompare(fwInfo -> fwVersion, currentFirmwareVersion) == 1) {
@@ -110,7 +109,7 @@ void loop()
             if (fwInfo -> fwPackageCheckValue != NULL) {
               Screen.print(1, "Veryifying...");
               IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_VERIFYING);
-              if (otaClient.firmwarePackageCheckCRC16(fwInfo -> fwPackageCheckValue, fwInfo -> fwSize)) {
+              if (otaClient.checkFirmwareCRC16(strtoul(fwInfo -> fwPackageCheckValue, NULL, 16), fwInfo -> fwSize) == 0) {
                 Screen.clean();
                 Screen.print("Verify success\n");
                 LogInfo("Verify success");

@@ -33,7 +33,7 @@ int OTAUpdateClient::updateFromUrl(const char *url, const char* ssl_ca_pem){
     return status;
 }
 
-bool OTAUpdateClient::firmwarePackageCheckCRC16(const char* fwPackageCheckValue, int fwSize) {
+int OTAUpdateClient::checkFirmwareCRC16(uint16_t fwPackageCheckValue, int fwSize) {
     static volatile uint32_t flashIdx = 0;
     uint8_t *checkBuffer = (uint8_t *)malloc(1);
     int i = fwSize;
@@ -46,11 +46,9 @@ bool OTAUpdateClient::firmwarePackageCheckCRC16(const char* fwPackageCheckValue,
     }
     free(checkBuffer);
     CRC16_Final(&contex, &checkSum);
-    char *checkSumString = CRC16ToString(checkSum);
-    LogInfo("CRC16 result: %d, %s", checkSum, checkSumString);
-    bool result = (strcmp(checkSumString, fwPackageCheckValue) == 0);
-    free(checkSumString);
-    return result;
+    LogInfo("CRC16 result: %d", checkSum);
+    bool result = (checkSum == fwPackageCheckValue);
+    return result ? 0 : -1;
 }
 
 char* OTAUpdateClient::CRC16ToString(uint16_t checksum) {
