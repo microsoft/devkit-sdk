@@ -79,7 +79,8 @@ void setup()
   DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "FirmwareOTA");
   DevKitMQTTClient_Init(true);
   IoTHubClient_SetCurrentFwInfo(currentFirmwareVersion);
-  IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "current");
+  IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+  IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_CURRENT);
 }
 
 void loop()
@@ -91,7 +92,10 @@ void loop()
     bool hasNewOTA = IoTHubClient_OTAHasNewFw(fwInfo);
     if (hasNewOTA) {
       if (strlen(fwInfo -> fwPackageURI) >= 6 && (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0)) {
-        IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "error", fwInfo -> fwVersion, "URINotHTTPS");
+        IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+        IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
+        IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+        IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "URINotHTTPS");
       } else {
         if (IoTHubClient_OTAVersionCompare(fwInfo -> fwVersion, currentFirmwareVersion) == 1) {
           Screen.clean();
@@ -102,7 +106,10 @@ void loop()
           LogInfo(fwInfo -> fwPackageCheckValue);
           LogInfo("%d", fwInfo -> fwSize);
           char *timeStamp = getTimeStamp();
-          IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "downloading", fwInfo -> fwVersion, NULL, timeStamp);
+          IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+          IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_DOWNLOADING);
+          IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+          IoTHubClient_ReportOTAStatus(OTA_LAST_FW_UPDATE_STARTTIME, timeStamp);
           free(timeStamp);
           DevKitMQTTClient_Close();
           Screen.clean();
@@ -112,7 +119,9 @@ void loop()
           if (result == 0) {
             Screen.print("Download success\nVeryifying...\n");
             DevKitMQTTClient_Init(true);
-            IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "verifying", fwInfo -> fwVersion);
+            IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_VERIFYING);
+            IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
             
             static volatile uint32_t flashIdx = 0;
             uint8_t *checkBuffer = (uint8_t *)malloc(1);
@@ -133,19 +142,28 @@ void loop()
               Screen.print("Verify success\n");
               LogInfo("Verify success");
               char *timeStamp = getTimeStamp();
-              IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "applying", fwInfo -> fwVersion, NULL, NULL, timeStamp);
+              IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_APPLYING);
+              IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+              IoTHubClient_ReportOTAStatus(OTA_LAST_FW_UPDATE_ENDTIME, timeStamp);
               free(timeStamp);
               mico_system_reboot();
             } else {
               Screen.print("Verify failed\n");
               LogInfo("Verify failed");
-              IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "error", fwInfo -> fwVersion, "VerifyFailed");
+              IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
+              IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "VerifyFailed");
               enabledOTA = false;
             }
             free(checkSumString);
           } else {
             Screen.print("Download failed\n");
-            IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "error", fwInfo -> fwVersion, "DownloadFailed");
+            IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
+            IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "DownloadFailed");
             enabledOTA = false;
           }
         }

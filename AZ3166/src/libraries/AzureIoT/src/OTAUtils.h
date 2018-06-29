@@ -8,6 +8,19 @@ extern "C"
 {
 #endif
 
+#define OTA_STATUS_CURRENT "Current"
+#define OTA_STATUS_DOWNLOADING "Downloading"
+#define OTA_STATUS_VERIFYING "Verifying"
+#define OTA_STATUS_APPLYING "Applying"
+#define OTA_STATUS_ERROR "Error"
+
+#define OTA_CURRENT_FW_VERSION "currentFwVersion"
+#define OTA_PENDING_FW_VERSION "pendingFwVersion"
+#define OTA_FW_UPDATE_STATUS "fwUpdateStatus"
+#define OTA_FW_UPDATE_SUBSTATUS "fwUpdateSubstatus"
+#define OTA_LAST_FW_UPDATE_STARTTIME "lastFwUpdateStartTime"
+#define OTA_LAST_FW_UPDATE_ENDTIME "lastFwUpdateEndTime"
+
 typedef struct {
     char* fwVersion = NULL;
     char* fwPackageURI = NULL;
@@ -23,7 +36,7 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo);
 
 IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion);
 
-bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion = NULL, const char* fwUpdateSubstatus = NULL, const char* lastFwUpdateStartTime = NULL, const char *lastFwUpdateEndTime = NULL);
+bool IoTHubClient_ReportOTAStatus(const char* key, const char* value);
 
 void ota_callback(const unsigned char *payLoad, size_t size);
 
