@@ -7,7 +7,7 @@
 #include "OTAUtils.h"
 #include "mico.h"
 #include "OTAUpdateClient.h"
-
+#include "SystemTime.h"
 static bool hasWifi = false;
 const char* currentFirmwareVersion = "1.3.7";
 
@@ -22,7 +22,15 @@ char *checksumToString(uint16_t checksum) {
   }
   return result;
 }
-
+char *getTimeStamp() {
+  time_t t = time(NULL);
+  size_t len = sizeof("2011-10-08-07:07:09");
+  char* buf = (char*)malloc(len + 1);
+  strftime(buf, len, "%Y-%m-%d-%R:%S", gmtime(&t));
+  buf[len] = '\0';
+  LogInfo("time is %s", buf);
+  return(buf);
+}
 bool enabledOTA = true;
 const char httpsCert[] = 
 "-----BEGIN CERTIFICATE-----\r\nMIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\r\n"
@@ -103,7 +111,7 @@ void loop()
           LogInfo(fwInfo -> fwPackageCheckValue);
           LogInfo("%d", fwInfo -> fwSize);
 
-          IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "downloading", fwInfo -> fwVersion);
+          IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "downloading", fwInfo -> fwVersion, NULL, getTimeStamp());
           DevKitMQTTClient_Close();
           Screen.clean();
           Screen.print("Downloading...");
@@ -132,7 +140,7 @@ void loop()
             if (strcmp(checkSumString, fwInfo -> fwPackageCheckValue) == 0) {
               Screen.print("Verify success\n");
               LogInfo("Verify success");
-              IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "applying", fwInfo -> fwVersion);
+              IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "applying", fwInfo -> fwVersion, NULL, NULL, getTimeStamp());
               mico_system_reboot();
             } else {
               Screen.print("Verify failed\n");

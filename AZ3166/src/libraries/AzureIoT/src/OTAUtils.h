@@ -23,7 +23,7 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo);
 
 IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion);
 
-bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion = NULL, const char* fwUpdateSubstatus = NULL);
+bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion = NULL, const char* fwUpdateSubstatus = NULL, const char* lastFwUpdateStartTime = NULL, const char *lastFwUpdateEndTime = NULL);
 
 void ota_callback(const unsigned char *payLoad, size_t size);
 

@@ -70,7 +70,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion)
     return IOTHUB_CLIENT_OK;
 }
 
-bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion, const char* fwUpdateSubstatus) {
+bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUpdateStatus, const char* pendingFwVersion, const char* fwUpdateSubstatus, const char* lastFwUpdateStartTime, const char *lastFwUpdateEndTime) {
     if (currentFwVersion == NULL || fwUpdateStatus == NULL) return false;
     JSON_Value *firmware_value = json_value_init_object();
     JSON_Object *firmware_object = json_value_get_object(firmware_value);
@@ -82,6 +82,13 @@ bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUp
     }
     if (fwUpdateSubstatus != NULL) {
         json_object_set_string(firmware_object, "fwUpdateSubstatus", fwUpdateSubstatus);
+    }
+    if (lastFwUpdateStartTime != NULL) {
+        json_object_set_string(firmware_object, "lastFwUpdateStartTime", lastFwUpdateStartTime);
+        json_object_set_null(firmware_object, "lastFwUpdateEndTime");
+    }
+    if (lastFwUpdateEndTime != NULL) {
+        json_object_set_string(firmware_object, "lastFwUpdateEndTime", lastFwUpdateEndTime);
     }
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
