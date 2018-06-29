@@ -63,8 +63,7 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo) {
     fw_info_free_string(*fwInfo);
     fwInfo -> fwVersion = strdup(otaFwInfo.fwVersion);
     fwInfo -> fwPackageURI = strdup(otaFwInfo.fwPackageURI);
-    if (otaFwInfo.fwPackageCheckValue != NULL)
-        fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
+    fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
     fwInfo -> fwSize = otaFwInfo.fwSize;
     return true;
 }
@@ -123,10 +122,7 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
             LogInfo("Get firmware value from device twin.");
             otaFwInfo.fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
             otaFwInfo.fwPackageURI = strdup(json_object_get_string(firmwareVal, "fwPackageURI"));
-            const char *temp = json_object_get_string(firmwareVal, "fwPackageCheckValue");
-            if (temp != NULL) {
-                otaFwInfo.fwPackageCheckValue = strdup(temp);
-            }
+            otaFwInfo.fwPackageCheckValue = strdup(json_object_get_string(firmwareVal, "fwPackageCheckValue"));
             otaFwInfo.fwSize = json_object_get_number(firmwareVal, "fwSize");
             if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL) {
                 fw_info_free_string(otaFwInfo);
