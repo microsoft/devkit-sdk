@@ -50,15 +50,3 @@ int OTAUpdateClient::checkFirmwareCRC16(uint16_t fwPackageCheckValue, int fwSize
     bool result = (checkSum == fwPackageCheckValue);
     return result ? 0 : -1;
 }
-
-char* OTAUpdateClient::CRC16ToString(uint16_t checksum) {
-  char *result = (char *)malloc(5);
-  memset(result, 0, 5);
-  int idx = 4;
-  while (idx--) {
-    result[idx] = checksum % 16;
-    result[idx] = result[idx] > 9 ? result[idx] - 10 + 'A' : result[idx] + '0';
-    checksum /= 16;
-  }
-  return result;
-}

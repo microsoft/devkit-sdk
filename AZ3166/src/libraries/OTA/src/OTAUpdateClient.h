@@ -35,7 +35,6 @@ class OTAUpdateClient
 
     private:
         OTAUpdateClient();
-        char *CRC16ToString(uint16_t checksum);
 };
 
 

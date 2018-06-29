@@ -84,7 +84,7 @@ void loop()
     DevKitMQTTClient_Check();
     bool hasNewOTA = IoTHubClient_OTAHasNewFw(fwInfo);
     if (hasNewOTA) {
-      if (strlen(fwInfo -> fwPackageURI) >= 6 && (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0)) {
+      if (strlen(fwInfo -> fwPackageURI) < 6 || (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0)) {
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "URINotHTTPS");
       } else {
