@@ -5,9 +5,7 @@
 #include "CheckSumUtils.h"
 #include "mico.h"
 
-static char *currentFirmwareVersion = NULL;
 static FW_INFO otaFwInfo;
-
 
 void fw_info_free_string(FW_INFO &fwInfo) {
     if (fwInfo.fwVersion != NULL) {
@@ -66,13 +64,6 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo) {
     fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
     fwInfo -> fwSize = otaFwInfo.fwSize;
     return true;
-}
-
-IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion) {
-    if (currentFirmwareVersion != NULL)
-        free(currentFirmwareVersion);
-    currentFirmwareVersion = strdup(currentFwVersion);
-    return IOTHUB_CLIENT_OK;
 }
 
 bool IoTHubClient_ReportOTAStatus(const char* key, const char* value) {

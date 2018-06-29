@@ -34,8 +34,6 @@ int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion
 
 bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo);
 
-IOTHUB_CLIENT_RESULT IoTHubClient_SetCurrentFwInfo(const char* currentFwVersion);
-
 bool IoTHubClient_ReportOTAStatus(const char* key, const char* value);
 
 void ota_callback(const unsigned char *payLoad, size_t size);

@@ -66,7 +66,6 @@ void setup()
   Screen.print(3, " > IoT Hub");
   DevKitMQTTClient_SetOption(OPTION_MINI_SOLUTION_NAME, "FirmwareOTA");
   DevKitMQTTClient_Init(true);
-  IoTHubClient_SetCurrentFwInfo(currentFirmwareVersion);
   IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
   IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_CURRENT);
   fwInfo = new FW_INFO;
