@@ -81,7 +81,7 @@ bool IoTHubClient_ReportOTAStatus(const char* currentFwVersion, const char* fwUp
         json_object_set_string(firmware_object, "pendingFwVersion", pendingFwVersion);
     }
     if (fwUpdateSubstatus != NULL) {
-        json_object_set_string(firmware_object, "pendingFwVersion", fwUpdateSubstatus);
+        json_object_set_string(firmware_object, "fwUpdateSubstatus", fwUpdateSubstatus);
     }
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *root_object = json_value_get_object(root_value);
