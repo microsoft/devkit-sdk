@@ -101,8 +101,9 @@ void loop()
           LogInfo(fwInfo -> fwPackageURI);
           LogInfo(fwInfo -> fwPackageCheckValue);
           LogInfo("%d", fwInfo -> fwSize);
-
-          IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "downloading", fwInfo -> fwVersion, NULL, getTimeStamp());
+          char *timeStamp = getTimeStamp();
+          IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "downloading", fwInfo -> fwVersion, NULL, timeStamp);
+          free(timeStamp);
           DevKitMQTTClient_Close();
           Screen.clean();
           Screen.print("Downloading...");
@@ -131,7 +132,9 @@ void loop()
             if (strcmp(checkSumString, fwInfo -> fwPackageCheckValue) == 0) {
               Screen.print("Verify success\n");
               LogInfo("Verify success");
-              IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "applying", fwInfo -> fwVersion, NULL, NULL, getTimeStamp());
+              char *timeStamp = getTimeStamp();
+              IoTHubClient_ReportOTAStatus(currentFirmwareVersion, "applying", fwInfo -> fwVersion, NULL, NULL, timeStamp);
+              free(timeStamp);
               mico_system_reboot();
             } else {
               Screen.print("Verify failed\n");
