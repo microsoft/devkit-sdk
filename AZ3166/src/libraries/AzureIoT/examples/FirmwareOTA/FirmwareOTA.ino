@@ -8,6 +8,7 @@
 #include "mico.h"
 #include "OTAUpdateClient.h"
 #include "SystemTime.h"
+
 static bool hasWifi = false;
 const char* currentFirmwareVersion = "1.3.7";
 
@@ -22,6 +23,7 @@ char *checksumToString(uint16_t checksum) {
   }
   return result;
 }
+
 char *getTimeStamp() {
   time_t t = time(NULL);
   size_t len = sizeof("2011-10-08-07:07:09");
