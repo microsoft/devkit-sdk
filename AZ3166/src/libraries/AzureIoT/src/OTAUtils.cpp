@@ -131,35 +131,3 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
     }
     json_value_free(root_value);
 }
-
-bool firmwarePackageCheckCRC16(const char* fwPackageCheckValue, int fwSize) {
-    static volatile uint32_t flashIdx = 0;
-    uint8_t *checkBuffer = (uint8_t *)malloc(1);
-    int i = fwSize;
-    uint16_t checkSum = 0;
-    CRC16_Context contex;
-    CRC16_Init(&contex);
-    while (i--) {
-        MicoFlashRead((mico_partition_t)MICO_PARTITION_OTA_TEMP, &flashIdx, checkBuffer, 1);
-        CRC16_Update(&contex, checkBuffer, 1);
-    }
-    free(checkBuffer);
-    CRC16_Final(&contex, &checkSum);
-    char *checkSumString = CRC16ToString(checkSum);
-    LogInfo("CRC16 result: %d, %s", checkSum, checkSumString);
-    bool result = (strcmp(checkSumString, fwPackageCheckValue) == 0);
-    free(checkSumString);
-    return result;
-}
-
-char *CRC16ToString(uint16_t checksum) {
-  char *result = (char *)malloc(5);
-  memset(result, 0, 5);
-  int idx = 4;
-  while (idx--) {
-    result[idx] = checksum % 16;
-    result[idx] = result[idx] > 9 ? result[idx] - 10 + 'A' : result[idx] + '0';
-    checksum /= 16;
-  }
-  return result;
-}

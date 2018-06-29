@@ -7,6 +7,7 @@
 #include "http_client.h"
 #include "CheckSumUtils.h"
 #include "mico.h"
+#include "AzureIotHub.h"
 
 class OTAUpdateClient
 {
@@ -30,8 +31,11 @@ class OTAUpdateClient
         */
         int updateFromUrl(const char *url, const char* ssl_ca_pem = NULL);
 
+        bool firmwarePackageCheckCRC16(const char* fwPackageCheckValue, int fwSize);
+
     private:
         OTAUpdateClient();
+        char *CRC16ToString(uint16_t checksum);
 };
 
 
