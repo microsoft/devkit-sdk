@@ -5,24 +5,11 @@
 #include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
 #include "OTAUtils.h"
-#include "mico.h"
 #include "OTAUpdateClient.h"
 #include "SystemTime.h"
 
 static bool hasWifi = false;
 const char* currentFirmwareVersion = "1.3.7";
-
-char *checksumToString(uint16_t checksum) {
-  char *result = (char *)malloc(5);
-  memset(result, 0, 5);
-  int idx = 4;
-  while (idx--) {
-    result[idx] = checksum % 16;
-    result[idx] = result[idx] > 9 ? result[idx] - 10 + 'A' : result[idx] + '0';
-    checksum /= 16;
-  }
-  return result;
-}
 
 char *getTimeStamp() {
   time_t t = time(NULL);
@@ -34,6 +21,7 @@ char *getTimeStamp() {
   return(buf);
 }
 bool enabledOTA = true;
+FW_INFO* fwInfo = NULL;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
@@ -81,14 +69,22 @@ void setup()
   IoTHubClient_SetCurrentFwInfo(currentFirmwareVersion);
   IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
   IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_CURRENT);
+  fwInfo = new FW_INFO;
 }
-
+void enterFailed(const char* failedMsg) {
+  Screen.clean();
+  Screen.print(failedMsg);
+  IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+  IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
+  IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+  IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, failedMsg);
+  enabledOTA = false;
+}
 void loop()
 {
   if (hasWifi && enabledOTA)
   {
     DevKitMQTTClient_Check();
-    FW_INFO* fwInfo = new FW_INFO;
     bool hasNewOTA = IoTHubClient_OTAHasNewFw(fwInfo);
     if (hasNewOTA) {
       if (strlen(fwInfo -> fwPackageURI) >= 6 && (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0)) {
@@ -101,10 +97,6 @@ void loop()
           Screen.clean();
           Screen.print(0, "New firmware.");
           Screen.print(1, fwInfo -> fwVersion);
-          LogInfo(fwInfo -> fwVersion);
-          LogInfo(fwInfo -> fwPackageURI);
-          LogInfo(fwInfo -> fwPackageCheckValue);
-          LogInfo("%d", fwInfo -> fwSize);
           char *timeStamp = getTimeStamp();
           IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
           IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_DOWNLOADING);
@@ -117,54 +109,30 @@ void loop()
           OTAUpdateClient& otaClient = OTAUpdateClient::getInstance();
           int result = otaClient.updateFromUrl(fwInfo -> fwPackageURI);
           if (result == 0) {
-            Screen.print("Download success\nVeryifying...\n");
+            Screen.print(0, "Download success");
             DevKitMQTTClient_Init(true);
+            if (fwInfo -> fwPackageCheckValue != NULL) {
+              Screen.print(1, "Veryifying...");
+              IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
+              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_VERIFYING);
+              IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
+              Screen.clean();
+              if (firmwarePackageCheckCRC16(fwInfo -> fwPackageCheckValue, fwInfo -> fwSize)) {
+                Screen.print("Verify success\n");
+                LogInfo("Verify success");
+              } else {
+                enterFailed("VerifyFailed");
+              }
+            }
+            char *timeStamp = getTimeStamp();
             IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
-            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_VERIFYING);
+            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_APPLYING);
             IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
-            
-            static volatile uint32_t flashIdx = 0;
-            uint8_t *checkBuffer = (uint8_t *)malloc(1);
-            int i = fwInfo -> fwSize;
-            uint16_t checkSum = 0;
-            CRC16_Context contex;
-            CRC16_Init(&contex);
-            while (i--) {
-              MicoFlashRead((mico_partition_t)MICO_PARTITION_OTA_TEMP, &flashIdx, checkBuffer, 1);
-              CRC16_Update(&contex, checkBuffer, 1);
-            }
-            free(checkBuffer);
-            CRC16_Final(&contex, &checkSum);
-            char *checkSumString = checksumToString(checkSum);
-            LogInfo("CRC16 result: %d, %s", checkSum, checkSumString);
-            Screen.clean();
-            if (strcmp(checkSumString, fwInfo -> fwPackageCheckValue) == 0) {
-              Screen.print("Verify success\n");
-              LogInfo("Verify success");
-              char *timeStamp = getTimeStamp();
-              IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
-              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_APPLYING);
-              IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
-              IoTHubClient_ReportOTAStatus(OTA_LAST_FW_UPDATE_ENDTIME, timeStamp);
-              free(timeStamp);
-              mico_system_reboot();
-            } else {
-              Screen.print("Verify failed\n");
-              LogInfo("Verify failed");
-              IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
-              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
-              IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
-              IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "VerifyFailed");
-              enabledOTA = false;
-            }
-            free(checkSumString);
+            IoTHubClient_ReportOTAStatus(OTA_LAST_FW_UPDATE_ENDTIME, timeStamp);
+            free(timeStamp);
+            mico_system_reboot();
           } else {
-            Screen.print("Download failed\n");
-            IoTHubClient_ReportOTAStatus(OTA_CURRENT_FW_VERSION, currentFirmwareVersion);
-            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
-            IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
-            IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "DownloadFailed");
-            enabledOTA = false;
+            enterFailed("DownloadFailed");
           }
         }
       }

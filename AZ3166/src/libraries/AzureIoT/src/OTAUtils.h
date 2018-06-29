@@ -40,6 +40,10 @@ bool IoTHubClient_ReportOTAStatus(const char* key, const char* value);
 
 void ota_callback(const unsigned char *payLoad, size_t size);
 
+bool firmwarePackageCheckCRC16(const char* fwPackageCheckValue, int fwSize);
+
+char *CRC16ToString(uint16_t checksum);
+
 #ifdef __cplusplus
 }
 #endif

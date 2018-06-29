@@ -2,6 +2,8 @@
 #include "parson.h"
 #include "DevKitMQTTClient.h"
 #include "ctype.h"
+#include "CheckSumUtils.h"
+#include "mico.h"
 
 static char *currentFirmwareVersion = NULL;
 static FW_INFO otaFwInfo;
@@ -30,7 +32,10 @@ void fw_info_free_string(FW_INFO &fwInfo) {
 * 			                  = -1 : fwVersion1 < fwVersion2
 */
 int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion2) {
-    if (fwVersion1 == NULL || fwVersion2 == NULL) return ((fwVersion1 == fwVersion2) ? 0 : (fwVersion1 ? 1 : -1));
+    if (fwVersion1 == NULL || fwVersion2 == NULL) {
+        if (fwVersion1 == fwVersion2) return 0;
+        return (fwVersion1 ? 1 : -1);
+    }
     int vnum1 = 0, vnum2 = 0;
     size_t ver1Len = strlen(fwVersion1), ver2Len = strlen(fwVersion2);
     for (int i = 0, j = 0; (i < ver1Len || j < ver2Len); ++i, ++j) {
@@ -54,11 +59,12 @@ int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion
 }
 
 bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo) {
-    if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL || otaFwInfo.fwPackageCheckValue == NULL || fwInfo == NULL) return false;
+    if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL || fwInfo == NULL) return false;
     fw_info_free_string(*fwInfo);
     fwInfo -> fwVersion = strdup(otaFwInfo.fwVersion);
     fwInfo -> fwPackageURI = strdup(otaFwInfo.fwPackageURI);
-    fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
+    if (otaFwInfo.fwPackageCheckValue != NULL)
+        fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
     fwInfo -> fwSize = otaFwInfo.fwSize;
     return true;
 }
@@ -92,7 +98,6 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
         memcpy(deviceTwinPayLoad, payLoad, size);
         deviceTwinPayLoad[size] = '\0';
     } else {
-        free(deviceTwinPayLoad);
         return;
     }
     JSON_Value *root_value;
@@ -103,8 +108,8 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
         {
             json_value_free(root_value);
         }
-        free(deviceTwinPayLoad);
         LogError("parse %s failed", deviceTwinPayLoad);
+        free(deviceTwinPayLoad);
         return;
     }
     free(deviceTwinPayLoad);
@@ -118,13 +123,47 @@ void ota_callback(const unsigned char *payLoad, size_t size) {
             LogInfo("Get firmware value from device twin.");
             otaFwInfo.fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
             otaFwInfo.fwPackageURI = strdup(json_object_get_string(firmwareVal, "fwPackageURI"));
-            otaFwInfo.fwPackageCheckValue = strdup(json_object_get_string(firmwareVal, "fwPackageCheckValue"));
+            const char *temp = json_object_get_string(firmwareVal, "fwPackageCheckValue");
+            if (temp != NULL) {
+                otaFwInfo.fwPackageCheckValue = strdup(temp);
+            }
             otaFwInfo.fwSize = json_object_get_number(firmwareVal, "fwSize");
-            if (otaFwInfo.fwVersion != NULL && otaFwInfo.fwPackageURI != NULL && otaFwInfo.fwPackageCheckValue != NULL) {
-                json_value_free(root_value);
-                return;
+            if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL) {
+                fw_info_free_string(otaFwInfo);
             }
         }
     }
     json_value_free(root_value);
+}
+
+bool firmwarePackageCheckCRC16(const char* fwPackageCheckValue, int fwSize) {
+    static volatile uint32_t flashIdx = 0;
+    uint8_t *checkBuffer = (uint8_t *)malloc(1);
+    int i = fwSize;
+    uint16_t checkSum = 0;
+    CRC16_Context contex;
+    CRC16_Init(&contex);
+    while (i--) {
+        MicoFlashRead((mico_partition_t)MICO_PARTITION_OTA_TEMP, &flashIdx, checkBuffer, 1);
+        CRC16_Update(&contex, checkBuffer, 1);
+    }
+    free(checkBuffer);
+    CRC16_Final(&contex, &checkSum);
+    char *checkSumString = CRC16ToString(checkSum);
+    LogInfo("CRC16 result: %d, %s", checkSum, checkSumString);
+    bool result = (strcmp(checkSumString, fwPackageCheckValue) == 0);
+    free(checkSumString);
+    return result;
+}
+
+char *CRC16ToString(uint16_t checksum) {
+  char *result = (char *)malloc(5);
+  memset(result, 0, 5);
+  int idx = 4;
+  while (idx--) {
+    result[idx] = checksum % 16;
+    result[idx] = result[idx] > 9 ? result[idx] - 10 + 'A' : result[idx] + '0';
+    checksum /= 16;
+  }
+  return result;
 }
