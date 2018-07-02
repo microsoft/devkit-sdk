@@ -9,7 +9,7 @@
 #include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
 #include "SystemVersion.h"
-
+#include "OTAUtils.h"
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
 #define MQTT_KEEPALIVE_INTERVAL_S 120
@@ -289,6 +289,7 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT ReceiveMessageCallback(IOTHUB_MESSAGE_HA
 
 static void DeviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char *payLoad, size_t size, void *userContextCallback)
 {
+    ota_callback(payLoad, size);
     if (_device_twin_callback)
     {
         _device_twin_callback(updateState, payLoad, size);
