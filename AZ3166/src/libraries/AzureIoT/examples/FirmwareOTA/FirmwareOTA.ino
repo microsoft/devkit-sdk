@@ -9,7 +9,7 @@
 #include "SystemTime.h"
 
 static bool hasWifi = false;
-const char* currentFirmwareVersion = "1.3.7";
+const char* currentFirmwareVersion = "1.1.1";
 
 char *getTimeStamp() {
   time_t t = time(NULL);
