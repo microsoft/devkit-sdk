@@ -46,7 +46,6 @@ int OTAUpdateClient::checkFirmwareCRC16(uint16_t fwPackageCheckValue, int fwSize
     }
     free(checkBuffer);
     CRC16_Final(&contex, &checkSum);
-    LogInfo("CRC16 result: %d", checkSum);
     bool result = (checkSum == fwPackageCheckValue);
     return result ? 0 : -1;
 }
