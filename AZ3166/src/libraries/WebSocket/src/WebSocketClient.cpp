@@ -167,12 +167,14 @@ int WebSocketClient::sendLength(long len, char *msg)
     else
     {
         msg[0] = 127 | (1 << 7);
-        for (int i = 0; i < 8; i++)
-        {
-            // Actually, we only support message size less than 2^32
-            int shift = i * 8 > 32 ? 32 : i * 8;
-            msg[i + 1] = (len >> shift) & 0xff;
-        }
+        msg[1] = 0;
+        msg[2] = 0;
+        msg[3] = 0;
+        msg[4] = 0;
+        msg[5] = (len >> 24) & 0xff;
+        msg[6] = (len >> 16) & 0xff;
+        msg[7] = (len >> 8) & 0xff;
+        msg[8] = len & 0xff;
         return 9;
     }
 }
@@ -344,14 +346,18 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size)
     }
     else if (payloadLength == 127)
     {
-        payloadLength = 0;
-        for (int i = 0; i < 8; i++)
-        {
-            readChar(&c);
-
-            int shift = (7 - i) * 8 > 32 ? 32 : (7 - i) * 8;
-            payloadLength += (c << shift);
-        }
+        readChar(&c); // 0
+        readChar(&c); // 0
+        readChar(&c); // 0
+        readChar(&c); // 0
+        readChar(&c);
+        payloadLength = c << 24;
+        readChar(&c);
+        payloadLength += c << 16;
+        readChar(&c);
+        payloadLength += c << 8;
+        readChar(&c);
+        payloadLength += c;
     }
 
     if (payloadLength == 0)
