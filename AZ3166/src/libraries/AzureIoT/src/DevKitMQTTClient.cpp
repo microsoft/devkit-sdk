@@ -9,7 +9,7 @@
 #include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
 #include "SystemVersion.h"
-#include "OTAUtils.h"
+#include "DevKitOTAUtils.h"
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
 #define MQTT_KEEPALIVE_INTERVAL_S 120

@@ -4,13 +4,14 @@
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
-#include "OTAUtils.h"
+#include "DevKitOTAUtils.h"
 #include "OTAUpdateClient.h"
 #include "SystemTime.h"
 
 static bool hasWifi = false;
 const char* currentFirmwareVersion = "1.1.1";
 
+// Get the current time in YYYY-MM-DD-HH:MM:SS format
 char *getTimeStamp() {
   time_t t = time(NULL);
   size_t len = sizeof("2011-10-08-07:07:09");
@@ -20,6 +21,7 @@ char *getTimeStamp() {
   LogInfo("time is %s", buf);
   return(buf);
 }
+
 bool enabledOTA = true;
 FW_INFO* fwInfo = NULL;
 
@@ -70,6 +72,8 @@ void setup()
   IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_CURRENT);
   fwInfo = new FW_INFO;
 }
+
+// Enter a failed state, print failed message and report status
 void enterFailed(const char* failedMsg) {
   Screen.clean();
   Screen.print(failedMsg);
@@ -77,51 +81,83 @@ void enterFailed(const char* failedMsg) {
   IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, failedMsg);
   enabledOTA = false;
 }
+
 void loop()
 {
   if (hasWifi && enabledOTA)
   {
     DevKitMQTTClient_Check();
+
+    // Check if there is new firmware info.
     bool hasNewOTA = IoTHubClient_OTAHasNewFw(fwInfo);
     if (hasNewOTA) {
-      if (strlen(fwInfo -> fwPackageURI) < 6 || (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0)) {
+
+      // Check if the URL is https as we require it for safety purpose.
+      if (strlen(fwInfo -> fwPackageURI) < 6 || (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0))
+      {
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_SUBSTATUS, "URINotHTTPS");
-      } else {
-        if (IoTHubClient_OTAVersionCompare(fwInfo -> fwVersion, currentFirmwareVersion) == 1) {
+      }
+      else
+      {
+
+        // Check if this is a new version.
+        if (IoTHubClient_OTAVersionCompare(fwInfo -> fwVersion, currentFirmwareVersion) == 1)
+        {
           Screen.clean();
           Screen.print(0, "New firmware.");
           Screen.print(1, fwInfo -> fwVersion);
+
+          // Report downloading status.
           char *timeStamp = getTimeStamp();
           IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_DOWNLOADING);
           IoTHubClient_ReportOTAStatus(OTA_PENDING_FW_VERSION, fwInfo -> fwVersion);
           IoTHubClient_ReportOTAStatus(OTA_LAST_FW_UPDATE_STARTTIME, timeStamp);
           free(timeStamp);
+
+          // Close IoT Hub Client to release the TLS resource for firmware download.
           DevKitMQTTClient_Close();
           Screen.clean();
           Screen.print("Downloading...");
+
+          // Download the firmware. This can be customized according to the board type.
           OTAUpdateClient& otaClient = OTAUpdateClient::getInstance();
           int result = otaClient.updateFromUrl(fwInfo -> fwPackageURI);
-          if (result == 0) {
+          
+          if (result == 0)
+          {
             Screen.print(0, "Download success");
+
+            // Reopen the IoT Hub Client for reporting status.
             DevKitMQTTClient_Init(true);
-            if (fwInfo -> fwPackageCheckValue != NULL) {
-              Screen.print(1, "Veryifying...");
+
+            // Check the firmware if there is checksum.
+            if (fwInfo -> fwPackageCheckValue != NULL)
+            {
+              Screen.print(1, "Verifying...");
               IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_VERIFYING);
-              if (otaClient.checkFirmwareCRC16(strtoul(fwInfo -> fwPackageCheckValue, NULL, 16), fwInfo -> fwSize) == 0) {
+              if (otaClient.checkFirmwareCRC16(strtoul(fwInfo -> fwPackageCheckValue, NULL, 16), fwInfo -> fwSize) == 0)
+              {
                 Screen.clean();
                 Screen.print("Verify success\n");
                 LogInfo("Verify success");
-              } else {
+              }
+              else 
+              {
                 enterFailed("VerifyFailed");
               }
             }
+            
             char *timeStamp = getTimeStamp();
             IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_APPLYING);
             IoTHubClient_ReportOTAStatus(OTA_LAST_FW_UPDATE_ENDTIME, timeStamp);
             free(timeStamp);
+
+            // Reboot system to apply the firmware.
             mico_system_reboot();
-          } else {
+          }
+          else
+          {
             enterFailed("DownloadFailed");
           }
         }
