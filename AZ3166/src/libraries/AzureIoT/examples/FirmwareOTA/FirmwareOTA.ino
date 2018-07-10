@@ -134,7 +134,7 @@ void loop()
             // Check the firmware if there is checksum.
             if (fwInfo -> fwPackageCheckValue != NULL)
             {
-              Screen.print(1, "Veryifying...");
+              Screen.print(1, "Verifying...");
               IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_VERIFYING);
               if (otaClient.checkFirmwareCRC16(strtoul(fwInfo -> fwPackageCheckValue, NULL, 16), fwInfo -> fwSize) == 0)
               {
