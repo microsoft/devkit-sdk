@@ -9,7 +9,6 @@
 #include "SystemTime.h"
 
 static bool hasWifi = false;
-// Set the current firmware version here.
 const char* currentFirmwareVersion = "1.1.1";
 
 // Get the current time in YYYY-MM-DD-HH:MM:SS format
@@ -74,7 +73,7 @@ void setup()
   fwInfo = new FW_INFO;
 }
 
-// Enter a failed state, print the screen and report status
+// Enter a failed state, print failed message and report status
 void enterFailed(const char* failedMsg) {
   Screen.clean();
   Screen.print(failedMsg);
@@ -88,10 +87,12 @@ void loop()
   if (hasWifi && enabledOTA)
   {
     DevKitMQTTClient_Check();
+
     // Check if there is new firmware info.
     bool hasNewOTA = IoTHubClient_OTAHasNewFw(fwInfo);
     if (hasNewOTA) {
-      // Check if the firmware url is https.
+
+      // Check if the URL is https as we require it for safety purpose.
       if (strlen(fwInfo -> fwPackageURI) < 6 || (strncmp("https:", fwInfo -> fwPackageURI, 6) != 0))
       {
         IoTHubClient_ReportOTAStatus(OTA_FW_UPDATE_STATUS, OTA_STATUS_ERROR);
@@ -99,6 +100,7 @@ void loop()
       }
       else
       {
+
         // Check if this is a new version.
         if (IoTHubClient_OTAVersionCompare(fwInfo -> fwVersion, currentFirmwareVersion) == 1)
         {
@@ -118,16 +120,17 @@ void loop()
           Screen.clean();
           Screen.print("Downloading...");
 
-          // This can be customized according to the board type.
+          // Download the firmware. This can be customized according to the board type.
           OTAUpdateClient& otaClient = OTAUpdateClient::getInstance();
-
-          // Download the firmware.
           int result = otaClient.updateFromUrl(fwInfo -> fwPackageURI);
+          
           if (result == 0)
           {
             Screen.print(0, "Download success");
-            // Reopen the IoT Hub Client.
+
+            // Reopen the IoT Hub Client for reporting status.
             DevKitMQTTClient_Init(true);
+
             // Check the firmware if there is checksum.
             if (fwInfo -> fwPackageCheckValue != NULL)
             {
