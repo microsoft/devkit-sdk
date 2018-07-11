@@ -36,6 +36,8 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo);
 
 bool IoTHubClient_ReportOTAStatus(const char* key, const char* value);
 
+bool IoTHubClient_ReportOTAStatuses(MAP_HANDLE kvMap);
+
 void ota_callback(const unsigned char *payLoad, size_t size);
 
 #ifdef __cplusplus
