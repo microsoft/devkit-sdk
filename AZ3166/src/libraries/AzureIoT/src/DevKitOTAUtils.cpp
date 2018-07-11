@@ -79,10 +79,9 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo)
 bool IoTHubClient_ReportOTAStatus(MAP_HANDLE kvMap)
 {
     const char *firmware_string = STRING_c_str(Map_ToJSON(kvMap));
-    const char *jsonFormat = "{\"firmware\":%s}";
-    int len = sprintf(NULL, jsonFormat, firmware_string);
+    int len = sprintf(NULL, "{\"firmware\":%s}", firmware_string);
     char* serialized_string = (char*)malloc(len + 1);
-    sprintf(serialized_string, jsonFormat, firmware_string);
+    sprintf(serialized_string, "{\"firmware\":%s}", firmware_string);
     bool result = DevKitMQTTClient_ReportState(serialized_string);
     free(serialized_string);
     return result;
