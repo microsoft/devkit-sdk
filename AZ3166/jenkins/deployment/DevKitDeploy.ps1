@@ -39,6 +39,16 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 	$ArduinoPackageBlobName = "AZ3166-" + $CurrentVersion + ".zip"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
+	# Upload Firmware bin file
+	$FirmwareFileName = "devkit-firmware-" + $CurrentVersion + "." + $env:BUILD_NUMBER + ".bin"
+	$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$FirmwareFileName"
+	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob $FirmwareFileName -Force
+
+	# Upload Firmware bin file for OTA
+	$OTAFirmwareFileName = "devkit-firmware-latest.ota.bin"
+	$OTAFirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$OTAFirmwareFileName"
+	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $OTAFirmwareFilePath -Blob $OTAFirmwareFileName -Force
+
 	################################################################################
 	# Step 2: Calculate package MD5 checksum and Update to  configuration JSON file#
 	################################################################################
