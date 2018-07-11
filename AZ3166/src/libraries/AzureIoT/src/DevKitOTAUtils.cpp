@@ -76,9 +76,9 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo)
     return true;
 }
 
-bool IoTHubClient_ReportOTAStatus(MAP_HANDLE kvMap)
+bool IoTHubClient_ReportOTAStatus(MAP_HANDLE OTAStatusMap)
 {
-    const char *firmware_string = STRING_c_str(Map_ToJSON(kvMap));
+    const char *firmware_string = STRING_c_str(Map_ToJSON(OTAStatusMap));
     int len = sprintf(NULL, "{\"firmware\":%s}", firmware_string);
     char* serialized_string = (char*)malloc(len + 1);
     sprintf(serialized_string, "{\"firmware\":%s}", firmware_string);
