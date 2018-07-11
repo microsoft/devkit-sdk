@@ -94,14 +94,14 @@ bool IoTHubClient_ReportOTAStatus(const char* key, const char* value)
 
 bool IoTHubClient_ReportOTAStatuses(MAP_HANDLE kvMap)
 {
-    JSON_Value *firmware_value = json_parse_string(STRING_c_str(Map_ToJSON(kvMap)));
-    if (firmware_value == NULL) return false;
-    JSON_Value *root_value = json_value_init_object();
-    JSON_Object *root_object = json_value_get_object(root_value);
-    json_object_set_value(root_object, "firmware", firmware_value);
-    char *serialized_string = json_serialize_to_string_pretty(root_value);
-    json_value_free(root_value);
-    return DevKitMQTTClient_ReportState(serialized_string);
+    const char *firmware_string = STRING_c_str(Map_ToJSON(kvMap));
+    const char *jsonFormat = "{\"firmware\":%s}";
+    int len = sprintf(NULL, jsonFormat, firmware_string);
+    char* serialized_string = (char*)malloc(len + 1);
+    sprintf(serialized_string, jsonFormat, firmware_string);
+    bool result = DevKitMQTTClient_ReportState(serialized_string);
+    free(serialized_string);
+    return result;
 }
 
 void ota_callback(const unsigned char *payLoad, size_t size)
