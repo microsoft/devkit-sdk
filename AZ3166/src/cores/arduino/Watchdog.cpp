@@ -65,7 +65,7 @@ bool Watchdog::configure(float timeoutInMs)
     int clk = LSI_VALUE / prescalerDivider;
     reloadValue  = (uint16_t)(timeoutSeconds * clk);
 
-    // printf("Watchdog is configured with: prescaler = %d, reload = 0x%X, timeout miliiseconds: %d\r\n", prescalerDivider, reloadValue, timeout);
+    // printf("Watchdog is configured with: prescaler = %d, reload = 0x%X, timeout milliseconds: %d\r\n", prescalerDivider, reloadValue, timeout);
 
     IWDG->KR = 0x5555;              // Enable write access to prescaler (IWDG_PR) and reload (IWDG_PLR) register
     IWDG->PR = prescalerCode;       // Set prescaler register
