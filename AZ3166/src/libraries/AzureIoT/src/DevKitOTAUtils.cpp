@@ -76,22 +76,6 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo)
     return true;
 }
 
-bool IoTHubClient_ReportOTAStatus(const char* key, const char* value)
-{
-    if (key == NULL || value == NULL) return false;
-    JSON_Value *firmware_value = json_value_init_object();
-    JSON_Object *firmware_object = json_value_get_object(firmware_value);
-    char *serialized_string = NULL;
-    json_object_set_string(firmware_object, key, value);
-    JSON_Value *root_value = json_value_init_object();
-    JSON_Object *root_object = json_value_get_object(root_value);
-    json_object_set_value(root_object, "firmware", firmware_value);
-    serialized_string = json_serialize_to_string_pretty(root_value);
-    json_value_free(root_value);
-    return DevKitMQTTClient_ReportState(serialized_string);
-}
-
-
 bool IoTHubClient_ReportOTAStatuses(MAP_HANDLE kvMap)
 {
     const char *firmware_string = STRING_c_str(Map_ToJSON(kvMap));
