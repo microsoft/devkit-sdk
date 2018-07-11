@@ -76,7 +76,7 @@ bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo)
     return true;
 }
 
-bool IoTHubClient_ReportOTAStatuses(MAP_HANDLE kvMap)
+bool IoTHubClient_ReportOTAStatus(MAP_HANDLE kvMap)
 {
     const char *firmware_string = STRING_c_str(Map_ToJSON(kvMap));
     const char *jsonFormat = "{\"firmware\":%s}";
