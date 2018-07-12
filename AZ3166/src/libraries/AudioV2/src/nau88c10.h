@@ -108,7 +108,7 @@
 #define AUDIO_FREQUENCY_11K           ((uint32_t)11025)
 #define AUDIO_FREQUENCY_8K            ((uint32_t)8000)  
 
-#define VOLUME_CONVERT(Volume)        (((Volume) > 100)? 100:((uint8_t)(((Volume) * 63) / 100)))
+#define VOLUME_CONVERT(Volume)        (((Volume) == 0)? 0:(Volume+155)) 
 #define VOLUME_IN_CONVERT(Volume)     (((Volume) >= 100)? 239:((uint8_t)(((Volume) * 240) / 100)))
 
 /******************************************************************************/
@@ -171,21 +171,3 @@ void    AUDIO_IO_Delay(uint32_t Delay);
 extern AUDIO_DrvTypeDef   nau88c10_drv;
 
 #endif /* __nau88c10_H */
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */ 
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

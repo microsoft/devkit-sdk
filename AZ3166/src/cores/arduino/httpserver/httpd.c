@@ -165,6 +165,7 @@ static int httpd_setup_new_socket( int port )
     {
         status = net_get_sock_error( sockfd );
         httpd_d("Failed to bind socket on port: %d Status: %d", status, port);
+        close( sockfd );
         return status;
     }
 
@@ -173,6 +174,7 @@ static int httpd_setup_new_socket( int port )
     {
         status = net_get_sock_error( sockfd );
         httpd_d("Failed to listen on port %d: %d.", port, status);
+        close( sockfd );
         return status;
     }
 

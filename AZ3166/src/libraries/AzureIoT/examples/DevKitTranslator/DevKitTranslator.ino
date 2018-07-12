@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. 
 // To get started please visit https://microsoft.github.io/azure-iot-developer-kit/docs/projects/devkit-translator/?utm_source=ArduinoExtension&utm_medium=ReleaseNote&utm_campaign=VSCode
-#include "AudioClass.h"
+#include "AudioClassV2.h"
 #include "AZ3166WiFi.h"
 #include "AzureIotHub.h"
 #include "DevKitMQTTClient.h"
@@ -163,7 +163,7 @@ static void DoIdle()
     Screen.print(1, "Release to send\r\nMax duraion: \r\n1.5 sec");
     memset(waveFile, 0, AUDIO_BUFFER_SIZE);
     Audio.format(8000, 16);
-    Audio.startRecord(waveFile, AUDIO_BUFFER_SIZE, MAX_RECORD_DURATION);
+    Audio.startRecord(waveFile, AUDIO_BUFFER_SIZE);
     status = Recording;
   }
 
@@ -181,7 +181,7 @@ static void DoRecording()
 
 static void DoRecorded()
 {
-  Audio.getWav(&wavFileSize);
+  wavFileSize = Audio.getCurrentSize();
   if (wavFileSize > 0)
   {
     wavFileSize = Audio.convertToMono(waveFile, wavFileSize, 16);
