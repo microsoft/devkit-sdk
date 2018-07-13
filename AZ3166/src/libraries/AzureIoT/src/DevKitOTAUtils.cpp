@@ -27,13 +27,6 @@ static void fw_info_free(FW_INFO *fwInfo)
     }
 }
 
-/**
-* @brief	Compare two firmware version string.
-*
-* @return	A integer, result = 1 : fwVersion1 > fwVersion2
-* 			                  = 0 : fwVersion1 = fwVersion2
-* 			                  = -1 : fwVersion1 < fwVersion2
-*/
 int IoTHubClient_FwVersionCompare(const char* fwVersion1, const char* fwVersion2)
 {
     if (fwVersion1 == NULL || fwVersion2 == NULL)
@@ -102,7 +95,7 @@ void ota_callback(const unsigned char *payLoad, size_t size)
         {
             json_value_free(root_value);
         }
-        LogError("parse %s failed", deviceTwinPayLoad);
+        LogError("Parse %s failed", deviceTwinPayLoad);
         free(deviceTwinPayLoad);
         return;
     }
@@ -120,7 +113,7 @@ void ota_callback(const unsigned char *payLoad, size_t size)
                 fw_info_free(latestFwInfo);
                 latestFwInfo = NULL;
             }
-            latestFwInfo = malloc(sizoef(FW_INFO));
+            latestFwInfo = (FW_INFO*)malloc(sizeof(FW_INFO));
             if (latestFwInfo)
             {
                 latestFwInfo->fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
@@ -129,12 +122,12 @@ void ota_callback(const unsigned char *payLoad, size_t size)
                 latestFwInfo->fwSize = json_object_get_number(firmwareVal, "fwSize");
                 if (latestFwInfo->fwVersion == NULL || latestFwInfo->fwPackageURI == NULL)
                 {
-                    FwInfoFree(latestFwInfo);
+                    fw_info_free(latestFwInfo);
                     latestFwInfo = NULL;
                 }
                 else
                 {
-                    LogInfo("The firmware infomation from device twin: %s, %s, %d", latestFwInfo->fwVersion, latestFwInfo->fwPackageURI, latestFwInfo->fwSize);
+                    LogInfo("The firmware information from device twin: %s, %s, %d", latestFwInfo->fwVersion, latestFwInfo->fwPackageURI, latestFwInfo->fwSize);
                 }
             }
         }
