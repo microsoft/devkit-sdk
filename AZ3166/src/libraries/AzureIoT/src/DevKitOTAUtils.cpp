@@ -34,7 +34,7 @@ static void fw_info_free(FW_INFO *fwInfo)
 * 			                  = 0 : fwVersion1 = fwVersion2
 * 			                  = -1 : fwVersion1 < fwVersion2
 */
-int FwVersionCompare(const char* fwVersion1, const char* fwVersion2)
+int IoTHubClient_FwVersionCompare(const char* fwVersion1, const char* fwVersion2)
 {
     if (fwVersion1 == NULL || fwVersion2 == NULL)
     {

@@ -31,7 +31,7 @@ typedef struct {
 const FW_INFO* IoTHubClient_GetLatestFwInfo(void);
 bool IoTHubClient_ReportOTAStatus(MAP_HANDLE OTAStatusMap);
 
-int FwVersionCompare(const char* fwVersion1, const char* fwVersion2);
+int IoTHubClient_FwVersionCompare(const char* fwVersion1, const char* fwVersion2);
 
 #ifdef __cplusplus
 }
