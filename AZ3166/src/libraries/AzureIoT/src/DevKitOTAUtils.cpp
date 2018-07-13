@@ -5,35 +5,29 @@
 #include "CheckSumUtils.h"
 #include "mico.h"
 
-static FW_INFO otaFwInfo;
+static FW_INFO *latestFwInfo = NULL;
 
-void fw_info_free_string(FW_INFO &fwInfo)
+static void fw_info_free(FW_INFO *fwInfo)
 {
-    if (fwInfo.fwVersion != NULL)
+    if (fwInfo)
     {
-        free(fwInfo.fwVersion);
-        fwInfo.fwVersion = NULL;
-    }
-    if (fwInfo.fwPackageURI != NULL)
-    {
-        free(fwInfo.fwPackageURI);
-        fwInfo.fwPackageURI = NULL;
-    }
-    if (fwInfo.fwPackageCheckValue != NULL)
-    {
-        free(fwInfo.fwPackageCheckValue);
-        fwInfo.fwPackageCheckValue = NULL;
+        if (fwInfo->fwVersion != NULL)
+        {
+            free(fwInfo->fwVersion);
+        }
+        if (fwInfo->fwPackageURI != NULL)
+        {
+            free(fwInfo->fwPackageURI);
+        }
+        if (fwInfo->fwPackageCheckValue != NULL)
+        {
+            free(fwInfo->fwPackageCheckValue);
+        }
+        free(fwInfo);
     }
 }
 
-/**
-* @brief	Compare two firmware version string.
-*
-* @return	A integer, result = 1 : fwVersion1 > fwVersion2
-* 			                  = 0 : fwVersion1 = fwVersion2
-* 			                  = -1 : fwVersion1 < fwVersion2
-*/
-int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion2)
+int IoTHubClient_FwVersionCompare(const char* fwVersion1, const char* fwVersion2)
 {
     if (fwVersion1 == NULL || fwVersion2 == NULL)
     {
@@ -65,23 +59,16 @@ int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion
     return 0;
 }
 
-bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo)
+const FW_INFO* IoTHubClient_GetLatestFwInfo(void)
 {
-    if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL || fwInfo == NULL) return false;
-    fw_info_free_string(*fwInfo);
-    fwInfo -> fwVersion = strdup(otaFwInfo.fwVersion);
-    fwInfo -> fwPackageURI = strdup(otaFwInfo.fwPackageURI);
-    fwInfo -> fwPackageCheckValue = strdup(otaFwInfo.fwPackageCheckValue);
-    fwInfo -> fwSize = otaFwInfo.fwSize;
-    return true;
+    return latestFwInfo;
 }
 
 bool IoTHubClient_ReportOTAStatus(MAP_HANDLE OTAStatusMap)
 {
-    const char *firmware_string = STRING_c_str(Map_ToJSON(OTAStatusMap));
-    int len = sprintf(NULL, "{\"firmware\":%s}", firmware_string);
-    char* serialized_string = (char*)malloc(len + 1);
-    sprintf(serialized_string, "{\"firmware\":%s}", firmware_string);
+    const char *status_string = STRING_c_str(Map_ToJSON(OTAStatusMap));
+    char* serialized_string = (char*)malloc(strlen(status_string) + 20);
+    sprintf(serialized_string, "{\"firmware\":%s}", status_string);
     bool result = DevKitMQTTClient_ReportState(serialized_string);
     free(serialized_string);
     return result;
@@ -89,7 +76,6 @@ bool IoTHubClient_ReportOTAStatus(MAP_HANDLE OTAStatusMap)
 
 void ota_callback(const unsigned char *payLoad, size_t size)
 {
-    fw_info_free_string(otaFwInfo);
     char *deviceTwinPayLoad = (char *)malloc(size + 1);
     if (deviceTwinPayLoad != NULL)
     {
@@ -100,6 +86,7 @@ void ota_callback(const unsigned char *payLoad, size_t size)
     {
         return;
     }
+    
     JSON_Value *root_value;
     root_value = json_parse_string(deviceTwinPayLoad);
     if (json_value_get_type(root_value) != JSONObject)
@@ -108,11 +95,11 @@ void ota_callback(const unsigned char *payLoad, size_t size)
         {
             json_value_free(root_value);
         }
-        LogError("parse %s failed", deviceTwinPayLoad);
+        LogError("Parse %s failed", deviceTwinPayLoad);
         free(deviceTwinPayLoad);
         return;
     }
-    free(deviceTwinPayLoad);
+    
     JSON_Object *root_object = json_value_get_object(root_value);
     JSON_Object *desired_object = json_object_get_object(root_object, "desired");
     desired_object = desired_object == NULL ? root_object : desired_object;
@@ -121,16 +108,31 @@ void ota_callback(const unsigned char *payLoad, size_t size)
         JSON_Object* firmwareVal = json_object_get_object(desired_object, "firmware");
         if (firmwareVal != NULL)
         {
-            LogInfo("Get firmware value from device twin.");
-            otaFwInfo.fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
-            otaFwInfo.fwPackageURI = strdup(json_object_get_string(firmwareVal, "fwPackageURI"));
-            otaFwInfo.fwPackageCheckValue = strdup(json_object_get_string(firmwareVal, "fwPackageCheckValue"));
-            otaFwInfo.fwSize = json_object_get_number(firmwareVal, "fwSize");
-            if (otaFwInfo.fwVersion == NULL || otaFwInfo.fwPackageURI == NULL)
+            if (latestFwInfo)
             {
-                fw_info_free_string(otaFwInfo);
+                fw_info_free(latestFwInfo);
+                latestFwInfo = NULL;
+            }
+            latestFwInfo = (FW_INFO*)malloc(sizeof(FW_INFO));
+            if (latestFwInfo)
+            {
+                latestFwInfo->fwVersion = strdup(json_object_get_string(firmwareVal, "fwVersion"));
+                latestFwInfo->fwPackageURI = strdup(json_object_get_string(firmwareVal, "fwPackageURI"));
+                latestFwInfo->fwPackageCheckValue = strdup(json_object_get_string(firmwareVal, "fwPackageCheckValue"));
+                latestFwInfo->fwSize = json_object_get_number(firmwareVal, "fwSize");
+                if (latestFwInfo->fwVersion == NULL || latestFwInfo->fwPackageURI == NULL)
+                {
+                    fw_info_free(latestFwInfo);
+                    latestFwInfo = NULL;
+                }
+                else
+                {
+                    LogInfo("The firmware information from device twin: %s, %s, %d", latestFwInfo->fwVersion, latestFwInfo->fwPackageURI, latestFwInfo->fwSize);
+                }
             }
         }
     }
+    
     json_value_free(root_value);
+    free(deviceTwinPayLoad);
 }
