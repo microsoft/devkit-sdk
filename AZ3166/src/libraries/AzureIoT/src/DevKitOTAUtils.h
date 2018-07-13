@@ -22,21 +22,16 @@ extern "C"
 #define OTA_LAST_FW_UPDATE_ENDTIME "lastFwUpdateEndTime"
 
 typedef struct {
-    char* fwVersion = NULL;
-    char* fwPackageURI = NULL;
-    char* fwPackageCheckValue = NULL;
+    char* fwVersion;
+    char* fwPackageURI;
+    char* fwPackageCheckValue;
     int fwSize;
 } FW_INFO;
 
-void fw_info_free_string(FW_INFO &fwInfo);
-
-int IoTHubClient_OTAVersionCompare(const char* fwVersion1, const char* fwVersion2);
-
-bool IoTHubClient_OTAHasNewFw(FW_INFO* fwInfo);
-
+const FW_INFO* IoTHubClient_GetLatestFwInfo(void);
 bool IoTHubClient_ReportOTAStatus(MAP_HANDLE OTAStatusMap);
 
-void ota_callback(const unsigned char *payLoad, size_t size);
+int FwVersionCompare(const char* fwVersion1, const char* fwVersion2);
 
 #ifdef __cplusplus
 }
