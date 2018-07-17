@@ -30,9 +30,11 @@ uint16_t calcCrc(vector<char> data)
 	return crc;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	string filePath = "";
-	if (argc <= 1) {
+	if (argc <= 1)
+	{
 		PrintUsage();
 		return 1;
 	}
