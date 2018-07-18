@@ -9,7 +9,7 @@
 #include "DevkitDPSClient.h"
 #include "iothub_client_hsm_ll.h"
 #include "SystemVersion.h"
-#include "DevKitOTAUtils.h"
+
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
 #define MQTT_KEEPALIVE_INTERVAL_S 120
@@ -40,6 +40,8 @@ static char *iothub_hostname = NULL;
 static char *miniSolutionName = NULL;
 
 extern bool is_iothub_from_dps;
+
+extern void ota_callback(const unsigned char *payLoad, size_t size);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities
