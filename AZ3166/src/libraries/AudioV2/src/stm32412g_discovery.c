@@ -664,38 +664,37 @@ void AUDIO_IO_DeInit( void )
  * @brief  Writes a single data.
  * @param  Addr: I2C address
  * @param  Reg: Reg address
- * @param  Value: Data to be written
+ * @param  Value: 9-bit data to be written
  */
 void AUDIO_IO_Write( uint8_t Addr, uint16_t Reg, uint16_t Value )
 {
-    uint16_t tmp = Value;
+    uint8_t lowbyte = (uint8_t)Value;
+    uint8_t hibyte = (uint8_t)(Value >> 8);
 
-    uint16_t reg_write = ((uint16_t)( Reg << 1 ) | ((Value >> 8)));
+    // 12.9.1.2. 2-WIRE Write Operation, the 9th bit is included in the register address byte.
+    uint16_t reg_write = ((uint16_t)( Reg << 1 ) | (hibyte & 0x1));
 
-    Value = (uint8_t)( tmp );
+    I2Cx_WriteMultiple( &hI2cAudioHandler, Addr, reg_write, I2C_MEMADD_SIZE_8BIT, &lowbyte, 1 );
 
-    I2Cx_WriteMultiple( &hI2cAudioHandler, Addr, reg_write, I2C_MEMADD_SIZE_8BIT, (uint8_t*) &Value, 1 );
 }
 
 /**
  * @brief  Reads a single data.
  * @param  Addr: I2C address
  * @param  Reg: Reg address
- * @retval Data to be read
+ * @retval 9-bit data to be read
  */
 uint16_t AUDIO_IO_Read( uint8_t Addr, uint16_t Reg )
 {
-    uint16_t read_value = 0, tmp = 0;
+    uint8_t read_value[2] = {0,0};
 
-    I2Cx_ReadMultiple( &hI2cAudioHandler, Addr, Reg, I2C_MEMADD_SIZE_8BIT, (uint8_t*) &read_value, 2 );
+    I2Cx_ReadMultiple( &hI2cAudioHandler, Addr, (uint16_t)( Reg << 1 ), I2C_MEMADD_SIZE_8BIT, read_value, 2 );
 
-    tmp = ((uint16_t)( read_value >> 8 ) & 0x00FF);
+    // flip the bits into little endian
+    uint16_t tmp = read_value[1] + (((uint16_t)read_value[0]) << 8);
 
-    tmp |= ((uint16_t)( read_value << 8 ) & 0xFF00);
+    return tmp;
 
-    read_value = tmp;
-
-    return read_value;
 }
 
 /**

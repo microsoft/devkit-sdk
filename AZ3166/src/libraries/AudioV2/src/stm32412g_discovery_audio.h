@@ -330,6 +330,9 @@ void  BSP_AUDIO_OUT_MspDeInit(I2S_HandleTypeDef *hi2s, void *Params);
 /** @defgroup STM32412G_DISCOVERY_AUDIO_IN_Exported_Functions  STM32412G DISCOVERY AUDIO IN Exported Functions
   * @{
   */
+uint16_t BSP_AUDIO_IN_ReadId();
+uint16_t BSP_AUDIO_IN_ReadRegister(uint16_t reg);
+void BSP_AUDIO_IN_WriteRegister(uint16_t reg, uint16_t value);
 uint8_t BSP_AUDIO_IN_SetFrequency(uint32_t AudioFreq);
 uint8_t BSP_AUDIO_IN_Stop(void);
 uint8_t BSP_AUDIO_IN_StopEx(uint32_t InputDevice);
