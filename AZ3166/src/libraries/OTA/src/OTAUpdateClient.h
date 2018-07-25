@@ -30,7 +30,14 @@ class OTAUpdateClient
         */
         int updateFromUrl(const char *url, const char* ssl_ca_pem = NULL);
 
-        int checkFirmwareCRC16(uint16_t fwPackageCheckValue, int fwSize);
+        /**
+        * @brief    calculate the CRC-16 (xmodem) value of the downloaded firmware.
+        *
+        * @param    fwSize              Size of the firmware.
+        *
+        * @return   Return the CRC-16 value.
+        */
+        int calculateFirmwareCRC16(int fwSize);
 
     private:
         OTAUpdateClient();
