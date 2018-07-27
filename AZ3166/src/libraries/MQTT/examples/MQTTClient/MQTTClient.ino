@@ -38,9 +38,10 @@ void messageArrived(MQTT::MessageData& md)
     sprintf(msgInfo, "Payload: %s", (char*)message.payload);
     Serial.println(msgInfo);
     ++arrivedcount;
-    char screenInfo[60];
-    sprintf(screenInfo, "Message %d\r\n", arrivedcount);
-    Screen.print(3, screenInfo);
+
+    sprintf(msgInfo, "Message %d\r\n", arrivedcount);
+    Screen.print(3, msgInfo);
+    
     digitalWrite(LED_USER, HIGH);
     delay(100);
     digitalWrite(LED_USER, LOW);
