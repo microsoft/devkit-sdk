@@ -38,6 +38,12 @@ void messageArrived(MQTT::MessageData& md)
     sprintf(msgInfo, "Payload: %s", (char*)message.payload);
     Serial.println(msgInfo);
     ++arrivedcount;
+    char screenInfo[60];
+    sprintf(screenInfo, "Message %d\r\n", arrivedcount);
+    Screen.print(3, screenInfo);
+    digitalWrite(LED_USER, HIGH);
+    delay(100);
+    digitalWrite(LED_USER, LOW);
 }
 
 int runMqttExample() {
@@ -107,7 +113,7 @@ int runMqttExample() {
   mqttNetwork.disconnect();
   Serial.print("Finish message count: ");
   Serial.println(arrivedcount);
-      
+  Screen.print(3, "Finish count...");
   return 0;
 }
 
@@ -115,6 +121,7 @@ void setup() {
   //Initialize serial and Wi-Fi:
   Serial.begin(115200);
   initWifi();
+  pinMode(LED_USER, OUTPUT);
   if(hasWifi)
   {
     // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
