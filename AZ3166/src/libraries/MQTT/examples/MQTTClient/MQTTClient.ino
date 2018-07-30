@@ -43,8 +43,9 @@ void messageArrived(MQTT::MessageData& md)
     Screen.print(3, msgInfo);
     
     digitalWrite(LED_USER, HIGH);
-    delay(100);
+    delay(500);
     digitalWrite(LED_USER, LOW);
+    delay(500);
 }
 
 int runMqttExample() {
@@ -60,6 +61,8 @@ int runMqttExample() {
   int rc = mqttNetwork.connect(mqttServer, port);
   if (rc != 0) {
     Serial.println("Connected to MQTT server failed");
+    Screen.print(2, "Connect to Server failed", true);
+    return -1;
   } else {
     Serial.println("Connected to MQTT server successfully");
   }
@@ -72,10 +75,14 @@ int runMqttExample() {
   
   if ((rc = client.connect(data)) != 0) {
       Serial.println("MQTT client connect to server failed");
+      Screen.print(2, "Connect to Server failed", true);
+      return -1;
   }
   
   if ((rc = client.subscribe(topic, MQTT::QOS2, messageArrived)) != 0) {
       Serial.println("MQTT client subscribe from server failed");
+      Screen.print(2, "Subscribe failed", true);
+      return -1;
   }
   
   MQTT::Message message;
@@ -105,10 +112,14 @@ int runMqttExample() {
   
   if ((rc = client.unsubscribe(topic)) != 0) {
       Serial.println("MQTT client unsubscribe from server failed");
+      Screen.print(2, "Unsubscribe failed", true);
+      return -1;
   }
   
   if ((rc = client.disconnect()) != 0) {
       Serial.println("MQTT client disconnect from server failed");
+      Screen.print(2, "Disconnect failed", true);
+      return -1;
   }
   
   mqttNetwork.disconnect();
@@ -140,4 +151,3 @@ void loop() {
 
   delay(5000);
 }
-
