@@ -31,7 +31,7 @@ UARTClass::UARTClass(UARTName p)
   port = p;
 }
 
-UARTClass::~UARTClass(
+UARTClass::~UARTClass()
 {
   //delete serial;
 }
