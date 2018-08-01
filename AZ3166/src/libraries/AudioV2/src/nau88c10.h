@@ -6,6 +6,7 @@
   * @date    22-February-2016
   * @brief   This file contains all the functions prototypes for the 
   *          nau88c10.c driver.
+  * http://www.nuvoton.com/resource-files/NAU8810_Datasheet_Rev_2.8.pdf
   ******************************************************************************
   * @attention
   *
@@ -123,7 +124,7 @@
   * @brief Device ID Register: Reading from this register will indicate device 
   *                            family ID 8994h
   */
-#define nau88c10_CHIPID_ADDR                  0x80 //0x40 << 1
+#define nau88c10_CHIPID_ADDR                  0x40
 
 
 /**
@@ -148,8 +149,8 @@
 uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t AudioFreq);
 void     nau88c10_DeInit(void);
 uint32_t nau88c10_ReadID(uint16_t DeviceAddr);
-uint32_t nau88c10_ReadRegister(uint16_t DeviceAddr);
-uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr);
+uint32_t nau88c10_ReadRegister(uint16_t DeviceAddr, uint16_t reg);
+uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr, uint16_t reg, uint16_t value);
 uint32_t nau88c10_Play(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size);
 uint32_t nau88c10_Pause(uint16_t DeviceAddr);
 uint32_t nau88c10_Resume(uint16_t DeviceAddr);

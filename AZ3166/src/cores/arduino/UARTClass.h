@@ -29,6 +29,7 @@ class UARTClass : public HardwareSerial
 {
   public:
     UARTClass();
+    UARTClass(UARTName p);
     ~UARTClass();
 
     void begin(const uint32_t dwBaudRate);
@@ -50,6 +51,7 @@ class UARTClass : public HardwareSerial
   protected:
     void init(void);
     BufferedSerial *serial;
+    UARTName port;
 };
 
 #endif // _UART_CLASS_
