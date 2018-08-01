@@ -9,7 +9,7 @@ static CRC16_Context contexCRC16;
 static volatile uint32_t flashIdx = 0;
 static int body_length = 0;
 
-static void getFwCalback(const char *at, size_t length)
+static void getFwCallback(const char *at, size_t length)
 {
     if (at == NULL || length == 0 || body_length < 0)
     {
@@ -34,7 +34,7 @@ int OTADownloadFirmware(const char *url, uint16_t * crc16Checksum, const char* s
     body_length = 0;
     CRC16_Init(&contexCRC16);
 
-    HTTPClient client = ssl_ca_pem ? HTTPClient(ssl_ca_pem, HTTP_GET, url, getFwCalback) : HTTPClient(HTTP_GET, url, getFwCalback);
+    HTTPClient client = ssl_ca_pem ? HTTPClient(ssl_ca_pem, HTTP_GET, url, getFwCallback) : HTTPClient(HTTP_GET, url, getFwCallback);
     const Http_Response *response = client.send(NULL, 0);
     if (response->status_code != 200)
     {
