@@ -59,10 +59,10 @@ AUDIO_DrvTypeDef nau88c10_drv =
   nau88c10_Resume,
   nau88c10_Stop,
 
-  nau88c10_SetFrequency,
   nau88c10_SetVolume,
   nau88c10_SetMute,
   nau88c10_SetOutputMode,
+  nau88c10_SetFrequency,
 
   nau88c10_Reset
 };
@@ -102,11 +102,11 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   uint16_t output_device = OutputInputDevice & 0xFF;
   uint16_t input_device = OutputInputDevice & 0xFF00;
   uint16_t power_mgnt_reg_1 = 0;
-
+  
   /*Power Management*/
   CODEC_IO_Write(DeviceAddr, 0x1, 0x015d);
-  CODEC_IO_Write(DeviceAddr, 0x2, 0x0015);
-  //  CODEC_IO_Write(DeviceAddr,0x3,0x0065);
+  CODEC_IO_Write(DeviceAddr, 0x2, 0x0015);  // BSTEN, PGAEN and ADCEN
+//  CODEC_IO_Write(DeviceAddr,0x3,0x0065);
   /*output in HeadPhone*/
   CODEC_IO_Write(DeviceAddr, 0x3, 0x00ED);
   /*Audio Control*/
@@ -117,11 +117,11 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   CODEC_IO_Write(DeviceAddr, 0x8, 0x0000);
   CODEC_IO_Write(DeviceAddr, 0x9, 0x0000);
   CODEC_IO_Write(DeviceAddr, 0xa, 0x0008);
-  CODEC_IO_Write(DeviceAddr, 0xb, 0x01FF);
+  CODEC_IO_Write(DeviceAddr, 0xb, 0x01FF); 
   CODEC_IO_Write(DeviceAddr, 0xc, 0x0000);
   CODEC_IO_Write(DeviceAddr, 0xd, 0x0000);
   CODEC_IO_Write(DeviceAddr, 0xe, 0x0108);
-  CODEC_IO_Write(DeviceAddr, 0xf, 0x01ff);
+  CODEC_IO_Write(DeviceAddr, 0xf, 0x01FF);  // this is the ADC Gain control (ADCG)
   /*Equalizer*/
   CODEC_IO_Write(DeviceAddr, 0x12, 0x012c);
   CODEC_IO_Write(DeviceAddr, 0x13, 0x002c);
@@ -137,9 +137,9 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   CODEC_IO_Write(DeviceAddr, 0x1d, 0x0000);
   CODEC_IO_Write(DeviceAddr, 0x1e, 0x0000);
   /*ALC Control*/
-  CODEC_IO_Write(DeviceAddr, 0x20, 0x0038);
-  CODEC_IO_Write(DeviceAddr, 0x21, 0x000b);
-  CODEC_IO_Write(DeviceAddr, 0x22, 0x0032);
+  CODEC_IO_Write(DeviceAddr, 0x20, 0x0038);  // disabled, so this will control the Automatic Level Control, max=7, min=0.
+  CODEC_IO_Write(DeviceAddr, 0x21, 0x000b);  // 0 for ALCHT means 0 hold time on gain, and B for ALCSL is -12 freq steps 
+  CODEC_IO_Write(DeviceAddr, 0x22, 0x0032);  // bit 8 is low, so this is "Normal mode"
   CODEC_IO_Write(DeviceAddr, 0x23, 0x0000);
   /*PLL Control*/
   CODEC_IO_Write(DeviceAddr, 0x24, 0x0008);
@@ -150,9 +150,9 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   CODEC_IO_Write(DeviceAddr, 0x28, 0x0000);
   /*Input Output Mixer*/
   CODEC_IO_Write(DeviceAddr, 0x2c, 0x0003);
-  CODEC_IO_Write(DeviceAddr, 0x2d, 0x0010);
+  CODEC_IO_Write(DeviceAddr, 0x2d, 0x0010);  // ADC is enabled, so gain comes from ADC block.
   CODEC_IO_Write(DeviceAddr, 0x2e, 0x0000);
-  CODEC_IO_Write(DeviceAddr, 0x2f, 0x0100);
+  CODEC_IO_Write(DeviceAddr, 0x2f, 0x0100);  // ADC Boost, PGABST is 1, and PMICBSTGAIN is 0
   CODEC_IO_Write(DeviceAddr, 0x30, 0x0000);
   CODEC_IO_Write(DeviceAddr, 0x31, 0x0002);
   CODEC_IO_Write(DeviceAddr, 0x32, 0x0001);
@@ -163,7 +163,7 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
   CODEC_IO_Write(DeviceAddr, 0x37, 0x0040);
   /*output in HeadPhone*/
   CODEC_IO_Write(DeviceAddr, 0x38, 0x0001);
-  //  CODEC_IO_Write(DeviceAddr,0x38,0x0040);
+//  CODEC_IO_Write(DeviceAddr,0x38,0x0040);
 
   CODEC_IO_Write(DeviceAddr, 0x3C, 0x0004);
 }
@@ -189,26 +189,27 @@ uint32_t nau88c10_ReadID(uint16_t DeviceAddr)
   /* Initialize the Control interface of the Audio Codec */
   AUDIO_IO_Init();
 
-  return ((uint32_t)AUDIO_IO_Read(DeviceAddr, nau88c10_CHIPID_ADDR));
+  return nau88c10_ReadRegister(DeviceAddr, nau88c10_CHIPID_ADDR);
 }
 
 /**
-  * @brief  Get the nau88c10 ID.
+  * @brief  Read the nau88c10 register.
   * @param DeviceAddr: Device address on communication Bus.
+  * @param Reg: The register to read.
   * @retval The nau88c10 ID
   */
-uint32_t nau88c10_ReadRegister(uint16_t DeviceAddr)
+uint32_t nau88c10_ReadRegister(uint16_t DeviceAddr, uint16_t Reg)
 {
   /* Initialize the Control interface of the Audio Codec */
   AUDIO_IO_Init();
-  return ((uint32_t)AUDIO_IO_Read(DeviceAddr, 0x0A));
+  return (uint32_t)AUDIO_IO_Read(DeviceAddr, Reg);
 }
 
-uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr)
+uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr, uint16_t reg, uint16_t value)
 {
-  AUDIO_IO_Init();
-  CODEC_IO_Write(DeviceAddr, 0x05, 0x01);
-  return 0;
+    AUDIO_IO_Init();
+    CODEC_IO_Write(DeviceAddr, reg, value);
+    return 0;
 }
 
 /**
@@ -220,11 +221,11 @@ uint32_t nau88c10_WriteRegister(uint16_t DeviceAddr)
 uint32_t nau88c10_Play(uint16_t DeviceAddr, uint16_t *pBuffer, uint16_t Size)
 {
   uint32_t counter = 0;
-
-  /* Resumes the audio file playing */
+ 
+  /* Resumes the audio file playing */  
   /* Unmute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_OFF);
-
+  
   return counter;
 }
 
@@ -234,16 +235,16 @@ uint32_t nau88c10_Play(uint16_t DeviceAddr, uint16_t *pBuffer, uint16_t Size)
   * @retval 0 if correct communication, else wrong communication
   */
 uint32_t nau88c10_Pause(uint16_t DeviceAddr)
-{
+{  
   uint32_t counter = 0;
-
+ 
   /* Pause the audio file playing */
   /* Mute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_ON);
-
+  
   /* Put the Codec in Power save mode */
   counter += CODEC_IO_Write(DeviceAddr, 0x02, 0x01);
-
+ 
   return counter;
 }
 
@@ -255,11 +256,11 @@ uint32_t nau88c10_Pause(uint16_t DeviceAddr)
 uint32_t nau88c10_Resume(uint16_t DeviceAddr)
 {
   uint32_t counter = 0;
-
-  /* Resumes the audio file playing */
+ 
+  /* Resumes the audio file playing */  
   /* Unmute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_OFF);
-
+  
   return counter;
 }
 
@@ -280,6 +281,7 @@ uint32_t nau88c10_Stop(uint16_t DeviceAddr, uint32_t CodecPdwnMode)
 {
   uint32_t counter = 0;
 
+  /* Mute the output first */
   counter += nau88c10_SetMute(DeviceAddr, AUDIO_MUTE_ON);
 
   if (CodecPdwnMode == CODEC_PDWN_SW)
@@ -339,7 +341,7 @@ uint32_t nau88c10_SetVolume(uint16_t DeviceAddr, uint8_t Volume)
 uint32_t nau88c10_SetMute(uint16_t DeviceAddr, uint32_t Cmd)
 {
   uint32_t counter = 0;
-
+  
   /* Set the Mute mode */
   if(Cmd == AUDIO_MUTE_ON)
   {

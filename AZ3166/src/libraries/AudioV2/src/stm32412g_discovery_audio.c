@@ -1063,6 +1063,35 @@ uint8_t BSP_AUDIO_IN_SetVolume(uint8_t Volume)
 }
 
 /**
+ * @brief  Read the device id
+ * @retval The nau88c10 device id
+ */
+uint16_t BSP_AUDIO_IN_ReadId()
+{
+    return (uint16_t)nau88c10_drv.ReadID(AUDIO_I2C_READ_ADDRESS);
+}
+
+/**
+ * @brief  Read the nau88c10 register
+ * @param  reg: The register to read.
+ * @retval The register value
+ */
+uint16_t BSP_AUDIO_IN_ReadRegister(uint16_t reg)
+{
+    return (uint16_t)nau88c10_drv.ReadRegister(AUDIO_I2C_READ_ADDRESS, reg);
+}
+
+/**
+ * @brief  Write the nau88c10 register
+ * @param  reg: The register to read.
+ * @param  value: The value to write.
+ */
+void BSP_AUDIO_IN_WriteRegister(uint16_t reg, uint16_t value)
+{
+    nau88c10_drv.WriteRegister(AUDIO_I2C_READ_ADDRESS, reg, value);
+}
+
+/**
  * @brief  User callback when record buffer is filled.
  */
 __weak void BSP_AUDIO_IN_TransferComplete_CallBack(void)

@@ -80,21 +80,21 @@
   */
 typedef struct
 {
-  uint32_t  (*Init)(uint16_t, uint16_t, uint32_t);
+  uint32_t  (*Init)(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t AudioFreq);
   void      (*DeInit)(void);
-  uint32_t  (*ReadID)(uint16_t);
-  uint32_t  (*ReadRegister)(uint16_t);
-  uint32_t  (*WriteRegister)(uint16_t);
-  uint32_t  (*Play)(uint16_t, uint16_t*, uint16_t);
-  uint32_t  (*Pause)(uint16_t);
-  uint32_t  (*Resume)(uint16_t);
-  uint32_t  (*Stop)(uint16_t, uint32_t);
-  uint32_t  (*SetFrequency)(uint16_t, uint32_t);
-  uint32_t  (*SetVolume)(uint16_t, uint8_t);
-  uint32_t  (*SetMute)(uint16_t, uint32_t);
-  uint32_t  (*SetOutputMode)(uint16_t, uint8_t);
-  uint32_t  (*Reset)(uint16_t);
-}AUDIO_DrvTypeDef;
+  uint32_t  (*ReadID)(uint16_t DeviceAddr);
+  uint32_t  (*ReadRegister)(uint16_t DeviceAddr, uint16_t reg);
+  uint32_t  (*WriteRegister)(uint16_t DeviceAddr, uint16_t reg, uint16_t value);
+  uint32_t  (*Play)(uint16_t DeviceAddr, uint16_t* pBuffer, uint16_t Size);
+  uint32_t  (*Pause)(uint16_t DeviceAddr);
+  uint32_t  (*Resume)(uint16_t DeviceAddr);
+  uint32_t  (*Stop)(uint16_t DeviceAddr, uint32_t Cmd);
+  uint32_t  (*SetVolume)(uint16_t DeviceAddr, uint8_t Volume);
+  uint32_t  (*SetMute)(uint16_t DeviceAddr, uint32_t Cmd);
+  uint32_t  (*SetOutputMode)(uint16_t DeviceAddr, uint8_t Output);
+  uint32_t  (*SetFrequency)(uint16_t DeviceAddr, uint32_t AudioFreq);
+  uint32_t  (*Reset)(uint16_t DeviceAddr);
+} AUDIO_DrvTypeDef;
 /**
   * @}
   */
