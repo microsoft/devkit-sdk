@@ -125,10 +125,6 @@ void ota_callback(const unsigned char *payLoad, size_t size)
                     fw_info_free(latestFwInfo);
                     latestFwInfo = NULL;
                 }
-                else
-                {
-                    LogInfo("The firmware information from device twin: %s, %s, %d", latestFwInfo->fwVersion, latestFwInfo->fwPackageURI, latestFwInfo->fwSize);
-                }
             }
         }
     }

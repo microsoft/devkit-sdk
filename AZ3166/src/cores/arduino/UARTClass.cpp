@@ -25,6 +25,12 @@ UARTClass::UARTClass()
   serial = NULL;
 }
 
+UARTClass::UARTClass(UARTName p)
+{
+  serial = NULL;
+  port = p;
+}
+
 UARTClass::~UARTClass()
 {
   //delete serial;
@@ -89,6 +95,13 @@ void UARTClass::init(void)
 {
   if(serial == NULL)
   {
-    serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
+    if(port == UART_1) 
+    {
+      serial = new BufferedSerial(STDIO_UART1_TX, STDIO_UART1_RX, UART_RCV_SIZE);
+    }
+    else
+    {
+      serial = new BufferedSerial(STDIO_UART_TX, STDIO_UART_RX, UART_RCV_SIZE);
+    }
   }
 }

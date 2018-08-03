@@ -85,7 +85,7 @@ class AudioClass {
          * @returns 0 (AUDIO_OK) if success, error code otherwise.
          */
         int startRecord(callbackFunc func = NULL);
-
+        
         /**
          * @brief   Start playing audio data, the attached callback function will be invoked when each DMA transfer is completed.
          * 
@@ -94,7 +94,7 @@ class AudioClass {
          * @returns 0 (AUDIO_OK) if success, error code otherwise.
          */
         int startPlay(callbackFunc func = NULL);
-
+        
         /**
          * @brief   Read recorded data from internal driver buffer to user application buffer.
          * 
@@ -126,7 +126,7 @@ class AudioClass {
          * @returns size of the recorded audio in bytes.
          */
         int startRecord(char* audioBuffer, int size);
-
+        
         /**
          * @brief  Start playing WAV format data in audioBuffer.
          * 
@@ -143,7 +143,7 @@ class AudioClass {
          * @returns size of the current audio size.
          */
         int getCurrentSize();
-
+        
         /**
          * @brief  Convert the given stereo WAV format data to mono WAV format data.
          *
@@ -163,6 +163,46 @@ class AudioClass {
          * @returns true on success, or false on failure.
          */
         bool setVolume(uint8_t volume);
+
+        /**
+         * @brief   Read the given nau88c10 register
+         * 
+         * @param  registerAddress       Register address.
+         * 
+         * @returns the integer value in the register.
+         */        
+        uint16_t readRegister(uint16_t registerAddress);
+        
+        /**
+         * @brief   write the given nau88c10 register
+         * 
+         * @param  registerAddress       Register address.
+         * @param  value                 The value to write.
+         * 
+         */        
+        void writeRegister(uint16_t registerAddress, uint16_t value);
+
+        /**
+         * @brief   enable automatic level control with given min and max gain as per ALCMXGAIN and ALCMNGAIN (register 0x20)
+         * 
+         * @param  maxGain       A value between 0 and 7.
+         * @param  minGain       A value between 0 and 7
+         * 
+         */        
+        void enableLevelControl(uint8_t maxGain, uint8_t minGain); 
+
+        /**
+         * @brief   disable automatic level control (register 0x20)
+         * 
+         */
+        void disableLevelControl();
+
+        /**
+         * @brief   set the Programmable Gain Amplifier directly (this will disable automatic level control)
+         * 
+         * @param  gain       A value between 0 and 0x3F.
+         */
+        void setPGAGain(uint8_t gain);
 
     private:
         void genericWAVHeader(WaveHeader* header, int pcmDataSize, uint32_t sampleRate, uint16_t sampleBitDepth, uint8_t channels);
