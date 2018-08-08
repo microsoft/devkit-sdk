@@ -38,6 +38,14 @@ void messageArrived(MQTT::MessageData& md)
     sprintf(msgInfo, "Payload: %s", (char*)message.payload);
     Serial.println(msgInfo);
     ++arrivedcount;
+
+    sprintf(msgInfo, "Message %d\r\n", arrivedcount);
+    Screen.print(3, msgInfo);
+    
+    digitalWrite(LED_USER, HIGH);
+    delay(500);
+    digitalWrite(LED_USER, LOW);
+    delay(500);
 }
 
 int runMqttExample() {
@@ -53,6 +61,8 @@ int runMqttExample() {
   int rc = mqttNetwork.connect(mqttServer, port);
   if (rc != 0) {
     Serial.println("Connected to MQTT server failed");
+    Screen.print(2, "Connect to Server failed", true);
+    return -1;
   } else {
     Serial.println("Connected to MQTT server successfully");
   }
@@ -65,10 +75,14 @@ int runMqttExample() {
   
   if ((rc = client.connect(data)) != 0) {
       Serial.println("MQTT client connect to server failed");
+      Screen.print(2, "Connect to Server failed", true);
+      return -1;
   }
   
   if ((rc = client.subscribe(topic, MQTT::QOS2, messageArrived)) != 0) {
       Serial.println("MQTT client subscribe from server failed");
+      Screen.print(2, "Subscribe failed", true);
+      return -1;
   }
   
   MQTT::Message message;
@@ -98,16 +112,20 @@ int runMqttExample() {
   
   if ((rc = client.unsubscribe(topic)) != 0) {
       Serial.println("MQTT client unsubscribe from server failed");
+      Screen.print(2, "Unsubscribe failed", true);
+      return -1;
   }
   
   if ((rc = client.disconnect()) != 0) {
       Serial.println("MQTT client disconnect from server failed");
+      Screen.print(2, "Disconnect failed", true);
+      return -1;
   }
   
   mqttNetwork.disconnect();
   Serial.print("Finish message count: ");
   Serial.println(arrivedcount);
-      
+  Screen.print(3, "Finish count...");
   return 0;
 }
 
@@ -115,6 +133,7 @@ void setup() {
   //Initialize serial and Wi-Fi:
   Serial.begin(115200);
   initWifi();
+  pinMode(LED_USER, OUTPUT);
   if(hasWifi)
   {
     // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
@@ -132,4 +151,3 @@ void loop() {
 
   delay(5000);
 }
-
