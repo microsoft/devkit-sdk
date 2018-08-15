@@ -33,8 +33,8 @@ def generateMakefile(rootdir = '.', outputName = 'dps_cert_gen_mac'):
 	print("\trm *.o")
 
 	print("\nclean:")
-	print("\trm *.o")
-	print("\trm " + outputName)
+	print("\trm -f *.o")
+	print("\trm -f " + outputName)
 
 generateMakefile()
 

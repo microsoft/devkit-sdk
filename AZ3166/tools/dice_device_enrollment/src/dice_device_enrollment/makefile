@@ -34,5 +34,5 @@ DiceSha256.o:	./DICE/DiceSha256.c
 	rm *.o
 
 clean:
-	rm *.o
-	rm dps_cert_gen_mac
+	rm -f *.o
+	rm -f dps_cert_gen_mac
