@@ -15,13 +15,14 @@
 #include "azure_c_shared_utility/base64.h"
 
 #include "azure_prov_client/prov_transport_http_client.h"
+#include "azure_prov_client/internal/prov_transport_private.h"
 #include "azure_uhttp_c/uhttp.h"
 #include "parson.h"
 
-#define HTTP_PORT_NUM                   443
-#define HTTP_STATUS_CODE_OK             200
-#define HTTP_STATUS_CODE_OK_MAX         226
-#define HTTP_STATUS_CODE_UNAUTHORIZED   401
+#define HTTP_PORT_NUM                       443
+#define HTTP_STATUS_CODE_OK                 200
+#define HTTP_STATUS_CODE_OK_MAX             226
+#define HTTP_STATUS_CODE_UNAUTHORIZED       401
 
 static const char* PROV_REGISTRATION_URI_FMT = "/%s/registrations/%s/register?api-version=%s";
 static const char* PROV_OP_STATUS_URI_FMT = "/%s/registrations/%s/operations/%s?api-version=%s";
@@ -51,6 +52,8 @@ typedef enum PROV_TRANSPORT_STATE_TAG
 
     TRANSPORT_CLIENT_STATE_STATUS_SENT,
     TRANSPORT_CLIENT_STATE_STATUS_RECV,
+
+    TRANSPORT_CLIENT_STATE_TRANSIENT,
 
     TRANSPORT_CLIENT_STATE_ERROR
 } PROV_TRANSPORT_STATE;
@@ -98,10 +101,14 @@ typedef struct PROV_TRANSPORT_HTTP_INFO_TAG
     TRANSPORT_HSM_TYPE hsm_type;
 
     HTTP_CLIENT_HANDLE http_client;
+
+    PROV_TRANSPORT_ERROR_CALLBACK error_cb;
+    void* error_ctx;
 } PROV_TRANSPORT_HTTP_INFO;
 
 static void on_http_error(void* callback_ctx, HTTP_CALLBACK_REASON error_result)
 {
+    (void)error_result;
     if (callback_ctx != NULL)
     {
         PROV_TRANSPORT_HTTP_INFO* http_info = (PROV_TRANSPORT_HTTP_INFO*)callback_ctx;
@@ -166,6 +173,11 @@ static void on_http_reply_recv(void* callback_ctx, HTTP_CALLBACK_REASON request_
                     http_info->transport_state = TRANSPORT_CLIENT_STATE_STATUS_RECV;
                 }
             }
+        }
+        else if (status_code > PROV_STATUS_CODE_TRANSIENT_ERROR)
+        {
+            // On transient error reset the transport to send state
+            http_info->transport_state = TRANSPORT_CLIENT_STATE_TRANSIENT;
         }
         else
         {
@@ -487,14 +499,8 @@ static void free_allocated_data(PROV_TRANSPORT_HTTP_INFO* http_info)
     free(http_info->api_version);
     free(http_info->scope_id);
     free(http_info->certificate);
-    if (http_info->proxy_host != NULL)
-    {
-        free(http_info->proxy_host);
-    }
-    if (http_info->x509_cert != NULL)
-    {
-        free(http_info->x509_cert);
-    }
+    free(http_info->proxy_host);
+    free(http_info->x509_cert);
     free(http_info->private_key);
     free(http_info->username);
     free(http_info->password);
@@ -595,6 +601,10 @@ static int create_connection(PROV_TRANSPORT_HTTP_INFO* http_info)
         if (uhttp_client_open(http_info->http_client, http_info->hostname, HTTP_PORT_NUM, on_http_connected, http_info) != HTTP_CLIENT_OK)
         {
             LogError("failed to open http client");
+            if (http_info->error_cb != NULL)
+            {
+                http_info->error_cb(PROV_DEVICE_ERROR_KEY_FAIL, http_info->error_ctx);
+            }
             uhttp_client_destroy(http_info->http_client);
             http_info->http_client = NULL;
             result = __FAILURE__;
@@ -607,19 +617,19 @@ static int create_connection(PROV_TRANSPORT_HTTP_INFO* http_info)
     return result;
 }
 
-PROV_DEVICE_TRANSPORT_HANDLE prov_transport_http_create(const char* uri, TRANSPORT_HSM_TYPE type, const char* scope_id, const char* registration_id, const char* api_version)
+PROV_DEVICE_TRANSPORT_HANDLE prov_transport_http_create(const char* uri, TRANSPORT_HSM_TYPE type, const char* scope_id, const char* api_version, PROV_TRANSPORT_ERROR_CALLBACK error_cb, void* error_ctx)
 {
     PROV_TRANSPORT_HTTP_INFO* result;
-    if (uri == NULL || scope_id == NULL || registration_id == NULL || api_version == NULL)
+    if (uri == NULL || scope_id == NULL || api_version == NULL)
     {
         /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_001: [ If uri, scope_id, registration_id or api_version are NULL prov_transport_http_create shall return NULL. ] */
-        LogError("Invalid parameter specified uri: %p, scope_id: %p, registration_id: %p, api_version: %p", uri, scope_id, registration_id, api_version);
+        LogError("Invalid parameter specified uri: %p, scope_id: %p, api_version: %p", uri, scope_id, api_version);
         result = NULL;
     }
     else
     {
         /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_002: [ prov_transport_http_create shall allocate the memory for the PROV_DEVICE_TRANSPORT_HANDLE variables. ] */
-        result = calloc(1, sizeof(PROV_TRANSPORT_HTTP_INFO));
+        result = malloc(sizeof(PROV_TRANSPORT_HTTP_INFO));
         if (result == NULL)
         {
             /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_003: [ If any error is encountered prov_transport_http_create shall return NULL. ] */
@@ -627,18 +637,12 @@ PROV_DEVICE_TRANSPORT_HANDLE prov_transport_http_create(const char* uri, TRANSPO
         }
         else
         {
+            memset(result, 0, sizeof(PROV_TRANSPORT_HTTP_INFO));
             if (mallocAndStrcpy_s(&result->hostname, uri) != 0)
             {
                 /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_003: [ If any error is encountered prov_transport_http_create shall return NULL. ] */
                 LogError("Failure allocating hostname");
                 free(result);
-                result = NULL;
-            }
-            else if (mallocAndStrcpy_s(&result->registration_id, registration_id) != 0)
-            {
-                /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_003: [ If any error is encountered prov_transport_http_create shall return NULL. ] */
-                LogError("failure constructing registration Id");
-                free_allocated_data(result);
                 result = NULL;
             }
             else if (mallocAndStrcpy_s(&result->api_version, api_version) != 0)
@@ -658,6 +662,8 @@ PROV_DEVICE_TRANSPORT_HANDLE prov_transport_http_create(const char* uri, TRANSPO
             else
             {
                 result->hsm_type = type;
+                result->error_cb = error_cb;
+                result->error_ctx = error_ctx;
             }
         }
     }
@@ -676,14 +682,14 @@ void prov_transport_http_destroy(PROV_DEVICE_TRANSPORT_HANDLE handle)
     }
 }
 
-int prov_transport_http_open(PROV_DEVICE_TRANSPORT_HANDLE handle, BUFFER_HANDLE ek, BUFFER_HANDLE srk, PROV_DEVICE_TRANSPORT_REGISTER_CALLBACK data_callback, void* user_ctx, PROV_DEVICE_TRANSPORT_STATUS_CALLBACK status_cb, void* status_ctx)
+int prov_transport_http_open(PROV_DEVICE_TRANSPORT_HANDLE handle, const char* registration_id, BUFFER_HANDLE ek, BUFFER_HANDLE srk, PROV_DEVICE_TRANSPORT_REGISTER_CALLBACK data_callback, void* user_ctx, PROV_DEVICE_TRANSPORT_STATUS_CALLBACK status_cb, void* status_ctx)
 {
     int result;
     PROV_TRANSPORT_HTTP_INFO* http_info = (PROV_TRANSPORT_HTTP_INFO*)handle;
-    if (http_info == NULL || data_callback == NULL || status_cb == NULL)
+    if (http_info == NULL || data_callback == NULL || status_cb == NULL || registration_id == NULL)
     {
         /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_008: [ If the argument handle, data_callback, or status_cb are NULL, prov_transport_http_open shall return a non-zero value. ] */
-        LogError("Invalid parameter specified handle: %p, data_callback: %p, status_cb: %p", handle, data_callback, status_cb);
+        LogError("Invalid parameter specified handle: %p, data_callback: %p, status_cb: %p, registration_id: %p", handle, data_callback, status_cb, registration_id);
         result = __FAILURE__;
     }
     else if (http_info->hsm_type == TRANSPORT_HSM_TYPE_TPM && (ek == NULL || srk == NULL))
@@ -703,14 +709,23 @@ int prov_transport_http_open(PROV_DEVICE_TRANSPORT_HANDLE handle, BUFFER_HANDLE 
         http_info->ek = NULL;
         result = __FAILURE__;
     }
+    else if (mallocAndStrcpy_s(&http_info->registration_id, registration_id) != 0)
+    {
+        /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_003: [ If any error is encountered prov_transport_http_create shall return NULL. ] */
+        LogError("failure constructing registration Id");
+        BUFFER_delete(http_info->ek);
+        http_info->ek = NULL;
+        BUFFER_delete(http_info->srk);
+        http_info->srk = NULL;
+        result = __FAILURE__;
+    }
     else
     {
-		// Set call back before create_connection
-		http_info->register_data_cb = data_callback;
-		http_info->user_ctx = user_ctx;
-		http_info->status_cb = status_cb;
-		http_info->status_ctx = status_ctx;
-		
+        http_info->register_data_cb = data_callback;
+        http_info->user_ctx = user_ctx;
+        http_info->status_cb = status_cb;
+        http_info->status_ctx = status_ctx;
+
         if (create_connection(http_info) != 0)
         {
             /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_013: [ If an error is encountered prov_transport_http_open shall return a non-zero value. ] */
@@ -725,6 +740,12 @@ int prov_transport_http_open(PROV_DEVICE_TRANSPORT_HANDLE handle, BUFFER_HANDLE 
                 BUFFER_delete(http_info->srk);
                 http_info->srk = NULL;
             }
+            http_info->register_data_cb = NULL;
+            http_info->user_ctx = NULL;
+            http_info->status_cb = NULL;
+            http_info->status_ctx = NULL;
+            free(http_info->registration_id);
+            http_info->registration_id = NULL;
             result = __FAILURE__;
         }
         else
@@ -755,6 +776,8 @@ int prov_transport_http_close(PROV_DEVICE_TRANSPORT_HANDLE handle)
             http_info->ek = NULL;
             BUFFER_delete(http_info->srk);
             http_info->srk = NULL;
+            free(http_info->registration_id);
+            http_info->registration_id = NULL;
 
             uhttp_client_close(http_info->http_client, NULL, NULL);
             uhttp_client_dowork(http_info->http_client);
@@ -952,6 +975,14 @@ void prov_transport_http_dowork(PROV_DEVICE_TRANSPORT_HANDLE handle)
                 break;
             }
 
+            case TRANSPORT_CLIENT_STATE_TRANSIENT:
+                if (http_info->status_cb != NULL)
+                {
+                    http_info->status_cb(PROV_DEVICE_TRANSPORT_STATUS_TRANSIENT, http_info->status_ctx);
+                }
+                http_info->transport_state = TRANSPORT_CLIENT_STATE_IDLE;
+                break;
+
             case TRANSPORT_CLIENT_STATE_ERROR:
                 /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_039: [ If the state is Error, prov_transport_http_dowork shall call the registration_data callback with PROV_DEVICE_TRANSPORT_RESULT_ERROR and NULL payload_data. ] */
                 http_info->register_data_cb(PROV_DEVICE_TRANSPORT_RESULT_ERROR, NULL, NULL, NULL, http_info->user_ctx);
@@ -1007,12 +1038,10 @@ static int prov_transport_http_x509_cert(PROV_DEVICE_TRANSPORT_HANDLE handle, co
         if (http_info->x509_cert != NULL)
         {
             free(http_info->x509_cert);
-            http_info->x509_cert = NULL;
         }
         if (http_info->private_key != NULL)
         {
             free(http_info->private_key);
-            http_info->private_key = NULL;
         }
 
         /* Codes_PROV_TRANSPORT_HTTP_CLIENT_07_045: [ prov_transport_http_x509_cert shall store the certificate and private_key for use when the http client connects. ] */
@@ -1102,7 +1131,6 @@ static int prov_transport_http_set_proxy(PROV_DEVICE_TRANSPORT_HANDLE handle, co
             if (http_info->proxy_host != NULL)
             {
                 free(http_info->proxy_host);
-                http_info->proxy_host = NULL;
             }
             if (http_info->username != NULL)
             {

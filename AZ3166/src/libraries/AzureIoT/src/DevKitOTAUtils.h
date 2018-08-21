@@ -1,7 +1,7 @@
 #ifndef __OTA_UTILS_H__
 #define __OTA_UTILS_H__
 #include "SystemWiFi.h"
-#include "iothub_client_hsm_ll.h"
+#include "iothub_client_ll.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -45,14 +45,14 @@ const FW_INFO* IoTHubClient_GetLatestFwInfo(void);
 bool IoTHubClient_ReportOTAStatus(MAP_HANDLE OTAStatusMap);
 
 /**
-* @brief	Compare two firmware version string.
+* @brief    Compare two firmware version string.
 *
 * @param    fwVersion1               version 1.
 * @param    fwVersion2               version 2.
 *
-* @return	A integer, result = 1 : fwVersion1 > fwVersion2
-* 			                  = 0 : fwVersion1 = fwVersion2
-* 			                  = -1 : fwVersion1 < fwVersion2
+* @return    A integer, result = 1 : fwVersion1 > fwVersion2
+*                              = 0 : fwVersion1 = fwVersion2
+*                              = -1 : fwVersion1 < fwVersion2
 */
 int IoTHubClient_FwVersionCompare(const char* fwVersion1, const char* fwVersion2);
 

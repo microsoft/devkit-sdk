@@ -12,7 +12,7 @@
 #include "azure_c_shared_utility/xlogging.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
 
-#include "azure_prov_client/iothub_auth_client.h"
+#include "azure_prov_client/internal/iothub_auth_client.h"
 #include "azure_prov_client/iothub_security_factory.h"
 #include "hsm_client_data.h"
 
@@ -30,42 +30,68 @@ typedef struct IOTHUB_SECURITY_INFO_TAG
     HSM_CLIENT_GET_CERTIFICATE hsm_client_get_cert;
     HSM_CLIENT_GET_ALIAS_KEY hsm_client_get_alias_key;
 
+    HSM_CLIENT_GET_TRUST_BUNDLE hsm_client_get_trust_bundle;
+
     char* sas_token;
     char* x509_certificate;
     char* x509_alias_key;
+    bool base64_encode_signature;
+    bool urlencode_token_scope;
 } IOTHUB_SECURITY_INFO;
 
 #define HMAC_LENGTH                 32
+static const char* const SAS_TOKEN_FORMAT = "SharedAccessSignature sr=%s&sig=%s&se=%s%s%s";
+static const char* const SKN_SECTION_FORMAT = "&skn=";
 
 IOTHUB_SECURITY_HANDLE iothub_device_auth_create()
 {
-    IOTHUB_SECURITY_INFO* result;
-    if ((result = (IOTHUB_SECURITY_INFO*)malloc(sizeof(IOTHUB_SECURITY_INFO))) == NULL)
+    IOTHUB_SECURITY_INFO* result = NULL;
+
+    IOTHUB_SECURITY_TYPE iothub_security_t = iothub_security_type();
+
+// #if defined(HSM_TYPE_SAS_TOKEN)  || defined(HSM_AUTH_TYPE_CUSTOM)
+//     if (iothub_security_t == IOTHUB_SECURITY_TYPE_SAS)
+//     {
+//         if ((result = (IOTHUB_SECURITY_INFO*)malloc(sizeof(IOTHUB_SECURITY_INFO))) == NULL)
+//         {
+//             /* Codes_IOTHUB_DEV_AUTH_07_001: [ if any failure is encountered iothub_device_auth_create shall return NULL. ] */
+//             LogError("Failed allocating IOTHUB_SECURITY_INFO.");
+//         }
+//         else
+//         {
+//             memset(result, 0, sizeof(IOTHUB_SECURITY_INFO) );
+//             result->cred_type = AUTH_TYPE_SAS;
+//             result->base64_encode_signature = true;
+//             result->urlencode_token_scope = false;
+//             const HSM_CLIENT_TPM_INTERFACE* tpm_interface = hsm_client_tpm_interface();
+//             if (((result->hsm_client_create = tpm_interface->hsm_client_tpm_create) == NULL) ||
+//                 ((result->hsm_client_destroy = tpm_interface->hsm_client_tpm_destroy) == NULL) ||
+//                 ((result->hsm_client_sign_data = tpm_interface->hsm_client_sign_with_identity) == NULL)
+//                 )
+//             {
+//                 /* Codes_IOTHUB_DEV_AUTH_07_034: [ if any of the iothub_security_interface function are NULL iothub_device_auth_create shall return NULL. ] */
+//                 LogError("Invalid secure device interface");
+//                 free(result);
+//                 result = NULL;
+//             }
+//         }
+//     }
+// #endif
+
+#if defined(HSM_TYPE_X509) || defined(HSM_AUTH_TYPE_CUSTOM)
+    if (iothub_security_t == IOTHUB_SECURITY_TYPE_X509)
     {
-        /* Codes_IOTHUB_DEV_AUTH_07_001: [ if any failure is encountered iothub_device_auth_create shall return NULL. ] */
-        LogError("Failed allocating IOTHUB_SECURITY_INFO.");
-    }
-    else
-    {
-        memset(result, 0, sizeof(IOTHUB_SECURITY_INFO) );
-        if (iothub_security_type() == IOTHUB_SECURITY_TYPE_SAS)
+        if ((result = (IOTHUB_SECURITY_INFO*)malloc(sizeof(IOTHUB_SECURITY_INFO))) == NULL)
         {
-            /*result->cred_type = AUTH_TYPE_SAS;
-            const HSM_CLIENT_TPM_INTERFACE* tpm_interface = hsm_client_tpm_interface();
-            if (((result->hsm_client_create = tpm_interface->hsm_client_tpm_create) == NULL) ||
-                ((result->hsm_client_destroy = tpm_interface->hsm_client_tpm_destroy) == NULL) ||
-                ((result->hsm_client_sign_data = tpm_interface->hsm_client_sign_with_identity) == NULL)
-                )
-            {*/
-                /* Codes_IOTHUB_DEV_AUTH_07_034: [ if any of the iothub_security_interface function are NULL iothub_device_auth_create shall return NULL. ] */
-                /*LogError("Invalid secure device interface");
-                free(result);
-                result = NULL;
-            }*/
+            /* Codes_IOTHUB_DEV_AUTH_07_001: [ if any failure is encountered iothub_device_auth_create shall return NULL. ] */
+            LogError("Failed allocating IOTHUB_SECURITY_INFO.");
         }
         else
         {
+            memset(result, 0, sizeof(IOTHUB_SECURITY_INFO) );
             result->cred_type = AUTH_TYPE_X509;
+            result->base64_encode_signature = true;
+            result->urlencode_token_scope = false;
             const HSM_CLIENT_X509_INTERFACE* x509_interface = hsm_client_x509_interface();
             if (((result->hsm_client_create = x509_interface->hsm_client_x509_create) == NULL) ||
                 ((result->hsm_client_destroy = x509_interface->hsm_client_x509_destroy) == NULL) ||
@@ -79,20 +105,55 @@ IOTHUB_SECURITY_HANDLE iothub_device_auth_create()
                 result = NULL;
             }
         }
+    }
+#endif
 
-        if (result != NULL)
+#ifdef HSM_TYPE_HTTP_EDGE
+    if (iothub_security_t == IOTHUB_SECURITY_TYPE_HTTP_EDGE)
+    {
+        if ((result = (IOTHUB_SECURITY_INFO*)malloc(sizeof(IOTHUB_SECURITY_INFO))) == NULL)
         {
-            /* Codes_IOTHUB_DEV_AUTH_07_025: [ iothub_device_auth_create shall call the concrete_iothub_device_auth_create function associated with the interface_desc. ] */
-            /* Codes_IOTHUB_DEV_AUTH_07_026: [ if concrete_iothub_device_auth_create fails iothub_device_auth_create shall return NULL. ] */
-            if ((result->hsm_client_handle = result->hsm_client_create()) == NULL)
+            /* Codes_IOTHUB_DEV_AUTH_07_001: [ if any failure is encountered iothub_device_auth_create shall return NULL. ] */
+            LogError("Failed allocating IOTHUB_SECURITY_INFO.");
+        }
+        else
+        {
+            memset(result, 0, sizeof(IOTHUB_SECURITY_INFO) );
+            result->cred_type = AUTH_TYPE_SAS;
+            // Because HTTP_edge operates over HTTP, the server has already base64 encoded signature its returning to us.
+            result->base64_encode_signature = false;
+            result->urlencode_token_scope = true;
+            const HSM_CLIENT_HTTP_EDGE_INTERFACE* http_edge_interface = hsm_client_http_edge_interface();
+            if (((result->hsm_client_create = http_edge_interface->hsm_client_http_edge_create) == NULL) ||
+                ((result->hsm_client_destroy = http_edge_interface->hsm_client_http_edge_destroy) == NULL) ||
+                ((result->hsm_client_sign_data = http_edge_interface->hsm_client_sign_with_identity) == NULL) ||
+                ((result->hsm_client_get_trust_bundle = http_edge_interface->hsm_client_get_trust_bundle) == NULL))
             {
-                /* Codes_IOTHUB_DEV_AUTH_07_002: [ iothub_device_auth_create shall allocate the IOTHUB_SECURITY_INFO and shall fail if the allocation fails. ]*/
-                LogError("failed create device auth module.");
+                LogError("Invalid secure device interface");
                 free(result);
                 result = NULL;
             }
         }
     }
+#endif
+
+    if (result == NULL)
+    {
+        LogError("Error allocating result or else unsupported security type %d", iothub_security_t);
+    }
+    else
+    {
+        /* Codes_IOTHUB_DEV_AUTH_07_025: [ iothub_device_auth_create shall call the concrete_iothub_device_auth_create function associated with the interface_desc. ] */
+        /* Codes_IOTHUB_DEV_AUTH_07_026: [ if concrete_iothub_device_auth_create fails iothub_device_auth_create shall return NULL. ] */
+        if ((result->hsm_client_handle = result->hsm_client_create()) == NULL)
+        {
+            /* Codes_IOTHUB_DEV_AUTH_07_002: [ iothub_device_auth_create shall allocate the IOTHUB_SECURITY_INFO and shall fail if the allocation fails. ]*/
+            LogError("failed create device auth module.");
+            free(result);
+            result = NULL;
+        }
+    }
+
     /* Codes_IOTHUB_DEV_AUTH_07_003: [ If the function succeeds iothub_device_auth_create shall return a IOTHUB_SECURITY_HANDLE. ] */
     return result;
 }
@@ -187,23 +248,61 @@ CREDENTIAL_RESULT* iothub_device_auth_generate_credentials(IOTHUB_SECURITY_HANDL
                     /* Codes_IOTHUB_DEV_AUTH_07_035: [ For tpm type iothub_device_auth_generate_credentials shall call the concrete_dev_auth_sign_data function to hash the data. ] */
                     else if (handle->hsm_client_sign_data(handle->hsm_client_handle, (const unsigned char*)payload, strlen(payload), &data_value, &data_len) == 0)
                     {
-                        STRING_HANDLE urlEncodedSignature;
-                        STRING_HANDLE base64Signature;
-                        STRING_HANDLE sas_token_handle;
-                        if ((base64Signature = Base64_Encode_Bytes(data_value, data_len)) == NULL)
+                        STRING_HANDLE urlEncodedSignature = NULL;
+                        STRING_HANDLE signature = NULL;
+                        if (handle->base64_encode_signature == true)
                         {
-                            result = NULL;
-                            LogError("Failure constructing base64 encoding.");
-                        }
-                        else if ((urlEncodedSignature = URL_Encode(base64Signature)) == NULL)
-                        {
-                            result = NULL;
-                            LogError("Failure constructing url Signature.");
-                            STRING_delete(base64Signature);
+                            signature = Base64_Encode_Bytes(data_value, data_len);
                         }
                         else
                         {
-                            sas_token_handle = STRING_construct_sprintf("SharedAccessSignature sr=%s&sig=%s&se=%s&skn=", dev_auth_cred->sas_info.token_scope, STRING_c_str(urlEncodedSignature), expire_token);
+                            signature = STRING_construct((const char*)data_value);
+                        }
+
+                        if (signature == NULL)
+                        {
+                            result = NULL;
+                            LogError("Failure constructing encoding.");
+                        }
+                        else if ((urlEncodedSignature = URL_Encode(signature)) == NULL)
+                        {
+                            result = NULL;
+                            LogError("Failure constructing url Signature.");
+                            STRING_delete(signature);
+                        }
+                        else
+                        {
+                            const char* skn_key = "";
+                            const char* skn_value = "";
+
+                            if ((dev_auth_cred->sas_info.key_name != NULL) && (strlen(dev_auth_cred->sas_info.key_name) > 0))
+                            {
+                                // If the key name is valid then add to the sas token
+                                skn_key = SKN_SECTION_FORMAT;
+                                skn_value = dev_auth_cred->sas_info.key_name;
+                            }
+
+                            STRING_HANDLE sas_token_handle = NULL;
+
+                            if (handle->urlencode_token_scope == true)
+                            {
+                                STRING_HANDLE url_encoded = URL_EncodeString(dev_auth_cred->sas_info.token_scope);
+                                if (url_encoded == NULL)
+                                {
+                                    LogError("failed to url string %s", dev_auth_cred->sas_info.token_scope);
+                                }
+                                else
+                                {
+                                    sas_token_handle = STRING_construct_sprintf(SAS_TOKEN_FORMAT, STRING_c_str(url_encoded), STRING_c_str(urlEncodedSignature), expire_token, skn_key, skn_value);
+                                }
+
+                                STRING_delete(url_encoded);
+                            }
+                            else
+                            {
+                                sas_token_handle = STRING_construct_sprintf(SAS_TOKEN_FORMAT, dev_auth_cred->sas_info.token_scope, STRING_c_str(urlEncodedSignature), expire_token, skn_key, skn_value);
+                            }
+
                             if (sas_token_handle == NULL)
                             {
                                 result = NULL;
@@ -229,7 +328,7 @@ CREDENTIAL_RESULT* iothub_device_auth_generate_credentials(IOTHUB_SECURITY_HANDL
                                 }
                                 STRING_delete(sas_token_handle);
                             }
-                            STRING_delete(base64Signature);
+                            STRING_delete(signature);
                             STRING_delete(urlEncodedSignature);
                         }
                         free(data_value);
@@ -283,3 +382,15 @@ CREDENTIAL_RESULT* iothub_device_auth_generate_credentials(IOTHUB_SECURITY_HANDL
     }
     return result;
 }
+
+#ifdef USE_EDGE_MODULES
+char* iothub_device_auth_get_trust_bundle(IOTHUB_SECURITY_HANDLE handle)
+{
+    if (handle->hsm_client_get_trust_bundle == NULL)
+    {
+        LogError("This authentication type does not support getting trusted certificates");
+        return NULL;
+    }
+    return handle->hsm_client_get_trust_bundle(handle->hsm_client_handle);
+}
+#endif

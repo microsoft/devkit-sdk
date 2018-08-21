@@ -19,7 +19,7 @@
 typedef struct HSM_CLIENT_X509_INFO_TAG
 {
     // In Riot these are call the device Id pub and pri
-    RIOT_ECC_PUBLIC     device_id_pub; 
+    RIOT_ECC_PUBLIC     device_id_pub;
     RIOT_ECC_PRIVATE    device_id_priv;
 
     RIOT_ECC_PUBLIC     alias_key_pub;
@@ -44,7 +44,7 @@ typedef struct HSM_CLIENT_X509_INFO_TAG
 
     uint32_t root_ca_priv_length;
     char root_ca_priv_pem[DER_MAX_PEM];
-    
+
 } HSM_CLIENT_X509_INFO;
 
 static const HSM_CLIENT_X509_INTERFACE sec_riot_interface =
@@ -106,7 +106,7 @@ static int produce_device_id_public(HSM_CLIENT_X509_INFO* riot_info)
 static int process_riot_key_info(HSM_CLIENT_X509_INFO* riot_info)
 {
 	int result;
-	
+
 	if (produce_device_id_public(riot_info) != 0)
   {
       LogError("Failure: produce_device_id_public returned invalid result.");
@@ -167,8 +167,9 @@ void secure_device_riot_destroy(HSM_CLIENT_HANDLE handle)
     /* Codes_SRS_SECURE_DEVICE_RIOT_07_007: [ if handle is NULL, secure_device_riot_destroy shall do nothing. ] */
     if (handle != NULL)
     {
+        HSM_CLIENT_X509_INFO * cptr = (HSM_CLIENT_X509_INFO*)handle;
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_008: [ secure_device_riot_destroy shall free the HSM_CLIENT_HANDLE instance. ] */
-        free(handle->certificate_common_name);
+        free(cptr->certificate_common_name);
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_009: [ secure_device_riot_destroy shall free all resources allocated in this module. ] */
         free(handle);
     }
@@ -185,8 +186,9 @@ char* secure_device_riot_get_certificate(HSM_CLIENT_HANDLE handle)
     }
     else
     {
+        HSM_CLIENT_X509_INFO * cptr = (HSM_CLIENT_X509_INFO*)handle;
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_011: [ secure_device_riot_get_certificate shall allocate a char* to return the riot certificate. ] */
-        result = malloc(handle->alias_cert_length+1);
+        result = malloc(cptr->alias_cert_length + 1);
         if (result == NULL)
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_013: [ If any failure is encountered secure_device_riot_get_certificate shall return NULL ] */
@@ -195,11 +197,11 @@ char* secure_device_riot_get_certificate(HSM_CLIENT_HANDLE handle)
         else
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_012: [ On success secure_device_riot_get_certificate shall return the riot certificate. ] */
-            memset(result, 0, handle->alias_cert_length+1);
-            memcpy(result, handle->alias_cert_pem, handle->alias_cert_length);
+            memset(result, 0, cptr->alias_cert_length + 1);
+            memcpy(result, cptr->alias_cert_pem, cptr->alias_cert_length);
         }
     }
-    
+
     /*(void)printf("The riot certificate: \r\n");
 
     for(int i = 735; i < 810; i++){
@@ -219,8 +221,9 @@ char* secure_device_riot_get_alias_key(HSM_CLIENT_HANDLE handle)
     }
     else
     {
+        HSM_CLIENT_X509_INFO * cptr = (HSM_CLIENT_X509_INFO*)handle;
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_015: [ secure_device_riot_get_alias_key shall allocate a char* to return the alias certificate. ] */
-        if ((result = malloc(handle->alias_key_length+1)) == NULL)
+        if ((result = malloc(cptr->alias_key_length + 1)) == NULL)
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_017: [ If any failure is encountered secure_device_riot_get_alias_key shall return NULL ] */
             LogError("Failure allocating registration id.");
@@ -228,8 +231,8 @@ char* secure_device_riot_get_alias_key(HSM_CLIENT_HANDLE handle)
         else
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_016: [ On success secure_device_riot_get_alias_key shall return the alias certificate. ] */
-            memset(result, 0, handle->alias_key_length+1);
-            memcpy(result, handle->alias_priv_key_pem, handle->alias_key_length);
+            memset(result, 0, cptr->alias_key_length + 1);
+            memcpy(result, cptr->alias_priv_key_pem, cptr->alias_key_length);
         }
     }
     return result;
@@ -246,8 +249,9 @@ char* secure_device_riot_get_device_cert(HSM_CLIENT_HANDLE handle)
     }
     else
     {
+        HSM_CLIENT_X509_INFO * cptr = (HSM_CLIENT_X509_INFO*)handle;
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_019: [ secure_device_riot_get_device_cert shall allocate a char* to return the device certificate. ] */
-        if ((result = malloc(handle->device_id_length+1)) == NULL)
+        if ((result = malloc(cptr->device_id_length + 1)) == NULL)
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_021: [ If any failure is encountered secure_device_riot_get_device_cert shall return NULL ] */
             LogError("Failure allocating registration id.");
@@ -255,8 +259,8 @@ char* secure_device_riot_get_device_cert(HSM_CLIENT_HANDLE handle)
         else
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_020: [ On success secure_device_riot_get_device_cert shall return the device certificate. ] */
-            memset(result, 0, handle->device_id_length+1);
-            memcpy(result, handle->device_id_public_pem, handle->device_id_length);
+            memset(result, 0, cptr->device_id_length + 1);
+            memcpy(result, cptr->device_id_public_pem, cptr->device_id_length);
         }
     }
     return result;
@@ -273,8 +277,9 @@ char* secure_device_riot_get_signer_cert(HSM_CLIENT_HANDLE handle)
     }
     else
     {
+        HSM_CLIENT_X509_INFO * cptr = (HSM_CLIENT_X509_INFO*)handle;
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_023: [ secure_device_riot_get_signer_cert shall allocate a char* to return the signer certificate. ] */
-        if ((result = malloc(handle->device_signed_length + 1)) == NULL)
+        if ((result = malloc(cptr->device_signed_length + 1)) == NULL)
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_025: [ If any failure is encountered secure_device_riot_get_signer_cert shall return NULL ] */
             LogError("Failure allocating registration id.");
@@ -282,8 +287,8 @@ char* secure_device_riot_get_signer_cert(HSM_CLIENT_HANDLE handle)
         else
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_024: [ On success secure_device_riot_get_signer_cert shall return the signer certificate. ] */
-            memset(result, 0, handle->device_signed_length + 1);
-            memcpy(result, handle->device_signed_pem, handle->device_signed_length);
+            memset(result, 0, cptr->device_signed_length + 1);
+            memcpy(result, cptr->device_signed_pem, cptr->device_signed_length);
         }
     }
     return result;
@@ -312,8 +317,9 @@ char* secure_device_riot_get_common_name(HSM_CLIENT_HANDLE handle)
     }
     else
     {
+        HSM_CLIENT_X509_INFO * cptr = (HSM_CLIENT_X509_INFO*)handle;
         /* Codes_SRS_SECURE_DEVICE_RIOT_07_027: [ secure_device_riot_get_common_name shall allocate a char* to return the certificate common name. ] */
-        if (mallocAndStrcpy_s(&result, handle->certificate_common_name) != 0)
+        if (mallocAndStrcpy_s(&result, cptr->certificate_common_name) != 0)
         {
             /* Codes_SRS_SECURE_DEVICE_RIOT_07_028: [ If any failure is encountered secure_device_riot_get_signer_cert shall return NULL ] */
             LogError("Failure allocating common name.");

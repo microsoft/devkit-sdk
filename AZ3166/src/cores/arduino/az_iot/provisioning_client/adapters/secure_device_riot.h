@@ -16,7 +16,7 @@ extern "C" {
 #include "azure_c_shared_utility/umock_c_prod.h"
 #include "azure_c_shared_utility/macro_utils.h"
 #include "hsm_client_data.h"
-#include "azure_prov_client/secure_device_factory.h"
+#include "azure_prov_client/prov_security_factory.h"
 
 MOCKABLE_FUNCTION(, HSM_CLIENT_HANDLE, secure_device_riot_create);
 MOCKABLE_FUNCTION(, void, secure_device_riot_destroy, HSM_CLIENT_HANDLE, handle);
