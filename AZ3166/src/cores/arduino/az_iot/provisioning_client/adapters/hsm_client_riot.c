@@ -586,6 +586,8 @@ char* hsm_client_riot_get_certificate(HSM_CLIENT_HANDLE handle)
             offset += x509_client->alias_cert_length;
 
             memcpy(result + offset, x509_client->device_signed_pem, x509_client->device_signed_length);
+
+printf("%s", result);
         }
     }
     return result;

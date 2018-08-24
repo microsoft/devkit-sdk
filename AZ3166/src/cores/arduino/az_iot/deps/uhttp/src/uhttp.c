@@ -29,7 +29,9 @@ static const char* HTTP_REQUEST_LINE_FMT = "%s %s HTTP/1.1\r\n";
 static const char* HTTP_HOST = "Host";
 static const char* HTTP_CONTENT_LEN = "content-length";
 static const char* HTTP_TRANSFER_ENCODING = "transfer-encoding";
+//static const char* HTTP_CHUNKED_ENCODING_HDR = "Transfer-Encoding: chunked\r\n";
 static const char* HTTP_CRLF_VALUE = "\r\n";
+//static const char* FORMAT_HEX_CHAR = "0x%02x ";
 
 typedef enum RESPONSE_MESSAGE_STATE_TAG
 {
@@ -183,8 +185,8 @@ static int process_header_line(const unsigned char* buffer, size_t len, size_t* 
         if (buffer[index] == ':' && !colonEncountered)
         {
             colonEncountered = true;
-            size_t keyLen = (&buffer[index]) - targetPos;
-            headerKey = (char*)malloc(keyLen + 1);
+            size_t keyLen = (&buffer[index])-targetPos;
+            headerKey = (char*)malloc(keyLen+1);
             if (headerKey == NULL)
             {
                 result = __FAILURE__;
@@ -192,14 +194,16 @@ static int process_header_line(const unsigned char* buffer, size_t len, size_t* 
             }
             else
             {
+                memcpy(headerKey, targetPos, keyLen);
+                headerKey[keyLen] = '\0';
+
                 // Convert to lower case
                 for (size_t inner = 0; inner < keyLen; inner++)
                 {
-                    headerKey[inner] = (char)tolower(targetPos[inner]);
+                    headerKey[inner] = (char)tolower(headerKey[inner]);
                 }
-                headerKey[keyLen] = '\0';
 
-                targetPos = buffer + (index + 1);
+                targetPos = buffer+index+1;
                 crlfEncounted = false;
             }
         }
@@ -816,7 +820,7 @@ static int construct_http_headers(HTTP_HEADERS_HANDLE http_header, size_t conten
             else
             {
                 /* Codes_SRS_UHTTP_07_015: [on_bytes_received shall add the Content-Length http header item to the request.] */
-                if (sprintf(content, "%s: %zu%s", HTTP_CONTENT_LEN, content_len, HTTP_CRLF_VALUE) <= 0)
+                if (sprintf(content, "%s: %d%s", HTTP_CONTENT_LEN, (int)content_len, HTTP_CRLF_VALUE) <= 0)
                 {
                     result = __FAILURE__;
                     LogError("Failed allocating content len header data");
@@ -1115,7 +1119,7 @@ void uhttp_client_close(HTTP_CLIENT_HANDLE handle, ON_HTTP_CLOSED_CALLBACK on_cl
             HTTPHeaders_Free(http_data->recv_msg.resp_header);
             http_data->recv_msg.resp_header = NULL;
         }
-        if (http_data->recv_msg.msg_body != NULL)
+        if (http_data->recv_msg.msg_body != NULL) 
         {
             BUFFER_delete(http_data->recv_msg.msg_body);
             http_data->recv_msg.msg_body = NULL;
