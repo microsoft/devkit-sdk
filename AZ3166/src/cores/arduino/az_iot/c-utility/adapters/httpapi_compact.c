@@ -961,6 +961,7 @@ static HTTPAPI_RESULT ReceiveContentInfoFromXIO(HTTP_HANDLE_DATA* http_instance,
 
         while (*buf && (result == HTTPAPI_OK))
         {
+            printf("BUFF: %s\r\n", buf);
             if (InternStrnicmp(buf, ContentLength, ContentLengthSize) == 0)
             {
                 substr = buf + ContentLengthSize;

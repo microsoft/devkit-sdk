@@ -7,7 +7,7 @@
 #include "SystemWiFi.h"
 #include "Telemetry.h"
 #include "DevkitDPSClient.h"
-#include "iothub_client_hsm_ll.h"
+#include "iothub_client_ll.h"
 #include "SystemVersion.h"
 
 #define CONNECT_TIMEOUT_MS 30000
@@ -162,7 +162,7 @@ static char *GetHostNameFromConnectionString(char *connectionString)
 
 static void FreeEventInstance(EVENT_INSTANCE *event)
 {
-    if (event != NULL)    
+    if (event != NULL)
     {
         if (event->type == MESSAGE)
         {
@@ -357,7 +357,7 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
     uint64_t start_ms = SystemTickCounterRead();
 
     CheckConnection();
-    
+
     if (event->type == MESSAGE)
     {
         if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, event->messageHandle, SendConfirmationCallback, event) != IOTHUB_CLIENT_OK)

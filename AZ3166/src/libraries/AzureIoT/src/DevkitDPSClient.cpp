@@ -47,19 +47,19 @@ uint8_t* getUDSBytesFromString(char* udsString)
     {
         return NULL;
     }
-	uint8_t* udsBytes = (uint8_t*)malloc(DPS_UDS_MAX_LEN / 2 + 1);
+    uint8_t* udsBytes = (uint8_t*)malloc(DPS_UDS_MAX_LEN / 2 + 1);
     char element[2];
-	unsigned long int resLeft;
-	unsigned long int resRight;
+    unsigned long int resLeft;
+    unsigned long int resRight;
 
-	memset(element, 0, 2);
-	for (int i = 0; i < (DPS_UDS_MAX_LEN/2); i++) {
-		element[0] = udsString[i * 2];
-		resLeft = strtoul(element, NULL, 16);
-		element[0] = udsString[i * 2 + 1];
-		resRight = strtoul(element, NULL, 16);
-		udsBytes[i] = (resLeft << 4) + resRight;
-	}
+    memset(element, 0, 2);
+    for (int i = 0; i < (DPS_UDS_MAX_LEN/2); i++) {
+        element[0] = udsString[i * 2];
+        resLeft = strtoul(element, NULL, 16);
+        element[0] = udsString[i * 2 + 1];
+        resRight = strtoul(element, NULL, 16);
+        udsBytes[i] = (resLeft << 4) + resRight;
+    }
 
     return udsBytes;
 }
@@ -71,7 +71,7 @@ char* readUDSString()
     int ret = eeprom.read(udsString, DPS_UDS_MAX_LEN, 0x00, DPS_UDS_ZONE_IDX);
 
     if (ret < 0)
-    { 
+    {
         LogError("Unable to get DPS UDS string from EEPROM. Please set the value in configuration mode.");
         free(udsString);
         return NULL;
@@ -198,12 +198,12 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
         LogError("id_scope is NULL");
         return false;
     }
-    
+
     if (is_iothub_from_dps)
     {
         return true;
     }
-    
+
     // Initialize DICE
     if (DiceInit(udsString) != 0)
     {
@@ -258,6 +258,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
         Prov_Device_LL_Destroy(handle);
         return false;
     }
+
     if (proxy_address != NULL)
     {
         HTTP_PROXY_OPTIONS http_proxy;
@@ -285,15 +286,15 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
     } while (user_ctx.registration_complete == 0);
     // Free DPS client
     Prov_Device_LL_Destroy(handle);
-    
+
     if (user_ctx.registration_complete != 1)
     {
         LogError("registration failed!\r\n");
         return false;
     }
-    
+
     is_iothub_from_dps = true;
-    
+
     return true;
 }
 
