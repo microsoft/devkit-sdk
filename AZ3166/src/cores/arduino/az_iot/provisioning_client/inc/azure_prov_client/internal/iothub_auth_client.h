@@ -21,7 +21,8 @@ typedef struct IOTHUB_SECURITY_INFO_TAG* IOTHUB_SECURITY_HANDLE;
 #define DEVICE_AUTH_TYPE_VALUES \
     AUTH_TYPE_UNKNOWN,          \
     AUTH_TYPE_SAS,              \
-    AUTH_TYPE_X509
+    AUTH_TYPE_X509,             \
+    AUTH_TYPE_SYMM_KEY
 
 DEFINE_ENUM(DEVICE_AUTH_TYPE, DEVICE_AUTH_TYPE_VALUES);
 
@@ -64,6 +65,11 @@ MOCKABLE_FUNCTION(, IOTHUB_SECURITY_HANDLE, iothub_device_auth_create);
 MOCKABLE_FUNCTION(, void, iothub_device_auth_destroy, IOTHUB_SECURITY_HANDLE, handle);
 MOCKABLE_FUNCTION(, DEVICE_AUTH_TYPE, iothub_device_auth_get_type, IOTHUB_SECURITY_HANDLE, handle);
 MOCKABLE_FUNCTION(, CREDENTIAL_RESULT*, iothub_device_auth_generate_credentials, IOTHUB_SECURITY_HANDLE, handle, const DEVICE_AUTH_CREDENTIAL_INFO*, dev_auth_cred);
+
+#ifdef USE_EDGE_MODULES
+MOCKABLE_FUNCTION(, char*, iothub_device_auth_get_trust_bundle, IOTHUB_SECURITY_HANDLE, handle);
+#endif
+
 
 #ifdef __cplusplus
 }
