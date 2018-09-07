@@ -698,7 +698,7 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                                 {
                                     if (mqtt_client->logTrace)
                                     {
-                                        STRING_sprintf(trace_log, " | PAYLOAD_LEN: %zu", length);
+                                        STRING_sprintf(trace_log, " | PAYLOAD_LEN: %lu", length);
                                         log_incoming_trace(mqtt_client, trace_log);
                                         STRING_delete(trace_log);
                                     }

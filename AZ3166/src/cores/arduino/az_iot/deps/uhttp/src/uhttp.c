@@ -820,7 +820,7 @@ static int construct_http_headers(HTTP_HEADERS_HANDLE http_header, size_t conten
             else
             {
                 /* Codes_SRS_UHTTP_07_015: [on_bytes_received shall add the Content-Length http header item to the request.] */
-                if (sprintf(content, "%s: %d%s", HTTP_CONTENT_LEN, (int)content_len, HTTP_CRLF_VALUE) <= 0)
+                if (sprintf(content, "%s: %lu%s", HTTP_CONTENT_LEN, content_len, HTTP_CRLF_VALUE) <= 0)
                 {
                     result = __FAILURE__;
                     LogError("Failed allocating content len header data");
@@ -1119,7 +1119,7 @@ void uhttp_client_close(HTTP_CLIENT_HANDLE handle, ON_HTTP_CLOSED_CALLBACK on_cl
             HTTPHeaders_Free(http_data->recv_msg.resp_header);
             http_data->recv_msg.resp_header = NULL;
         }
-        if (http_data->recv_msg.msg_body != NULL) 
+        if (http_data->recv_msg.msg_body != NULL)
         {
             BUFFER_delete(http_data->recv_msg.msg_body);
             http_data->recv_msg.msg_body = NULL;
