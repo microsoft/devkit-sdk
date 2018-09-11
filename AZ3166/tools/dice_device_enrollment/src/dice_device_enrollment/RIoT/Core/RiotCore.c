@@ -116,13 +116,13 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId, uint8_t
     length = riotFwSize;
 
 #if logging
-	printf("Riot FW code:");
+	printf("Riot FW code:\r\n");
 	for (int i = 0; i < length; i++) {
 		if (i == (length - 1)) {
-			printf("%x\r\n", base[i]);
+			printf("%02x\r\n", base[i]);
 		}
 		else {
-			printf("%x", base[i]);
+			printf("%02x", base[i]);
 		}
 	}
 #endif
