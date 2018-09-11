@@ -13,7 +13,7 @@
 #include <inttypes.h>
 
 #define PAYLOAD_OFFSET                      5
-#define PACKET_TYPE_BYTE(p)                 ((uint8_t)(((uint8_t)(p)) & 0xf0))
+#define PACKET_TYPE_BYTE(p)                 (CONTROL_PACKET_TYPE)((uint8_t)(((uint8_t)(p)) & 0xf0))
 #define FLAG_VALUE_BYTE(p)                  ((uint8_t)(((uint8_t)(p)) & 0xf))
 
 #define USERNAME_FLAG                       0x80
@@ -44,8 +44,8 @@
     CODEC_STATE_VAR_HEADER,     \
     CODEC_STATE_PAYLOAD
 
-static const char* TRUE_CONST = "true";
-static const char* FALSE_CONST = "false";
+static const char* const TRUE_CONST = "true";
+static const char* const FALSE_CONST = "false";
 
 DEFINE_ENUM(CODEC_STATE_RESULT, CODEC_STATE_VALUES);
 
@@ -84,7 +84,7 @@ static const char* retrieve_qos_value(QOS_VALUE value)
     }
 }
 
-void byteutil_writeByte(uint8_t** buffer, uint8_t value)
+static void byteutil_writeByte(uint8_t** buffer, uint8_t value)
 {
     if (buffer != NULL)
     {
@@ -93,7 +93,7 @@ void byteutil_writeByte(uint8_t** buffer, uint8_t value)
     }
 }
 
-void byteutil_writeInt(uint8_t** buffer, uint16_t value)
+static void byteutil_writeInt(uint8_t** buffer, uint16_t value)
 {
     if (buffer != NULL)
     {
@@ -104,7 +104,7 @@ void byteutil_writeInt(uint8_t** buffer, uint16_t value)
     }
 }
 
-void byteutil_writeUTF(uint8_t** buffer, const char* stringData, uint16_t len)
+static void byteutil_writeUTF(uint8_t** buffer, const char* stringData, uint16_t len)
 {
     if (buffer != NULL)
     {
@@ -114,7 +114,7 @@ void byteutil_writeUTF(uint8_t** buffer, const char* stringData, uint16_t len)
     }
 }
 
-CONTROL_PACKET_TYPE processControlPacketType(uint8_t pktByte, int* flags)
+static CONTROL_PACKET_TYPE processControlPacketType(uint8_t pktByte, int* flags)
 {
     CONTROL_PACKET_TYPE result;
     result = PACKET_TYPE_BYTE(pktByte);
@@ -483,7 +483,7 @@ static int constructConnPayload(BUFFER_HANDLE ctrlPacket, const MQTT_CLIENT_OPTI
                     }
                     packet[CONN_FLAG_BYTE_OFFSET] |= WILL_FLAG_FLAG;
                     byteutil_writeUTF(&iterator, mqttOptions->willTopic, (uint16_t)willTopicLen);
-                    packet[CONN_FLAG_BYTE_OFFSET] |= mqttOptions->qualityOfServiceValue;
+                    packet[CONN_FLAG_BYTE_OFFSET] |= (mqttOptions->qualityOfServiceValue << 3);
                     if (mqttOptions->messageRetain)
                     {
                         packet[CONN_FLAG_BYTE_OFFSET] |= WILL_RETAIN_FLAG;
