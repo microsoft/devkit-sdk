@@ -199,7 +199,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
     const char* proxy_address, int proxy_port)
 {
     bool result = true;
-    if (g_auth_type == DPS_AUTH_X509_INDIVIDUAL && udsString != NULL) {
+    if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && udsString != NULL) {
         hsm_client_set_registration_name_and_key(registration_id, udsString);
     }
 
@@ -221,7 +221,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
             LogError("DiceInit failed! Check UDS string provided or set on configuration mode");
             return false;
         }
-
+        
         // Launch protected DICE code. This will measure RIoT Core, derive the
         // CDI value. It must execute with interrupts disabled. Therefore, it
         // must return so we can restore interrupt state.
@@ -250,7 +250,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
         LogError("Failed to initialize the platform.");
         result = false;
     }
-    else if (g_auth_type == DPS_AUTH_X509_INDIVIDUAL && prov_dev_security_init(SECURE_DEVICE_TYPE_SYMMETRIC_KEY) != 0)
+    else if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && prov_dev_security_init(SECURE_DEVICE_TYPE_SYMMETRIC_KEY) != 0)
     {
         LogError("Failed to initialize the platform.");
         result = false;

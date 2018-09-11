@@ -54,8 +54,6 @@ extern void hsm_client_set_registration_name_and_key(const char* name, const cha
 
     SYMMETRIC_KEY_VALUE[key_length] = 0;
     REGISTRATION_NAME[name_length] = 0;
-
-    LogError("hsm_client_set_registration_name_and_key SYMMETRIC_KEY_VALUE: %s", SYMMETRIC_KEY_VALUE);
 }
 
 typedef struct HSM_CLIENT_KEY_INFO_TAG
