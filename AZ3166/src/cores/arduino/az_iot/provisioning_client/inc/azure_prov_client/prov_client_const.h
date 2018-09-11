@@ -4,13 +4,13 @@
 #ifndef PROV_CLIENT_CONST_H
 #define PROV_CLIENT_CONST_H
 
-#define PROV_DEVICE_CLIENT_VERSION "1.1.01"
+#define PROV_DEVICE_CLIENT_VERSION "1.2.8"
 
-static const char* PROV_ASSIGNED_STATUS = "assigned";
-static const char* PROV_ASSIGNING_STATUS = "assigning";
-static const char* PROV_UNASSIGNED_STATUS = "unassigned";
+static const char* const PROV_ASSIGNED_STATUS = "assigned";
+static const char* const PROV_ASSIGNING_STATUS = "assigning";
+static const char* const PROV_UNASSIGNED_STATUS = "unassigned";
 
-static const char* PROV_API_VERSION = "2017-11-15";
+static const char* const PROV_API_VERSION = "2018-09-01-preview";
 
 
 #endif // PROV_CLIENT_CONST_H

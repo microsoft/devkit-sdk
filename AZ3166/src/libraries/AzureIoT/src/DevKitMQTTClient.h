@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. 
+// Licensed under the MIT license.
 
 #ifndef __IOTHUB_MQTT_CLIENT_H__
 #define __IOTHUB_MQTT_CLIENT_H__
