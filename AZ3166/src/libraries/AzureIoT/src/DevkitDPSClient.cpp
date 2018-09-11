@@ -148,7 +148,7 @@ static void register_device_callback(PROV_DEVICE_RESULT register_result, const c
     }
 }
 
-int DiceInit(char* udsString)
+char* DiceInit(char* udsString)
 {
     if (udsString == NULL)
     {
@@ -158,7 +158,7 @@ int DiceInit(char* udsString)
     uint8_t* udsBytes = getUDSBytesFromString(udsString);
     if (udsBytes == NULL)
     {
-        return -1;
+        return NULL;
     }
     for (int i = 0; i < DICE_UDS_LENGTH; i++) {
         DiceUDS.bytes[i] = udsBytes[i];
@@ -167,7 +167,7 @@ int DiceInit(char* udsString)
 
     // Up-front sanity check
     if (DiceUDS.tag != DICE_UDS_TAG) {
-        return -1;
+        return NULL;
     }
 
     // Initialize CDI structure
@@ -183,7 +183,7 @@ int DiceInit(char* udsString)
 
     // Calculate size of RIoT Core
     if((DiceData.riotSize = (uint8_t*)&__stop_riot_core - DiceData.riotCore) == 0){
-        return -1;
+        return NULL;
     }
 
     #if logging
@@ -191,7 +191,7 @@ int DiceInit(char* udsString)
         LogInfo("The riot_core end address: %p", &__stop_riot_core);
     #endif
 
-    return 0;
+    return udsString;
 }
 
 bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* global_prov_uri,
@@ -216,12 +216,14 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
     if (g_auth_type == DPS_AUTH_X509_INDIVIDUAL)
     {
         // Initialize DICE
-        if (DiceInit(udsString) != 0)
+        udsString = DiceInit(udsString);
+        if (udsString == NULL)
         {
             LogError("DiceInit failed! Check UDS string provided or set on configuration mode");
             return false;
         }
-        
+        hsm_client_set_registration_name_and_key(registration_id, udsString);
+
         // Launch protected DICE code. This will measure RIoT Core, derive the
         // CDI value. It must execute with interrupts disabled. Therefore, it
         // must return so we can restore interrupt state.
