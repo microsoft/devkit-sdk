@@ -8,11 +8,14 @@
 
 #include "iothub_client_version.h"
 #include "iothub.h"
+#include "iothub_device_client_ll.h"
 #include "hsm_client_key.h"
 #include "azure_prov_client/prov_security_factory.h"
 #include "azure_prov_client/prov_device_client.h"
 #include "azure_prov_client/prov_device_ll_client.h"
 #include "azure_prov_client/prov_transport_http_client.h"
+#include "azure_prov_client/prov_transport_mqtt_client.h"
+#include "azure_prov_client/iothub_security_factory.h"
 
 DEFINE_ENUM_STRINGS(PROV_DEVICE_RESULT, PROV_DEVICE_RESULT_VALUE);
 DEFINE_ENUM_STRINGS(PROV_DEVICE_REG_STATUS, PROV_DEVICE_REG_STATUS_VALUES);

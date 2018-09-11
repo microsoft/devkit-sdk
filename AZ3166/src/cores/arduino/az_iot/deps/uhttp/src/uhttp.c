@@ -1026,7 +1026,12 @@ HTTP_CLIENT_RESULT uhttp_client_open(HTTP_CLIENT_HANDLE handle, const char* host
 
             if (http_data->x509_cert != NULL && http_data->x509_pk != NULL)
             {
-                if (xio_setoption(http_data->xio_handle, SU_OPTION_X509_CERT, http_data->x509_cert) != 0 || xio_setoption(http_data->xio_handle, SU_OPTION_X509_PRIVATE_KEY, http_data->x509_pk) != 0)
+                if (http_data->cert_type_ecc)
+                {
+                    xio_setoption(http_data->xio_handle, OPTION_X509_ECC_CERT, http_data->x509_cert);
+                    xio_setoption(http_data->xio_handle, OPTION_X509_ECC_KEY, http_data->x509_pk);
+                }
+                else if (xio_setoption(http_data->xio_handle, SU_OPTION_X509_CERT, http_data->x509_cert) != 0 || xio_setoption(http_data->xio_handle, SU_OPTION_X509_PRIVATE_KEY, http_data->x509_pk) != 0)
                 {
                     LogError("Failed setting x509 certificate");
                     result = HTTP_CLIENT_ERROR;
