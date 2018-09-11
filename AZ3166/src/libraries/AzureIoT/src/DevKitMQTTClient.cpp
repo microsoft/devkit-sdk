@@ -471,7 +471,15 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         // Use DPS
         iothub_hostname = DevkitDPSGetIoTHubURI();
         iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DevkitDPSGetDeviceID(), MQTT_Protocol);
-        LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", iothub_hostname, DevkitDPSGetDeviceID(), iotHubClientHandle);
+        if (iotHubClientHandle)
+        {
+            LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", iothub_hostname, DevkitDPSGetDeviceID(), iotHubClientHandle);
+        }
+        else
+        {
+            LogError(">>>IoTHubClient_LL_CreateFromDeviceAuth");
+            return false;
+        }
     }
     else
     {

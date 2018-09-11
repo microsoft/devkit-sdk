@@ -37,7 +37,7 @@ extern void* __stop_riot_fw;
 
 static bool riot_enabled = false;
 
-bool IndividualRIoTIsEnabled()
+bool IsIndividualRIoTIsEnabled()
 {
     return riot_enabled;
 }
