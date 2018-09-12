@@ -16,7 +16,6 @@
 #include "azure_umqtt_c/mqtt_codec.h"
 #include <inttypes.h>
 
-#define KEEP_ALIVE_BUFFER_SEC           10
 #define VARIABLE_HEADER_OFFSET          2
 #define RETAIN_FLAG_MASK                0x1
 #define QOS_LEAST_ONCE_FLAG_MASK        0x2
@@ -25,10 +24,10 @@
 #define CONNECT_PACKET_MASK             0xf0
 #define TIME_MAX_BUFFER                 16
 #define DEFAULT_MAX_PING_RESPONSE_TIME  80  // % of time to send pings
-#define MAX_CLOSE_RETRIES               10
+#define MAX_CLOSE_RETRIES               2
 
-static const char* TRUE_CONST = "true";
-static const char* FALSE_CONST = "false";
+static const char* const TRUE_CONST = "true";
+static const char* const FALSE_CONST = "false";
 
 DEFINE_ENUM_STRINGS(QOS_VALUE, QOS_VALUE_VALUES);
 
@@ -73,17 +72,28 @@ static void on_connection_closed(void* context)
 
 static void close_connection(MQTT_CLIENT* mqtt_client)
 {
-    (void)xio_close(mqtt_client->xioHandle, on_connection_closed, mqtt_client);
-    if (mqtt_client->disconnect_cb == NULL)
+    if (mqtt_client->socketConnected)
     {
-        size_t counter = 0;
-        do
+        (void)xio_close(mqtt_client->xioHandle, on_connection_closed, mqtt_client);
+        if (mqtt_client->disconnect_cb == NULL)
         {
-            xio_dowork(mqtt_client->xioHandle);
-            counter++;
-            ThreadAPI_Sleep(2);
-        } while (mqtt_client->clientConnected && counter < MAX_CLOSE_RETRIES);
+            size_t counter = 0;
+            do
+            {
+                xio_dowork(mqtt_client->xioHandle);
+                counter++;
+                ThreadAPI_Sleep(2);
+            } while (mqtt_client->clientConnected && counter < MAX_CLOSE_RETRIES);
+        }
     }
+    else
+    {
+        if (mqtt_client->disconnect_cb)
+        {
+            mqtt_client->disconnect_cb(mqtt_client->disconnect_ctx);
+        }
+    }
+    mqtt_client->xioHandle = NULL;
 }
 
 static void set_error_callback(MQTT_CLIENT* mqtt_client, MQTT_CLIENT_EVENT_ERROR error_type)
@@ -198,6 +208,7 @@ static void sendComplete(void* context, IO_SEND_RESULT send_result)
     }
 }
 
+#ifndef NO_LOGGING
 static const char* retrievePacketType(CONTROL_PACKET_TYPE packet)
 {
     switch (packet&CONNECT_PACKET_MASK)
@@ -221,6 +232,7 @@ static const char* retrievePacketType(CONTROL_PACKET_TYPE packet)
             return "UNKNOWN";
     }
 }
+#endif // NO_LOGGING
 
 static void getLogTime(char* timeResult, size_t len)
 {
@@ -592,7 +604,10 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                         /*Codes_SRS_MQTT_CLIENT_07_028: [If the actionResult parameter is of type CONNECT_ACK then the msgInfo value shall be a CONNECT_ACK structure.]*/
                         CONNECT_ACK connack = { 0 };
                         connack.isSessionPresent = (byteutil_readByte(&iterator) == 0x1) ? true : false;
-                        connack.returnCode = byteutil_readByte(&iterator);
+                        uint8_t rc = byteutil_readByte(&iterator);
+                        connack.returnCode =
+                          (rc < ((uint8_t)CONN_REFUSED_UNKNOWN)) ?
+                            (CONNECT_RETURN_CODE)rc : CONN_REFUSED_UNKNOWN;
 
                         if (mqtt_client->logTrace)
                         {
@@ -625,7 +640,7 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
 
                         if (mqtt_client->logTrace)
                         {
-                            trace_log = STRING_construct_sprintf("PUBLISH | IS_DUP: %s | RETAIN: %d | QOS: %s", isDuplicateMsg ? TRUE_CONST : FALSE_CONST, 
+                            trace_log = STRING_construct_sprintf("PUBLISH | IS_DUP: %s | RETAIN: %d | QOS: %s", isDuplicateMsg ? TRUE_CONST : FALSE_CONST,
                                 isRetainMsg ? 1 : 0, ENUM_TO_STRING(QOS_VALUE, qosValue) );
                         }
 
@@ -802,7 +817,10 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                         {
                             while (remainLen > 0)
                             {
-                                suback.qosReturn[suback.qosCount++] = byteutil_readByte(&iterator);
+                                uint8_t qosRet = byteutil_readByte(&iterator);
+                                suback.qosReturn[suback.qosCount++] =
+                                  (qosRet <= ((uint8_t)DELIVER_EXACTLY_ONCE)) ?
+                                    (QOS_VALUE)qosRet :  DELIVER_FAILURE;
                                 remainLen--;
                                 if (mqtt_client->logTrace)
                                 {
@@ -854,7 +872,7 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                         log_incoming_trace(mqtt_client, trace_log);
                         STRING_delete(trace_log);
                     }
-                    // Forward ping response to operation callback 
+                    // Forward ping response to operation callback
                     if (mqtt_client->fnOperationCallback)
                     {
                         mqtt_client->fnOperationCallback(mqtt_client, MQTT_CLIENT_ON_PING_RESPONSE, NULL, mqtt_client->ctx);
@@ -1144,51 +1162,64 @@ int mqtt_client_unsubscribe(MQTT_CLIENT_HANDLE handle, uint16_t packetId, const 
 
 int mqtt_client_disconnect(MQTT_CLIENT_HANDLE handle, ON_MQTT_DISCONNECTED_CALLBACK callback, void* ctx)
 {
-    int result = 0;
+    int result;
     MQTT_CLIENT* mqtt_client = (MQTT_CLIENT*)handle;
-    if (mqtt_client == NULL || mqtt_client->xioHandle == NULL)
+    if (mqtt_client == NULL)
     {
         /*Codes_SRS_MQTT_CLIENT_07_010: [If the parameters handle is NULL then mqtt_client_disconnect shall return a non-zero value.]*/
         result = __FAILURE__;
     }
     else
     {
-        BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
-        if (disconnectPacket == NULL)
+        if (mqtt_client->clientConnected)
         {
-            /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
-            LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect failed");
-            mqtt_client->packetState = PACKET_TYPE_ERROR;
-            result = __FAILURE__;
-        }
-        else
-        {
-            /* Codes_SRS_MQTT_CLIENT_07_037: [ if callback is not NULL callback shall be called once the mqtt connection has been disconnected ] */
-            mqtt_client->disconnect_cb = callback;
-            mqtt_client->disconnect_ctx = ctx;
-            mqtt_client->packetState = DISCONNECT_TYPE;
-
-            size_t size = BUFFER_length(disconnectPacket);
-            /*Codes_SRS_MQTT_CLIENT_07_012: [On success mqtt_client_disconnect shall send the MQTT DISCONNECT packet to the endpoint.]*/
-            if (sendPacketItem(mqtt_client, BUFFER_u_char(disconnectPacket), size) != 0)
+            BUFFER_HANDLE disconnectPacket = mqtt_codec_disconnect();
+            if (disconnectPacket == NULL)
             {
                 /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
-                LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect send failed");
+                LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect failed");
+                mqtt_client->packetState = PACKET_TYPE_ERROR;
                 result = __FAILURE__;
             }
             else
             {
-                if (mqtt_client->logTrace)
+                /* Codes_SRS_MQTT_CLIENT_07_037: [ if callback is not NULL callback shall be called once the mqtt connection has been disconnected ] */
+                mqtt_client->disconnect_cb = callback;
+                mqtt_client->disconnect_ctx = ctx;
+                mqtt_client->packetState = DISCONNECT_TYPE;
+
+                size_t size = BUFFER_length(disconnectPacket);
+                /*Codes_SRS_MQTT_CLIENT_07_012: [On success mqtt_client_disconnect shall send the MQTT DISCONNECT packet to the endpoint.]*/
+                if (sendPacketItem(mqtt_client, BUFFER_u_char(disconnectPacket), size) != 0)
                 {
-                    STRING_HANDLE trace_log = STRING_construct("DISCONNECT");
-                    log_outgoing_trace(mqtt_client, trace_log);
-                    STRING_delete(trace_log);
+                    /*Codes_SRS_MQTT_CLIENT_07_011: [If any failure is encountered then mqtt_client_disconnect shall return a non-zero value.]*/
+                    LOG(AZ_LOG_ERROR, LOG_LINE, "Error: mqtt_client_disconnect send failed");
+                    result = __FAILURE__;
                 }
-                result = 0;
+                else
+                {
+                    if (mqtt_client->logTrace)
+                    {
+                        STRING_HANDLE trace_log = STRING_construct("DISCONNECT");
+                        log_outgoing_trace(mqtt_client, trace_log);
+                        STRING_delete(trace_log);
+                    }
+                    result = 0;
+                }
+                BUFFER_delete(disconnectPacket);
             }
-            BUFFER_delete(disconnectPacket);
             clear_mqtt_options(mqtt_client);
             mqtt_client->xioHandle = NULL;
+        }
+        else
+        {
+            // If the client is not connected then just close the underlying socket
+            mqtt_client->disconnect_cb = callback;
+            mqtt_client->disconnect_ctx = ctx;
+
+            close_connection(mqtt_client);
+            clear_mqtt_options(mqtt_client);
+            result = 0;
         }
     }
     return result;
@@ -1223,7 +1254,7 @@ void mqtt_client_dowork(MQTT_CLIENT_HANDLE handle)
                     mqtt_client->packetSendTimeMs = 0;
                     mqtt_client->packetState = UNKNOWN_TYPE;
                 }
-                else if ((((current_ms - mqtt_client->packetSendTimeMs) / 1000) + KEEP_ALIVE_BUFFER_SEC) > mqtt_client->keepAliveInterval)
+                else if (((current_ms - mqtt_client->packetSendTimeMs) / 1000) >= mqtt_client->keepAliveInterval)
                 {
                     /*Codes_SRS_MQTT_CLIENT_07_026: [if keepAliveInternal is > 0 and the send time is greater than the MQTT KeepAliveInterval then it shall construct an MQTT PINGREQ packet.]*/
                     BUFFER_HANDLE pingPacket = mqtt_codec_ping();

@@ -74,6 +74,8 @@ MOCKABLE_FUNCTION(, void, uhttp_client_dowork, HTTP_CLIENT_HANDLE, handle);
 MOCKABLE_FUNCTION(, HTTP_CLIENT_RESULT, uhttp_client_set_trace, HTTP_CLIENT_HANDLE, handle, bool, trace_on, bool, trace_data);
 MOCKABLE_FUNCTION(, HTTP_CLIENT_RESULT, uhttp_client_set_X509_cert, HTTP_CLIENT_HANDLE, handle, bool, ecc_type, const char*, certificate, const char*, private_key);
 MOCKABLE_FUNCTION(, HTTP_CLIENT_RESULT, uhttp_client_set_trusted_cert, HTTP_CLIENT_HANDLE, handle, const char*, certificate);
+MOCKABLE_FUNCTION(, const char*, uhttp_client_get_trusted_cert, HTTP_CLIENT_HANDLE, handle);
+MOCKABLE_FUNCTION(, HTTP_CLIENT_RESULT, uhttp_client_set_option, HTTP_CLIENT_HANDLE, handle, const char*, optionName, const void*, value);
 
 #ifdef __cplusplus
 }
