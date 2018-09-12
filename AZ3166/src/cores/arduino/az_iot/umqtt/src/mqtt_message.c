@@ -312,11 +312,11 @@ const APP_PAYLOAD* mqttmessage_getApplicationMsg(MQTT_MESSAGE_HANDLE handle)
         MQTT_MESSAGE* msgInfo = (MQTT_MESSAGE*)handle;
         if (msgInfo->const_payload.length > 0)
         {
-            result = &(msgInfo->const_payload);
+            result = &msgInfo->const_payload;
         }
         else
         {
-            result = &(msgInfo->appPayload);
+            result = &msgInfo->appPayload;
         }
     }
     return result;

@@ -9,8 +9,8 @@
 #include "azure_c_shared_utility/lock.h"
 #include "azure_c_shared_utility/xlogging.h"
 
-#include "../inc/azure_prov_client/prov_device_ll_client.h"
-#include "../inc/azure_prov_client/prov_device_client.h"
+#include "azure_prov_client/prov_device_ll_client.h"
+#include "azure_prov_client/prov_device_client.h"
 #include "azure_c_shared_utility/vector.h"
 
 typedef struct PROV_DEVICE_INSTANCE_TAG
@@ -20,14 +20,6 @@ typedef struct PROV_DEVICE_INSTANCE_TAG
     LOCK_HANDLE LockHandle;
     sig_atomic_t StopThread;
 } PROV_DEVICE_INSTANCE;
-
-#define USER_CALLBACK_TYPE_VALUES           \
-    CALLBACK_TYPE_REGISTER_DEVICE_CALLBACK, \
-    CALLBACK_TYPE_REGISTER_STATUS_CALLBACK
-
-DEFINE_ENUM(USER_CALLBACK_TYPE, USER_CALLBACK_TYPE_VALUES)
-DEFINE_ENUM_STRINGS(USER_CALLBACK_TYPE, USER_CALLBACK_TYPE_VALUES)
-
 
 static int ScheduleWork_Thread(void* threadArgument)
 {
