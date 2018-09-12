@@ -9,6 +9,7 @@
 #include "DevkitDPSClient.h"
 #include "iothub_client_ll.h"
 #include "SystemVersion.h"
+#include <iothub_client_hsm_ll.h>
 
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
