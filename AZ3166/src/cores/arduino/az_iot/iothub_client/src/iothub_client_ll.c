@@ -464,7 +464,7 @@ static IOTHUB_CLIENT_LL_HANDLE_DATA* initialize_iothub_client(const IOTHUB_CLIEN
 }
 
 static uint32_t get_next_item_id(IOTHUB_CLIENT_LL_HANDLE_DATA* handleData)
-{    
+{
     if (handleData->data_msg_id+1 >= UINT32_MAX)
     {
         handleData->data_msg_id = 1;
@@ -540,7 +540,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromDeviceAuth(const char* iothub_
             memset(config, 0, sizeof(IOTHUB_CLIENT_CONFIG) );
             config->protocol = protocol;
             config->deviceId = device_id;
-            
+
             // Find the iothub suffix
             initial = iterator = iothub_uri;
             while (iterator != NULL && *iterator != '\0')
@@ -618,7 +618,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_CreateFromConnectionString(const char* c
 
     /*Codes_SRS_IOTHUBCLIENT_LL_05_001: [IoTHubClient_LL_CreateFromConnectionString shall obtain the version string by a call to IoTHubClient_GetVersionString.]*/
     /*Codes_SRS_IOTHUBCLIENT_LL_05_002: [IoTHubClient_LL_CreateFromConnectionString shall print the version string to standard output.]*/
-    LogInfo("IoT Hub SDK for C, version %s", IoTHubClient_GetVersionString());
+    // LogInfo("IoT Hub SDK for C, version %s", IoTHubClient_GetVersionString());
 
     /* Codes_SRS_IOTHUBCLIENT_LL_12_003: [IoTHubClient_LL_CreateFromConnectionString shall verify the input parameter and if it is NULL then return NULL] */
     if (connectionString == NULL)
@@ -900,7 +900,7 @@ IOTHUB_CLIENT_LL_HANDLE IoTHubClient_LL_Create(const IOTHUB_CLIENT_CONFIG* confi
 {
     IOTHUB_CLIENT_LL_HANDLE result;
     /*Codes_SRS_IOTHUBCLIENT_LL_02_001: [IoTHubClient_LL_Create shall return NULL if config parameter is NULL or protocol field is NULL.]*/
-    if( 
+    if(
         (config == NULL) ||
         (config->protocol == NULL)
         )
@@ -1188,7 +1188,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SetMessageCallback_Ex(IOTHUB_CLIENT_LL_HAND
             }
             else
             {
-                /*Codes_SRS_IOTHUBCLIENT_LL_10_023: [If parameter messageCallback is NULL then IoTHubClient_LL_SetMessageCallback_Ex shall call the underlying layer's _Unsubscribe function and return IOTHUB_CLIENT_OK.] */ 
+                /*Codes_SRS_IOTHUBCLIENT_LL_10_023: [If parameter messageCallback is NULL then IoTHubClient_LL_SetMessageCallback_Ex shall call the underlying layer's _Unsubscribe function and return IOTHUB_CLIENT_OK.] */
                 handleData->IoTHubTransport_Unsubscribe(handleData->deviceHandle);
                 handleData->messageCallback.type = CALLBACK_TYPE_NONE;
                 handleData->messageCallback.callbackSync = NULL;
@@ -1306,7 +1306,7 @@ void IoTHubClient_LL_DoWork(IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle)
                 /*Codes_SRS_IOTHUBCLIENT_LL_07_010: [ If 'IoTHubTransport_ProcessItem' returns IOTHUB_PROCESS_CONTINUE or IOTHUB_PROCESS_NOT_CONNECTED IoTHubClient_LL_DoWork shall continue on to call the underlaying layer's _DoWork function. ]*/
                 break;
             }
-            else 
+            else
             {
                 DList_RemoveEntryList(client_item);
                 if (process_results == IOTHUB_PROCESS_OK)
@@ -1757,7 +1757,7 @@ IOTHUB_CLIENT_RESULT IoTHubClient_LL_SetOption(IOTHUB_CLIENT_LL_HANDLE iotHubCli
         {
 
             /*Codes_SRS_IOTHUBCLIENT_LL_02_099: [ IoTHubClient_LL_SetOption shall return according to the table below ]*/
-            IOTHUB_CLIENT_RESULT uploadToBlob_result; 
+            IOTHUB_CLIENT_RESULT uploadToBlob_result;
 #ifndef DONT_USE_UPLOADTOBLOB
             uploadToBlob_result = IoTHubClient_LL_UploadToBlob_SetOption(handleData->uploadToBlobHandle, optionName, value);
             if(uploadToBlob_result == IOTHUB_CLIENT_ERROR)
