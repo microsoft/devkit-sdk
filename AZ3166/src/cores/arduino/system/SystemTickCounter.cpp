@@ -24,9 +24,10 @@ void SystemTickCounterInit(void)
 uint64_t SystemTickCounterRead(void)
 {
     uint64_t result;
-    uint32_t t = us_ticker_read();
+    uint32_t t;
 
     core_util_critical_section_enter();
+    t = us_ticker_read();
     if (t < last_ticker_us)
     {
         long_ticker_ms += 0xFFFFFFFF / 1000;
