@@ -726,6 +726,12 @@ void DevKitMQTTClient_Close(void)
     {
         IoTHubClient_LL_Destroy(iotHubClientHandle);
         iotHubClientHandle = NULL;
+
+        if (is_iothub_from_dps)
+        {
+            free(iothub_hostname);
+            iothub_hostname = NULL;
+        }
     }
 }
 
