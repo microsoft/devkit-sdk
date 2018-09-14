@@ -6,7 +6,7 @@
 #include "azure_c_shared_utility/xio.h"
 #include "azure_c_shared_utility/tlsio.h"
 #include "azure_c_shared_utility/platform.h"
-#include "internal/iothubtransport_mqtt_common.h"
+#include "iothubtransport_mqtt_common.h"
 #include "azure_c_shared_utility/xlogging.h"
 
 static XIO_HANDLE getIoTransportProvider(const char* fully_qualified_name, const MQTT_TRANSPORT_PROXY_OPTIONS* mqtt_transport_proxy_options)
@@ -109,7 +109,7 @@ static IOTHUB_PROCESS_ITEM_RESULT IoTHubTransportMqtt_ProcessItem(TRANSPORT_LL_H
 }
 
 /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_07_054: [ IoTHubTransportMqtt_DoWork shall subscribe to the Notification and get_state Topics if they are defined. ] */
-static void IoTHubTransportMqtt_DoWork(TRANSPORT_LL_HANDLE handle, IOTHUB_CLIENT_CORE_LL_HANDLE iotHubClientHandle)
+static void IoTHubTransportMqtt_DoWork(TRANSPORT_LL_HANDLE handle, IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle)
 {
     /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_07_007: [ IoTHubTransportMqtt_DoWork shall call into the IoTHubMqttAbstract_DoWork function. ] */
     IoTHubTransport_MQTT_Common_DoWork(handle, iotHubClientHandle);
@@ -133,7 +133,7 @@ static IOTHUB_CLIENT_RESULT IoTHubTransportMqtt_SetOption(TRANSPORT_LL_HANDLE ha
     return IoTHubTransport_MQTT_Common_SetOption(handle, option, value);
 }
 
-static IOTHUB_DEVICE_HANDLE IoTHubTransportMqtt_Register(TRANSPORT_LL_HANDLE handle, const IOTHUB_DEVICE_CONFIG* device, IOTHUB_CLIENT_CORE_LL_HANDLE iotHubClientHandle, PDLIST_ENTRY waitingToSend)
+static IOTHUB_DEVICE_HANDLE IoTHubTransportMqtt_Register(TRANSPORT_LL_HANDLE handle, const IOTHUB_DEVICE_CONFIG* device, IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle, PDLIST_ENTRY waitingToSend)
 {
     /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_07_003: [ IoTHubTransportMqtt_Register shall register the TRANSPORT_LL_HANDLE by calling into the IoTHubMqttAbstract_Register function. ] */
     return IoTHubTransport_MQTT_Common_Register(handle, device, iotHubClientHandle, waitingToSend);
@@ -150,19 +150,6 @@ static STRING_HANDLE IoTHubTransportMqtt_GetHostname(TRANSPORT_LL_HANDLE handle)
     /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_07_010: [ IoTHubTransportMqtt_GetHostname shall get the hostname by calling into the IoTHubMqttAbstract_GetHostname function. ] */
     return IoTHubTransport_MQTT_Common_GetHostname(handle);
 }
-
-static int IotHubTransportMqtt_Subscribe_InputQueue(IOTHUB_DEVICE_HANDLE handle)
-{
-    /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_31_14: [ IoTHubTransportMqtt_Subscribe shall subscribe the TRANSPORT_LL_HANDLE by calling into IoTHubTransport_MQTT_Common_Subscribe_InputQueue. ] */
-    return IoTHubTransport_MQTT_Common_Subscribe_InputQueue(handle);
-}
-
-static void IotHubTransportMqtt_Unsubscribe_InputQueue(IOTHUB_DEVICE_HANDLE handle)
-{
-    /* Codes_SRS_IOTHUBTRANSPORTAMQP_31_015: [IotHubTransportMQTT_Unsubscribe_InputQueue shall unsubscribe by calling into IoTHubTransport_MQTT_Common_Unsubscribe_InputQueue. ] */
-    IoTHubTransport_MQTT_Common_Unsubscribe_InputQueue(handle);
-}
-
 
 static TRANSPORT_PROVIDER myfunc = 
 {
@@ -183,9 +170,7 @@ static TRANSPORT_PROVIDER myfunc =
     IoTHubTransportMqtt_Unsubscribe,                /*pfIoTHubTransport_Unsubscribe IoTHubTransport_Unsubscribe;*/
     IoTHubTransportMqtt_DoWork,                     /*pfIoTHubTransport_DoWork IoTHubTransport_DoWork;*/
     IoTHubTransportMqtt_SetRetryPolicy,             /*pfIoTHubTransport_DoWork IoTHubTransport_SetRetryPolicy;*/
-    IoTHubTransportMqtt_GetSendStatus,              /*pfIoTHubTransport_GetSendStatus IoTHubTransport_GetSendStatus;*/
-    IotHubTransportMqtt_Subscribe_InputQueue,       /*pfIoTHubTransport_Subscribe_InputQueue IoTHubTransport_Subscribe_InputQueue; */
-    IotHubTransportMqtt_Unsubscribe_InputQueue      /*pfIoTHubTransport_Unsubscribe_InputQueue IoTHubTransport_Unsubscribe_InputQueue; */
+    IoTHubTransportMqtt_GetSendStatus               /*pfIoTHubTransport_GetSendStatus IoTHubTransport_GetSendStatus;*/
 };
 
 /* Codes_SRS_IOTHUB_MQTT_TRANSPORT_07_022: [This function shall return a pointer to a structure of type TRANSPORT_PROVIDER */

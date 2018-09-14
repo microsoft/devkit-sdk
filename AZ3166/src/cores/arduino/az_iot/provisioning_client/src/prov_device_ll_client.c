@@ -11,7 +11,7 @@
 #include "azure_c_shared_utility/strings.h"
 #include "azure_c_shared_utility/buffer_.h"
 #include "azure_c_shared_utility/uniqueid.h"
-#include "azure_c_shared_utility/sastoken.h" 
+#include "azure_c_shared_utility/sastoken.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
 #include "azure_c_shared_utility/base64.h"
 #include "azure_c_shared_utility/urlencode.h"
@@ -33,6 +33,7 @@ static const char* const JSON_NODE_KEY_NAME = "keyName";
 static const char* const JSON_NODE_OPERATION_ID = "operationId";
 static const char* const JSON_NODE_ASSIGNED_HUB = "assignedHub";
 static const char* const JSON_NODE_TPM_NODE = "tpm";
+static const char* const JSON_NODE_TRACKING_ID = "trackingId";
 static const char* const JSON_NODE_DATE_TIME = "lastUpdatedDateTimeUtc";
 static const char* const JSON_NODE_ERROR_MSG = "errorMessage";
 static const char* const PROV_FAILED_STATUS = "failed";
@@ -83,6 +84,7 @@ typedef struct PROV_INSTANCE_INFO_TAG
 
     tickcounter_ms_t status_throttle;
     tickcounter_ms_t timeout_value;
+    bool first_get_status_sent;
 
     uint8_t prov_timeout;
 
@@ -408,12 +410,12 @@ static PROV_JSON_INFO* prov_transport_process_json_reply(const char* json_docume
 
             case PROV_DEVICE_TRANSPORT_STATUS_ERROR:
             {
+#ifndef NO_LOGGING
                 char* json_operation_id = NULL;
                 JSON_Object* json_reg_state = NULL;
-                if ((json_reg_state = json_object_get_object(json_object, JSON_NODE_REG_STATUS)) != NULL && 
+                if ((json_reg_state = json_object_get_object(json_object, JSON_NODE_REG_STATUS)) != NULL &&
                     (json_operation_id = retrieve_json_item(json_object, JSON_NODE_OPERATION_ID)) != NULL)
                 {
-#ifndef NO_LOGGING
                     JSON_Value* json_error_date_time = NULL;
                     JSON_Value* json_error_msg = NULL;
                     if ((json_error_msg = json_object_get_value(json_reg_state, JSON_NODE_ERROR_MSG)) != NULL &&
@@ -426,12 +428,12 @@ static PROV_JSON_INFO* prov_transport_process_json_reply(const char* json_docume
                         LogError("Unsuccessful json encountered: %s", json_document);
                     }
                     free(json_operation_id);
-#endif
                 }
                 else
                 {
                     LogError("Unsuccessful json encountered: %s", json_document);
                 }
+#endif
                 prov_info->error_reason = PROV_DEVICE_RESULT_DEV_AUTH_ERROR;
                 free(result);
                 result = NULL;
@@ -660,12 +662,6 @@ PROV_DEVICE_LL_HANDLE Prov_Device_LL_Create(const char* uri, const char* id_scop
                     destroy_instance(result);
                     result = NULL;
                 }
-                else
-                {
-                    // Ensure that we are passed the throttling time and send on the first send
-                    (void)tickcounter_get_current_ms(result->tick_counter, &result->status_throttle);
-                    result->status_throttle += (PROV_GET_THROTTLE_TIME * 1000);
-                }
             }
         }
     }
@@ -871,7 +867,7 @@ void Prov_Device_LL_DoWork(PROV_DEVICE_LL_HANDLE handle)
                         prov_info->error_reason = PROV_DEVICE_RESULT_ERROR;
                         prov_info->prov_state = CLIENT_STATE_ERROR;
                     }
-                    else if ( (current_time - prov_info->status_throttle) / 1000 > PROV_GET_THROTTLE_TIME)
+                    else if (prov_info->first_get_status_sent == false || (current_time - prov_info->status_throttle) / 1000 > PROV_GET_THROTTLE_TIME)
                     {
                         /* Codes_SRS_PROV_CLIENT_07_026: [ Upon receiving the reply of the CLIENT_STATE_URL_REQ_SEND message from  iothub_client shall process the the reply of the CLIENT_STATE_URL_REQ_SEND state ] */
                         if (prov_info->prov_transport_protocol->prov_transport_get_op_status(prov_info->transport_handle) != 0)
@@ -894,6 +890,7 @@ void Prov_Device_LL_DoWork(PROV_DEVICE_LL_HANDLE handle)
                             }
                         }
                         prov_info->status_throttle = current_time;
+                        prov_info->first_get_status_sent = true;
                     }
                     break;
                 }
@@ -928,7 +925,7 @@ void Prov_Device_LL_DoWork(PROV_DEVICE_LL_HANDLE handle)
         }
         else
         {
-            // Check the connection 
+            // Check the connection
             if (prov_info->prov_timeout > 0)
             {
                 tickcounter_ms_t current_time = 0;
