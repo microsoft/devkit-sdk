@@ -478,7 +478,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         }
         else
         {
-            LogError(">>>IoTHubClient_LL_CreateFromDeviceAuth");
+            LogError(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s", iothub_hostname, DevkitDPSGetDeviceID());
             return false;
         }
     }
@@ -728,7 +728,7 @@ void DevKitMQTTClient_Close(void)
         IoTHubClient_LL_Destroy(iotHubClientHandle);
         iotHubClientHandle = NULL;
 
-        if (is_iothub_from_dps)
+        if (!is_iothub_from_dps && iothub_hostname)
         {
             free(iothub_hostname);
             iothub_hostname = NULL;
