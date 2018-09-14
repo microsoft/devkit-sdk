@@ -102,8 +102,6 @@ void hsm_client_key_destroy(HSM_CLIENT_HANDLE handle)
         HSM_CLIENT_KEY_INFO* key_client = (HSM_CLIENT_KEY_INFO*)handle;
         free(key_client);
     }
-
-    free_keys();
 }
 
 char* hsm_client_get_symmetric_key(HSM_CLIENT_HANDLE handle)

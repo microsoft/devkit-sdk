@@ -7,12 +7,14 @@
 #include "EEPROMInterface.h"
 
 #include "iothub_client_version.h"
-#include "iothub.h"
+#include "iothub_client.h"
 #include "hsm_client_key.h"
 #include "azure_prov_client/prov_security_factory.h"
 #include "azure_prov_client/prov_device_client.h"
 #include "azure_prov_client/prov_device_ll_client.h"
 #include "azure_prov_client/prov_transport_http_client.h"
+#include "azure_prov_client/prov_transport_mqtt_client.h"
+#include "azure_prov_client/iothub_security_factory.h"
 
 DEFINE_ENUM_STRINGS(PROV_DEVICE_RESULT, PROV_DEVICE_RESULT_VALUE);
 DEFINE_ENUM_STRINGS(PROV_DEVICE_REG_STATUS, PROV_DEVICE_REG_STATUS_VALUES);
@@ -242,7 +244,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
         }
     }
 
-    if (IoTHub_Init() != 0)
+    if (platform_init() != 0)
     {
         LogError("Failed to initialize the platform.");
         result = false;

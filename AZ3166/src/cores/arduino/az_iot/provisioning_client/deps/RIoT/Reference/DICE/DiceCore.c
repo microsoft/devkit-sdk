@@ -23,7 +23,7 @@ DICE_SHA256_CONTEXT  DiceHashCtx = { 0x00 };
 int DiceCore(void)
 {
 #if logging
-    LogInfo("Riot Core code:");
+    LogInfo("Riot Core Code:");
     for(int i = 0; i < DiceData.riotSize; i++){
         if(i == (DiceData.riotSize - 1)){
             printf("%02x\r\n", DiceData.riotCore[i]);
@@ -58,7 +58,7 @@ int DiceCore(void)
        return -1;
    }
 
-    // Clean up potentially sensitive data
+    // Clean up potentially sensative data
     _BZERO(vDigest, DICE_DIGEST_LENGTH);
     _BZERO(rDigest, DICE_DIGEST_LENGTH);
     _BZERO(&DiceHashCtx, sizeof(DiceHashCtx));
