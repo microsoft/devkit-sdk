@@ -6,14 +6,14 @@
 #include "azure_c_shared_utility/macro_utils.h"
 #include "azure_c_shared_utility/umock_c_prod.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
-#include "azure_c_shared_utility/agenttime.h" 
+#include "azure_c_shared_utility/agenttime.h"
 #include "azure_c_shared_utility/xlogging.h"
 #include "azure_c_shared_utility/strings.h"
 #include "azure_c_shared_utility/sastoken.h"
 #include "azure_c_shared_utility/shared_util_options.h"
 
 #ifdef USE_PROV_MODULE
-#include "azure_prov_client/iothub_auth_client.h"
+#include "azure_prov_client/internal/iothub_auth_client.h"
 #endif
 
 #include "iothub_client_authorization.h"
@@ -312,7 +312,7 @@ char* IoTHubClient_Auth_Get_SasToken(IOTHUB_AUTHORIZATION_HANDLE handle, const c
                 LogError("failure getting seconds from epoch");
                 result = NULL;
             }
-            else 
+            else
             {
                 size_t expiry_time = sec_since_epoch+expiry_time_relative_seconds;
                 dev_auth_cred.sas_info.expiry_seconds = expiry_time;
@@ -378,7 +378,7 @@ char* IoTHubClient_Auth_Get_SasToken(IOTHUB_AUTHORIZATION_HANDLE handle, const c
                     LogError("failure getting seconds from epoch");
                     result = NULL;
                 }
-                else 
+                else
                 {
                     /* Codes_SRS_IoTHub_Authorization_07_011: [ IoTHubClient_Auth_Get_ConnString shall call SASToken_CreateString to construct the sas token. ] */
                     size_t expiry_time = sec_since_epoch+expiry_time_relative_seconds;

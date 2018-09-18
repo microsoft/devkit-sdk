@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <ctype.h>
+
 #include "azure_c_shared_utility/umock_c_prod.h"
 #include "azure_c_shared_utility/gballoc.h"
 
@@ -25,10 +27,11 @@
 
 static const char* HTTP_REQUEST_LINE_FMT = "%s %s HTTP/1.1\r\n";
 static const char* HTTP_HOST = "Host";
-static const char* HTTP_CONTENT_LEN = "Content-Length";
-static const char* HTTP_CHUNKED_ENCODING_HDR = "Transfer-Encoding: chunked\r\n";
+static const char* HTTP_CONTENT_LEN = "content-length";
+static const char* HTTP_TRANSFER_ENCODING = "transfer-encoding";
+//static const char* HTTP_CHUNKED_ENCODING_HDR = "Transfer-Encoding: chunked\r\n";
 static const char* HTTP_CRLF_VALUE = "\r\n";
-static const char* FORMAT_HEX_CHAR = "0x%02x ";
+//static const char* FORMAT_HEX_CHAR = "0x%02x ";
 
 typedef enum RESPONSE_MESSAGE_STATE_TAG
 {
@@ -194,6 +197,12 @@ static int process_header_line(const unsigned char* buffer, size_t len, size_t* 
                 memcpy(headerKey, targetPos, keyLen);
                 headerKey[keyLen] = '\0';
 
+                // Convert to lower case
+                for (size_t inner = 0; inner < keyLen; inner++)
+                {
+                    headerKey[inner] = (char)tolower(headerKey[inner]);
+                }
+
                 targetPos = buffer+index+1;
                 crlfEncounted = false;
             }
@@ -229,7 +238,7 @@ static int process_header_line(const unsigned char* buffer, size_t len, size_t* 
                             *isChunked = false;
                             *contentLen = atol(headerValue);
                         }
-                        else if (strcmp(headerKey, "Transfer-Encoding") == 0)
+                        else if (strcmp(headerKey, HTTP_TRANSFER_ENCODING) == 0)
                         {
                             *isChunked = true;
                             *contentLen = 0;
@@ -281,19 +290,6 @@ static int process_header_line(const unsigned char* buffer, size_t len, size_t* 
         free(headerKey);
     }
     return result;
-}
-
-static void getLogTime(char* timeResult, size_t len)
-{
-    if (timeResult != NULL)
-    {
-        time_t localTime = time(NULL);
-        struct tm* tmInfo = localtime(&localTime);
-        if (strftime(timeResult, len, "%H:%M:%S", tmInfo) == 0)
-        {
-            timeResult[0] = '\0';
-        }
-    }
 }
 
 static int write_text_line(HTTP_CLIENT_HANDLE_DATA* http_data, const char* text_line)
@@ -1022,6 +1018,7 @@ HTTP_CLIENT_RESULT uhttp_client_open(HTTP_CLIENT_HANDLE handle, const char* host
         /* Codes_SRS_UHTTP_07_007: [http_client_connect shall attempt to open the xio_handle. ] */
         else
         {
+            result = HTTP_CLIENT_OK;
             http_data->recv_msg.recv_state = state_opening;
             http_data->on_connect = on_connect;
             http_data->connect_user_ctx = callback_ctx;
@@ -1029,44 +1026,55 @@ HTTP_CLIENT_RESULT uhttp_client_open(HTTP_CLIENT_HANDLE handle, const char* host
 
             if (http_data->x509_cert != NULL && http_data->x509_pk != NULL)
             {
-                if (http_data->cert_type_ecc)
+                if (xio_setoption(http_data->xio_handle, SU_OPTION_X509_CERT, http_data->x509_cert) != 0 || xio_setoption(http_data->xio_handle, SU_OPTION_X509_PRIVATE_KEY, http_data->x509_pk) != 0)
                 {
-                    xio_setoption(http_data->xio_handle, OPTION_X509_ECC_CERT, http_data->x509_cert);
-                    xio_setoption(http_data->xio_handle, OPTION_X509_ECC_KEY, http_data->x509_pk);
+                    LogError("Failed setting x509 certificate");
+                    result = HTTP_CLIENT_ERROR;
+                    free(http_data->host_name);
+                    http_data->host_name = NULL;
+                    http_data->on_connect = NULL;
+                    http_data->connect_user_ctx = NULL;
+                    http_data->port_num = 0;
+                }
+            }
+            if (result == HTTP_CLIENT_OK && http_data->certificate != NULL)
+            {
+                if (xio_setoption(http_data->xio_handle, OPTION_TRUSTED_CERT, http_data->certificate) != 0)
+                {
+                    LogError("Failed setting Trusted certificate");
+                    result = HTTP_CLIENT_ERROR;
+                    free(http_data->host_name);
+                    http_data->host_name = NULL;
+                    http_data->on_connect = NULL;
+                    http_data->connect_user_ctx = NULL;
+                    http_data->port_num = 0;
+                }
+            }
+
+            if (result == HTTP_CLIENT_OK)
+            {
+#ifdef USE_OPENSSL
+                // Default to tls 1.2
+                int tls_version = 12;
+                xio_setoption(http_data->xio_handle, OPTION_TLS_VERSION, &tls_version);
+#endif
+                if (xio_open(http_data->xio_handle, on_xio_open_complete, http_data, on_bytes_received, http_data, on_io_error, http_data) != 0)
+                {
+                    /* Codes_SRS_UHTTP_07_044: [ if a failure is encountered on xio_open uhttp_client_open shall return HTTP_CLIENT_OPEN_REQUEST_FAILED. ] */
+                    LogError("opening xio failed");
+                    free(http_data->host_name);
+                    http_data->host_name = NULL;
+                    http_data->on_connect = NULL;
+                    http_data->connect_user_ctx = NULL;
+                    http_data->port_num = 0;
+
+                    result = HTTP_CLIENT_OPEN_FAILED;
                 }
                 else
                 {
-                    xio_setoption(http_data->xio_handle, SU_OPTION_X509_CERT, http_data->x509_cert);
-                    xio_setoption(http_data->xio_handle, SU_OPTION_X509_PRIVATE_KEY, http_data->x509_pk);
+                    /* Codes_SRS_UHTTP_07_008: [If http_client_connect succeeds then it shall return HTTP_CLIENT_OK] */
+                    result = HTTP_CLIENT_OK;
                 }
-            }
-            if (http_data->certificate != NULL)
-            {
-                xio_setoption(http_data->xio_handle, "TrustedCerts", http_data->certificate);
-            }
-
-#ifdef USE_OPENSSL
-            // Default to tls 1.2
-            int tls_version = 12;
-            xio_setoption(http_data->xio_handle, "tls_version", &tls_version);
-#endif
-
-            if (xio_open(http_data->xio_handle, on_xio_open_complete, http_data, on_bytes_received, http_data, on_io_error, http_data) != 0)
-            {
-                /* Codes_SRS_UHTTP_07_044: [ if a failure is encountered on xio_open uhttp_client_open shall return HTTP_CLIENT_OPEN_REQUEST_FAILED. ] */
-                LogError("opening xio failed");
-                free(http_data->host_name);
-                http_data->host_name = NULL;
-                http_data->on_connect = NULL;
-                http_data->connect_user_ctx = NULL;
-                http_data->port_num = 0;
-
-                result = HTTP_CLIENT_OPEN_FAILED;
-            }
-            else
-            {
-                /* Codes_SRS_UHTTP_07_008: [If http_client_connect succeeds then it shall return HTTP_CLIENT_OK] */
-                result = HTTP_CLIENT_OK;
             }
         }
     }
@@ -1111,7 +1119,7 @@ void uhttp_client_close(HTTP_CLIENT_HANDLE handle, ON_HTTP_CLOSED_CALLBACK on_cl
             HTTPHeaders_Free(http_data->recv_msg.resp_header);
             http_data->recv_msg.resp_header = NULL;
         }
-        if (http_data->recv_msg.msg_body != NULL) 
+        if (http_data->recv_msg.msg_body != NULL)
         {
             BUFFER_delete(http_data->recv_msg.msg_body);
             http_data->recv_msg.msg_body = NULL;
@@ -1412,5 +1420,47 @@ HTTP_CLIENT_RESULT uhttp_client_set_trusted_cert(HTTP_CLIENT_HANDLE handle, cons
             result = HTTP_CLIENT_OK;
         }
     }
+    return result;
+}
+
+const char* uhttp_client_get_trusted_cert(HTTP_CLIENT_HANDLE handle)
+{
+    const char* result;
+    if (handle == NULL)
+    {
+        result = NULL;
+        LogError("invalid parameter NULL handle");
+    }
+    else
+    {
+        result = handle->certificate;
+    }
+    return result;
+}
+
+HTTP_CLIENT_RESULT uhttp_client_set_option(HTTP_CLIENT_HANDLE handle, const char* optionName, const void* value)
+{
+    HTTP_CLIENT_RESULT result;
+    if (handle == NULL)
+    {
+        /* Codes_SRS_UHTTP_07_038: [If handle is NULL then http_client_set_trace shall return HTTP_CLIENT_INVALID_ARG] */
+        result = HTTP_CLIENT_INVALID_ARG;
+        LogError("invalid parameter handle: %p", handle);
+    }
+    else
+    {
+        int setoption_result = xio_setoption(handle->xio_handle, optionName, value);
+        if (setoption_result != 0)
+        {
+            LogError("xio_setoption fails, returns %d", setoption_result);
+            result = HTTP_CLIENT_ERROR;
+        }
+        else
+        {
+            result = HTTP_CLIENT_OK;
+        }
+
+    }
+
     return result;
 }

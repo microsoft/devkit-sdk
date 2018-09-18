@@ -14,6 +14,8 @@ DevI2C *i2c;
 HTS221Sensor *sensor;
 static RGB_LED rgbLed;
 static int interval = INTERVAL;
+static float humidity;
+static float temperature;
 
 int getInterval()
 {
@@ -77,6 +79,9 @@ void SensorInit()
     i2c = new DevI2C(D14, D15);
     sensor = new HTS221Sensor(*i2c);
     sensor->init(NULL);
+
+    humidity = -1;
+    temperature = -1000;
 }
 
 float readTemperature()
@@ -108,28 +113,22 @@ bool readMessage(int messageId, char *payload)
     json_object_set_string(root_object, "deviceId", DEVICE_ID);
     json_object_set_number(root_object, "messageId", messageId);
 
-    float temperature = readTemperature();
-    float humidity = readHumidity();
+    float t = readTemperature();
+    float h = readHumidity();
     bool temperatureAlert = false;
-    if(temperature != temperature)
+    if(t != temperature)
     {
-        json_object_set_null(root_object, "temperature");
-    }
-    else
-    {
+        temperature = t;
         json_object_set_number(root_object, "temperature", temperature);
-        if(temperature > TEMPERATURE_ALERT)
-        {
-            temperatureAlert = true;
-        }
     }
-
-    if(humidity != humidity)
+    if(temperature > TEMPERATURE_ALERT)
     {
-        json_object_set_null(root_object, "humidity");
+        temperatureAlert = true;
     }
-    else
+    
+    if(h != humidity)
     {
+        humidity = h;
         json_object_set_number(root_object, "humidity", humidity);
     }
     serialized_string = json_serialize_to_string_pretty(root_value);

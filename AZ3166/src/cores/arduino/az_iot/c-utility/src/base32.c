@@ -180,7 +180,7 @@ static BUFFER_HANDLE base32_decode_impl(const char* source)
     if (src_length % BASE32_INPUT_SIZE != 0)
     {
         /* Codes_SRS_BASE32_07_021: [ If the source length is not evenly divisible by 8, base32_decode_impl shall return NULL. ] */
-        LogError("Failure invalid input length %zu", src_length);
+        LogError("Failure invalid input length %lu", src_length);
         result = NULL;
     }
     else
@@ -235,7 +235,7 @@ static BUFFER_HANDLE base32_decode_impl(const char* source)
                 }
                 else
                 {
-                    // Codes_SRS_BASE32_07_025: [ base32_decode_impl shall group 5 bytes at a time into the temp buffer. ] 
+                    // Codes_SRS_BASE32_07_025: [ base32_decode_impl shall group 5 bytes at a time into the temp buffer. ]
                     *dest_buff++ = ((input[0] & 0x1f) << 3) | ((input[1] & 0x1c) >> 2);
                     *dest_buff++ = ((input[1] & 0x03) << 6) | ((input[2] & 0x1f) << 1) | ((input[3] & 0x10) >> 4);
                     *dest_buff++ = ((input[3] & 0x0f) << 4) | ((input[4] & 0x1e) >> 1);
