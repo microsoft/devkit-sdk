@@ -35,6 +35,13 @@ static bool SelfSignedDeviceCert = true;
 extern void* __start_riot_fw;
 extern void* __stop_riot_fw;
 
+static bool riot_enabled = false;
+
+bool IsIndividualRIoTIsEnabled()
+{
+    return riot_enabled;
+}
+
 char * RIoTGetDeviceID(unsigned int *len)
 {
     if (len)
@@ -87,6 +94,8 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     uint8_t             *base;
     uint32_t            length;
     uint32_t            dcType;
+
+    riot_enabled = false;
 
     // Verify registrationId input and given an empty input, generate one based on MAC address and firmware version of your DevKit
     int regIdLength = strlen(RegistrationId);
@@ -335,6 +344,6 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     (void)printf("Device Certificate\r\n%s\r\n", buf);
 #endif
 
-    // Must not return. If we do, DICE will trigger reset.
+    riot_enabled = true;
     return 0;
 }

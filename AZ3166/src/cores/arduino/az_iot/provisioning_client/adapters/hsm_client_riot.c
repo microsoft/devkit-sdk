@@ -514,9 +514,20 @@ void hsm_client_x509_deinit(void)
 {
 }
 
+// This is workaround for X509 individual enrollment
+extern bool IsIndividualRIoTIsEnabled();
+
 const HSM_CLIENT_X509_INTERFACE* hsm_client_x509_interface(void)
 {
-    return &x509_interface;
+    if (IsIndividualRIoTIsEnabled())
+    {
+        // This is workaround for X509 individual enrollment
+        return hsm_client_x509_individual_interface();
+    }
+    else
+    {
+        return &x509_interface;
+    }
 }
 
 HSM_CLIENT_HANDLE hsm_client_riot_create(void)

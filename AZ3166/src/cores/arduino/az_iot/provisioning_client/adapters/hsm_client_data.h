@@ -78,6 +78,7 @@ extern void deinitialize_hsm_system();
 
 extern const HSM_CLIENT_TPM_INTERFACE* hsm_client_tpm_interface();
 extern const HSM_CLIENT_X509_INTERFACE* hsm_client_x509_interface();
+extern const HSM_CLIENT_X509_INTERFACE* hsm_client_x509_individual_interface();
 extern const HSM_CLIENT_KEY_INTERFACE* hsm_client_key_interface();
 
 extern int hsm_client_x509_init();
