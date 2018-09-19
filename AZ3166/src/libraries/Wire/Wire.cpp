@@ -120,7 +120,8 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
 
     // set rx buffer iterator vars
     rxBufferIndex = 0;
-    rxBufferLength = read;
+    //rxBufferLength = read;
+      rxBufferLength = quantity;
 
     return read;
   }
@@ -286,7 +287,7 @@ int TwoWire::read(void)
     value = rxBuffer[rxBufferIndex];
     ++rxBufferIndex;
   }
-
+  
   return value;
 }
 
