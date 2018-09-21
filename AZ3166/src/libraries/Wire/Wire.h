@@ -29,6 +29,8 @@
 
 #define MASTER_ADDRESS 0x33
 
+#define WIRE_ERROR (-1)
+
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
