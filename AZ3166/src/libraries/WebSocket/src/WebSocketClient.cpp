@@ -71,8 +71,8 @@ bool WebSocketClient::connect(int timeout)
             _tcpSocket = NULL;
             return false;
         }
-
-        _tcpSocket->set_timeout(1000);
+        _tcpSocket->set_blocking(true);
+        _tcpSocket->set_timeout(TIMEOUT_IN_MS);
     }
 
     return doHandshake(timeout);
@@ -370,8 +370,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
             return NULL;
         }
     }
-    _tcpSocket->set_blocking(true);
-
+    
     // Parse payload length
     readChar(&c);
     payloadLength = c & 0x7f;
