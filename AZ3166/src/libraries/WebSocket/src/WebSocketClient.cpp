@@ -355,8 +355,8 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
             }
             else if (opcode == WS_OPCODE_PONG)
             {
-                INFO("received ping");
-                _messageType = WS_Message_Ping;
+                INFO("received pong");
+                _messageType = WS_Message_Pong;
                 break;
             }
         }
@@ -369,6 +369,21 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
             }
             return NULL;
         }
+    }
+          
+    if (_messageType == WS_Message_Ping ||
+        _messageType == WS_Message_Pong ||
+        _messageType == WS_Message_Close ||
+        _messageType == WS_Message_Timeout)
+    {
+        // For backwards compatibility with samples
+        // return a length of 0 for any new message
+        // types that old code could receive.
+        // Since pings are automatically handled above
+        // the user should not need the ping data.
+        receiveResult.length = 0;
+        
+        return &receiveResult;
     }
     
     // Parse payload length
@@ -454,18 +469,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
 
     receiveResult.isEndOfMessage = isFinal;
     receiveResult.length = payloadLength;
-    receiveResult.messageType = _messageType;        
-    if (_messageType == WS_Message_Ping ||
-        _messageType == WS_Message_Close ||
-        _messageType == WS_Message_Timeout)
-    {
-        // For backwards compatibility with samples
-        // return a length of 0 for any new message
-        // types that old code could receive.
-        // Since pings are automatically handled above
-        // the user should not need the ping data.
-        receiveResult.length = 0;
-    }
+    receiveResult.messageType = _messageType;  
 
     return &receiveResult;
 }
