@@ -128,6 +128,7 @@ bool WebSocketClient::doHandshake(int timeout)
         else
         {
             ERROR("Server didn't accept the client handshake.");
+            return false;
         }
     }
 
