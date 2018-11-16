@@ -80,7 +80,7 @@ bool WebSocketClient::connect(int timeout)
 
 bool WebSocketClient::doHandshake(int timeout)
 {
-    char strBuffer[200];
+    char strBuffer[250];
 
     // Send handshake msgBuffer to upgrade http to the ws protocol
     if (strlen(_parsedUrl->query()) > 0)
@@ -120,7 +120,7 @@ bool WebSocketClient::doHandshake(int timeout)
 
     do
     {
-        ret = read(strBuffer, 200, 100);
+        ret = read(strBuffer, 201, 100);
         if (ret < 0)
         {
             ERROR("Unable to get handshake response from server.");
@@ -370,21 +370,6 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
             return NULL;
         }
     }
-          
-    if (_messageType == WS_Message_Ping ||
-        _messageType == WS_Message_Pong ||
-        _messageType == WS_Message_Close ||
-        _messageType == WS_Message_Timeout)
-    {
-        // For backwards compatibility with samples
-        // return a length of 0 for any new message
-        // types that old code could receive.
-        // Since pings are automatically handled above
-        // the user should not need the ping data.
-        receiveResult.length = 0;
-        
-        return &receiveResult;
-    }
     
     // Parse payload length
     readChar(&c);
@@ -470,7 +455,19 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
     receiveResult.isEndOfMessage = isFinal;
     receiveResult.length = payloadLength;
     receiveResult.messageType = _messageType;  
-
+          
+    if (_messageType == WS_Message_Ping ||
+        _messageType == WS_Message_Close ||
+        _messageType == WS_Message_Timeout)
+    {
+        // For backwards compatibility with samples
+        // return a length of 0 for any new message
+        // types that old code could receive.
+        // Since pings are automatically handled above
+        // the user should not need the ping data.
+        receiveResult.length = 0;
+    }
+    
     return &receiveResult;
 }
 
