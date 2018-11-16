@@ -115,7 +115,6 @@ bool WebSocketClient::doHandshake(int timeout)
     }
 
     // Receive handshake response from WebSocket server
-    // Receive handshake response from WebSocket server
     ret = _tcpSocket->recv(strBuffer, 250);
     if (ret > 0)
     {
@@ -126,9 +125,13 @@ bool WebSocketClient::doHandshake(int timeout)
         {
             return true;
         }
+        else
+        {
+            ERROR("Server didn't accept the client handshake.");
+        }
     }
 
-    Serial.println("Handshake failed.");
+    ERROR_FORMAT("Received handshake response from server failed. Return value: %d", ret);
     return false;
 }
 
