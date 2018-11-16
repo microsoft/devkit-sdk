@@ -115,29 +115,20 @@ bool WebSocketClient::doHandshake(int timeout)
     }
 
     // Receive handshake response from WebSocket server
-    Timer timer;
-    timer.start();
-
-    do
+    // Receive handshake response from WebSocket server
+    ret = _tcpSocket->recv(strBuffer, 250);
+    if (ret > 0)
     {
-        ret = read(strBuffer, 201, 100);
-        if (ret < 0)
-        {
-            ERROR("Unable to get handshake response from server.");
-            return false;
-        }
-        else
-        {
-            strBuffer[ret] = '\0';
+        strBuffer[ret] = '\0';
 
-            // Server accepted the client handshake
-            if (strstr(strBuffer, WS_HANDSHAKE_SERVER_ACCEPT) != NULL)
-            {
-                return true;
-            }
+        // Server accepted the client handshake
+        if (strstr(strBuffer, WS_HANDSHAKE_SERVER_ACCEPT) != NULL)
+        {
+            return true;
         }
-    } while (ret > 0 && timer.read_ms() < timeout);
+    }
 
+    Serial.println("Handshake failed.");
     return false;
 }
 
