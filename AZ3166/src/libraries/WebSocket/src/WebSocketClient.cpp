@@ -80,7 +80,7 @@ bool WebSocketClient::connect(int timeout)
 
 bool WebSocketClient::doHandshake(int timeout)
 {
-    char strBuffer[200];
+    char strBuffer[250];
 
     // Send handshake msgBuffer to upgrade http to the ws protocol
     if (strlen(_parsedUrl->query()) > 0)
@@ -115,29 +115,24 @@ bool WebSocketClient::doHandshake(int timeout)
     }
 
     // Receive handshake response from WebSocket server
-    Timer timer;
-    timer.start();
-
-    do
+    ret = _tcpSocket->recv(strBuffer, 250);
+    if (ret > 0)
     {
-        ret = read(strBuffer, 200, 100);
-        if (ret < 0)
+        strBuffer[ret] = '\0';
+
+        // Server accepted the client handshake
+        if (strstr(strBuffer, WS_HANDSHAKE_SERVER_ACCEPT) != NULL)
         {
-            ERROR("Unable to get handshake response from server.");
-            return false;
+            return true;
         }
         else
         {
-            strBuffer[ret] = '\0';
-
-            // Server accepted the client handshake
-            if (strstr(strBuffer, WS_HANDSHAKE_SERVER_ACCEPT) != NULL)
-            {
-                return true;
-            }
+            ERROR("Server didn't accept the client handshake.");
+            return false;
         }
-    } while (ret > 0 && timer.read_ms() < timeout);
+    }
 
+    ERROR_FORMAT("Received handshake response from server failed. Return value: %d", ret);
     return false;
 }
 
@@ -355,8 +350,8 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
             }
             else if (opcode == WS_OPCODE_PONG)
             {
-                INFO("received ping");
-                _messageType = WS_Message_Ping;
+                INFO("received pong");
+                _messageType = WS_Message_Pong;
                 break;
             }
         }
@@ -454,7 +449,8 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
 
     receiveResult.isEndOfMessage = isFinal;
     receiveResult.length = payloadLength;
-    receiveResult.messageType = _messageType;        
+    receiveResult.messageType = _messageType;  
+          
     if (_messageType == WS_Message_Ping ||
         _messageType == WS_Message_Close ||
         _messageType == WS_Message_Timeout)
@@ -466,7 +462,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
         // the user should not need the ping data.
         receiveResult.length = 0;
     }
-
+    
     return &receiveResult;
 }
 
