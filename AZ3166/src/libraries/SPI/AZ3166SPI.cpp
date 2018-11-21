@@ -11,285 +11,99 @@
 
 #include "AZ3166SPI.h"
 
-
 SPIClass SPI;
 
-SPIClass::SPIClass() : g_active_id(-1)
+SPIClass::SPIClass()
 {
+  deviceSPI = NULL;
 }
 
-//begin using the default chip select
 void SPIClass::begin()
 {
-  begin(BOARD_SPI_OWN_SS);
+  end();
+  
+  deviceSPI = new MbedSPI(SPI_MOSI, SPI_MISO, SPI_CLK, SPI_SS);
+  spi_setup();
 }
 
-//Begin with a chip select defined
-void SPIClass::begin(uint8_t _pin)
+void SPIClass::end(void)
 {
-  if(_pin > SPI_CHANNELS_NUM)
-    return;
-
-  if(_pin != BOARD_SPI_OWN_SS) {
-    pinMode(_pin, OUTPUT);
-    digitalWrite(_pin, HIGH);
-  }
-
-  spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-  g_active_id = _pin;
-}
-
-void SPIClass::usingInterrupt(uint8_t interruptNumber)
-{
-  //Not implemented
-}
-
-void SPIClass::set_CPOL_CPHA(uint8_t mode)
-{
-  if (mode == SPI_MODE_0 || mode == SPI_MODE_1)
+  if (deviceSPI)
   {
-    obj.spi.handle.Init.CLKPolarity = SPI_POLARITY_LOW;
-  }
-  else
-  {
-    obj.spi.handle.Init.CLKPolarity = SPI_POLARITY_HIGH;
-  }
-  if (mode == SPI_MODE_0 || mode == SPI_MODE_2)
-  {
-    obj.spi.handle.Init.CLKPhase = SPI_PHASE_1EDGE;
-  }
-  else if (mode == SPI_MODE_2)
-  {
-    obj.spi.handle.Init.CLKPhase = SPI_PHASE_2EDGE;
+    delete deviceSPI;
+    deviceSPI = NULL;
   }
 }
 
-void SPIClass::beginTransaction(uint8_t _pin, SPISettings settings)
+void SPIClass::beginTransaction(SPISettings settings)
 {
-  if(_pin > SPI_CHANNELS_NUM)
-    return;
-
-  spiSettings[_pin].clk = settings.clk;
-  spiSettings[_pin].dMode = settings.dMode;
-  set_CPOL_CPHA(settings.dMode);
-  spiSettings[_pin].bOrder = settings.bOrder;
-
-  if (spiSettings[_pin].bOrder == MSBFIRST)
+  if (deviceSPI == NULL)
   {
-    spiSettings[_pin].msb = MSBFIRST;
-    obj.spi.handle.Init.FirstBit = SPI_FIRSTBIT_MSB;
+    begin();
   }
-  else
-  {
-    spiSettings[_pin].msb = LSBFIRST;
-    obj.spi.handle.Init.FirstBit = SPI_FIRSTBIT_LSB;
-  }
-  spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-  g_active_id = _pin;
+  // Un-select audio codec
+  pinMode(PB_12, OUTPUT);
+  digitalWrite(PB_12, HIGH);
+
+  setFrequency(settings._clock);
+  setDataMode(settings._dataMode);
 }
 
 void SPIClass::endTransaction(void)
 {
-  g_active_id = -1;
 }
 
-void SPIClass::end(uint8_t _pin)
+void SPIClass::setBitOrder(uint8_t bitOrder)
 {
-  end();
+  // Only support MSB
 }
 
-void SPIClass::end()
+void SPIClass::setDataMode(uint8_t dataMode)
 {
-  spi_free(&obj);
-  g_active_id = -1;
-}
-
-void SPIClass::setBitOrder(uint8_t _pin, BitOrder _bitOrder)
-{
-  if(_pin > SPI_CHANNELS_NUM)
-    return;
-
-  if (MSBFIRST == _bitOrder)
+  if (deviceSPI == NULL)
   {
-    spiSettings[_pin].msb = MSBFIRST;
-    spiSettings[_pin].bOrder = MSBFIRST;
-    obj.spi.handle.Init.FirstBit = SPI_FIRSTBIT_MSB;
+    begin();
   }
-  else
+  
+  if (dataMode >= 0 && dataMode < 4)
   {
-    spiSettings[_pin].msb = LSBFIRST;
-    spiSettings[_pin].bOrder = LSBFIRST;
-    obj.spi.handle.Init.FirstBit = SPI_FIRSTBIT_LSB;
+    spiSetting._dataMode = dataMode;
+    deviceSPI->format(SPI_DEFAULT_BITS_PER_FRAME, spiSetting._dataMode);
   }
-
-  spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-  g_active_id = _pin;
 }
 
-void SPIClass::setDataMode(uint8_t _pin, uint8_t _mode)
+void SPIClass::setFrequency(uint32_t freq)
 {
-  if(_pin > SPI_CHANNELS_NUM)
-    return;
-
-  if(SPI_MODE0 == _mode) {
-    spiSettings[_pin].dMode = SPI_MODE_0;
-  } else if(SPI_MODE1 == _mode) {
-    spiSettings[_pin].dMode = SPI_MODE_1;
-  } else if(SPI_MODE2 == _mode) {
-    spiSettings[_pin].dMode = SPI_MODE_2;
-  } else if(SPI_MODE3 == _mode) {
-    spiSettings[_pin].dMode = SPI_MODE_3;
+  if (deviceSPI == NULL)
+  {
+    begin();
   }
 
-  set_CPOL_CPHA(_mode);
-  spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-  g_active_id = _pin;
+  if (freq <= SPI_CLOCK_DIV2 && freq >= SPI_CLOCK_DIV128)
+  {
+    spiSetting._clock = freq;
+    deviceSPI->frequency(spiSetting._clock);
+  }
 }
 
-void SPIClass::setClockDivider(uint8_t _pin, uint8_t _divider)
+uint8_t SPIClass::transfer(uint8_t data)
 {
-  if(_pin > SPI_CHANNELS_NUM)
-    return;
-
-  switch(_divider) {
-    case (SPI_CLOCK_DIV2) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV2_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-    break;
-    case (SPI_CLOCK_DIV4) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV4_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
-    break;
-    case (SPI_CLOCK_DIV8) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV8_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
-    break;
-    case (SPI_CLOCK_DIV16) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV16_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-    break;
-    case (SPI_CLOCK_DIV32) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV32_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-    break;
-    case (SPI_CLOCK_DIV64) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV64_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
-    break;
-    case (SPI_CLOCK_DIV128) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV128_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
-    break;
-    case (SPI_CLOCK_DIV256) :
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV256_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
-    break;
-    default:
-      spiSettings[_pin].clk = SPI_SPEED_CLOCK_DIV16_MHZ;
-      obj.spi.handle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-    break;
+  if (deviceSPI == NULL)
+  {
+    begin();
   }
-
-  spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-  g_active_id = _pin;
+  
+  return (uint8_t)deviceSPI->write(data);
 }
 
-
-//Transfer a message on the selected SPI. The _pin is the CS of the SPI that
-//identifies the SPI instance.
-//If the _mode is set to SPI_CONTINUE, keep the spi instance alive.
-byte SPIClass::transfer(uint8_t _pin, uint8_t data, SPITransferMode _mode)
+void SPIClass::spi_setup(void)
 {
-  uint8_t rx_buffer = 0;
+  if (deviceSPI)
+  {
+    spiSetting._clock = SPI_SPEED_CLOCK_DEFAULT_HZ;
+    deviceSPI->frequency(spiSetting._clock);
 
-  if (_pin > SPI_CHANNELS_NUM)
-    return rx_buffer;
-
-  if(_pin != g_active_id) {
-    spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-    g_active_id = _pin;
+    spiSetting._dataMode = SPI_MODE0;
+    deviceSPI->format(SPI_DEFAULT_BITS_PER_FRAME, spiSetting._dataMode);
   }
-
-  if(_pin != BOARD_SPI_OWN_SS)
-    digitalWrite(_pin, LOW);
-
-  spi_master_write(&obj, (int)data);
-
-  if((_pin != BOARD_SPI_OWN_SS) && (_mode == SPI_LAST))
-    digitalWrite(_pin, HIGH);
-
-  return rx_buffer;
-}
-
-uint16_t SPIClass::transfer16(uint8_t _pin, uint16_t data, SPITransferMode _mode)
-{
-  uint16_t rx_buffer = 0;
-
-  if (_pin > SPI_CHANNELS_NUM)
-    return rx_buffer;
-
-  if(_pin != g_active_id) {
-    spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-    g_active_id = _pin;
-  }
-
-  if(_pin != BOARD_SPI_OWN_SS)
-    digitalWrite(_pin, LOW);
-
-  spi_master_write(&obj, (int)data);
-  /*   // enable interrupt?
-  //const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
-  //(uint8_t *)&data, (uint8_t *)&rx_buffer, sizeof(uint16_t), 10000000);
-  //uint8_t * tx_buffer, uint8_t * rx_buffer, uint16_t len, uint32_t Timeout)
-  spi_master_tranfer(&obj, (void *)&data, tx_length, (unit16_t *)&rx_buffer, rx_length, );
-  */
-
-  if((_pin != BOARD_SPI_OWN_SS) && (_mode == SPI_LAST))
-    digitalWrite(_pin, HIGH);
-
-  return rx_buffer;
-}
-
-void SPIClass::transfer(uint8_t _pin, void *_buf, size_t _count, SPITransferMode _mode)
-{
-  if ((_count == 0) || (_pin > SPI_CHANNELS_NUM))
-    return;
-
-  if(_pin != g_active_id) {
-    spi_init(&obj, SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS);
-    g_active_id = _pin;
-  }
-
-  if(_pin != BOARD_SPI_OWN_SS)
-    digitalWrite(_pin, LOW);
-
-  spi_send(&obj, (uint8_t *)_buf, _count, 10000);
-
-  if((_pin != BOARD_SPI_OWN_SS) && (_mode == SPI_LAST))
-    digitalWrite(_pin, HIGH);
-}
-
-int SPIClass::spi_send(spi_t *obj,uint8_t *Data, uint16_t len, uint32_t Timeout)
-{
-  struct spi_s *spiobj = SPI_S(obj);
-  SPI_HandleTypeDef *handle = &(spiobj->handle);
-  int ret = 0;
-  HAL_StatusTypeDef hal_status;
-
-  hal_status = HAL_SPI_Transmit(handle, Data, len, Timeout);
-
-  if(hal_status == HAL_TIMEOUT) {
-    ret = 1;
-  } else if(hal_status != HAL_OK) {
-    ret = 2;
-  }
-  return ret;
-}
-
-void SPIClass::attachInterrupt(void) {
-  // Should be enableInterrupt()
-}
-
-void SPIClass::detachInterrupt(void) {
-	// Should be disableInterrupt()
 }

@@ -239,8 +239,8 @@ typedef enum {
     I2C_SDA         = MBED_GPIO_18,
     SPI_MOSI        = MBED_GPIO_4,
     SPI_MISO        = MBED_GPIO_7,
-    SPI_SCK         = MBED_GPIO_6,
-    SPI_CS          = MBED_GPIO_5,
+    SPI_CLK         = MBED_GPIO_6,
+    SPI_SS          = MBED_GPIO_18,
     IR_DATA         = MBED_GPIO_19,
     PWM_OUT         = D9,
 
