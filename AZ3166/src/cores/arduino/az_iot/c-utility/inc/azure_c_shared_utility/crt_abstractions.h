@@ -39,7 +39,7 @@ typedef bool _Bool;
 #endif // __cplusplus
 #else // _WIN32_WCE
 /* WINCE does not support bool as C datatype */
-#define __bool_true_false_are_defined	1
+#define __bool_true_false_are_defined    1
 
 #define HAS_STDBOOL
 
@@ -50,8 +50,8 @@ typedef bool _Bool;
 #else // __cplusplus
 typedef unsigned char bool;
 
-#define false	0
-#define true	1
+#define false   0
+#define true    1
 #endif // __cplusplus
 #endif // _WIN32_WCE
 
@@ -81,9 +81,8 @@ typedef unsigned char bool;
 /* Codes_SRS_CRT_ABSTRACTIONS_99_001:[The module shall not redefine the secure functions implemented by Microsoft CRT.] */
 /* Codes_SRS_CRT_ABSTRACTIONS_99_040 : [The module shall still compile when building on a Microsoft platform.] */
 /* Codes_SRS_CRT_ABSTRACTIONS_99_002: [CRTAbstractions module shall expose the following API]*/
-#ifdef _MSC_VER
-#else // _MSC_VER
-#include "inttypes.h"
+#if defined (_MSC_VER) || defined (MINGW_HAS_SECURE_API)
+#else // _MSC_VER || MINGW_HAS_SECURE_API
 
 /* Adding definitions from errno.h & crtdefs.h */
 #if !defined (_TRUNCATE)
@@ -98,7 +97,7 @@ extern int strcpy_s(char* dst, size_t dstSizeInBytes, const char* src);
 extern int strcat_s(char* dst, size_t dstSizeInBytes, const char* src);
 extern int strncpy_s(char* dst, size_t dstSizeInBytes, const char* src, size_t maxCount);
 extern int sprintf_s(char* dst, size_t dstSizeInBytes, const char* format, ...);
-#endif // _MSC_VER
+#endif // _MSC_VER || MINGW_HAS_SECURE_API
 
 extern unsigned long long strtoull_s(const char* nptr, char** endPtr, int base);
 extern float strtof_s(const char* nptr, char** endPtr);
@@ -138,28 +137,9 @@ extern "C++" {
 #define ISNAN std::isnan
 }
 #else // __cplusplus
-#error unknown (or C89) compiler, provide ISNAN with the same meaning as isnan in C99 standard  
+#error unknown (or C89) compiler, provide ISNAN with the same meaning as isnan in C99 standard
 #endif // __cplusplus
 
-#endif // __STDC_VERSION__
-#endif // _MSC_VER
-
-#ifdef _MSC_VER
-#define INT64_PRINTF "%I64d"
-#else
-#if defined __STDC_VERSION__
-#if ((__STDC_VERSION__  == 199901L) || (__STDC_VERSION__ == 201000L) || (__STDC_VERSION__ == 201112L))
-/*C99 compiler or C11*/
-#define INT64_PRINTF "%" PRId64 ""
-#else // ((__STDC_VERSION__  == 199901L) || (__STDC_VERSION__ == 201000L) || (__STDC_VERSION__ == 201112L))
-#error update this file to contain the latest C standard.
-#endif // ((__STDC_VERSION__  == 199901L) || (__STDC_VERSION__ == 201000L) || (__STDC_VERSION__ == 201112L))
-#else // __STDC_VERSION__
-#ifdef __cplusplus 
-#define INT64_PRINTF "%" PRId64 ""
-#else // __cplusplus
-#error unknown (or C89) compiler, provide INT64_PRINTF with the same meaning as PRIdN in C99 standard
-#endif // __cplusplus
 #endif // __STDC_VERSION__
 #endif // _MSC_VER
 

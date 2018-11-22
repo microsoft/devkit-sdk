@@ -143,7 +143,7 @@ static int process_status_code_line(const unsigned char* buffer, size_t len, siz
         {
             if (spaceFound == 1)
             {
-                strncpy(status_code, initSpace, 3);
+                (void)memcpy(status_code, initSpace, 3);
                 status_code[3] = '\0';
             }
             else
@@ -186,6 +186,12 @@ static int process_header_line(const unsigned char* buffer, size_t len, size_t* 
         {
             colonEncountered = true;
             size_t keyLen = (&buffer[index])-targetPos;
+
+            if (headerKey != NULL)
+            {
+                free(headerKey);
+                headerKey = NULL;
+            }
             headerKey = (char*)malloc(keyLen+1);
             if (headerKey == NULL)
             {
@@ -820,7 +826,7 @@ static int construct_http_headers(HTTP_HEADERS_HANDLE http_header, size_t conten
             else
             {
                 /* Codes_SRS_UHTTP_07_015: [on_bytes_received shall add the Content-Length http header item to the request.] */
-                if (sprintf(content, "%s: %lu%s", HTTP_CONTENT_LEN, content_len, HTTP_CRLF_VALUE) <= 0)
+                if (sprintf(content, "%s: %u%s", HTTP_CONTENT_LEN, (unsigned int)content_len, HTTP_CRLF_VALUE) <= 0)
                 {
                     result = __FAILURE__;
                     LogError("Failed allocating content len header data");
@@ -969,8 +975,6 @@ HTTP_CLIENT_HANDLE uhttp_client_create(const IO_INTERFACE_DESCRIPTION* io_interf
                 result->recv_msg.recv_state = state_initial;
                 result->chunk_request = false;
                 result->trace_on = false;
-                bool ignore_check = true;
-                (void)xio_setoption(result->xio_handle, "ignore_server_name_check", &ignore_check);
             }
         }
     }

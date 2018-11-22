@@ -4,13 +4,22 @@
 /*THIS FILE IS GENERATED*/
 /*DO NOT EDIT BY HAND!!!*/
 /*instead edit macro_utils.tt here: http://www.github.com/azure/azure-macro-utils-c.git */
-/*and then copy the generated file overwriting this one*/
+/*and then propagate the generated file to all the repos*/
+/* !!! CAUTION!!! This file is copied to multiple places */
+/* in https://github.com/Azure/azure-c-shared-utility.git, */
+/* and all of these copies must be located and replaced. */
+
 
 
 #ifndef MACRO_UTILS_H
 #define MACRO_UTILS_H
 
-#include <string.h>
+#ifdef __cplusplus
+    #include <cstring>
+#else // __cplusplus
+    #include <string.h>
+#endif // __cplusplus
+
 
 #if (defined OPTIMIZE_RETURN_CODES)
     #define __FAILURE__ 1
@@ -90,7 +99,7 @@
 #define IFCOMMA_124 ,
 
 #define IFCOMMA_NOFIRST(N) C2(IFCOMMA_NOFIRST, N)
-#define IFCOMMA_NOFIRST1 
+#define IFCOMMA_NOFIRST1
 #define IFCOMMA_NOFIRST2 ,
 #define IFCOMMA_NOFIRST3 ,
 #define IFCOMMA_NOFIRST4 ,
@@ -7392,7 +7401,7 @@ FOR_EACH_2_COUNTED_122(X, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P
 #ifdef _MSC_VER
 #define FOR_EACH_2(MACRO_TO_INVOKE, ...) C2(FOR_EACH_2_, C1(COUNT_ARG(__VA_ARGS__))) LPAREN MACRO_TO_INVOKE, __VA_ARGS__)
 /*the COUNTED breed of FOR_EACH macro invokes a macro with 3 parameters: 1st being the count of invocation. For example.
-FOR_EACH_2_COUNTER(MACRO, a,b,c,d,e,f) will result in 
+FOR_EACH_2_COUNTER(MACRO, a,b,c,d,e,f) will result in
 MACRO(6, a,b)
 MACRO(4, c,d)
 MACRO(2, e,f)
@@ -12571,13 +12580,13 @@ IF(X, "true", "false") => "true"
     extern int C2(enumName, _FromString)(const char* enumAsString, enumName* destination);
 
 
-#define DEFINE_ENUMERATION_CONSTANT_AS_WIDESTRING(x) C2(L, TOSTRING(x)) , 
-#define DEFINE_ENUMERATION_CONSTANT_AS_STRING(x) TOSTRING(x) , 
+#define DEFINE_ENUMERATION_CONSTANT_AS_WIDESTRING(x) C2(L, TOSTRING(x)) ,
+#define DEFINE_ENUMERATION_CONSTANT_AS_STRING(x) TOSTRING(x) ,
 /*DEFINE_ENUM_STRINGS goes to .c*/
 #define DEFINE_ENUM_STRINGS(enumName, ...) const char* C2(enumName, StringStorage)[COUNT_ARG(__VA_ARGS__)] = {FOR_EACH_1(DEFINE_ENUMERATION_CONSTANT_AS_STRING, __VA_ARGS__)}; \
 const char* C2(enumName,Strings)(enumName value)                   \
 {                                                                  \
-    if((int)value<0 || (int)value>=COUNT_ARG(__VA_ARGS__))                         \
+    if((int)value<0 || (int)value>=COUNT_ARG(__VA_ARGS__))         \
     {                                                              \
         /*this is an error case*/                                  \
         return NULL;                                               \
@@ -12610,11 +12619,44 @@ int C2(enumName, _FromString)(const char* enumAsString, enumName* destination)  
     }                                                                           \
 }                                                                               \
 
+#define ENUM_TO_STRING(enumName, enumValue) C2(enumName, Strings)(enumValue)
+#define STRING_TO_ENUM(stringValue, enumName, addressOfEnumVariable) C2(enumName, _FromString)(stringValue, addressOfEnumVariable)
+
+#define DEFINE_MICROMOCK_ENUM_TO_STRING(type, ...) MICROMOCK_ENUM_TO_STRING(type, FOR_EACH_1(DEFINE_ENUMERATION_CONSTANT_AS_WIDESTRING, __VA_ARGS__));
+
+#define EMPTY()
+#define MACRO_UTILS_DELAY(id) id EMPTY LPAREN )
+
+#endif /*MACRO_UTILS_H*/
+
+// This portion of macro_utils.h is designed to be included multiple times to
+// redefine DEFINE_LOCAL_ENUM in situations where ENUM_TO_STRING is never called
+// thus avoiding the following warning
+//
+// warning: function "XXXXXXStrings" was declared but never referenced
+//
+// For Example, iothubtransport_amqp_common.c defines AMQP_TRANSPORT_STATE
+// but never calls ENUM_TO_STRING. To silence this warning you would do the
+// following:
+//
+// // Suppress unused function warning for AMQP_TRANSPORT_STATEstrings
+// #define ENUM_TO_STRING_UNUSED
+// #include "azure_c_shared_utility/macro_utils.h"
+//
+// DEFINE_LOCAL_ENUM(AMQP_TRANSPORT_STATE, AMQP_TRANSPORT_STATE_STRINGS);
+//
+
+#ifdef DEFINE_LOCAL_ENUM
+#undef DEFINE_LOCAL_ENUM
+#endif
+
+#ifndef ENUM_TO_STRING_UNUSED
+
 #define DEFINE_LOCAL_ENUM(enumName, ...) typedef enum C2(enumName, _TAG) { FOR_EACH_1(DEFINE_ENUMERATION_CONSTANT, __VA_ARGS__)} enumName; \
 static const char* C2(enumName, StringStorage)[COUNT_ARG(__VA_ARGS__)] = {FOR_EACH_1(DEFINE_ENUMERATION_CONSTANT_AS_STRING, __VA_ARGS__)}; \
-static const char* C2(enumName,Strings)(enumName value)                   \
+static const char* C2(enumName,Strings)(enumName value)            \
 {                                                                  \
-    if((int)value<0 || (int)value>=COUNT_ARG(__VA_ARGS__))                         \
+    if((int)value<0 || (int)value>=COUNT_ARG(__VA_ARGS__))         \
     {                                                              \
         /*this is an error case*/                                  \
         return NULL;                                               \
@@ -12625,12 +12667,8 @@ static const char* C2(enumName,Strings)(enumName value)                   \
     }                                                              \
 }
 
-#define ENUM_TO_STRING(enumName, enumValue) C2(enumName, Strings)(enumValue)
-#define STRING_TO_ENUM(stringValue, enumName, addressOfEnumVariable) C2(enumName, _FromString)(stringValue, addressOfEnumVariable)
+#else
 
-#define DEFINE_MICROMOCK_ENUM_TO_STRING(type, ...) MICROMOCK_ENUM_TO_STRING(type, FOR_EACH_1(DEFINE_ENUMERATION_CONSTANT_AS_WIDESTRING, __VA_ARGS__));
+#define DEFINE_LOCAL_ENUM(enumName, ...) typedef enum C2(enumName, _TAG) { FOR_EACH_1(DEFINE_ENUMERATION_CONSTANT, __VA_ARGS__)} enumName;
 
-#define EMPTY()
-#define DELAY(id) id EMPTY LPAREN )
-
-#endif /*MACRO_UTILS_H*/
+#endif

@@ -6,39 +6,43 @@
 
 #ifndef NO_LOGGING
 
+#ifdef WIN32
+#include "windows.h"
+#endif // WIN32
+
 
 #ifdef WINCE
 #include <stdarg.h>
 
 void consolelogger_log(LOG_CATEGORY log_category, const char* file, const char* func, int line, unsigned int options, const char* format, ...)
 {
-	va_list args;
-	va_start(args, format);
+    va_list args;
+    va_start(args, format);
 
-	time_t t = time(NULL);
+    time_t t = time(NULL);
 
-	switch (log_category)
-	{
-	case AZ_LOG_INFO:
-		(void)printf("Info: ");
-		break;
-	case AZ_LOG_ERROR:
-		(void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), file, func, line);
-		break;
-	default:
-		break;
-	}
+    switch (log_category)
+    {
+    case AZ_LOG_INFO:
+        (void)printf("Info: ");
+        break;
+    case AZ_LOG_ERROR:
+        (void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), file, func, line);
+        break;
+    default:
+        break;
+    }
 
-	(void)vprintf(format, args);
-	va_end(args);
+    (void)vprintf(format, args);
+    va_end(args);
 
-	(void)log_category;
-	if (options & LOG_LINE)
-	{
-		(void)printf("\r\n");
-	}
+    (void)log_category;
+    if (options & LOG_LINE)
+    {
+        (void)printf("\r\n");
+    }
 }
-#endif
+#endif // WINCE
 
 LOGGER_LOG global_log_function = consolelogger_log;
 
@@ -76,16 +80,18 @@ LOGGER_LOG_GETLASTERROR xlogging_get_log_function_GetLastError(void)
 /* Convert the lower nibble of the provided byte to a hexadecimal printable char. */
 #define HEX_STR(c)           (((c) & 0xF) < 0xA) ? (char)(((c) & 0xF) + '0') : (char)(((c) & 0xF) - 0xA + 'A')
 
-void xlogging_dump_buffer(const void* buf, size_t size)
+void LogBinary(const char* comment, const void* data, size_t size)
 {
     char charBuf[LINE_SIZE + 1];
     char hexBuf[LINE_SIZE * 3 + 1];
     size_t countbuf = 0;
-    const unsigned char* bufAsChar = (const unsigned char*)buf;
-    const unsigned char* startPos = bufAsChar;
-    
-    /* Print the whole buffer. */
     size_t i = 0;
+    const unsigned char* bufAsChar = (const unsigned char*)data;
+    const unsigned char* startPos = bufAsChar;
+
+    LOG(AZ_LOG_TRACE, LOG_LINE, "%s     %zu bytes", comment, size);
+
+    /* Print the whole buffer. */
     for (i = 0; i < size; i++)
     {
         /* Store the printable value of the char in the charBuf to print. */
@@ -106,7 +112,7 @@ void xlogging_dump_buffer(const void* buf, size_t size)
         {
             charBuf[countbuf] = '\0';
             hexBuf[countbuf * 3] = '\0';
-            LOG(AZ_LOG_TRACE, 0, "%p: %s    %s", startPos, hexBuf, charBuf);
+            LOG(AZ_LOG_TRACE, LOG_LINE, "%p: %s    %s", startPos, hexBuf, charBuf);
             countbuf = 0;
             startPos = bufAsChar;
         }
@@ -128,8 +134,53 @@ void xlogging_dump_buffer(const void* buf, size_t size)
         hexBuf[countbuf * 3] = '\0';
 
         /* Print the last line. */
-        LOG(AZ_LOG_TRACE, 0, "%p: %s    %s", startPos, hexBuf, charBuf);
+        LOG(AZ_LOG_TRACE, LOG_LINE, "%p: %s    %s", startPos, hexBuf, charBuf);
     }
 }
 
-#endif
+#ifdef WIN32
+
+#ifdef WINCE
+void xlogging_LogErrorWinHTTPWithGetLastErrorAsStringFormatter(int errorMessageID)
+{
+    (void)errorMessageID;
+}
+#else // WINCE
+void xlogging_LogErrorWinHTTPWithGetLastErrorAsStringFormatter(int errorMessageID)
+{
+    char messageBuffer[MESSAGE_BUFFER_SIZE];
+    if (errorMessageID == 0)
+    {
+        LogError("GetLastError() returned 0. Make sure you are calling this right after the code that failed. ");
+    }
+    else
+    {
+        int size = FormatMessage(FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS,
+            GetModuleHandle("WinHttp"), errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), messageBuffer, MESSAGE_BUFFER_SIZE, NULL);
+        if (size == 0)
+        {
+            size = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), messageBuffer, MESSAGE_BUFFER_SIZE, NULL);
+            if (size == 0)
+            {
+                LogError("GetLastError Code: %d. ", errorMessageID);
+            }
+            else
+            {
+                LogError("GetLastError: %s.", messageBuffer);
+            }
+        }
+        else
+        {
+            LogError("GetLastError: %s.", messageBuffer);
+        }
+    }
+}
+#endif // WINCE
+
+#endif // WIN32
+
+
+#endif // NO_LOGGING
+
+
+

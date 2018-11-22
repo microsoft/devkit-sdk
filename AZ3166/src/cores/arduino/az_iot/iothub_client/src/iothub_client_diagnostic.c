@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <stdlib.h>
+#include <inttypes.h>
 #include <math.h>
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/gballoc.h"
@@ -9,7 +10,7 @@
 #include "azure_c_shared_utility/agenttime.h"
 #include "azure_c_shared_utility/buffer_.h"
 
-#include "iothub_client_diagnostic.h"
+#include "internal/iothub_client_diagnostic.h"
 
 #define TIME_STRING_BUFFER_LEN 30
 
@@ -22,16 +23,15 @@ static char* get_epoch_time(char* timeBuffer)
     char* result;
     time_t epochTime;
     int timeLen = sizeof(time_t);
-    
+
     if ((epochTime = get_time(NULL)) == INDEFINITE_TIME)
     {
         LogError("Failed getting current time");
         result = NULL;
     }
-	else if (timeLen == sizeof(int64_t))
-	{
-        long long llTime = (long long)epochTime;
-        if (sprintf(timeBuffer, "%lld", llTime) < 0)
+    else if (timeLen == sizeof(int64_t))
+    {
+        if (sprintf(timeBuffer, "%"PRIu64, (int64_t)epochTime) < 0)
         {
             LogError("Failed sprintf to timeBuffer with 8 bytes of time_t");
             result = NULL;
@@ -40,10 +40,10 @@ static char* get_epoch_time(char* timeBuffer)
         {
             result = timeBuffer;
         }
-	}
-	else if (timeLen == sizeof(int32_t))
-	{
-        if (sprintf(timeBuffer, "%d", (int32_t)epochTime) < 0)
+    }
+    else if (timeLen == sizeof(int32_t))
+    {
+        if (sprintf(timeBuffer, "%"PRIu32, (int32_t)epochTime) < 0)
         {
             LogError("Failed sprintf to timeBuffer with 4 bytes of time_t");
             result = NULL;
@@ -52,13 +52,13 @@ static char* get_epoch_time(char* timeBuffer)
         {
             result = timeBuffer;
         }
-	}
+    }
     else
     {
-        LogError("Unknow size of time_t");
+        LogError("Unknown size of time_t");
         result = NULL;
     }
-    
+
     return result;
 }
 
@@ -69,7 +69,7 @@ static char get_base36_char(unsigned char value)
 
 static char* generate_eight_random_characters(char *randomString)
 {
-	int i;
+    int i;
     char* randomStringPos = randomString;
     for (i = 0; i < 4; ++i)
     {
@@ -89,9 +89,9 @@ static bool should_add_diagnostic_info(IOTHUB_DIAGNOSTIC_SETTING_DATA* diagSetti
     bool result = false;
     if (diagSetting->diagSamplingPercentage > 0)
     {
-		double number;
-		double percentage;
-		
+        double number;
+        double percentage;
+
         if (diagSetting->currentMessageNumber == UINT32_MAX)
         {
             diagSetting->currentMessageNumber %= diagSetting->diagSamplingPercentage * 100;
@@ -123,8 +123,8 @@ static IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* prepare_message_diagnostic_data(
         }
         else
         {
-			char* timeBuffer;
-			
+            char* timeBuffer;
+
             (void)generate_eight_random_characters(diagId);
             result->diagnosticId = diagId;
 
@@ -141,6 +141,7 @@ static IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* prepare_message_diagnostic_data(
                 LogError("Failed getting current time");
                 free(result->diagnosticId);
                 free(result);
+                free(timeBuffer);
                 result = NULL;
             }
             else

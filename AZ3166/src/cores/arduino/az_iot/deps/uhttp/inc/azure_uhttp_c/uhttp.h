@@ -31,7 +31,7 @@ typedef struct HTTP_CLIENT_HANDLE_DATA_TAG* HTTP_CLIENT_HANDLE;
 
 
 /** @brief Enumeration specifying the possible return values for the APIs in
-*		   this module.
+*           this module.
 */
 DEFINE_ENUM(HTTP_CLIENT_RESULT, HTTP_CLIENT_RESULT_VALUES);
 

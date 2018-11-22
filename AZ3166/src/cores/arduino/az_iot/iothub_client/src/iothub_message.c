@@ -28,6 +28,10 @@ typedef struct IOTHUB_MESSAGE_HANDLE_DATA_TAG
     char* correlationId;
     char* userDefinedContentType;
     char* contentEncoding;
+    char* outputName;
+    char* inputName;
+    char* connectionModuleId;
+    char* connectionDeviceId;
     IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA_HANDLE diagnosticData;
 }IOTHUB_MESSAGE_HANDLE_DATA;
 
@@ -37,7 +41,7 @@ static bool ContainsOnlyUsAscii(const char* asciiValue)
     const char* iterator = asciiValue;
     while (iterator != NULL && *iterator != '\0')
     {
-        // Allow only printable ascii char 
+        // Allow only printable ascii char
         if (*iterator < ' ' || *iterator > '~')
         {
             result = false;
@@ -92,6 +96,10 @@ static void DestroyMessageData(IOTHUB_MESSAGE_HANDLE_DATA* handleData)
     free(handleData->userDefinedContentType);
     free(handleData->contentEncoding);
     DestroyDiagnosticPropertyData(handleData->diagnosticData);
+    free(handleData->outputName);
+    free(handleData->inputName);
+    free(handleData->connectionModuleId);
+    free(handleData->connectionDeviceId);
     free(handleData);
 }
 
@@ -141,7 +149,7 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_CreateFromByteArray(const unsigned char* byt
     }
     else
     {
-        result = (IOTHUB_MESSAGE_HANDLE_DATA*)calloc(1, sizeof(IOTHUB_MESSAGE_HANDLE_DATA));
+        result = (IOTHUB_MESSAGE_HANDLE_DATA*)malloc(sizeof(IOTHUB_MESSAGE_HANDLE_DATA));
         if (result == NULL)
         {
             LogError("unable to malloc");
@@ -153,6 +161,7 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_CreateFromByteArray(const unsigned char* byt
             const unsigned char* source;
             unsigned char temp = 0x00;
 
+            memset(result, 0, sizeof(*result));
             /*Codes_SRS_IOTHUBMESSAGE_02_026: [The type of the new message shall be IOTHUBMESSAGE_BYTEARRAY.] */
             result->contentType = IOTHUBMESSAGE_BYTEARRAY;
 
@@ -211,7 +220,7 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_CreateFromString(const char* source)
     }
     else
     {
-        result = (IOTHUB_MESSAGE_HANDLE_DATA*)calloc(1, sizeof(IOTHUB_MESSAGE_HANDLE_DATA));
+        result = (IOTHUB_MESSAGE_HANDLE_DATA*)malloc(sizeof(IOTHUB_MESSAGE_HANDLE_DATA));
         if (result == NULL)
         {
             LogError("malloc failed");
@@ -220,9 +229,10 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_CreateFromString(const char* source)
         }
         else
         {
+            memset(result, 0, sizeof(*result));
             /*Codes_SRS_IOTHUBMESSAGE_02_032: [The type of the new message shall be IOTHUBMESSAGE_STRING.] */
             result->contentType = IOTHUBMESSAGE_STRING;
-            
+
             /*Codes_SRS_IOTHUBMESSAGE_02_027: [IoTHubMessage_CreateFromString shall call STRING_construct passing source as parameter.] */
             if ((result->value.string = STRING_construct(source)) == NULL)
             {
@@ -258,7 +268,7 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_Clone(IOTHUB_MESSAGE_HANDLE iotHubMessageHan
     }
     else
     {
-        result = (IOTHUB_MESSAGE_HANDLE_DATA*)calloc(1, sizeof(IOTHUB_MESSAGE_HANDLE_DATA));
+        result = (IOTHUB_MESSAGE_HANDLE_DATA*)malloc(sizeof(IOTHUB_MESSAGE_HANDLE_DATA));
         /*Codes_SRS_IOTHUBMESSAGE_03_004: [IoTHubMessage_Clone shall return NULL if it fails for any reason.]*/
         if (result == NULL)
         {
@@ -268,6 +278,7 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_Clone(IOTHUB_MESSAGE_HANDLE iotHubMessageHan
         }
         else
         {
+            memset(result, 0, sizeof(*result));
             result->contentType = source->contentType;
 
             if (source->messageId != NULL && mallocAndStrcpy_s(&result->messageId, source->messageId) != 0)
@@ -296,7 +307,31 @@ IOTHUB_MESSAGE_HANDLE IoTHubMessage_Clone(IOTHUB_MESSAGE_HANDLE iotHubMessageHan
             }
             else if (source->diagnosticData != NULL && (result->diagnosticData = CloneDiagnosticPropertyData(source->diagnosticData)) == NULL)
             {
-                LogError("unable to CloneDiagnosticPropertyData");
+                LogError("unable to copy CloneDiagnosticPropertyData");
+                DestroyMessageData(result);
+                result = NULL;
+            }
+            else if (source->outputName != NULL && mallocAndStrcpy_s(&result->outputName, source->outputName) != 0)
+            {
+                LogError("unable to copy outputName");
+                DestroyMessageData(result);
+                result = NULL;
+            }
+            else if (source->inputName != NULL && mallocAndStrcpy_s(&result->inputName, source->inputName) != 0)
+            {
+                LogError("unable to copy inputName");
+                DestroyMessageData(result);
+                result = NULL;
+            }
+            else if (source->connectionModuleId != NULL && mallocAndStrcpy_s(&result->connectionModuleId, source->connectionModuleId) != 0)
+            {
+                LogError("unable to copy inputName");
+                DestroyMessageData(result);
+                result = NULL;
+            }
+            else if (source->connectionDeviceId != NULL && mallocAndStrcpy_s(&result->connectionDeviceId, source->connectionDeviceId) != 0)
+            {
+                LogError("unable to copy inputName");
                 DestroyMessageData(result);
                 result = NULL;
             }
@@ -438,6 +473,53 @@ MAP_HANDLE IoTHubMessage_Properties(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
     return result;
 }
 
+IOTHUB_MESSAGE_RESULT IoTHubMessage_SetProperty(IOTHUB_MESSAGE_HANDLE msg_handle, const char* key, const char* value)
+{
+    IOTHUB_MESSAGE_RESULT result;
+    if (msg_handle == NULL || key == NULL || value == NULL)
+    {
+        LogError("invalid parameter (NULL) to IoTHubMessage_SetProperty iotHubMessageHandle=%p, key=%p, value=%p", msg_handle, key, value);
+        result = IOTHUB_MESSAGE_INVALID_ARG;
+    }
+    else
+    {
+        if (Map_AddOrUpdate(msg_handle->properties, key, value) != MAP_OK)
+        {
+            LogError("Failure adding property to internal map");
+            result = IOTHUB_MESSAGE_ERROR;
+        }
+        else
+        {
+            result = IOTHUB_MESSAGE_OK;
+        }
+    }
+    return result;
+}
+
+const char* IoTHubMessage_GetProperty(IOTHUB_MESSAGE_HANDLE msg_handle, const char* key)
+{
+    const char* result;
+    if (msg_handle == NULL || key == NULL)
+    {
+        LogError("invalid parameter (NULL) to IoTHubMessage_GetProperty iotHubMessageHandle=%p, key=%p", msg_handle, key);
+        result = NULL;
+    }
+    else
+    {
+        bool key_exists = false;
+        // The return value is not neccessary, just check the key_exist variable
+        if ((Map_ContainsKey(msg_handle->properties, key, &key_exists) == MAP_OK) && key_exists)
+        {
+            result = Map_GetValueFromKey(msg_handle->properties, key);
+        }
+        else
+        {
+            result = NULL;
+        }
+    }
+    return result;
+}
+
 const char* IoTHubMessage_GetCorrelationId(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
 {
     const char* result;
@@ -543,7 +625,7 @@ IOTHUB_MESSAGE_RESULT IoTHubMessage_SetContentTypeSystemProperty(IOTHUB_MESSAGE_
 {
     IOTHUB_MESSAGE_RESULT result;
 
-    // Codes_SRS_IOTHUBMESSAGE_09_001: [If any of the parameters are NULL then IoTHubMessage_SetContentTypeSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.] 
+    // Codes_SRS_IOTHUBMESSAGE_09_001: [If any of the parameters are NULL then IoTHubMessage_SetContentTypeSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
     if (iotHubMessageHandle == NULL || contentType == NULL)
     {
         LogError("Invalid argument (iotHubMessageHandle=%p, contentType=%p)", iotHubMessageHandle, contentType);
@@ -553,7 +635,7 @@ IOTHUB_MESSAGE_RESULT IoTHubMessage_SetContentTypeSystemProperty(IOTHUB_MESSAGE_
     {
         IOTHUB_MESSAGE_HANDLE_DATA* handleData = (IOTHUB_MESSAGE_HANDLE_DATA*)iotHubMessageHandle;
 
-        // Codes_SRS_IOTHUBMESSAGE_09_002: [If the IOTHUB_MESSAGE_HANDLE `contentType` is not NULL it shall be deallocated.] 
+        // Codes_SRS_IOTHUBMESSAGE_09_002: [If the IOTHUB_MESSAGE_HANDLE `contentType` is not NULL it shall be deallocated.]
         if (handleData->userDefinedContentType != NULL)
         {
             free(handleData->userDefinedContentType);
@@ -563,7 +645,7 @@ IOTHUB_MESSAGE_RESULT IoTHubMessage_SetContentTypeSystemProperty(IOTHUB_MESSAGE_
         if (mallocAndStrcpy_s(&handleData->userDefinedContentType, contentType) != 0)
         {
             LogError("Failed saving a copy of contentType");
-            // Codes_SRS_IOTHUBMESSAGE_09_003: [If the allocation or the copying of `contentType` fails, then IoTHubMessage_SetContentTypeSystemProperty shall return IOTHUB_MESSAGE_ERROR.] 
+            // Codes_SRS_IOTHUBMESSAGE_09_003: [If the allocation or the copying of `contentType` fails, then IoTHubMessage_SetContentTypeSystemProperty shall return IOTHUB_MESSAGE_ERROR.]
             result = IOTHUB_MESSAGE_ERROR;
         }
         else
@@ -580,7 +662,7 @@ const char* IoTHubMessage_GetContentTypeSystemProperty(IOTHUB_MESSAGE_HANDLE iot
 {
     const char* result;
 
-    // Codes_SRS_IOTHUBMESSAGE_09_005: [If any of the parameters are NULL then IoTHubMessage_GetContentTypeSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.] 
+    // Codes_SRS_IOTHUBMESSAGE_09_005: [If any of the parameters are NULL then IoTHubMessage_GetContentTypeSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
     if (iotHubMessageHandle == NULL)
     {
         LogError("Invalid argument (iotHubMessageHandle is NULL)");
@@ -590,7 +672,7 @@ const char* IoTHubMessage_GetContentTypeSystemProperty(IOTHUB_MESSAGE_HANDLE iot
     {
         IOTHUB_MESSAGE_HANDLE_DATA* handleData = iotHubMessageHandle;
 
-        // Codes_SRS_IOTHUBMESSAGE_09_006: [IoTHubMessage_GetContentTypeSystemProperty shall return the `contentType` as a const char* ] 
+        // Codes_SRS_IOTHUBMESSAGE_09_006: [IoTHubMessage_GetContentTypeSystemProperty shall return the `contentType` as a const char* ]
         result = (const char*)handleData->userDefinedContentType;
     }
 
@@ -601,7 +683,7 @@ IOTHUB_MESSAGE_RESULT IoTHubMessage_SetContentEncodingSystemProperty(IOTHUB_MESS
 {
     IOTHUB_MESSAGE_RESULT result;
 
-    // Codes_SRS_IOTHUBMESSAGE_09_006: [If any of the parameters are NULL then IoTHubMessage_SetContentEncodingSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.] 
+    // Codes_SRS_IOTHUBMESSAGE_09_006: [If any of the parameters are NULL then IoTHubMessage_SetContentEncodingSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
     if (iotHubMessageHandle == NULL || contentEncoding == NULL)
     {
         LogError("Invalid argument (iotHubMessageHandle=%p, contentEncoding=%p)", iotHubMessageHandle, contentEncoding);
@@ -611,7 +693,7 @@ IOTHUB_MESSAGE_RESULT IoTHubMessage_SetContentEncodingSystemProperty(IOTHUB_MESS
     {
         IOTHUB_MESSAGE_HANDLE_DATA* handleData = (IOTHUB_MESSAGE_HANDLE_DATA*)iotHubMessageHandle;
 
-        // Codes_SRS_IOTHUBMESSAGE_09_007: [If the IOTHUB_MESSAGE_HANDLE `contentEncoding` is not NULL it shall be deallocated.] 
+        // Codes_SRS_IOTHUBMESSAGE_09_007: [If the IOTHUB_MESSAGE_HANDLE `contentEncoding` is not NULL it shall be deallocated.]
         if (handleData->contentEncoding != NULL)
         {
             free(handleData->contentEncoding);
@@ -638,7 +720,7 @@ const char* IoTHubMessage_GetContentEncodingSystemProperty(IOTHUB_MESSAGE_HANDLE
 {
     const char* result;
 
-    // Codes_SRS_IOTHUBMESSAGE_09_010: [If any of the parameters are NULL then IoTHubMessage_GetContentEncodingSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.] 
+    // Codes_SRS_IOTHUBMESSAGE_09_010: [If any of the parameters are NULL then IoTHubMessage_GetContentEncodingSystemProperty shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
     if (iotHubMessageHandle == NULL)
     {
         LogError("Invalid argument (iotHubMessageHandle is NULL)");
@@ -648,7 +730,7 @@ const char* IoTHubMessage_GetContentEncodingSystemProperty(IOTHUB_MESSAGE_HANDLE
     {
         IOTHUB_MESSAGE_HANDLE_DATA* handleData = iotHubMessageHandle;
 
-        // Codes_SRS_IOTHUBMESSAGE_09_011: [IoTHubMessage_GetContentEncodingSystemProperty shall return the `contentEncoding` as a const char* ] 
+        // Codes_SRS_IOTHUBMESSAGE_09_011: [IoTHubMessage_GetContentEncodingSystemProperty shall return the `contentEncoding` as a const char* ]
         result = (const char*)handleData->contentEncoding;
     }
 
@@ -658,7 +740,7 @@ const char* IoTHubMessage_GetContentEncodingSystemProperty(IOTHUB_MESSAGE_HANDLE
 const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* IoTHubMessage_GetDiagnosticPropertyData(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
 {
     const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* result;
-    // Codes_SRS_IOTHUBMESSAGE_10_001: [If any of the parameters are NULL then IoTHubMessage_GetDiagnosticPropertyData shall return a NULL value.] 
+    // Codes_SRS_IOTHUBMESSAGE_10_001: [If any of the parameters are NULL then IoTHubMessage_GetDiagnosticPropertyData shall return a NULL value.]
     if (iotHubMessageHandle == NULL)
     {
         LogError("Invalid argument (iotHubMessageHandle is NULL)");
@@ -675,21 +757,21 @@ const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* IoTHubMessage_GetDiagnosticProper
 IOTHUB_MESSAGE_RESULT IoTHubMessage_SetDiagnosticPropertyData(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle, const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA* diagnosticData)
 {
     IOTHUB_MESSAGE_RESULT result;
-    // Codes_SRS_IOTHUBMESSAGE_10_003: [If any of the parameters are NULL then IoTHubMessage_SetDiagnosticId shall return a IOTHUB_MESSAGE_INVALID_ARG value.] 
-    if (iotHubMessageHandle == NULL || 
+    // Codes_SRS_IOTHUBMESSAGE_10_003: [If any of the parameters are NULL then IoTHubMessage_SetDiagnosticId shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
+    if (iotHubMessageHandle == NULL ||
         diagnosticData == NULL ||
         diagnosticData->diagnosticCreationTimeUtc == NULL ||
         diagnosticData->diagnosticId == NULL)
     {
-        LogError("Invalid argument (iotHubMessageHandle=%p, diagnosticData=%p, diagnosticData->diagnosticId=%p, diagnosticData->diagnosticCreationTimeUtc=%p)", 
-            iotHubMessageHandle, diagnosticData, 
+        LogError("Invalid argument (iotHubMessageHandle=%p, diagnosticData=%p, diagnosticData->diagnosticId=%p, diagnosticData->diagnosticCreationTimeUtc=%p)",
+            iotHubMessageHandle, diagnosticData,
             diagnosticData == NULL ? NULL : diagnosticData->diagnosticId,
             diagnosticData == NULL ? NULL : diagnosticData->diagnosticCreationTimeUtc);
         result = IOTHUB_MESSAGE_INVALID_ARG;
     }
     else
     {
-        // Codes_SRS_IOTHUBMESSAGE_10_004: [If the IOTHUB_MESSAGE_HANDLE `diagnosticData` is not NULL it shall be deallocated.] 
+        // Codes_SRS_IOTHUBMESSAGE_10_004: [If the IOTHUB_MESSAGE_HANDLE `diagnosticData` is not NULL it shall be deallocated.]
         if (iotHubMessageHandle->diagnosticData != NULL)
         {
             DestroyDiagnosticPropertyData(iotHubMessageHandle->diagnosticData);
@@ -708,6 +790,229 @@ IOTHUB_MESSAGE_RESULT IoTHubMessage_SetDiagnosticPropertyData(IOTHUB_MESSAGE_HAN
             result = IOTHUB_MESSAGE_OK;
         }
     }
+    return result;
+}
+
+
+const char* IoTHubMessage_GetOutputName(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
+{
+    const char* result;
+    // Codes_SRS_IOTHUBMESSAGE_31_034: [If the iotHubMessageHandle parameter is NULL then IoTHubMessage_GetOutputName shall return a NULL value.]
+    if (iotHubMessageHandle == NULL)
+    {
+        LogError("Invalid argument (iotHubMessageHandle is NULL)");
+        result = NULL;
+    }
+    else
+    {
+        // Codes_SRS_IOTHUBMESSAGE_31_035: [IoTHubMessage_GetOutputName shall return the OutputName as a const char*.]
+        result = iotHubMessageHandle->outputName;
+    }
+    return result;
+}
+
+IOTHUB_MESSAGE_RESULT IoTHubMessage_SetOutputName(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle, const char* outputName)
+{
+    IOTHUB_MESSAGE_RESULT result;
+
+    // Codes_SRS_IOTHUBMESSAGE_31_036: [If any of the parameters are NULL then IoTHubMessage_SetOutputName shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
+    if ((iotHubMessageHandle == NULL) || (outputName == NULL))
+    {
+        LogError("Invalid argument (iotHubMessageHandle=%p, outputName=%p)", iotHubMessageHandle, outputName);
+        result = IOTHUB_MESSAGE_INVALID_ARG;
+    }
+    else
+    {
+        IOTHUB_MESSAGE_HANDLE_DATA* handleData = (IOTHUB_MESSAGE_HANDLE_DATA*)iotHubMessageHandle;
+
+        // Codes_SRS_IOTHUBMESSAGE_31_037: [If the IOTHUB_MESSAGE_HANDLE OutputName is not NULL, then the IOTHUB_MESSAGE_HANDLE OutputName will be deallocated.]
+        if (handleData->outputName != NULL)
+        {
+            free(handleData->outputName);
+            handleData->outputName = NULL;
+        }
+
+        if (mallocAndStrcpy_s(&handleData->outputName, outputName) != 0)
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_038: [If the allocation or the copying of the OutputName fails, then IoTHubMessage_SetOutputName shall return IOTHUB_MESSAGE_ERROR.]
+            LogError("Failed saving a copy of outputName");
+            result = IOTHUB_MESSAGE_ERROR;
+        }
+        else
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_039: [IoTHubMessage_SetOutputName finishes successfully it shall return IOTHUB_MESSAGE_OK.]
+            result = IOTHUB_MESSAGE_OK;
+        }
+
+    }
+
+    return result;
+}
+
+const char* IoTHubMessage_GetInputName(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
+{
+    const char* result;
+    // Codes_SRS_IOTHUBMESSAGE_31_040: [if the iotHubMessageHandle parameter is NULL then IoTHubMessage_GetInputName shall return a NULL value.]
+    if (iotHubMessageHandle == NULL)
+    {
+        LogError("Invalid argument (iotHubMessageHandle is NULL)");
+        result = NULL;
+    }
+    else
+    {
+        // Codes_SRS_IOTHUBMESSAGE_31_041: [IoTHubMessage_GetInputName shall return the InputName as a const char*.]
+        result = iotHubMessageHandle->inputName;
+    }
+    return result;
+}
+
+IOTHUB_MESSAGE_RESULT IoTHubMessage_SetInputName(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle, const char* inputName)
+{
+    IOTHUB_MESSAGE_RESULT result;
+
+    // Codes_SRS_IOTHUBMESSAGE_31_042: [if any of the parameters are NULL then IoTHubMessage_SetInputName shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
+    if ((iotHubMessageHandle == NULL) || (inputName == NULL))
+    {
+        LogError("Invalid argument (iotHubMessageHandle=%p, inputName=%p)", iotHubMessageHandle, inputName);
+        result = IOTHUB_MESSAGE_INVALID_ARG;
+    }
+    else
+    {
+        IOTHUB_MESSAGE_HANDLE_DATA* handleData = (IOTHUB_MESSAGE_HANDLE_DATA*)iotHubMessageHandle;
+
+        // Codes_SRS_IOTHUBMESSAGE_31_043: [If the IOTHUB_MESSAGE_HANDLE InputName is not NULL, then the IOTHUB_MESSAGE_HANDLE InputName will be deallocated.]
+        if (handleData->inputName != NULL)
+        {
+            free(handleData->inputName);
+            handleData->inputName = NULL;
+        }
+
+        if (mallocAndStrcpy_s(&handleData->inputName, inputName) != 0)
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_044: [If the allocation or the copying of the InputName fails, then IoTHubMessage_SetInputName shall return IOTHUB_MESSAGE_ERROR.]
+            LogError("Failed saving a copy of inputName");
+            result = IOTHUB_MESSAGE_ERROR;
+        }
+        else
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_045: [IoTHubMessage_SetInputName finishes successfully it shall return IOTHUB_MESSAGE_OK.]
+            result = IOTHUB_MESSAGE_OK;
+        }
+
+    }
+
+    return result;
+}
+
+
+const char* IoTHubMessage_GetConnectionModuleId(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
+{
+    const char* result;
+    // Codes_SRS_IOTHUBMESSAGE_31_046: [if the iotHubMessageHandle parameter is NULL then IoTHubMessage_GetConnectionModuleId shall return a NULL value.]
+    if (iotHubMessageHandle == NULL)
+    {
+        LogError("Invalid argument (iotHubMessageHandle is NULL)");
+        result = NULL;
+    }
+    else
+    {
+        // Codes_SRS_IOTHUBMESSAGE_31_047: [IoTHubMessage_GetConnectionModuleId shall return the ConnectionModuleId as a const char*.]
+        result = iotHubMessageHandle->connectionModuleId;
+    }
+    return result;
+}
+
+IOTHUB_MESSAGE_RESULT IoTHubMessage_SetConnectionModuleId(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle, const char* connectionModuleId)
+{
+    IOTHUB_MESSAGE_RESULT result;
+
+    // Codes_SRS_IOTHUBMESSAGE_31_048: [if any of the parameters are NULL then IoTHubMessage_SetConnectionModuleId shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
+    if ((iotHubMessageHandle == NULL) || (connectionModuleId == NULL))
+    {
+        LogError("Invalid argument (iotHubMessageHandle=%p, connectionModuleId=%p)", iotHubMessageHandle, connectionModuleId);
+        result = IOTHUB_MESSAGE_INVALID_ARG;
+    }
+    else
+    {
+        IOTHUB_MESSAGE_HANDLE_DATA* handleData = (IOTHUB_MESSAGE_HANDLE_DATA*)iotHubMessageHandle;
+
+        // Codes_SRS_IOTHUBMESSAGE_31_049: [If the IOTHUB_MESSAGE_HANDLE ConnectionModuleId is not NULL, then the IOTHUB_MESSAGE_HANDLE ConnectionModuleId will be deallocated.]
+        if (handleData->connectionModuleId != NULL)
+        {
+            free(handleData->connectionModuleId);
+            handleData->connectionModuleId = NULL;
+        }
+
+        if (mallocAndStrcpy_s(&handleData->connectionModuleId, connectionModuleId) != 0)
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_050: [If the allocation or the copying of the ConnectionModuleId fails, then IoTHubMessage_SetConnectionModuleId shall return IOTHUB_MESSAGE_ERROR.]
+            LogError("Failed saving a copy of connectionModuleId");
+            result = IOTHUB_MESSAGE_ERROR;
+        }
+        else
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_051: [IoTHubMessage_SetConnectionModuleId finishes successfully it shall return IOTHUB_MESSAGE_OK.]
+            result = IOTHUB_MESSAGE_OK;
+        }
+
+    }
+
+    return result;
+}
+
+
+const char* IoTHubMessage_GetConnectionDeviceId(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle)
+{
+    const char* result;
+    // Codes_SRS_IOTHUBMESSAGE_31_052: [if the iotHubMessageHandle parameter is NULL then IoTHubMessage_GetConnectionDeviceId shall return a NULL value.]
+    if (iotHubMessageHandle == NULL)
+    {
+        LogError("Invalid argument (iotHubMessageHandle is NULL)");
+        result = NULL;
+    }
+    else
+    {
+        // Codes_SRS_IOTHUBMESSAGE_31_053: [IoTHubMessage_GetConnectionDeviceId shall return the ConnectionDeviceId as a const char*.]
+        result = iotHubMessageHandle->connectionDeviceId;
+    }
+    return result;
+}
+
+IOTHUB_MESSAGE_RESULT IoTHubMessage_SetConnectionDeviceId(IOTHUB_MESSAGE_HANDLE iotHubMessageHandle, const char* connectionDeviceId)
+{
+    IOTHUB_MESSAGE_RESULT result;
+
+    // Codes_SRS_IOTHUBMESSAGE_31_054: [if any of the parameters are NULL then IoTHubMessage_SetConnectionDeviceId shall return a IOTHUB_MESSAGE_INVALID_ARG value.]
+    if ((iotHubMessageHandle == NULL) || (connectionDeviceId == NULL))
+    {
+        LogError("Invalid argument (iotHubMessageHandle=%p, connectionDeviceId=%p)", iotHubMessageHandle, connectionDeviceId);
+        result = IOTHUB_MESSAGE_INVALID_ARG;
+    }
+    else
+    {
+        IOTHUB_MESSAGE_HANDLE_DATA* handleData = (IOTHUB_MESSAGE_HANDLE_DATA*)iotHubMessageHandle;
+
+        // Codes_SRS_IOTHUBMESSAGE_31_055: [If the IOTHUB_MESSAGE_HANDLE ConnectionDeviceId is not NULL, then the IOTHUB_MESSAGE_HANDLE ConnectionDeviceId will be deallocated.]
+        if (handleData->connectionDeviceId != NULL)
+        {
+            free(handleData->connectionDeviceId);
+            handleData->connectionDeviceId = NULL;
+        }
+
+        if (mallocAndStrcpy_s(&handleData->connectionDeviceId, connectionDeviceId) != 0)
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_056: [If the allocation or the copying of the ConnectionDeviceId fails, then IoTHubMessage_SetConnectionDeviceId shall return IOTHUB_MESSAGE_ERROR.]
+            LogError("Failed saving a copy of connectionDeviceId");
+            result = IOTHUB_MESSAGE_ERROR;
+        }
+        else
+        {
+            // Codes_SRS_IOTHUBMESSAGE_31_057: [IoTHubMessage_SetConnectionDeviceId finishes successfully it shall return IOTHUB_MESSAGE_OK.]
+            result = IOTHUB_MESSAGE_OK;
+        }
+
+    }
+
     return result;
 }
 

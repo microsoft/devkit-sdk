@@ -16,7 +16,12 @@
 #endif
 
 #ifdef __cplusplus
+/* Some compilers do not want to play by the standard, specifically ARM CC */
+#ifdef MBED_BUILD_TIMESTAMP
+#include <stdio.h>
+#else
 #include <cstdio>
+#endif
 extern "C" {
 #else
 #include <stdio.h>
@@ -42,14 +47,17 @@ typedef enum LOG_CATEGORY_TAG
 typedef void(*LOGGER_LOG)(LOG_CATEGORY log_category, const char* file, const char* func, int line, unsigned int options, const char* format, ...);
 typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int line, const char* format, ...);
 
+#define TEMP_BUFFER_SIZE 1024
+#define MESSAGE_BUFFER_SIZE 260
+
 #define LOG_NONE 0x00
 #define LOG_LINE 0x01
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
 
 /*no logging is useful when time and fprintf are mocked*/
 #ifdef NO_LOGGING
 #define LOG(...)
 #define LogInfo(...)
+#define LogBinary(...)
 #define LogError(...)
 #define xlogging_get_log_function() NULL
 #define xlogging_set_log_function(...)
@@ -58,7 +66,8 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 #elif (defined MINIMAL_LOGERROR)
 #define LOG(...)
 #define LogInfo(...)
-#define LogError(...) printf("error %s: line %d\n",__FILENAME__, __LINE__);
+#define LogBinary(...)
+#define LogError(...) printf("error %s: line %d\n",__FILE__,__LINE__);
 #define xlogging_get_log_function() NULL
 #define xlogging_set_log_function(...)
 #define LogErrorWinHTTPWithGetLastErrorAsString(...)
@@ -70,7 +79,7 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
         printf(flash_str, ##__VA_ARGS__);   \
         printf("\n");\
     } while((void)0,0)
-    
+
 #define LogError LogInfo
 #define LOG(log_category, log_options, FORMAT, ...)  { \
         static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = (FORMAT); \
@@ -80,10 +89,28 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 
 #else /* NOT ESP8266_RTOS */
 
+// In order to make sure that the compiler evaluates the arguments and issues an error if they do not conform to printf
+// specifications, we call printf with the format and __VA_ARGS__ but the call is behind an if (0) so that it does
+// not actually get executed at runtime
 #if defined _MSC_VER
-#define LOG(log_category, log_options, format, ...) { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __FILENAME__, FUNC_NAME, __LINE__, log_options, format, __VA_ARGS__); }
+// ignore warning C4127 
+#define LOG(log_category, log_options, format, ...) \
+{ \
+    __pragma(warning(suppress: 4127)) \
+    if (0) \
+    { \
+        (void)printf(format, __VA_ARGS__); \
+    } \
+    { \
+        LOGGER_LOG l = xlogging_get_log_function(); \
+        if (l != NULL) \
+        { \
+            l(log_category, __FILE__, FUNC_NAME, __LINE__, log_options, format, __VA_ARGS__); \
+        } \
+    } \
+}
 #else
-#define LOG(log_category, log_options, format, ...) { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __FILENAME__, FUNC_NAME, __LINE__, log_options, format, ##__VA_ARGS__); } 
+#define LOG(log_category, log_options, format, ...) { if (0) { (void)printf(format, ##__VA_ARGS__); } { LOGGER_LOG l = xlogging_get_log_function(); if (l != NULL) l(log_category, __FILE__, FUNC_NAME, __LINE__, log_options, format, ##__VA_ARGS__); } }
 #endif
 
 #if defined _MSC_VER
@@ -92,70 +119,44 @@ typedef void(*LOGGER_LOG_GETLASTERROR)(const char* file, const char* func, int l
 #define LogInfo(FORMAT, ...) do{LOG(AZ_LOG_INFO, LOG_LINE, FORMAT, ##__VA_ARGS__); }while((void)0,0)
 #endif
 
+#ifdef WIN32
+extern void xlogging_LogErrorWinHTTPWithGetLastErrorAsStringFormatter(int errorMessageID);
+#endif
+
 #if defined _MSC_VER
 
 #if !defined(WINCE)
 extern void xlogging_set_log_function_GetLastError(LOGGER_LOG_GETLASTERROR log_function);
 extern LOGGER_LOG_GETLASTERROR xlogging_get_log_function_GetLastError(void);
-#define LogLastError(FORMAT, ...) do{ LOGGER_LOG_GETLASTERROR l = xlogging_get_log_function_GetLastError(); if(l!=NULL) l(__FILENAME__, FUNC_NAME, __LINE__, FORMAT, __VA_ARGS__); }while((void)0,0)
+#define LogLastError(FORMAT, ...) do{ LOGGER_LOG_GETLASTERROR l = xlogging_get_log_function_GetLastError(); if(l!=NULL) l(__FILE__, FUNC_NAME, __LINE__, FORMAT, __VA_ARGS__); }while((void)0,0)
 #endif
 
 #define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, __VA_ARGS__); }while((void)0,0)
-#define TEMP_BUFFER_SIZE 1024
-#define MESSAGE_BUFFER_SIZE 260
 #define LogErrorWinHTTPWithGetLastErrorAsString(FORMAT, ...) do { \
-                DWORD errorMessageID = GetLastError(); \
-                char messageBuffer[MESSAGE_BUFFER_SIZE]; \
+                int errorMessageID = GetLastError(); \
                 LogError(FORMAT, __VA_ARGS__); \
-                if (errorMessageID == 0) \
-                {\
-                    LogError("GetLastError() returned 0. Make sure you are calling this right after the code that failed. "); \
-                } \
-                else\
-                {\
-                    int size = FormatMessage(FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, \
-                        GetModuleHandle("WinHttp"), errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), messageBuffer, MESSAGE_BUFFER_SIZE, NULL); \
-                    if (size == 0)\
-                    {\
-                        size = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), messageBuffer, MESSAGE_BUFFER_SIZE, NULL); \
-                        if (size == 0)\
-                        {\
-                            LogError("GetLastError Code: %d. ", errorMessageID); \
-                        }\
-                        else\
-                        {\
-                            LogError("GetLastError: %s.", messageBuffer); \
-                        }\
-                    }\
-                    else\
-                    {\
-                        LogError("GetLastError: %s.", messageBuffer); \
-                    }\
-                }\
+                xlogging_LogErrorWinHTTPWithGetLastErrorAsStringFormatter(errorMessageID); \
             } while((void)0,0)
-#else
+#else // _MSC_VER
 #define LogError(FORMAT, ...) do{ LOG(AZ_LOG_ERROR, LOG_LINE, FORMAT, ##__VA_ARGS__); }while((void)0,0)
-#endif
+
+#ifdef WIN32
+// Included when compiling on Windows but not with MSVC, e.g. with MinGW.
+#define LogErrorWinHTTPWithGetLastErrorAsString(FORMAT, ...) do { \
+                int errorMessageID = GetLastError(); \
+                LogError(FORMAT, ##__VA_ARGS__); \
+                xlogging_LogErrorWinHTTPWithGetLastErrorAsStringFormatter(errorMessageID); \
+            } while((void)0,0)
+#endif // WIN32
+
+#endif // _MSC_VER
+
+extern void LogBinary(const char* comment, const void* data, size_t size);
 
 extern void xlogging_set_log_function(LOGGER_LOG log_function);
 extern LOGGER_LOG xlogging_get_log_function(void);
 
 #endif /* NOT ESP8266_RTOS */
-
-
-    /**
-     * @brief   Print the memory content byte pre byte in hexadecimal and as a char it the byte correspond to any printable ASCII chars.
-     *
-     *    This function prints the 'size' bytes in the 'buf' to the log. It will print in portions of 16 bytes, 
-     *         and will print the byte as a hexadecimal value, and, it is a printable, this function will print 
-     *         the correspondent ASCII character.
-     *    Non printable characters will shows as a single '.'. 
-     *    For this function, printable characters are all characters between ' ' (0x20) and '~' (0x7E).
-     *
-     * @param   buf  Pointer to the memory address with the buffer to print.
-     * @param   size Number of bytes to print.
-     */
-    extern void xlogging_dump_buffer(const void* buf, size_t size);
 
 #ifdef __cplusplus
 }   // extern "C"

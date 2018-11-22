@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 /** @file   iothub_message.h
-*	@brief  The @c IoTHub_Message component encapsulates one message that
+*    @brief  The @c IoTHub_Message component encapsulates one message that
 *           can be transferred by an IoT hub client.
 */
 
@@ -10,12 +10,12 @@
 #define IOTHUB_MESSAGE_H
 
 #include "azure_c_shared_utility/macro_utils.h"
-#include "azure_c_shared_utility/map.h" 
+#include "azure_c_shared_utility/map.h"
 #include "azure_c_shared_utility/umock_c_prod.h"
 
 #ifdef __cplusplus
 #include <cstddef>
-extern "C" 
+extern "C"
 {
 #else
 #include <stddef.h>
@@ -170,13 +170,39 @@ MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetContentEncodingSyste
 MOCKABLE_FUNCTION(, const char*, IoTHubMessage_GetContentEncodingSystemProperty, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle);
 
 /**
+** DEPRECATED: Use IoTHubMessage_SetProperty and IoTHubMessage_GetProperty instead. **
 * @brief   Gets a handle to the message's properties map.
+*          Note that when sending messages via the HTTP transport, the key names in the map must not contain spaces.
 *
 * @param   iotHubMessageHandle Handle to the message.
 *
 * @return  A @c MAP_HANDLE pointing to the properties map for this message.
 */
 MOCKABLE_FUNCTION(, MAP_HANDLE, IoTHubMessage_Properties, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle);
+
+/**
+* @brief   Sets a property on a Iothub Message.
+*
+* @param   iotHubMessageHandle Handle to the message.
+*
+* @param   key name of the property to set.  Note that when sending messages via the HTTP transport, this value must not contain spaces.
+*
+* @param   value of the property to set.
+*
+* @return  An @c IOTHUB_MESSAGE_RESULT value indicating the result of setting the property.
+*/
+MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetProperty, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const char*, key, const char*, value);
+
+/**
+* @brief   Gets a IotHub Message's properties item.
+*
+* @param   iotHubMessageHandle Handle to the message.
+*
+* @param   key name of the property to retrieve.
+*
+* @return  A string with the property's value, or NULL if it does not exist in the properties list.
+*/
+MOCKABLE_FUNCTION(, const char*, IoTHubMessage_GetProperty, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const char*, key);
 
 /**
 * @brief   Gets the MessageId from the IOTHUB_MESSAGE_HANDLE.
@@ -237,6 +263,90 @@ MOCKABLE_FUNCTION(, const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA*, IoTHubMessag
 *          or an error code otherwise.
 */
 MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetDiagnosticPropertyData, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const IOTHUB_MESSAGE_DIAGNOSTIC_PROPERTY_DATA*, diagnosticData);
+
+/**
+* @brief   Gets the output name from the IOTHUB_MESSAGE_HANDLE.
+*
+* @param   iotHubMessageHandle Handle to the message.
+*
+* @return  A const char* pointing to the Output Id.
+*/
+MOCKABLE_FUNCTION(, const char*, IoTHubMessage_GetOutputName, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle);
+
+
+/**
+* @brief   Sets output for named queues. CAUTION: SDK user should not call it directly, it is for internal use only.
+*
+* @param   iotHubMessageHandle Handle to the message.
+* @param   outputName Pointer to the queue to output message to
+*
+* @return  Returns IOTHUB_MESSAGE_OK if the DiagnosticData was set successfully
+*          or an error code otherwise.
+*/
+MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetOutputName, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const char*, outputName);
+
+
+/**
+* @brief   Gets the input name from the IOTHUB_MESSAGE_HANDLE.
+*
+* @param   iotHubMessageHandle Handle to the message.
+*
+* @return  A const char* pointing to the Input Id.
+*/
+MOCKABLE_FUNCTION(, const char*, IoTHubMessage_GetInputName, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle);
+
+/**
+* @brief   Sets input for named queues. CAUTION: SDK user should not call it directly, it is for internal use only.
+*
+* @param   iotHubMessageHandle Handle to the message.
+* @param   inputName Pointer to the queue to input message to
+*
+* @return  Returns IOTHUB_MESSAGE_OK if the DiagnosticData was set successfully
+*          or an error code otherwise.
+*/
+MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetInputName, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const char*, inputName);
+
+/**
+* @brief   Gets the module name from the IOTHUB_MESSAGE_HANDLE.
+*
+* @param   iotHubMessageHandle Handle to the message.
+*
+* @return  A const char* pointing to the connection module Id.
+*/
+MOCKABLE_FUNCTION(, const char*, IoTHubMessage_GetConnectionModuleId, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle);
+
+/**
+* @brief   Sets connection module ID. CAUTION: SDK user should not call it directly, it is for internal use only.
+*
+* @param   iotHubMessageHandle Handle to the message.
+* @param   connectionModuleId Pointer to the module ID of connector
+*
+* @return  Returns IOTHUB_MESSAGE_OK if the DiagnosticData was set successfully
+*          or an error code otherwise.
+*/
+MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetConnectionModuleId, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const char*, connectionModuleId);
+
+
+/**
+* @brief   Gets the connection device ID from the IOTHUB_MESSAGE_HANDLE.
+*
+* @param   iotHubMessageHandle Handle to the message.
+*
+* @return  A const char* pointing to the connection device Id.
+*/
+MOCKABLE_FUNCTION(, const char*, IoTHubMessage_GetConnectionDeviceId, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle);
+
+/**
+* @brief   Sets connection device Id. CAUTION: SDK user should not call it directly, it is for internal use only.
+*
+* @param   iotHubMessageHandle Handle to the message.
+* @param   connectionDeviceId Pointer to the device ID of connector
+*
+* @return  Returns IOTHUB_MESSAGE_OK if the DiagnosticData was set successfully
+*          or an error code otherwise.
+*/
+MOCKABLE_FUNCTION(, IOTHUB_MESSAGE_RESULT, IoTHubMessage_SetConnectionDeviceId, IOTHUB_MESSAGE_HANDLE, iotHubMessageHandle, const char*, connectionDeviceId);
+
 
 /**
 * @brief   Frees all resources associated with the given message handle.

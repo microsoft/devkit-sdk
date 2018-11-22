@@ -8,22 +8,24 @@
 #include <stdbool.h>
 #include "azure_c_shared_utility/optionhandler.h"
 #include "azure_c_shared_utility/umock_c_prod.h"
-#include "iothub_client_ll.h"
+#include "iothub_client_core_ll.h"
+#include "internal/iothubtransport.h"
+#include "azure_c_shared_utility/const_defines.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-static const char* RETRY_CONTROL_OPTION_INITIAL_WAIT_TIME_IN_SECS = "initial_wait_time_in_secs";
-static const char* RETRY_CONTROL_OPTION_MAX_JITTER_PERCENT = "max_jitter_percent";
-static const char* RETRY_CONTROL_OPTION_SAVED_OPTIONS = "retry_control_saved_options";
+static STATIC_VAR_UNUSED const char* RETRY_CONTROL_OPTION_INITIAL_WAIT_TIME_IN_SECS = "initial_wait_time_in_secs";
+static STATIC_VAR_UNUSED const char* RETRY_CONTROL_OPTION_MAX_JITTER_PERCENT = "max_jitter_percent";
+static STATIC_VAR_UNUSED const char* RETRY_CONTROL_OPTION_SAVED_OPTIONS = "retry_control_saved_options";
 
 typedef enum RETRY_ACTION_TAG
 {
-	RETRY_ACTION_RETRY_NOW,
-	RETRY_ACTION_RETRY_LATER,
-	RETRY_ACTION_STOP_RETRYING
+    RETRY_ACTION_RETRY_NOW,
+    RETRY_ACTION_RETRY_LATER,
+    RETRY_ACTION_STOP_RETRYING
 } RETRY_ACTION;
 
 struct RETRY_CONTROL_INSTANCE_TAG;
@@ -42,4 +44,4 @@ MOCKABLE_FUNCTION(, int, is_timeout_reached, time_t, start_time, unsigned int, t
 }
 #endif
 
-#endif // IOTHUB_CLIENT_RETRY_CONTROL 
+#endif // IOTHUB_CLIENT_RETRY_CONTROL

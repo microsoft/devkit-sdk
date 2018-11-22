@@ -3,8 +3,8 @@
 #include "mbed.h"
 #include "DevkitDPSClient.h"
 #include "DiceCore.h"
-#include "RiotCore.h"
 #include "EEPROMInterface.h"
+#include "RiotCore.h"
 
 #include "iothub_client_version.h"
 #include "iothub_client.h"
@@ -243,7 +243,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
             return false;
         }
     }
-
+    
     if (platform_init() != 0)
     {
         LogError("Failed to initialize the platform.");

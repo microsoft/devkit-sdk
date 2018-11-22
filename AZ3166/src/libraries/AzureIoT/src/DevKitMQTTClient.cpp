@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-#include "EEPROMInterface.h"
+#include "mbed.h"
 #include "DevKitMQTTClient.h"
+#include "DevkitDPSClient.h"
+#include "EEPROMInterface.h"
 #include "SerialLog.h"
 #include "SystemTickCounter.h"
-#include "SystemWiFi.h"
-#include "Telemetry.h"
-#include "DevkitDPSClient.h"
-#include "iothub_client_ll.h"
+#include "SystemTime.h"
 #include "SystemVersion.h"
-#include <iothub_client_hsm_ll.h>
+#include "Telemetry.h"
+
+#include "iothub_client_ll.h"
+#include "iothub_client_hsm_ll.h"
 
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000

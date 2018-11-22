@@ -168,7 +168,7 @@ int BUFFER_append_build(BUFFER_HANDLE handle, const unsigned char* source, size_
     if (handle == NULL || source == NULL || size == 0)
     {
         /* Codes_SRS_BUFFER_07_029: [ BUFFER_append_build shall return nonzero if handle or source are NULL or if size is 0. ] */
-        LogError("BUFFER_append_build failed invalid parameter handle: %p, source: %p, size: %uz", handle, source, size);
+        LogError("BUFFER_append_build failed invalid parameter handle: %p, source: %p, size: %lu", handle, source, (unsigned long)size);
         result = __FAILURE__;
     }
     else
@@ -441,7 +441,7 @@ int BUFFER_append(BUFFER_HANDLE handle1, BUFFER_HANDLE handle2)
     {
         BUFFER* b1 = (BUFFER*)handle1;
         BUFFER* b2 = (BUFFER*)handle2;
-        if (b1->buffer == NULL) 
+        if (b1->buffer == NULL)
         {
             /* Codes_SRS_BUFFER_07_023: [BUFFER_append shall return a nonzero upon any error that is encountered.] */
             result = __FAILURE__;
@@ -615,6 +615,7 @@ BUFFER_HANDLE BUFFER_clone(BUFFER_HANDLE handle)
         {
             if (BUFFER_safemalloc(b, suppliedBuff->size) != 0)
             {
+                free(b);
                 LogError("Failure: allocating temp buffer.");
                 result = NULL;
             }
