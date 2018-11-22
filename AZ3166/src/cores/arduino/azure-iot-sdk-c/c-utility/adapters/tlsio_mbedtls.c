@@ -658,22 +658,6 @@ void tlsio_mbedtls_dowork(CONCRETE_IO_HANDLE tls_io)
     }
 }
 
-static const IO_INTERFACE_DESCRIPTION tlsio_mbedtls_interface_description =
-    {
-        tlsio_mbedtls_retrieveoptions,
-        tlsio_mbedtls_create,
-        tlsio_mbedtls_destroy,
-        tlsio_mbedtls_open,
-        tlsio_mbedtls_close,
-        tlsio_mbedtls_send,
-        tlsio_mbedtls_dowork,
-        tlsio_mbedtls_setoption};
-
-const IO_INTERFACE_DESCRIPTION *tlsio_mbedtls_get_interface_description(void)
-{
-    return &tlsio_mbedtls_interface_description;
-}
-
 /*this function will clone an option given by name and value*/
 static void *tlsio_mbedtls_CloneOption(const char *name, const void *value)
 {
@@ -733,53 +717,6 @@ static void tlsio_mbedtls_DestroyOption(const char *name, const void *value)
             LogError("not handled option : %s", name);
         }
     }
-}
-
-OPTIONHANDLER_HANDLE tlsio_mbedtls_retrieveoptions(CONCRETE_IO_HANDLE handle)
-{
-    OPTIONHANDLER_HANDLE result;
-    if (handle == NULL)
-    {
-        LogError("invalid parameter detected: CONCRETE_IO_HANDLE handle=%p", handle);
-        result = NULL;
-    }
-    else
-    {
-        result = OptionHandler_Create(tlsio_mbedtls_CloneOption, tlsio_mbedtls_DestroyOption, tlsio_mbedtls_setoption);
-        if (result == NULL)
-        {
-            LogError("unable to OptionHandler_Create");
-            /*return as is*/
-        }
-        else
-        {
-            /*this layer cares about the certificates*/
-            TLS_IO_INSTANCE *tls_io_instance = (TLS_IO_INSTANCE *)handle;
-            OPTIONHANDLER_HANDLE underlying_io_options;
-
-            if ((underlying_io_options = xio_retrieveoptions(tls_io_instance->socket_io)) == NULL ||
-                OptionHandler_AddOption(result, OPTION_UNDERLYING_IO_OPTIONS, underlying_io_options) != OPTIONHANDLER_OK)
-            {
-                LogError("unable to save underlying_io options");
-                OptionHandler_Destroy(underlying_io_options);
-                OptionHandler_Destroy(result);
-                result = NULL;
-            }
-            else if (tls_io_instance->trusted_certificates != NULL &&
-                     OptionHandler_AddOption(result, OPTION_TRUSTED_CERT, tls_io_instance->trusted_certificates) != OPTIONHANDLER_OK)
-            {
-                LogError("unable to save TrustedCerts option");
-                OptionHandler_Destroy(result);
-                result = NULL;
-            }
-            else
-            {
-                /*all is fine, all interesting options have been saved*/
-                /*return as is*/
-            }
-        }
-    }
-    return result;
 }
 
 int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char *optionName, const void *value)
@@ -851,4 +788,67 @@ int tlsio_mbedtls_setoption(CONCRETE_IO_HANDLE tls_io, const char *optionName, c
     }
 
     return result;
+}
+
+OPTIONHANDLER_HANDLE tlsio_mbedtls_retrieveoptions(CONCRETE_IO_HANDLE handle)
+{
+    OPTIONHANDLER_HANDLE result;
+    if (handle == NULL)
+    {
+        LogError("invalid parameter detected: CONCRETE_IO_HANDLE handle=%p", handle);
+        result = NULL;
+    }
+    else
+    {
+        result = OptionHandler_Create(tlsio_mbedtls_CloneOption, tlsio_mbedtls_DestroyOption, tlsio_mbedtls_setoption);
+        if (result == NULL)
+        {
+            LogError("unable to OptionHandler_Create");
+            /*return as is*/
+        }
+        else
+        {
+            /*this layer cares about the certificates*/
+            TLS_IO_INSTANCE *tls_io_instance = (TLS_IO_INSTANCE *)handle;
+            OPTIONHANDLER_HANDLE underlying_io_options;
+
+            if ((underlying_io_options = xio_retrieveoptions(tls_io_instance->socket_io)) == NULL ||
+                OptionHandler_AddOption(result, OPTION_UNDERLYING_IO_OPTIONS, underlying_io_options) != OPTIONHANDLER_OK)
+            {
+                LogError("unable to save underlying_io options");
+                OptionHandler_Destroy(underlying_io_options);
+                OptionHandler_Destroy(result);
+                result = NULL;
+            }
+            else if (tls_io_instance->trusted_certificates != NULL &&
+                     OptionHandler_AddOption(result, OPTION_TRUSTED_CERT, tls_io_instance->trusted_certificates) != OPTIONHANDLER_OK)
+            {
+                LogError("unable to save TrustedCerts option");
+                OptionHandler_Destroy(result);
+                result = NULL;
+            }
+            else
+            {
+                /*all is fine, all interesting options have been saved*/
+                /*return as is*/
+            }
+        }
+    }
+    return result;
+}
+
+static const IO_INTERFACE_DESCRIPTION tlsio_mbedtls_interface_description =
+    {
+        tlsio_mbedtls_retrieveoptions,
+        tlsio_mbedtls_create,
+        tlsio_mbedtls_destroy,
+        tlsio_mbedtls_open,
+        tlsio_mbedtls_close,
+        tlsio_mbedtls_send,
+        tlsio_mbedtls_dowork,
+        tlsio_mbedtls_setoption};
+
+const IO_INTERFACE_DESCRIPTION *tlsio_mbedtls_get_interface_description(void)
+{
+    return &tlsio_mbedtls_interface_description;
 }

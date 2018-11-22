@@ -10,8 +10,50 @@
 
 #include "hsm_client_data.h"
 
-static const char* const SYMMETRIC_KEY_VALUE = "Enter Symmetric key here";
-static const char* const REGISTRATION_NAME = "Enter Registration Id here";
+
+char *SYMMETRIC_KEY_VALUE = NULL;
+char *REGISTRATION_NAME = NULL;
+
+void free_keys()
+{
+    if (SYMMETRIC_KEY_VALUE != NULL)
+    {
+        free(SYMMETRIC_KEY_VALUE);
+        SYMMETRIC_KEY_VALUE = NULL;
+    }
+
+    if (REGISTRATION_NAME != NULL)
+    {
+        free(REGISTRATION_NAME);
+        REGISTRATION_NAME = NULL;
+    }
+}
+
+extern void hsm_client_set_registration_name_and_key(const char* name, const char* key) {
+    size_t key_length  = strlen(key),
+           name_length = strlen(name);
+
+    free_keys();
+
+    SYMMETRIC_KEY_VALUE = (char*) malloc(key_length + 1);
+    if (!SYMMETRIC_KEY_VALUE)
+    {
+        LogError("OOM: hsm_client_set_registration_name_and_key SYMMETRIC_KEY_VALUE(%d bytes)", strlen(key));
+        return;
+    }
+    REGISTRATION_NAME = (char*) malloc(name_length + 1);
+    if (!REGISTRATION_NAME)
+    {
+        free(SYMMETRIC_KEY_VALUE);
+        LogError("OOM: hsm_client_set_registration_name_and_key REGISTRATION_NAME(%d bytes)", strlen(name));
+        return;
+    }
+    strcpy(SYMMETRIC_KEY_VALUE, key);
+    strcpy(REGISTRATION_NAME, name);
+
+    SYMMETRIC_KEY_VALUE[key_length] = 0;
+    REGISTRATION_NAME[name_length] = 0;
+}
 
 typedef struct HSM_CLIENT_KEY_INFO_TAG
 {
@@ -29,9 +71,16 @@ HSM_CLIENT_HANDLE hsm_client_key_create(void)
     }
     else
     {
-        memset(result, 0, sizeof(HSM_CLIENT_KEY_INFO));
-        result->symmetrical_key = SYMMETRIC_KEY_VALUE;
-        result->registration_name = REGISTRATION_NAME;
+        if (SYMMETRIC_KEY_VALUE == NULL)
+        {
+            LogError("Failure: SYMMETRIC_KEY_VALUE is not set.");
+        }
+        else
+        {
+            memset(result, 0, sizeof(HSM_CLIENT_KEY_INFO));
+            result->symmetrical_key = SYMMETRIC_KEY_VALUE;
+            result->registration_name = REGISTRATION_NAME;
+        }
     }
     return result;
 }
