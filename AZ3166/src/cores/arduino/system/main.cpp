@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. 
+// Licensed under the MIT license.
 
 #include "Arduino.h"
 #include "console_cli.h"
@@ -21,18 +21,18 @@ static bool Initialization(void)
 #if defined(USBCON)
     USBDevice.attach();
 #endif
-    
+
     Serial.print("\r\n************************************************");
     Serial.print("\r\n** MXChip - Microsoft IoT Developer Kit **");
     Serial.print("\r\n************************************************\r\n");
-    
+
     // Initialize the system tickcounter
     SystemTickCounterInit();
 
     // Initialize the OLED screen
     Screen.init();
 
-    // Turn off WiFi led 
+    // Turn off WiFi led
     DigitalOut LedWifi(LED_WIFI);
     LedWifi = 0;
 
@@ -40,7 +40,7 @@ static bool Initialization(void)
     DigitalOut LedAzure(LED_AZURE);
     LedAzure = 0;
 
-    // Turn off User led 
+    // Turn off User led
     DigitalOut LedUser(LED_USER);
     LedUser = 0;
 
@@ -54,7 +54,7 @@ static bool Initialization(void)
     _red.write(0.0f);
     _green.write(0.0f);
     _blue.write(0.0f);
-    
+
     return true;
 }
 
@@ -62,7 +62,7 @@ static bool IsConfigurationMode()
 {
     pinMode(USER_BUTTON_A, INPUT);
     int buttonState = digitalRead(USER_BUTTON_A);
-    if(buttonState == LOW)
+    if (buttonState == LOW)
     {
         return true;
     }
@@ -73,7 +73,7 @@ static bool IsAPMode()
 {
     pinMode(USER_BUTTON_B, INPUT);
     int buttonState = digitalRead(USER_BUTTON_B);
-    if(buttonState == LOW)
+    if (buttonState == LOW)
     {
         return true;
     }
@@ -90,7 +90,7 @@ static void EnterConfigurationMode()
     {
         return;
     }
-    
+
     char id[24] = "id:";
     id[3 + GetMACWithoutColon(id + 3)] = 0;
     Screen.print(1, id);
@@ -99,30 +99,29 @@ static void EnterConfigurationMode()
     cli_main();
 }
 
-
 static void EnterAPMode()
 {
     pinMode(USER_BUTTON_B, INPUT);
 
     Screen.print("IoT DevKit");
-   
+
     if (!InitSystemWiFi())
     {
         Serial.println("Set wifi AP Mode failed");
         return;
     }
 
-    const char* ap_name = GetBoardAPName();
+    const char *ap_name = GetBoardAPName();
 
     int ret = SystemWiFiAPStart(ap_name, "");
-    if ( ret == false) 
+    if (ret == false)
     {
         Serial.println("Soft ap creation failed");
-        return ;
+        return;
     }
 
     httpd_server_start();
-    
+
     Screen.print(1, ap_name);
     Screen.print(2, "Config WiFi on");
     Screen.print(3, "192.168.0.1");
@@ -131,12 +130,12 @@ static void EnterAPMode()
     Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the Wi-Fi settings.\r\n");
 }
 
-extern void start_arduino ( void );
+extern void start_arduino(void);
 
 static void EnterUserMode()
 {
     Serial.print("You can 1. press Button A and reset to enter configuration mode.\r\n        2. press Button B and reset to enter AP mode.\r\n\r\n");
-    
+
     start_arduino();
 
     for (;;)
@@ -146,7 +145,7 @@ static void EnterUserMode()
     }
 }
 
-int main( void )
+int main(void)
 {
     Initialization();
 
@@ -162,6 +161,6 @@ int main( void )
     {
         EnterUserMode();
     }
-    
+
     return 0;
 }
