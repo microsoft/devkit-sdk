@@ -485,8 +485,8 @@ void socketio_dowork(CONCRETE_IO_HANDLE socket_io)
 
 int socketio_setoption(CONCRETE_IO_HANDLE socket_io, const char* optionName, const void* value)
 {
-    /* Not implementing any options */
-    return __FAILURE__;
+    /* Not implementing any options, do nothing */
+    return OPTIONHANDLER_OK;
 }
 
 const IO_INTERFACE_DESCRIPTION* socketio_get_interface_description(void)
