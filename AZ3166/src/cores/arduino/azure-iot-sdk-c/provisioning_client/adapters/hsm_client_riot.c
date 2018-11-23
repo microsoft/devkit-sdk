@@ -181,11 +181,11 @@ static int generate_root_ca_info(HSM_CLIENT_X509_INFO* riot_info, RIOT_ECC_SIGNA
         LogError("Failure: RiotCrypt_Sign returned invalid status %d.", status);
         result = __FAILURE__;
     }
-    else if (X509MakeRootCert(&der_ctx, tbs_sig) != 0)
-    {
-        LogError("Failure: X509MakeRootCert");
-        result = __FAILURE__;
-    }
+    //else if (X509MakeRootCert(&der_ctx, tbs_sig) != 0)
+    //{
+    //    LogError("Failure: X509MakeRootCert");
+    //    result = __FAILURE__;
+    //}
     else
     {
         riot_info->root_ca_priv_length = sizeof(riot_info->root_ca_priv_pem);

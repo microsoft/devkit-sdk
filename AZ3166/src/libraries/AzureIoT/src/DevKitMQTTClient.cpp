@@ -8,8 +8,10 @@
 #include "SystemTickCounter.h"
 #include "SystemTime.h"
 #include "SystemVersion.h"
+#include "SystemWiFi.h"
 #include "Telemetry.h"
 
+#include "iothub_client_version.h"
 #include "iothub_client_ll.h"
 #include "iothub_client_hsm_ll.h"
 
@@ -468,6 +470,8 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     srand((unsigned int)time(NULL));
     trackingId = 0;
 
+    LogInfo("Iothub Version: %s\r\n", IoTHubClient_GetVersionString());
+    
     // Create the IoTHub client
     if (is_iothub_from_dps)
     {

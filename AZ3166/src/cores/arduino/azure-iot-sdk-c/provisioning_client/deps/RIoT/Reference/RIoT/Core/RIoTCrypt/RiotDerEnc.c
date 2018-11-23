@@ -8,16 +8,9 @@ Confidential Information
 #include <stdbool.h>
 #include <string.h>
 
-#ifdef WIN32
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
-    #include <winsock2.h> // TODO: REMOVE THIS
-#else
-    #include <arpa/inet.h>
-#endif
-
 #include "RiotDerEnc.h"
 #include "RiotBase64.h"
+#include "def.h"
 
 // 
 // This file contains basic DER-encoding routines that are sufficient to create
