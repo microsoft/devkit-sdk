@@ -128,9 +128,6 @@ extern "C"{
 //default chip salect pin
 #define BOARD_SPI_DEFAULT_SS    10
 
-//In case SPI CS channel is not used we define a default one
-#define BOARD_SPI_OWN_SS        SPI_CHANNELS_NUM
-
 #define SPI_INTERFACES_COUNT    1
 
 static const uint8_t SS   = BOARD_SPI_DEFAULT_SS;
