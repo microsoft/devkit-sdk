@@ -11,18 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mico.h"
 
 #include <inttypes.h>
 
 #include "AZ3166WiFi.h"
-#include "wiring.h"
-#include "utility/wl_types.h"
-#include "SystemWiFi.h"
-#include "utility/wl_definitions.h"
-#include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
-#include "mico.h"
+#include "EMW10xxInterface.h"
+#include "SystemTime.h"
+#include "SystemWiFi.h"
 #include "Telemetry.h"
+#include "utility/wl_definitions.h"
+#include "utility/wl_types.h"
+#include "wiring.h"
 
 int16_t WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
 
@@ -104,6 +105,9 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
     ((EMW10xxInterface*)WiFiInterface())->set_interface(Station);
     if (((EMW10xxInterface*)WiFiInterface())->connect(ssid, passphrase, NSAPI_SECURITY_WPA_WPA2, 0) == 0)
     {
+        // Sync system from NTP time server
+        SyncTime();
+
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
         
