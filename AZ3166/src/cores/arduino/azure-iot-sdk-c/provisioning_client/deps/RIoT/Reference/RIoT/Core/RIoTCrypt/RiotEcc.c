@@ -1673,7 +1673,9 @@ get_random_bytes(uint8_t *buf, size_t len)
     srand((unsigned)time(NULL));
     for (; len; len--)
     {
-        *buf++ = (uint8_t)rand();
+    //  TODO: If generate random data here, then each time it will generate different cert which is not expected.
+    //  *buf++ = (uint8_t)rand();
+        *buf++ = (uint8_t)len;
     }
     return 0;
 }
