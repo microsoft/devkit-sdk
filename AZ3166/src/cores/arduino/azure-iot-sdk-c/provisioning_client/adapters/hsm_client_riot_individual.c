@@ -79,9 +79,9 @@ HSM_CLIENT_HANDLE hsm_client_riot_individual_create()
         memset(result, 0, sizeof(HSM_CLIENT_X509_INDIVIDUAL_INFO));
 
         // Fill the handle by getting data from RIoTCore
-        memcpy(result->device_id_public_pem, RIoTGetDeviceID(&result->device_id_length), result->device_id_length);
-        memcpy(result->alias_priv_key_pem, RIoTGetAliasKey(&result->alias_key_length), result->alias_key_length);
-        memcpy(result->alias_cert_pem, RIoTGetAliasCert(&result->alias_cert_length), result->alias_cert_length);
+        memcpy(result->device_id_public_pem, RIoTGetDeviceID((unsigned int *)&result->device_id_length), result->device_id_length);
+        memcpy(result->alias_priv_key_pem, RIoTGetAliasKey((unsigned int *)&result->alias_key_length), result->alias_key_length);
+        memcpy(result->alias_cert_pem, RIoTGetAliasCert((unsigned int *)&result->alias_cert_length), result->alias_cert_length);
         mallocAndStrcpy_s(&result->certificate_common_name, x509AliasTBSData.SubjectCommon);
     }
     return result;

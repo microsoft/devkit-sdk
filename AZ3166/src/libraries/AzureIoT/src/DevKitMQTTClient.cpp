@@ -14,6 +14,7 @@
 #include "iothub_client_version.h"
 #include "iothub_client_ll.h"
 #include "iothub_client_hsm_ll.h"
+#include "iothub_device_client_ll.h"
 
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
@@ -365,7 +366,7 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
 
     if (event->type == MESSAGE)
     {
-        if (IoTHubClient_LL_SendEventAsync(iotHubClientHandle, event->messageHandle, SendConfirmationCallback, event) != IOTHUB_CLIENT_OK)
+        if (IoTHubDeviceClient_LL_SendEventAsync(iotHubClientHandle, event->messageHandle, SendConfirmationCallback, event) != IOTHUB_CLIENT_OK)
         {
             LogError("IoTHubClient_LL_SendEventAsync..........FAILED!");
             FreeEventInstance(event);
@@ -477,14 +478,10 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     {
         // Use DPS
         iothub_hostname = DevkitDPSGetIoTHubURI();
-        iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth(iothub_hostname, DevkitDPSGetDeviceID(), MQTT_Protocol);
-        if (iotHubClientHandle)
+        iotHubClientHandle = IoTHubDeviceClient_LL_CreateFromDeviceAuth(iothub_hostname, DevkitDPSGetDeviceID(), MQTT_Protocol);
+        if (iotHubClientHandle == NULL)
         {
-            LogInfo(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s, %p", iothub_hostname, DevkitDPSGetDeviceID(), iotHubClientHandle);
-        }
-        else
-        {
-            LogError(">>>IoTHubClient_LL_CreateFromDeviceAuth %s, %s", iothub_hostname, DevkitDPSGetDeviceID());
+            LogError(">>>IoTHubDeviceClient_LL_CreateFromDeviceAuth failed %s, %s", iothub_hostname, DevkitDPSGetDeviceID());
             return false;
         }
     }
