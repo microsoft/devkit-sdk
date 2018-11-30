@@ -132,7 +132,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId, uint8_t
         printf("Failure: RiotCrypt_Hash returned invalid status %d.\r\n", status);
         return status;
     }
-    FWID[RIOT_DIGEST_LENGTH] = "\0";
+    FWID[RIOT_DIGEST_LENGTH] = 0;
 
     // Combine CDI and FWID, result in cDigest
     if ((status = RiotCrypt_Hash2(cDigest, RIOT_DIGEST_LENGTH, cDigest, RIOT_DIGEST_LENGTH, 
@@ -140,7 +140,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId, uint8_t
         printf("Failure: RiotCrypt_Hash2 returned invalid status %d.\r\n", status);
         return status;
     }
-    cDigest[RIOT_DIGEST_LENGTH] = "\0";
+    cDigest[RIOT_DIGEST_LENGTH] = 0;
 
     // Derive Alias key pair from CDI and FWID
     if ((status = RiotCrypt_DeriveEccKey(&aliasKeyPub, &aliasKeyPriv, cDigest, RIOT_DIGEST_LENGTH, 
