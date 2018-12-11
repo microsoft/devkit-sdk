@@ -3,25 +3,26 @@
 
  
 #include "Arduino.h"
-#include "SystemWiFi.h"
 #include "EMW10xxInterface.h"
 #include "EEPROMInterface.h"
 #include "NTPClient.h"
+#include "SystemWiFi.h"
+#include "SystemTime.h"
 #include "Telemetry.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // WiFi related functions
-NetworkInterface *network = NULL;
+NetworkInterface *_defaultSystemNetwork = NULL;
 static char ssid[WIFI_SSID_MAX_LEN + 1] = { 0 };
 
 bool InitSystemWiFi(void)
 {
-    if (network == NULL)
+    if (_defaultSystemNetwork == NULL)
     {
-        network = new EMW10xxInterface();
+        _defaultSystemNetwork = new EMW10xxInterface();
     }
     
-    return (network != NULL);
+    return (_defaultSystemNetwork != NULL);
 }
 
 bool SystemWiFiConnect(void)
@@ -48,8 +49,8 @@ bool SystemWiFiConnect(void)
         return false;
     }
 
-    ((EMW10xxInterface*)network)->set_interface(Station);
-    ret = ((EMW10xxInterface*)network)->connect( (char*)ssid, (char*)pwd, NSAPI_SECURITY_WPA_WPA2, 0 );
+    ((EMW10xxInterface*)_defaultSystemNetwork)->set_interface(Station);
+    ret = ((EMW10xxInterface*)_defaultSystemNetwork)->connect( (char*)ssid, (char*)pwd, NSAPI_SECURITY_WPA_WPA2, 0 );
     if(ret != 0)
     {
       	Serial.printf("ERROR: Failed to connect Wi-Fi %s.\r\n", ssid);
@@ -59,6 +60,9 @@ bool SystemWiFiConnect(void)
     {
         Serial.printf("Wi-Fi %s connected.\r\n", ssid);
         
+        // Sync system from NTP time server
+        SyncTime();
+
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
 
@@ -77,29 +81,29 @@ const char* SystemWiFiSSID(void)
 
 NetworkInterface* WiFiInterface(void)
 {
-    return network;
+    return _defaultSystemNetwork;
 }
 
 int SystemWiFiRSSI(void)
 {
-    return (int)((EMW10xxInterface*)network)->get_rssi();
+    return (int)((EMW10xxInterface*)_defaultSystemNetwork)->get_rssi();
 }
 
 int WiFiScan(WiFiAccessPoint *res, unsigned count)
 {
-    if (network != NULL)
+    if (_defaultSystemNetwork != NULL)
     {
-        return ((EMW10xxInterface*)network)->scan(res, count);
+        return ((EMW10xxInterface*)_defaultSystemNetwork)->scan(res, count);
     }
     return 0;
 }
 
 bool SystemWiFiAPStart(const char *ssid, const char *passphrase)
 {
-    if (network != NULL)
+    if (_defaultSystemNetwork != NULL)
     {
-        ((EMW10xxInterface*)network)->set_interface(Soft_AP);
-        int ret = ((EMW10xxInterface*)network)->connect( (char*)ssid, (char*)passphrase, NSAPI_SECURITY_WPA_WPA2, 0 );
+        ((EMW10xxInterface*)_defaultSystemNetwork)->set_interface(Soft_AP);
+        int ret = ((EMW10xxInterface*)_defaultSystemNetwork)->connect( (char*)ssid, (char*)passphrase, NSAPI_SECURITY_WPA_WPA2, 0 );
         if(ret != 0)
         {
             Serial.printf("ERROR: Failed to start AP for Wi-Fi %s.\r\n", ssid);
@@ -117,5 +121,5 @@ bool SystemWiFiAPStart(const char *ssid, const char *passphrase)
 
 NetworkInterface* WiFiAPInterface(void)
 {
-    return network;
+    return _defaultSystemNetwork;
 }
