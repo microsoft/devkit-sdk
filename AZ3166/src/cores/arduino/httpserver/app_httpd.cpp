@@ -43,7 +43,7 @@
 #define HTTPD_HDR_DEFORT (HTTPD_HDR_ADD_SERVER|HTTPD_HDR_ADD_CONN_CLOSE|HTTPD_HDR_ADD_PRAGMA_NO_CACHE)
 
 extern OLEDDisplay Screen;
-extern NetworkInterface *network;
+extern NetworkInterface *_defaultSystemNetwork;
 
 bool is_http_init;
 bool is_handlers_registered;
@@ -91,13 +91,13 @@ bool connect_wifi(char *value_ssid, char *value_pass)
   Screen.clean();
   Screen.print("WiFi \r\n \r\nConnecting...\r\n \r\n");
 
-  if (network == NULL)
+  if (_defaultSystemNetwork == NULL)
   {
-    network = new EMW10xxInterface();
+    _defaultSystemNetwork = new EMW10xxInterface();
   }
 
-  ((EMW10xxInterface*)network)->set_interface(Station);
-  int err = ((EMW10xxInterface*)network)->connect( (char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0 );
+  ((EMW10xxInterface*)_defaultSystemNetwork)->set_interface(Station);
+  int err = ((EMW10xxInterface*)_defaultSystemNetwork)->connect( (char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0 );
   if (err != 0)
   {
     Screen.print("WiFi \r\n \r\nNo connection \r\n \r\n");
@@ -106,7 +106,7 @@ bool connect_wifi(char *value_ssid, char *value_pass)
   else
   {
     char wifiBuff[128];
-    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n", value_ssid, network->get_ip_address());
+    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n", value_ssid, _defaultSystemNetwork->get_ip_address());
     Screen.print(wifiBuff);
   }
 
@@ -135,7 +135,7 @@ int web_send_wifisetting_page(httpd_request_t *req)
   // scan network
   WiFiAccessPoint wifiScanResult[100];
   int validWifiIndex[15];
-  int wifiCount = ((EMW10xxInterface*)network)->scan(wifiScanResult, 100);
+  int wifiCount = ((EMW10xxInterface*)_defaultSystemNetwork)->scan(wifiScanResult, 100);
   int validWifiCount = 0;
 
   setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + 1;
@@ -232,9 +232,9 @@ int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
   OSStatus err = kNoErr;
   if (is_success)
   {
-    result_page_len = strlen(page_head) + strlen(success_result) + strlen(value_ssid) + strlen(network->get_ip_address()) - 5;
+    result_page_len = strlen(page_head) + strlen(success_result) + strlen(value_ssid) + strlen(_defaultSystemNetwork->get_ip_address()) - 5;
     result_page = (char *)malloc(result_page_len);
-    snprintf(result_page, result_page_len, success_result, page_head, value_ssid, network->get_ip_address());
+    snprintf(result_page, result_page_len, success_result, page_head, value_ssid, _defaultSystemNetwork->get_ip_address());
   } else
   {
     result_page_len = strlen(page_head) + strlen(failed_result) + strlen(value_ssid) - 3;

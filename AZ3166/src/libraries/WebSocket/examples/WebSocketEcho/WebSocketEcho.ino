@@ -119,7 +119,7 @@ void loop()
         {
           recvResult = wsClient->receive(wsBuffer, sizeof(wsBuffer));
 
-          if (!recvResult && recvResult->length > 0)
+          if (recvResult && recvResult->length > 0)
           {
             len = recvResult->length;
             isEndOfMessage = recvResult->isEndOfMessage;

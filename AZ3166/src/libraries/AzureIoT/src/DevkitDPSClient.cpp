@@ -3,10 +3,9 @@
 #include "mbed.h"
 #include "DevkitDPSClient.h"
 #include "DiceCore.h"
-#include "RiotCore.h"
 #include "EEPROMInterface.h"
+#include "RiotCore.h"
 
-#include "iothub_client_version.h"
 #include "iothub_client.h"
 #include "hsm_client_key.h"
 #include "azure_prov_client/prov_security_factory.h"
@@ -214,6 +213,8 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
     {
         return result; // already've been here
     }
+    
+    LogInfo("   DPS Version: %s\r\n", Prov_Device_GetVersionString());
 
     if (g_auth_type == DPS_AUTH_X509_INDIVIDUAL)
     {
@@ -243,7 +244,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
             return false;
         }
     }
-
+    
     if (platform_init() != 0)
     {
         LogError("Failed to initialize the platform.");
@@ -266,10 +267,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
         // Set ini
         user_ctx.registration_complete = 0;
         user_ctx.sleep_time = 10;
-
-        LogInfo("   DPS Version: %s\r\n", Prov_Device_GetVersionString());
-        LogInfo("Iothub Version: %s\r\n", IoTHubClient_GetVersionString());
-
+        
         PROV_DEVICE_LL_HANDLE handle = NULL;
 
         if ((handle = Prov_Device_LL_Create(global_prov_uri, id_scope, Prov_Device_HTTP_Protocol)) == NULL)
