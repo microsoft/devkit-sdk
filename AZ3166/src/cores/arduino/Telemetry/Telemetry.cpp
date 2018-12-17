@@ -2,7 +2,6 @@
 // Licensed under the MIT license. 
 
 #include "Arduino.h"
-#include "SystemTime.h"
 #include "Telemetry.h"
 #include "TelemetryClient.h"
 
@@ -23,9 +22,6 @@ extern "C"{
 
 void telemetry_init()
 {
-    // Sync up the date
-    SyncTime();
-
     if (telemetry == NULL && ENABLETRACE)
     {
         telemetry = new TelemetryClient(AI_ENDPOINT, AI_IKEY);
