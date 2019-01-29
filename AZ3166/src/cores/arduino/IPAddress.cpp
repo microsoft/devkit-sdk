@@ -123,10 +123,10 @@ size_t IPAddress::printTo(Print& p) const
     size_t n = 0;
     for (int i =0; i < 3; i++)
     {
-        n += p.print(_address.bytes[i], DEC);
+        n += p.print(_address.bytes[i], BASE_DEC);
         n += p.print('.');
     }
-    n += p.print(_address.bytes[3], DEC);
+    n += p.print(_address.bytes[3], BASE_DEC);
     return n;
 }
 

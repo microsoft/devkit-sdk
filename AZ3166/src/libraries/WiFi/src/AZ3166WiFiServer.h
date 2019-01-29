@@ -24,7 +24,7 @@ class WiFiServer : public Print
 {
 public:
     WiFiServer(unsigned short port);
-    ~WiFiServer();
+    virtual ~WiFiServer();
 
     WiFiClient available();
     void begin();

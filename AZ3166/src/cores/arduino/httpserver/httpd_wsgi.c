@@ -35,8 +35,12 @@
 #include <string.h>
 
 #include "httpd_wsgi.h"
+#include "httpd_handle.h"
+#include "http_parse.h"
 #include "http-strings.h"
 #include "mico.h"
+
+static struct httpd_wsgi_call *all_wsgi_calls[MAX_WSGI_HANDLERS];
 
 /* Register a WSGI call in the list of handlers */
 int httpd_register_wsgi_handler(struct httpd_wsgi_call *wsgi_call)
@@ -47,13 +51,13 @@ int httpd_register_wsgi_handler(struct httpd_wsgi_call *wsgi_call)
 		return kNoErr;
 
 	for (i = 0; i < MAX_WSGI_HANDLERS; i++) {
-		/*Find the first empty location in the calls array */
-		if (!calls[i] && store_index == -1) {
+		/*Find the first empty location in the all_wsgi_calls array */
+		if (!all_wsgi_calls[i] && store_index == -1) {
 			httpd_d("Found empty location %d", i);
 			store_index = i;
 			continue;
 		}
-		if (strcmp(calls[i]->uri, wsgi_call->uri) == 0) {
+		if (strcmp(all_wsgi_calls[i]->uri, wsgi_call->uri) == 0) {
 			httpd_d("Found wsgi %s at slot %d",
 			      wsgi_call->uri, i);
 			return kNoErr;
@@ -66,7 +70,7 @@ int httpd_register_wsgi_handler(struct httpd_wsgi_call *wsgi_call)
 
 	httpd_d("Register wsgi %s at %d", wsgi_call->uri, store_index);
 
-	calls[store_index] = wsgi_call;
+	all_wsgi_calls[store_index] = wsgi_call;
 	return kNoErr;
 }
 
@@ -96,8 +100,8 @@ int httpd_unregister_wsgi_handler(struct httpd_wsgi_call *wsgi_call)
 	int i;
 
 	for (i = 0; i < MAX_WSGI_HANDLERS; i++) {
-		if (calls[i] && (calls[i] == wsgi_call)) {
-			calls[i] = NULL;
+		if (all_wsgi_calls[i] && (all_wsgi_calls[i] == wsgi_call)) {
+			all_wsgi_calls[i] = NULL;
 			return 0;
 		}
 	}
@@ -187,9 +191,9 @@ int httpd_send_header(int sock, const char *name, const char *value)
 
 int httpd_send_body(int sock, const unsigned char *body_image, uint32_t body_size)
 {
-  int offset = 0;
+  uint32_t offset = 0;
   int ret = kNoErr;
-  int buff_size = 0;
+  uint32_t buff_size = 0;
   char buff[HTTPD_SEND_BODY_DATA_MAX_LEN];
 
   while (body_size > offset)
@@ -340,13 +344,15 @@ int httpd_send_response_301(httpd_request_t *req, char *location, const char
 			}
 
 			ret = httpd_send_chunk(req->sock, NULL, 0);
-			if (ret != kNoErr)
+			if (ret != kNoErr) {
 				httpd_d("Error in sending last chunk");
+			}
 		} else {
 			/* Send our data */
 			ret = httpd_send(req->sock, content, content_len);
-			if (ret != kNoErr)
+			if (ret != kNoErr) {
 				httpd_d("Error sending response");
+			}
 		}
 	}
 	return ret;
@@ -475,13 +481,15 @@ int httpd_send_response(httpd_request_t *req, const char *first_line,
 			}
 
 			ret = httpd_send_chunk(req->sock, NULL, 0);
-			if (ret != kNoErr)
+			if (ret != kNoErr) {
 				httpd_d("Error in sending last chunk");
+			}
 		} else {
 			/* Send our data */
 			ret = httpd_send(req->sock, content, length);
-			if (ret != kNoErr)
+			if (ret != kNoErr) {
 				httpd_d("Error sending response");
+			}
 		}
 	}
 	return ret;
@@ -606,7 +614,7 @@ int httpd_validate_uri(char *req, const char *api, int flags)
 }
 
 
-/* Check if there are any matching WSGI calls, and if so, execute them. */
+/* Check if there are any matching WSGI all_wsgi_calls, and if so, execute them. */
 int httpd_wsgi(httpd_request_t *req_p)
 {
 	struct httpd_wsgi_call *f;
@@ -622,7 +630,7 @@ int httpd_wsgi(httpd_request_t *req_p)
 	/* IMP: fixme: Need to check for ? at the end or any forward slashes /
 	 * httpd_validate URI? */
 	for (index = 0; index < MAX_WSGI_HANDLERS; index++) {
-		f = calls[index];
+		f = all_wsgi_calls[index];
 		if (f == NULL)
 			continue;
 		if (f->http_flags & APP_HTTP_FLAGS_NO_EXACT_MATCH) {
@@ -663,30 +671,30 @@ int httpd_wsgi(httpd_request_t *req_p)
 		return err;
 
 	/* Match found. So map the wsgi to this request */
-	req_p->wsgi = calls[match_index];
+	req_p->wsgi = all_wsgi_calls[match_index];
 	switch (req_p->type) {
 	case HTTPD_REQ_TYPE_HEAD:
 	case HTTPD_REQ_TYPE_GET:
-		if (calls[match_index]->get_handler)
-			err = calls[match_index]->get_handler(req_p);
+		if (all_wsgi_calls[match_index]->get_handler)
+			err = all_wsgi_calls[match_index]->get_handler(req_p);
 		else
 			return err;
 		break;
 	case HTTPD_REQ_TYPE_POST:
-		if (calls[match_index]->set_handler)
-			err = calls[match_index]->set_handler(req_p);
+		if (all_wsgi_calls[match_index]->set_handler)
+			err = all_wsgi_calls[match_index]->set_handler(req_p);
 		else
 			return err;
 		break;
 	case HTTPD_REQ_TYPE_PUT:
-		if (calls[match_index]->put_handler)
-			err = calls[match_index]->put_handler(req_p);
+		if (all_wsgi_calls[match_index]->put_handler)
+			err = all_wsgi_calls[match_index]->put_handler(req_p);
 		else
 			return err;
 		break;
 	case HTTPD_REQ_TYPE_DELETE:
-		if (calls[match_index]->delete_handler)
-			err = calls[match_index]->delete_handler(req_p);
+		if (all_wsgi_calls[match_index]->delete_handler)
+			err = all_wsgi_calls[match_index]->delete_handler(req_p);
 		else
 			return err;
 		break;
@@ -704,7 +712,7 @@ int httpd_wsgi(httpd_request_t *req_p)
 /* Initialise the WSGI handler data structures */
 int httpd_wsgi_init(void)
 {
-	memset(calls, 0, sizeof(calls));
+	memset(all_wsgi_calls, 0, sizeof(all_wsgi_calls));
 
 	return kNoErr;
 }

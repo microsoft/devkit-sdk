@@ -36,15 +36,15 @@ int IoTHubClient_FwVersionCompare(const char* fwVersion1, const char* fwVersion2
     }
     int vnum1 = 0, vnum2 = 0;
     size_t ver1Len = strlen(fwVersion1), ver2Len = strlen(fwVersion2);
-    for (int i = 0, j = 0; (i < ver1Len || j < ver2Len); ++i, ++j)
+    for (int i = 0, j = 0; (i < (int)ver1Len || j < (int)ver2Len); ++i, ++j)
     {
-        while (i < ver1Len && fwVersion1[i] != '.')
+        while (i < (int)ver1Len && fwVersion1[i] != '.')
         {
             if (isdigit(fwVersion1[i]))
                 vnum1 = vnum1 * 10 + (fwVersion1[i] - '0');
             i++;
         }
-        while (j < ver2Len && fwVersion2[j] != '.')
+        while (j < (int)ver2Len && fwVersion2[j] != '.')
         {
             if (isdigit(fwVersion2[j]))
                 vnum2 = vnum2 * 10 + (fwVersion2[j] - '0');

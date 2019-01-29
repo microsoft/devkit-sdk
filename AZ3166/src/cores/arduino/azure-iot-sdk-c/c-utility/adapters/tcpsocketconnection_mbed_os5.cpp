@@ -53,7 +53,7 @@ int tcpsocketconnection_connect(TCPSOCKETCONNECTION_HANDLE tcpSocketConnectionHa
 
 bool tcpsocketconnection_is_connected(TCPSOCKETCONNECTION_HANDLE tcpSocketConnectionHandle)
 {
-	TCPSocket* tsc = (TCPSocket*)tcpSocketConnectionHandle;
+	(void)tcpSocketConnectionHandle;
 	return tcpsocketconnection_isConnected;
 }
 
