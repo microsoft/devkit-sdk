@@ -29,6 +29,8 @@
 
 #define MASTER_ADDRESS 0x33
 
+#define WIRE_ERROR (-1)
+
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
@@ -73,6 +75,7 @@ class TwoWire
     unsigned char requestFrom(unsigned char, unsigned char);
     unsigned char requestFrom(unsigned char, unsigned char, unsigned char);
 	  unsigned char requestFrom(unsigned char, unsigned char, unsigned int, unsigned char, unsigned char);
+    uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
     unsigned char requestFrom(int, int);
     unsigned char requestFrom(int, int, int);
     virtual size_t write(unsigned char);
