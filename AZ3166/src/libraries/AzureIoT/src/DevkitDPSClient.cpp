@@ -200,10 +200,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
     const char* proxy_address, int proxy_port)
 {
     bool result = true;
-    if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && udsString != NULL) {
-        hsm_client_set_registration_name_and_key(registration_id, udsString);
-    }
-
+    
     if (global_prov_uri == NULL || id_scope == NULL)
     {
         LogError("invalid parameter global_prov_uri: %p id_scope: %p", global_prov_uri, id_scope);
@@ -225,8 +222,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
             LogError("DiceInit failed! Check UDS string provided or set on configuration mode");
             return false;
         }
-        hsm_client_set_registration_name_and_key(registration_id, udsString);
-
+        
         // Launch protected DICE code. This will measure RIoT Core, derive the
         // CDI value. It must execute with interrupts disabled. Therefore, it
         // must return so we can restore interrupt state.

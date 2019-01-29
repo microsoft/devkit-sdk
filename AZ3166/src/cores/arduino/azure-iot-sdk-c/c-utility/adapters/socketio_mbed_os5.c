@@ -11,6 +11,7 @@
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/xlogging.h"
 #include "netsocket/nsapi_types.h"
+#include "platform/mbed_wait_api.h"
 
 #define MBED_RECEIVE_BYTES_VALUE    128
 

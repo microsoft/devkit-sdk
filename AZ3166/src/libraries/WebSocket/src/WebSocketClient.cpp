@@ -107,7 +107,7 @@ bool WebSocketClient::doHandshake(int timeout)
 
     sprintf(strBuffer, "Sec-WebSocket-Version: 13\r\n\r\n");
     int ret = write(strBuffer, strlen(strBuffer));
-    if (ret != strlen(strBuffer))
+    if (ret != (int)strlen(strBuffer))
     {
         close();
         ERROR("Could not send request.");
@@ -406,22 +406,22 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
 
     if (payloadLength > 0)
     {
-        int len = payloadLength;
-        if (payloadLength > size)
+        uint32_t len = payloadLength;
+        if (payloadLength > (uint32_t)size)
         {
             len = size;
         }
 
         int nb = read(msgBuffer, len, len);
-        if (nb != len) 
+        if (nb != (int)len) 
         {
             ERROR("read failed");
             return NULL;
         }
 
-        if (payloadLength > size)
+        if (payloadLength > (uint32_t)size)
         {
-            for (i = len; i < payloadLength; i += 1)
+            for (i = len; i < (int)payloadLength; i += 1)
             {
                 readChar(&c);
             }
@@ -429,7 +429,7 @@ WebSocketReceiveResult *WebSocketClient::receive(char *msgBuffer, int size, int 
         }
 
         INFO("applying mask");
-        for (i = 0; i < len; i++)
+        for (i = 0; i < (int)len; i++)
         {
             msgBuffer[i] = msgBuffer[i] ^ mask[i % 4];
         }

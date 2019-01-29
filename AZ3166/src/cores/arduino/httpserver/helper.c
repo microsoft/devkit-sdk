@@ -60,7 +60,7 @@ int httpd_get_tag_from_multipart_form(char *inbuf, char *boundary, const char *t
     helper_log("No content for tag: %s", tag);
     return kNotFoundErr;
   }
-  if (tag_content_len >= val_len)
+  if (tag_content_len >= (int)val_len)
   {
     helper_log("Target content length is larger than destination. Target content length: %d, destination length: %d", tag_content_len, val_len);
     return kNoSpaceErr;
