@@ -80,7 +80,7 @@ void ip_addr_set(struct ip_addr *dest, struct ip_addr *src);
 u8_t ip_addr_isany(struct ip_addr *addr);
 
 #define ip_addr_debug_print(debug, ipaddr) \
-        LWIP_DEBUGF(debug, ("%"X32_F":%"X32_F":%"X32_F":%"X32_F":%"X32_F":%"X32_F":%"X32_F":%"X32_F"\n", \
+        LWIP_DEBUGF(debug, ("%" X32_F ":%" X32_F ":%" X32_F ":%" X32_F ":%" X32_F ":%" X32_F ":%" X32_F ":%" X32_F"\n", \
          (ntohl(ipaddr->addr[0]) >> 16) & 0xffff, \
          ntohl(ipaddr->addr[0]) & 0xffff, \
          (ntohl(ipaddr->addr[1]) >> 16) & 0xffff, \

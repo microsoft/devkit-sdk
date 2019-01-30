@@ -31,11 +31,11 @@
 
 #include "mbed.h"
 
+#include "wiring_constants.h"
+
 #ifdef __cplusplus
 extern "C"{
 #endif // __cplusplus
-
-#include "wiring_constants.h"
 
 #define F_CPU SystemCoreClock //To be compatible with Arduino delay
 
@@ -63,15 +63,6 @@ typedef struct _PinDescription
 /* Pins table to be instantiated into variant.cpp */
 extern const PinDescription g_APinDescription[] ;
 
-
-/* Define attribute */
-#if defined   ( __CC_ARM   ) /* Keil uVision 4 */
-    #define WEAK (__attribute__ ((weak)))
-#elif defined ( __ICCARM__ ) /* IAR Ewarm 5.41+ */
-    #define WEAK __weak
-#elif defined (  __GNUC__  ) /* GCC CS */
-    #define WEAK __attribute__ ((weak))
-#endif
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

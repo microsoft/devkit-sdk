@@ -56,6 +56,8 @@
 
 #include "http_parse.h"
 #include "httpd_sys.h"
+#include "httpd_wsgi.h"
+#include "httpd_handle.h"
 #include "http-strings.h"
 #include "mico.h"
 
@@ -595,7 +597,7 @@ static char *httpd_parse_msgbody(char *data_p, const char *tag,
   }
   ptr++;
   
-  for (i = 0; i < val_len; i++) {
+  for (i = 0; i < (int)val_len; i++) {
     if ((*ptr == '&') || (*ptr == 0)) {
       val[i] = 0;
       break;
@@ -620,11 +622,12 @@ static char *httpd_parse_msgbody(char *data_p, const char *tag,
     }
   }
   
-  if (i == val_len) {
+  if (i == (int)val_len) {
     val[val_len] = 0;
-    if ((*ptr != '&') && (*ptr != 0))
+    if ((*ptr != '&') && (*ptr != 0)) {
       httpd_d("Max val length exceeded.  "
               "Truncating value ");
+    }
   }
   
 next_token:
@@ -647,7 +650,7 @@ static int __httpd_parse_all_tags(char *inbuf, const char *tag,
   ptr = inbuf;
   while (1) {
     ptr = httpd_parse_msgbody(ptr, tag, val, val_len, &found);
-    if (ptr < 0) {
+    if (ptr == NULL) {
       httpd_d("Failed to parse request");
       return -kInProgressErr;
     }

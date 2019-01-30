@@ -9,56 +9,12 @@
 #include "azure_c_shared_utility/crt_abstractions.h"
 
 #include "hsm_client_data.h"
-
-
-char *SYMMETRIC_KEY_VALUE = NULL;
-char *REGISTRATION_NAME = NULL;
-
-void free_keys()
-{
-    if (SYMMETRIC_KEY_VALUE != NULL)
-    {
-        free(SYMMETRIC_KEY_VALUE);
-        SYMMETRIC_KEY_VALUE = NULL;
-    }
-
-    if (REGISTRATION_NAME != NULL)
-    {
-        free(REGISTRATION_NAME);
-        REGISTRATION_NAME = NULL;
-    }
-}
-
-extern void hsm_client_set_registration_name_and_key(const char* name, const char* key) {
-    size_t key_length  = strlen(key),
-           name_length = strlen(name);
-
-    free_keys();
-
-    SYMMETRIC_KEY_VALUE = (char*) malloc(key_length + 1);
-    if (!SYMMETRIC_KEY_VALUE)
-    {
-        LogError("OOM: hsm_client_set_registration_name_and_key SYMMETRIC_KEY_VALUE(%d bytes)", strlen(key));
-        return;
-    }
-    REGISTRATION_NAME = (char*) malloc(name_length + 1);
-    if (!REGISTRATION_NAME)
-    {
-        free(SYMMETRIC_KEY_VALUE);
-        LogError("OOM: hsm_client_set_registration_name_and_key REGISTRATION_NAME(%d bytes)", strlen(name));
-        return;
-    }
-    strcpy(SYMMETRIC_KEY_VALUE, key);
-    strcpy(REGISTRATION_NAME, name);
-
-    SYMMETRIC_KEY_VALUE[key_length] = 0;
-    REGISTRATION_NAME[name_length] = 0;
-}
+#include "hsm_client_key.h"
 
 typedef struct HSM_CLIENT_KEY_INFO_TAG
 {
-    const char* symmetrical_key;
-    const char* registration_name;
+    char* symmetrical_key;
+    char* registration_name;
 } HSM_CLIENT_KEY_INFO;
 
 HSM_CLIENT_HANDLE hsm_client_key_create(void)
@@ -71,16 +27,7 @@ HSM_CLIENT_HANDLE hsm_client_key_create(void)
     }
     else
     {
-        if (SYMMETRIC_KEY_VALUE == NULL)
-        {
-            LogError("Failure: SYMMETRIC_KEY_VALUE is not set.");
-        }
-        else
-        {
-            memset(result, 0, sizeof(HSM_CLIENT_KEY_INFO));
-            result->symmetrical_key = SYMMETRIC_KEY_VALUE;
-            result->registration_name = REGISTRATION_NAME;
-        }
+        memset(result, 0, sizeof(HSM_CLIENT_KEY_INFO));
     }
     return result;
 }
@@ -90,6 +37,16 @@ void hsm_client_key_destroy(HSM_CLIENT_HANDLE handle)
     if (handle != NULL)
     {
         HSM_CLIENT_KEY_INFO* key_client = (HSM_CLIENT_KEY_INFO*)handle;
+        if (key_client->symmetrical_key != NULL)
+        {
+            free(key_client->symmetrical_key);
+            key_client->symmetrical_key = NULL;
+        }
+        if (key_client->registration_name != NULL)
+        {
+            free(key_client->registration_name);
+            key_client->registration_name = NULL;
+        }
         free(key_client);
     }
 }
@@ -136,12 +93,56 @@ char* hsm_client_get_registration_name(HSM_CLIENT_HANDLE handle)
     return result;
 }
 
+int hsm_client_set_key_info(HSM_CLIENT_HANDLE handle, const char* reg_name, const char* symm_key)
+{
+    int result;
+    if (handle == NULL || reg_name == NULL || symm_key == NULL)
+    {
+        LogError("Invalid parameter specified handle: %p, reg_name: %p, symm_key: %p", handle, reg_name, symm_key);
+        result = __FAILURE__;
+    }
+    else
+    {
+        HSM_CLIENT_KEY_INFO* key_client = (HSM_CLIENT_KEY_INFO*)handle;
+
+        char* temp_reg_name;
+        char* temp_key;
+        if (mallocAndStrcpy_s(&temp_reg_name, reg_name) != 0)
+        {
+            LogError("Failure allocating registration name");
+            result = __FAILURE__;
+        }
+        else if (mallocAndStrcpy_s(&temp_key, symm_key) != 0)
+        {
+            LogError("Failure allocating symmetric key");
+            free(temp_reg_name);
+            result = __FAILURE__;
+        }
+        else
+        {
+            if (key_client->symmetrical_key != NULL)
+            {
+                free(key_client->symmetrical_key);
+            }
+            if (key_client->registration_name != NULL)
+            {
+                free(key_client->registration_name);
+            }
+            key_client->symmetrical_key = temp_key;
+            key_client->registration_name = temp_reg_name;
+            result = 0;
+        }
+    }
+    return result;
+}
+
 static const HSM_CLIENT_KEY_INTERFACE key_interface =
 {
     hsm_client_key_create,
     hsm_client_key_destroy,
     hsm_client_get_symmetric_key,
-    hsm_client_get_registration_name
+    hsm_client_get_registration_name,
+    hsm_client_set_key_info
 };
 
 const HSM_CLIENT_KEY_INTERFACE* hsm_client_key_interface(void)

@@ -14,12 +14,12 @@ extern "C" {
 #define BOARD_FULL_NAME "MXChip IoT DevKit"
 #define BOARD_MCU "STM32F412"
 
-#endif
+#define boardIDHeader "az-"
+#define boardAPHeader "AZ-"
+#define BOARD_ID_LENGTH 15
+#define BOARD_AP_LENGTH 15
 
-static char* boardIDHeader = "az-";
-static char* boardAPHeader = "AZ-";
-static const int BOARD_ID_LENGTH = 15;
-static const int BOARD_AP_LENGTH = 15;
+#endif
 
 int GetMACWithoutColon(char* buff);
 
