@@ -60,9 +60,18 @@ THREADAPI_RESULT ThreadAPI_Create(THREAD_HANDLE* threadHandle, THREAD_START_FUNC
                 param->func = func;
                 param->arg = arg;
                 param->p_thread = threads + slot;
-                threads[slot].thrd = new Thread(thread_wrapper, param, osPriorityNormal, STACK_SIZE);
-                *threadHandle = (THREAD_HANDLE)(threads + slot);
-                result = THREADAPI_OK;
+                threads[slot].thrd = new Thread(osPriorityNormal, STACK_SIZE, NULL);
+                if (threads[slot].thrd != NULL)
+                {
+                    threads[slot].thrd->start(callback(thread_wrapper, param));
+                    *threadHandle = (THREAD_HANDLE)(threads + slot);
+                    result = THREADAPI_OK;
+                }
+                else
+                {
+                    result = THREADAPI_ERROR;
+                    LogError("(result = %s)", ENUM_TO_STRING(THREADAPI_RESULT, result));
+                }
             }
             else
             {

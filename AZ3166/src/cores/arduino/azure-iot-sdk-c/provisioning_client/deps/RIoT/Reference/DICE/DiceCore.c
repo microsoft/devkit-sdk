@@ -12,6 +12,10 @@ Confidential Information
 
 #define logging 0
 
+static uint32_t _DiceMeasure(uint8_t *data, size_t dataSize, uint8_t *digest, size_t digestSize);
+static uint32_t _DiceDeriveCDI(uint8_t *digest, size_t digestSize);
+static void _BZERO(void *p, uint32_t l);
+
 // DiceData from DiceInit
 extern DICE_DATA DiceData;
 
@@ -100,8 +104,7 @@ static uint32_t _DiceDeriveCDI(uint8_t *digest, size_t digestSize)
 
 static void _BZERO(void *p, uint32_t l)
 {
-    int i;
-    for (i = 0; i < (l); i++) {
+    for (uint32_t i = 0; i < l; i++) {
         ((uint8_t*)p)[i] = 0;
     }
 }

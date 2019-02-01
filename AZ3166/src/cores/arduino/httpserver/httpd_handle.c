@@ -35,7 +35,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include "http_parse.h"
 #include "httpd_handle.h"
+#include "httpd_sys.h"
+#include "httpd_wsgi.h"
 #include "http-strings.h"
 #include "mico.h"
 
@@ -290,10 +293,10 @@ void httpd_purge_socket_data(httpd_request_t *req, char *msg_in,
 		return;
 	}
 
-	unsigned data_remaining = req->body_nbytes;
+	int data_remaining = req->body_nbytes;
 
 	while (data_remaining) {
-		unsigned to_read = msg_in_len >= data_remaining ?
+		int to_read = msg_in_len >= data_remaining ?
 			data_remaining : msg_in_len;
 		int actually_read = httpd_recv(conn, msg_in, to_read, 0);
 		if (actually_read < 0) {

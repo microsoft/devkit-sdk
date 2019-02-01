@@ -258,10 +258,11 @@ nsapi_size_or_error_t TLSSocket::send(const void *data, nsapi_size_t size)
     if (_ssl_ca_pem == NULL)
     {
         // No SSL
+        const unsigned char *ptr = (const unsigned char *)data;
         int result, data_size = size;
-        while((result = ssl_send(_tcp_socket, (const unsigned char *)data, data_size)) > 0)
+        while((result = ssl_send(_tcp_socket, ptr, data_size)) > 0)
         {
-            data += result;
+            ptr += result;
             data_size -= result;
             if (data_size == 0) return size;
         }

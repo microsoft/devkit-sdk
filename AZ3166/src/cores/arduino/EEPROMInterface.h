@@ -6,10 +6,36 @@
 
 #include "mbed.h"
 
-#define DPS_UDS_ZONE_IDX        0X06
-#define WIFI_SSID_ZONE_IDX      0x03
-#define WIFI_PWD_ZONE_IDX       0X0A
-#define AZ_IOT_HUB_ZONE_IDX     0X05
+// Zone structure
+#define STSAFE_ZONE_0_IDX		0
+#define STSAFE_ZONE_1_IDX		1
+#define STSAFE_ZONE_2_IDX		2
+#define STSAFE_ZONE_3_IDX		3
+#define STSAFE_ZONE_4_IDX		4
+#define STSAFE_ZONE_5_IDX		5
+#define STSAFE_ZONE_6_IDX		6
+#define STSAFE_ZONE_7_IDX		7
+#define STSAFE_ZONE_8_IDX		8
+#define STSAFE_ZONE_9_IDX		9
+#define STSAFE_ZONE_10_IDX		10
+
+#define STSAFE_ZONE_0_SIZE		976
+#define STSAFE_ZONE_1_SIZE		0
+#define STSAFE_ZONE_2_SIZE		192
+#define STSAFE_ZONE_3_SIZE		120
+#define STSAFE_ZONE_4_SIZE		0
+#define STSAFE_ZONE_5_SIZE		584
+#define STSAFE_ZONE_6_SIZE		680
+#define STSAFE_ZONE_7_SIZE		784
+#define STSAFE_ZONE_8_SIZE		880
+#define STSAFE_ZONE_9_SIZE		0
+#define STSAFE_ZONE_10_SIZE		88
+
+// System reserved zone
+#define DPS_UDS_ZONE_IDX        STSAFE_ZONE_6_IDX
+#define WIFI_SSID_ZONE_IDX      STSAFE_ZONE_3_IDX
+#define WIFI_PWD_ZONE_IDX       STSAFE_ZONE_10_IDX
+#define AZ_IOT_HUB_ZONE_IDX     STSAFE_ZONE_5_IDX
 
 #define WIFI_SSID_MAX_LEN       32
 #define WIFI_PWD_MAX_LEN        64

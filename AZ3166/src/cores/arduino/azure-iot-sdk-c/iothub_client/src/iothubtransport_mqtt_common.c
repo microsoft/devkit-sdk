@@ -1491,7 +1491,7 @@ static void mqtt_notification_callback(MQTT_MESSAGE_HANDLE msgHandle, void* call
             IOTHUB_IDENTITY_TYPE type = retrieve_topic_type(topic_resp, STRING_c_str(transportData->topic_InputQueue));
             if (type == IOTHUB_TYPE_DEVICE_TWIN)
             {
-                size_t request_id;
+                size_t request_id = 0;
                 int status_code;
                 bool notification_msg;
                 if (parse_device_twin_topic_info(topic_resp, &notification_msg, &request_id, &status_code) != 0)

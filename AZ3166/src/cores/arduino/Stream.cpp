@@ -20,9 +20,10 @@
  parsing functions based on TextFinder library by Michael Margolis
  */
 
-#include <Arduino.h>
-#include <Stream.h>
+#include "Arduino.h"
 #include "mbed.h"
+#include "Stream.h"
+
 #define PARSE_TIMEOUT 1000  // default number of milli-seconds to wait
 #define NO_SKIP_CHAR  1  // a magic char not found in a valid ASCII numeric field
 
@@ -36,7 +37,7 @@ int Stream::timedRead() {
         if(c >= 0)
             return c;
         //Thread::yield();
-    } while(timer.read_ms() < _timeout);
+    } while((unsigned long)timer.read_ms() < _timeout);
     return -1;     // -1 indicates timeout
 }
 
@@ -50,7 +51,7 @@ int Stream::timedPeek() {
         if(c >= 0)
             return c;
         Thread::yield();
-    } while(timer.read_ms() < _timeout);
+    } while((unsigned long)timer.read_ms() < _timeout);
     return -1;     // -1 indicates timeout
 }
 

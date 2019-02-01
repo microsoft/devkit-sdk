@@ -16,7 +16,7 @@ int GetMACWithoutColon(char* buff)
 {
     const char* mac = WiFiInterface()->get_mac_address();
     int j = 0;
-    for(int i =0; i < strlen(mac); i++)
+    for(size_t i =0; i < strlen(mac); i++)
     {
         if (mac[i] != ':')
         {

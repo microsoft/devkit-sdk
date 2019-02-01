@@ -118,7 +118,6 @@ MAGNETO_StatusTypeDef LIS2MDLSensor::LIS2MDL_M_GetAxesRaw(int16_t *pData)
  */
 MAGNETO_StatusTypeDef LIS2MDLSensor::LIS2MDL_M_GetAxes(int32_t *pData)
 {
-  uint8_t tempReg = 0x00;
   int16_t pDataRaw[3];
   
   if(LIS2MDL_M_GetAxesRaw(pDataRaw) != MAGNETO_OK)

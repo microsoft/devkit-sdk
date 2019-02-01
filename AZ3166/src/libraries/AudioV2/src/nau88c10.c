@@ -98,10 +98,10 @@ static uint8_t CODEC_IO_Write(uint8_t Addr, uint16_t Reg, uint16_t Value);
   */
 uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t AudioFreq)
 {
-  uint32_t counter = 0;
-  uint16_t output_device = OutputInputDevice & 0xFF;
-  uint16_t input_device = OutputInputDevice & 0xFF00;
-  uint16_t power_mgnt_reg_1 = 0;
+  //uint32_t counter = 0;
+  //uint16_t output_device = OutputInputDevice & 0xFF;
+  //uint16_t input_device = OutputInputDevice & 0xFF00;
+  //uint16_t power_mgnt_reg_1 = 0;
   
   /*Power Management*/
   CODEC_IO_Write(DeviceAddr, 0x1, 0x015d);
@@ -166,6 +166,8 @@ uint32_t nau88c10_Init(uint16_t DeviceAddr, uint16_t OutputInputDevice, uint32_t
 //  CODEC_IO_Write(DeviceAddr,0x38,0x0040);
 
   CODEC_IO_Write(DeviceAddr, 0x3C, 0x0004);
+
+  return 0;
 }
 
 /**

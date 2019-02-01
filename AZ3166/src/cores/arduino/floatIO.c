@@ -1,5 +1,9 @@
 // Copyright (c) 2015 Volodymyr Shymanskyy. All rights reserved.
 // Licensed under the MIT license.
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
 #include "floatIO.h"
 #define iSize 10                 // number of buffers, one for each float before wrapping around
  
@@ -57,7 +61,7 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
     // Extract the integer part of the number and print it
     unsigned long int_part = (unsigned long) number;
     double remainder = number - (double) int_part;
-    out += sprintf(out, "%d", int_part);
+    out += sprintf(out, "%lu", int_part);
 
     // Print the decimal point, but only if there are digits beyond
     if(prec > 0) {
