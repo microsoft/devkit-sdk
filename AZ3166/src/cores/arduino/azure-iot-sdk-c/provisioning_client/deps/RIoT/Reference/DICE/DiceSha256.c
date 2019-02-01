@@ -421,7 +421,8 @@ void DICE_SHA256_Final(DICE_SHA256_CONTEXT *context, sha2_uint8_t *digest)
             *context->buffer = 0x80;
         }
         /* Set the bit count: */
-        *(sha2_word64 *)&context->buffer[SHA256_SHORT_BLOCK_LENGTH] = context->bitcount;
+        uint64_t *ptr = (uint64_t*)&context->buffer[SHA256_SHORT_BLOCK_LENGTH];
+        *ptr = context->bitcount;
 
         /* Final transform: */
         SHA256_Transform(context, (sha2_word32 *)context->buffer);

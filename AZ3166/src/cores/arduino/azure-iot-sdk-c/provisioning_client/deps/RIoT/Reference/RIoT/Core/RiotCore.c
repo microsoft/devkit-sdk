@@ -82,6 +82,10 @@ RIOT_X509_TBS_DATA x509DeviceTBSData = { { 0x0E, 0x0D, 0x0C, 0x0B, 0x0A },
                                        "170101000000Z", "370101000000Z",
                                        "devkitdice", "DEVKIT_TEST", "US" };
 
+extern int GetMACWithoutColon(char* buff);
+extern const char* GetBoardID(void);
+extern const char* getDevkitVersion();
+
 // Entry point for RIoT Invariant Code
 int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
 {
@@ -102,18 +106,18 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
     char * realRegistrationId;
 
     if (RegistrationId == NULL || regIdLength == 0){
-        char * macAddress[24] = { "\0" };
+        char macAddress[24] = { "\0" };
         GetMACWithoutColon(macAddress);
         LogInfo("DevKit MAC Address: %s", macAddress);
 
-        char * boardId = GetBoardID();
-        char * fmVersion = getDevkitVersion();
+        const char *boardId = GetBoardID();
+        const char *fmVersion = getDevkitVersion();
         LogInfo("DevKit Firmware Version: %s", fmVersion);
 
         char generatedRegistrationId[AUTO_GEN_REGISTRATION_ID_MAX_LENGTH] = { "\0" };
         snprintf(generatedRegistrationId, AUTO_GEN_REGISTRATION_ID_MAX_LENGTH, "%sv%s", boardId, fmVersion);
         
-        for(int i = 0; i < strlen(generatedRegistrationId); i++){
+        for(int i = 0; i < (int)strlen(generatedRegistrationId); i++){
             if(generatedRegistrationId[i] == '.'){
                 generatedRegistrationId[i] = 'v';
             }
@@ -191,7 +195,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
         LogError("Failure: RiotCrypt_Hash returned invalid status %d.", status);
         return status;
     }
-    FWID[RIOT_DIGEST_LENGTH] = "\0";
+    FWID[RIOT_DIGEST_LENGTH] = '\0';
 
     // Combine CDI and FWID, result in cDigest
     if ((status = RiotCrypt_Hash2(cDigest, RIOT_DIGEST_LENGTH, cDigest, RIOT_DIGEST_LENGTH, 
@@ -199,7 +203,7 @@ int RiotStart(uint8_t *CDI, uint16_t CDILen, const char *RegistrationId)
         LogError("Failure: RiotCrypt_Hash2 returned invalid status %d.", status);
         return status;
     }
-    cDigest[RIOT_DIGEST_LENGTH] = "\0";
+    cDigest[RIOT_DIGEST_LENGTH] = '\0';
 
     // Derive Alias key pair from CDI and FWID
     if ((status = RiotCrypt_DeriveEccKey(&aliasKeyPub, &aliasKeyPriv, cDigest, RIOT_DIGEST_LENGTH, 

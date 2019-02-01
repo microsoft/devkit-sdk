@@ -25,7 +25,7 @@ static NTPResult NTPSyncUP(char* host)
 
 void SyncTime(void)
 {
-    for (int i = 0; i < sizeof(ntpHost) / sizeof(ntpHost[0]); i++)
+    for (size_t i = 0; i < sizeof(ntpHost) / sizeof(ntpHost[0]); i++)
     {
         if (NTPSyncUP((char*)ntpHost[i]) == NTP_OK)
         {

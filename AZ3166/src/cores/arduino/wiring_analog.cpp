@@ -47,7 +47,7 @@ static inline int32_t get_pin_description(uint32_t ulPin)
 
 static inline int32_t pinConvert(uint32_t ulPin)
 {
-  if(ulPin < ARDUINO_PIN_A0)
+  if(ulPin < (uint32_t)ARDUINO_PIN_A0)
     return ulPin | ARDUINO_PIN_A0;
   else
     return ulPin;

@@ -56,9 +56,7 @@ typedef struct DICE_DATA {
 
 // Functions
 int DiceCore(void);
-static uint32_t _DiceMeasure(uint8_t *data, size_t dataSize, uint8_t *digest, size_t digestSize);
-static uint32_t _DiceDeriveCDI(uint8_t *digest, size_t digestSize);
-static void _BZERO(void *p, uint32_t l);
+
 #ifdef __cplusplus
 }
 #endif

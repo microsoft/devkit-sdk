@@ -174,9 +174,10 @@ static void wifi_ssid_command(int argc, char **argv)
 
 static void wifi_pwd_Command(int argc, char **argv)
 {
-    char* pwd = NULL;
+    const char *pwd = NULL;
     if (argc == 1)
     {
+        // Clean the pwd
         pwd = "";
     }
     else
@@ -194,7 +195,7 @@ static void wifi_pwd_Command(int argc, char **argv)
         pwd = argv[1];
     }
         
-    int result = write_eeprom(pwd, WIFI_PWD_ZONE_IDX);
+    int result = write_eeprom((char*)pwd, WIFI_PWD_ZONE_IDX);
     if (result == 0)
     {
         Serial.printf("INFO: Set Wi-Fi password successfully.\r\n");
@@ -313,7 +314,7 @@ static bool is_privacy_cmd(char *inbuf, unsigned int bp)
 {
     // Check privacy mode
     char cmdName[INBUF_SIZE];
-    for(int j = 0; j < bp; j++)
+    for(unsigned int j = 0; j < bp; j++)
     {
         if (inbuf[j] == SPACE_CHAR)
         {

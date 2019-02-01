@@ -516,6 +516,7 @@ void hsm_client_x509_deinit(void)
 
 // This is workaround for X509 individual enrollment
 extern bool IsIndividualRIoTIsEnabled();
+extern const HSM_CLIENT_X509_INTERFACE* hsm_client_x509_individual_interface();
 
 const HSM_CLIENT_X509_INTERFACE* hsm_client_x509_interface(void)
 {
