@@ -53,7 +53,7 @@ typedef enum
     WS_OPCODE_PING = 0x09,          /* Denotes a ping */
     WS_OPCODE_PONG = 0x0A,          /* Denotes a pong */
     WS_FINAL_BIT = 0x80             /* Denotes a final message frame */
-};
+}WS_OPCODE_Type;
 
 typedef enum
 {

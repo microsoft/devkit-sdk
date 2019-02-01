@@ -83,8 +83,6 @@ int WiFiUDP::beginPacket(const char *host, unsigned short port)
 
 int WiFiUDP::beginPacket(IPAddress ip, unsigned short port)
 {
-    int ret;
-    
     if ( !is_initialized ) 
     {
         if(_pUdpSocket->open(WiFiInterface()) != 0)
@@ -163,7 +161,7 @@ IPAddress WiFiUDP::remoteIP()
 unsigned short  WiFiUDP::remotePort()
 {
     if(_address == NULL)
-        return NULL;
+        return 0;
     return _address->get_port();
 }
 

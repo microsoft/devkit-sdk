@@ -26,10 +26,10 @@
 #include "WString.h"
 #include "Printable.h"
 
-#define DEC 10
-#define HEX 16
-#define OCT 8
-#define BIN 2
+#define BASE_DEC 10
+#define BASE_HEX 16
+#define BASE_OCT 8
+#define BASE_BIN 2
 
 class Print {
     private:
@@ -69,11 +69,11 @@ class Print {
         size_t print(const String &);
         size_t print(const char[]);
         size_t print(char);
-        size_t print(unsigned char, int = DEC);
-        size_t print(int, int = DEC);
-        size_t print(unsigned int, int = DEC);
-        size_t print(long, int = DEC);
-        size_t print(unsigned long, int = DEC);
+        size_t print(unsigned char, int = BASE_DEC);
+        size_t print(int, int = BASE_DEC);
+        size_t print(unsigned int, int = BASE_DEC);
+        size_t print(long, int = BASE_DEC);
+        size_t print(unsigned long, int = BASE_DEC);
         size_t print(double, int = 2);
         size_t print(const Printable&);
 
@@ -81,11 +81,11 @@ class Print {
         size_t println(const String &s);
         size_t println(const char[]);
         size_t println(char);
-        size_t println(unsigned char, int = DEC);
-        size_t println(int, int = DEC);
-        size_t println(unsigned int, int = DEC);
-        size_t println(long, int = DEC);
-        size_t println(unsigned long, int = DEC);
+        size_t println(unsigned char, int = BASE_DEC);
+        size_t println(int, int = BASE_DEC);
+        size_t println(unsigned int, int = BASE_DEC);
+        size_t println(long, int = BASE_DEC);
+        size_t println(unsigned long, int = BASE_DEC);
         size_t println(double, int = 2);
         size_t println(const Printable&);
         size_t println(void);

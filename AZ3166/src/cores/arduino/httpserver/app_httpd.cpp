@@ -129,7 +129,7 @@ int web_send_wifisetting_page(httpd_request_t *req)
   int setting_page_len = 0;
   char *setting_page = NULL;
   int err = kNoErr;
-  char *ssid = "";
+  const char *ssid = "";
   int ssidLen = 0;
 
   // scan network

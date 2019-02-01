@@ -44,8 +44,6 @@ extern "C"
 
 #define MAX_WSGI_HANDLERS 32
 
-static struct httpd_wsgi_call *calls[MAX_WSGI_HANDLERS];
-
 /** @brief  Register a WSGI handler
  *
  *  @note   WSGI handlers declared must be registered with the

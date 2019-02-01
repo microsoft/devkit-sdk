@@ -69,7 +69,6 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
         return NTP_DNS;    
     }
     
-    const char *ip = outEndpoint.get_ip_address();
     //Set timeout, non-blocking and wait using select
     int ret = m_sock.sendto(outEndpoint, (char*)&pkt, sizeof(NTPPacket) );
     if (ret < 0 )

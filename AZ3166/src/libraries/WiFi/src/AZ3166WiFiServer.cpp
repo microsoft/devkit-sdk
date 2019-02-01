@@ -30,8 +30,6 @@ WiFiServer::~WiFiServer()
 
 void WiFiServer::begin()
 {
-    int ret;
-    
     if (_pTcpServer != NULL)
     {
         return;
@@ -83,7 +81,7 @@ size_t WiFiServer::write(unsigned char b)
 
 size_t WiFiServer::write(const unsigned char *buffer, size_t size)
 {
-    this->_clientTcpSocket.send((void*)buffer, size);
+    return this->_clientTcpSocket.send((void*)buffer, size);
 }
 
 void WiFiServer::close()

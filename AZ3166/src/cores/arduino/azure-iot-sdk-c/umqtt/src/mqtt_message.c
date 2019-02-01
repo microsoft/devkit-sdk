@@ -6,6 +6,7 @@
 #include "azure_c_shared_utility/optimize_size.h"
 #include "azure_c_shared_utility/gballoc.h"
 #include "azure_c_shared_utility/xlogging.h"
+#include "azure_c_shared_utility/string_token.h"
 
 typedef struct MQTT_MESSAGE_TAG
 {
@@ -209,6 +210,52 @@ const char* mqttmessage_getTopicName(MQTT_MESSAGE_HANDLE handle)
             result = handle->topicName;
         }
     }
+    return result;
+}
+
+int mqttmessage_getTopicLevels(MQTT_MESSAGE_HANDLE handle, char*** levels, size_t* count)
+{
+    int result;
+
+    // Codes_SRS_MQTTMESSAGE_09_001: [ If `handle`, `levels` or `count` are NULL the function shall return a non-zero value. ]
+    if (handle == NULL || levels == NULL || count == NULL)
+    {
+        LogError("Invalid Parameter handle: %p, levels: %p, count: %p", handle, levels, count);
+        result = __FAILURE__;
+    }
+    else
+    {
+        MQTT_MESSAGE* msgInfo = (MQTT_MESSAGE*)handle;
+
+        const char* topic_name = msgInfo->topicName != NULL ? msgInfo->topicName : msgInfo->const_topic_name;
+
+        if (topic_name == NULL)
+        {
+            LogError("Topic name is NULL");
+            result = __FAILURE__;
+        }
+        else
+        {
+            const char* delimiters[1];
+
+            delimiters[0] = "/";
+
+            // Codes_SRS_MQTTMESSAGE_09_002: [ The topic name, excluding the property bag, shall be split into individual tokens using "/" as separator ]
+            // Codes_SRS_MQTTMESSAGE_09_004: [ The split tokens shall be stored in `levels` and its count in `count` ]
+            if (StringToken_Split(topic_name, strlen(topic_name), delimiters, 1, false, levels, count) != 0)
+            {
+                // Codes_SRS_MQTTMESSAGE_09_003: [ If splitting fails the function shall return a non-zero value. ]
+                LogError("Failed splitting topic levels");
+                result = __FAILURE__;
+            }
+            else
+            {
+                // Codes_SRS_MQTTMESSAGE_09_005: [ If no failures occur the function shall return zero. ]
+                result = 0;
+            }
+        }
+    }
+
     return result;
 }
 

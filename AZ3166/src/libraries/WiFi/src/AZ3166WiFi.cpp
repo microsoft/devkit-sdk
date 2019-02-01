@@ -87,7 +87,7 @@ int WiFiClass::begin(void)
 
 int WiFiClass::begin(char* ssid)
 {
-    this->begin(ssid, NULL);
+    return this->begin(ssid, NULL);
 }
 
 int WiFiClass::begin(char* ssid, const char *passphrase)
@@ -240,6 +240,7 @@ int WiFiClass::RSSI()
     {
         return ((EMW10xxInterface*)WiFiInterface())->get_rssi();
     }
+    return 0;
 }
 
 int WiFiClass::encryptionType()
@@ -279,7 +280,7 @@ int WiFiClass::RSSI(unsigned char networkItem)
 {
     if (networkItem >= ap_number)
     {
-        return NULL;
+        return 0;
     }
 
     return aps[networkItem].get_rssi();
