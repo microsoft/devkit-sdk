@@ -55,17 +55,17 @@ void printCurrentNet() {
   byte bssid[6];
   WiFi.BSSID(bssid);
   Serial.print("BSSID: ");
-  Serial.print(bssid[5], HEX);
+  Serial.print(bssid[5], BASE_HEX);
   Serial.print(":");
-  Serial.print(bssid[4], HEX);
+  Serial.print(bssid[4], BASE_HEX);
   Serial.print(":");
-  Serial.print(bssid[3], HEX);
+  Serial.print(bssid[3], BASE_HEX);
   Serial.print(":");
-  Serial.print(bssid[2], HEX);
+  Serial.print(bssid[2], BASE_HEX);
   Serial.print(":");
-  Serial.print(bssid[1], HEX);
+  Serial.print(bssid[1], BASE_HEX);
   Serial.print(":");
-  Serial.println(bssid[0], HEX);
+  Serial.println(bssid[0], BASE_HEX);
 
   // print the received signal strength:
   long rssi = WiFi.RSSI();
@@ -75,6 +75,6 @@ void printCurrentNet() {
   // print the encryption type:
   int encryption = WiFi.encryptionType();
   Serial.print("Encryption Type:");
-  Serial.println(encryption, HEX);
+  Serial.println(encryption, BASE_HEX);
   Serial.println();
 }
