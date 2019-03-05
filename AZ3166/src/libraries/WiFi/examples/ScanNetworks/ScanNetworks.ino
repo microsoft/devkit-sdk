@@ -49,17 +49,17 @@ void printMacAddress() {
   // print your MAC address:
   WiFi.macAddress(mac);
   Serial.print("MAC: ");
-  Serial.print(mac[5], HEX);
+  Serial.print(mac[5], BASE_HEX);
   Serial.print(":");
-  Serial.print(mac[4], HEX);
+  Serial.print(mac[4], BASE_HEX);
   Serial.print(":");
-  Serial.print(mac[3], HEX);
+  Serial.print(mac[3], BASE_HEX);
   Serial.print(":");
-  Serial.print(mac[2], HEX);
+  Serial.print(mac[2], BASE_HEX);
   Serial.print(":");
-  Serial.print(mac[1], HEX);
+  Serial.print(mac[1], BASE_HEX);
   Serial.print(":");
-  Serial.println(mac[0], HEX);
+  Serial.println(mac[0], BASE_HEX);
 }
 
 void listNetworks() {
