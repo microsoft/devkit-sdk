@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,19 +33,19 @@ WiFiClient::~WiFiClient()
     stop();
 }
 
-int WiFiClient::peek() 
+int WiFiClient::peek()
 {
     return 0;
 }
 
-int WiFiClient::connect(const char* host, unsigned short port) 
+int WiFiClient::connect(const char* host, unsigned short port)
 {
     if (_pTcpSocket != NULL)
     {
         // Already connected
         return 0;
     }
-    
+
     _pTcpSocket = new TCPSocket();
     if (_pTcpSocket == NULL)
     {
@@ -57,28 +57,28 @@ int WiFiClient::connect(const char* host, unsigned short port)
         _pTcpSocket = NULL;
         return 0;
     }
-    
+
     _pTcpSocket->set_blocking(false);
     _pTcpSocket->set_timeout(1000);
     return 1;
 }
 
-int WiFiClient::connect(IPAddress ip, unsigned short port) 
+int WiFiClient::connect(IPAddress ip, unsigned short port)
 {
     return connect(ip.get_address(), (uint16_t)port);
 }
 
-int WiFiClient::available() 
+int WiFiClient::available()
 {
     return connected();
 }
 
-unsigned int WiFiClient::write(unsigned char b) 
+unsigned int WiFiClient::write(unsigned char b)
 {
     return write(&b, 1);
 }
 
-unsigned int WiFiClient::write(const unsigned char *buf, unsigned int size) 
+unsigned int WiFiClient::write(const unsigned char *buf, unsigned int size)
 {
     if (_pTcpSocket != NULL)
     {
@@ -90,20 +90,20 @@ unsigned int WiFiClient::write(const unsigned char *buf, unsigned int size)
 int WiFiClient::read()
 {
     uint8_t ch;
-    
+
     int ret = read(&ch, 1);
     if (ret == 0)
     {
         // Connection closed
         stop();
     }
-    if ( ret <= 0 ) 
+    if ( ret <= 0 )
         return -1;
-    else 
+    else
         return (int)ch;
 }
 
-int WiFiClient::read(unsigned char* buf, unsigned int size) 
+int WiFiClient::read(unsigned char* buf, unsigned int size)
 {
     if (_pTcpSocket != NULL)
     {
@@ -112,12 +112,12 @@ int WiFiClient::read(unsigned char* buf, unsigned int size)
     return -1;
 }
 
-void WiFiClient::flush() 
+void WiFiClient::flush()
 {
 
 }
 
-void WiFiClient::stop() 
+void WiFiClient::stop()
 {
     if (_pTcpSocket != NULL)
     {
@@ -125,7 +125,7 @@ void WiFiClient::stop()
         if(!_useServerSocket)
         {
             delete _pTcpSocket;
-            _pTcpSocket = NULL;            
+            _pTcpSocket = NULL;
         }
     }
 }
@@ -135,7 +135,7 @@ int WiFiClient::connected()
     return ( _pTcpSocket == NULL || _pTcpSocket -> send(NULL, 0) == NSAPI_ERROR_NO_SOCKET) ? 0 : 1;
 }
 
-WiFiClient::operator bool() 
+WiFiClient::operator bool()
 {
     return ( _pTcpSocket != NULL ) ;
 }
