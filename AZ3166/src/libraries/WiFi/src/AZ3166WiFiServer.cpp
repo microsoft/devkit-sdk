@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,13 +34,13 @@ void WiFiServer::begin()
     {
         return;
     }
-    
+
     _pTcpServer = new TCPServer();
     if(_pTcpServer == NULL)
     {
         return;
     }
-    
+
     if (_pTcpServer->open(WiFiInterface()) != 0)
     {
         delete _pTcpServer;

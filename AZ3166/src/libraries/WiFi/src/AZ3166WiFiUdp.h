@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,7 @@ private:
 
   UDPSocket* _pUdpSocket;
   SocketAddress* _address;
-  uint16_t _localPort; 
+  uint16_t _localPort;
   bool is_initialized;
 
 public:
@@ -36,7 +36,7 @@ public:
   virtual void stop();  // Finish with the UDP socket
 
   // Sending UDP packets
-  
+
   // Start building up a packet to send to the remote host specific in ip and port
   // Returns 1 if successful, 0 if there was a problem with the supplied IP address or port
   virtual int beginPacket(IPAddress ip, unsigned short port);
