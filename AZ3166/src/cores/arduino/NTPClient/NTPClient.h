@@ -33,11 +33,11 @@ NTP Client header file
 ///NTP client results
 enum NTPResult
 {
-    NTP_DNS, ///<Could not resolve name
-    NTP_PRTCL, ///<Protocol error
-    NTP_TIMEOUT, ///<Connection timeout
-    NTP_CONN, ///<Connection error
-    NTP_OK = 0, ///<Success
+    NTP_OK,         // Success
+    NTP_DNS,        // Could not resolve name
+    NTP_PRTCL,      // Protocol error
+    NTP_TIMEOUT,    // Connection timeout
+    NTP_CONN,       // Connection error
 };
 
 /** NTP Client to update the mbed's RTC using a remote time server
@@ -88,7 +88,7 @@ private:
         uint32_t txTm_s;
         uint32_t txTm_f;
     } __attribute__ ((packed));
-  
+
     UDPSocket m_sock;
     NetworkInterface *m_net;
 };

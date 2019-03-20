@@ -19,7 +19,7 @@ bool InitSystemWiFi(void)
 {
     if (_defaultSystemNetwork == NULL)
     {
-        _defaultSystemNetwork = new EMW10xxInterface();
+        _defaultSystemNetwork = (NetworkInterface*)new EMW10xxInterface();
     }
     
     return (_defaultSystemNetwork != NULL);
@@ -62,6 +62,15 @@ bool SystemWiFiConnect(void)
         
         // Sync system from NTP time server
         SyncTime();
+        if (IsTimeSynced() == 0)
+        {
+            time_t t = time(NULL);
+            Serial.printf("Now is (UTC): %s\r\n", ctime(&t));
+        }
+        else
+        {
+            Serial.println("Time sync failed");
+        }
 
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
