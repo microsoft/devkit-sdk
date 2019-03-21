@@ -27,7 +27,7 @@ void consolelogger_log(LOG_CATEGORY log_category, const char* file, const char* 
         (void)printf("Info: ");
         break;
     case AZ_LOG_ERROR:
-        (void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), file, func, line);
+        (void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), xlogging_get_filename(file), func, line);
         break;
     default:
         break;
@@ -54,6 +54,23 @@ void xlogging_set_log_function(LOGGER_LOG log_function)
 LOGGER_LOG xlogging_get_log_function(void)
 {
     return global_log_function;
+}
+
+const char* xlogging_get_filename(const char* fullpath)
+{
+    if (fullpath == NULL || fullpath[0] == 0)
+    {
+        return fullpath;
+    }
+    int len = strlen(fullpath);
+    for (int i = len - 1; i >= 0; i--)
+    {
+        if (fullpath[i] == '/' || fullpath[i] == '\\')
+        {
+            return &fullpath[i + 1];
+        }
+    }
+    return fullpath;
 }
 
 #if (defined(_MSC_VER)) && (!(defined WINCE))

@@ -106,7 +106,7 @@ static void AZIoTLog(LOG_CATEGORY log_category, const char *file, const char *fu
         serial_xlog("%s INFO:  ", ct);
         break;
     case AZ_LOG_ERROR:
-        serial_xlog("%s ERROR: File:%s Func:%s Line:%d, ", ct, file, func, line);
+        serial_xlog("%s ERROR: %s (ln %d): ", ct, xlogging_get_filename(file), line);
         break;
     default:
         break;

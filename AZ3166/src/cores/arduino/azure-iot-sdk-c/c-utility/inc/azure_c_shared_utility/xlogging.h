@@ -155,6 +155,7 @@ extern void LogBinary(const char* comment, const void* data, size_t size);
 
 extern void xlogging_set_log_function(LOGGER_LOG log_function);
 extern LOGGER_LOG xlogging_get_log_function(void);
+extern const char* xlogging_get_filename(const char* fullpath);
 
 #endif /* NOT ESP8266_RTOS */
 
