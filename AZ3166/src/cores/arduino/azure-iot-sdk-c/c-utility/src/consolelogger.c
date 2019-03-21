@@ -212,7 +212,7 @@ void consolelogger_log(LOG_CATEGORY log_category, const char* file, const char* 
         (void)printf("Info: ");
         break;
     case AZ_LOG_ERROR:
-        (void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), file, func, line);
+        (void)printf("Error: Time:%.24s File:%s Func:%s Line:%d ", ctime(&t), xlogging_get_filename(file), func, line);
         break;
     default:
         break;
