@@ -225,7 +225,7 @@ typedef struct
  * LWIP_PROVIDE_ERRNO: System does not have errno defines - force LwIP to create them
  */
 #define LWIP_PROVIDE_ERRNO             (1)
-//#define ERRNO                          (1)
+#define ERRNO                          (1)
 
 /**
  * MEMP_NUM_SYS_TIMEOUT: the number of simulateously active timeouts.
