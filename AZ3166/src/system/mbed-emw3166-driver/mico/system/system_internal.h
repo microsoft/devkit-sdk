@@ -19,6 +19,8 @@
 
 #include "system.h"
 
+#define MICO_SYSTEM_LOG_INFO_DISABLE
+
 #ifndef MICO_SYSTEM_LOG_INFO_DISABLE
   #define system_log(M, ...) custom_log("SYSTEM", M, ##__VA_ARGS__)
   #define system_log_trace() custom_log_trace("SYSTEM")
