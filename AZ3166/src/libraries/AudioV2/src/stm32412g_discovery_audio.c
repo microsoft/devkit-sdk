@@ -93,8 +93,8 @@
  ==============================================================================*/
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32412g_discovery_audio.h"
 #include "cmsis_nvic.h"
+#include "stm32412g_discovery_audio.h"
 
 #define DFSDM_OVER_SAMPLING(__FREQUENCY__) \
         (__FREQUENCY__ == AUDIO_FREQUENCY_8K)  ? 256 \
