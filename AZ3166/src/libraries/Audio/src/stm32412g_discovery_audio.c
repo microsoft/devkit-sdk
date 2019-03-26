@@ -93,6 +93,7 @@
  ==============================================================================*/
 
 /* Includes ------------------------------------------------------------------*/
+#include "cmsis_nvic.h"
 #include "stm32412g_discovery_audio.h"
 
 /** @addtogroup BSP
@@ -212,7 +213,8 @@ static void I2Sx_Out_DeInit( void );
 
 extern void AUDIO_OUT_I2Sx_DMAx_IRQHandler( void );
 extern void AUDIO_IN_I2Sx_DMAx_IRQHandler( void );
-
+extern void DFSDMx_ChannelMspDeInit();
+extern void DFSDMx_FilterMspDeInit();
 
 /**
  * @}
@@ -633,7 +635,7 @@ __weak void BSP_AUDIO_OUT_MspInit( I2S_HandleTypeDef *hi2s, void *Params )
 
     /* I2S DMA IRQ Channel configuration */
     HAL_NVIC_SetPriority( AUDIO_OUT_I2Sx_DMAx_IRQ, AUDIO_OUT_IRQ_PREPRIO, 0 );
-    NVIC_SetVector( AUDIO_OUT_I2Sx_DMAx_IRQ, AUDIO_OUT_I2Sx_DMAx_IRQHandler );
+    NVIC_SetVector( AUDIO_OUT_I2Sx_DMAx_IRQ, (uint32_t)AUDIO_OUT_I2Sx_DMAx_IRQHandler );
     HAL_NVIC_EnableIRQ( AUDIO_OUT_I2Sx_DMAx_IRQ );
 
 }
@@ -946,7 +948,7 @@ static void I2Sx_In_MspInit( void )
 
     /* I2S DMA IRQ Channel configuration */
     HAL_NVIC_SetPriority( AUDIO_IN_I2Sx_DMAx_IRQ, AUDIO_IN_IRQ_PREPRIO, 0 );
-    NVIC_SetVector( AUDIO_IN_I2Sx_DMAx_IRQ, AUDIO_IN_I2Sx_DMAx_IRQHandler );
+    NVIC_SetVector( AUDIO_IN_I2Sx_DMAx_IRQ, (uint32_t)AUDIO_IN_I2Sx_DMAx_IRQHandler );
     HAL_NVIC_EnableIRQ( AUDIO_IN_I2Sx_DMAx_IRQ );
 }
 

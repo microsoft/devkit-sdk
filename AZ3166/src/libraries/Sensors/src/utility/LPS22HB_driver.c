@@ -15,8 +15,8 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "LPS22HB_driver.h"
 #include "mico.h"
+#include "LPS22HB_driver.h"
 
 #define lps25hb_log(M, ...) custom_log("LPS22HB", M, ##__VA_ARGS__)
 #define lps25hb_log_trace() custom_log_trace("LPS22HB")

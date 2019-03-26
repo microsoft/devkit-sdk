@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include "http_client.h"
-#include "md5.h"
+#include "mbedtls/md5.h"
 #include "SystemTime.h"
 #include "SystemVariables.h"
 #include "SystemVersion.h"

@@ -2,14 +2,13 @@
 // Licensed under the MIT license. 
  
 #include "mbed.h"
-#include <stdio.h>
-#include "EEPROMInterface.h"
-#include "UARTClass.h"
-#include "console_cli.h"
 #include "mico.h"
+#include "mbedtls/version.h"
+#include "EEPROMInterface.h"
 #include "SystemWiFi.h"
 #include "SystemVersion.h"
-#include "version.h"
+#include "UARTClass.h"
+#include "console_cli.h"
 
 struct console_command 
 {
