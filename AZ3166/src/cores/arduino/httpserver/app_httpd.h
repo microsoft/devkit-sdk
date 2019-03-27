@@ -46,6 +46,8 @@ extern const char *wifi_setting_b;
 
 extern const char *success_result;
 
+extern const char *wifi_success_result;
+
 extern const char *failed_result;
 
 int httpd_server_start();
