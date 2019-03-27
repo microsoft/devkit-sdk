@@ -340,7 +340,6 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
 
     err = httpd_get_tag_from_post_data(buf, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
     require_noerr( err, Save_Out );
-
   }
 
   set_succ = set_az_iothub(value_device_connection_string);
