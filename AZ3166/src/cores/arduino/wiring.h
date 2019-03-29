@@ -20,6 +20,8 @@
 #ifndef _WIRING_
 #define _WIRING_
 
+#include "wiring_constants.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

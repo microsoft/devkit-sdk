@@ -24,6 +24,7 @@ extern "C"{
 #endif // __cplusplus
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define HIGH 0x1
 #define LOW  0x0
@@ -96,9 +97,9 @@ typedef unsigned int word;
 #define bit(b) (1UL << (b))
 
 
-typedef bool boolean ;
+typedef bool boolean;
 
-typedef uint8_t byte ;
+typedef uint8_t byte;
 
 #ifdef __cplusplus
 } // extern "C"
