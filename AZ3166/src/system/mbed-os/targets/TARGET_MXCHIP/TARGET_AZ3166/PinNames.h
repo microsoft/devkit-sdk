@@ -240,9 +240,20 @@ typedef enum {
     SPI_MOSI        = MBED_GPIO_4,
     SPI_MISO        = MBED_GPIO_7,
     SPI_CLK         = MBED_GPIO_6,
-    SPI_SS          = MBED_GPIO_18,
+    SPI_SS          = MBED_GPIO_37,
     IR_DATA         = MBED_GPIO_19,
     PWM_OUT         = D9,
+
+    TX              = SERIAL_TX,
+    RX              = SERIAL_RX,
+
+    SDA             = I2C_SDA,
+    SCL             = I2C_SCL,
+
+    SS              = SPI_SS,
+    MOSI            = SPI_MOSI,
+    MISO            = SPI_MISO,
+    SCK             = SPI_CLK,
 
     // Not connected
     NC = (int)0xFFFFFFFF
