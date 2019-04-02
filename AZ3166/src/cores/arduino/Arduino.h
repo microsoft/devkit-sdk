@@ -31,7 +31,6 @@
 #include "mbed_stats.h"
 #include "PinNames.h"
 
-#include "app_httpd.h"
 #include "AttachInterrupt.h"
 #include "EEPROMInterface.h"
 #include "floatIO.h" 
@@ -40,6 +39,7 @@
 #include "SystemVersion.h"
 #include "SystemTickCounter.h"
 #include "SystemVariables.h"
+#include "SystemWeb.h"
 #include "Watchdog.h"
 #include "WCharacter.h"
 #include "wiring.h"
@@ -58,9 +58,9 @@ extern "C"{
 #define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
 
-// sketch
-extern void setup( void ) ;
-extern void loop( void ) ;
+// Sketch
+extern void setup(void) ;
+extern void loop(void) ;
 
 #ifdef __cplusplus
 } // extern "C"

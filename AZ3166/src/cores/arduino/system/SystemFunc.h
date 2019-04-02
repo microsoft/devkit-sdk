@@ -19,6 +19,12 @@ void SystemReboot(void);
 */
 void SystemStandby(int timeout);
 
+
+/**
+* This is a weak function for initialize something before enter Arduino layer.
+*/
+void __sys_setup(void);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
