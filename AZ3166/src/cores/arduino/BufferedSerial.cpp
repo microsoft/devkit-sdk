@@ -27,7 +27,7 @@
 BufferedSerial::BufferedSerial(PinName tx, PinName rx, uint32_t buf_size, uint32_t tx_multiple, const char* name, int sample_rate)
     : RawSerial(tx, rx, sample_rate) , _rxbuf(buf_size), _txbuf((uint32_t)(tx_multiple*buf_size))
 {
-    RawSerial::attach(this, &BufferedSerial::rxIrq, RawSerial::RxIrq);
+    RawSerial::attach(callback(this, &BufferedSerial::rxIrq), RawSerial::RxIrq);
 
     this->_buf_size = buf_size;
     this->_tx_multiple = tx_multiple;
@@ -113,9 +113,9 @@ ssize_t BufferedSerial::write(const void *s, size_t length)
 
 int BufferedSerial::printf(const char* format, ...)
 {
-    char buffer[this->_buf_size];
+    char *buffer = (char*)malloc(this->_buf_size);
     memset(buffer,0,this->_buf_size);
-    int r = 0;
+    uint32_t r = 0;
  
     va_list arg;
     va_start(arg, format);
@@ -124,12 +124,13 @@ int BufferedSerial::printf(const char* format, ...)
     if(r > this->_buf_size) {
         error("%s %d buffer overwrite (max_buf_size: %d exceeded: %d)!\r\n", __FILE__, __LINE__,this->_buf_size,r);
         va_end(arg);
+        free(buffer);
         return 0;
     }
 
     va_end(arg);
     r = BufferedSerial::write(buffer, r);
- 
+    free(buffer);
     return r;
 }
 
@@ -167,7 +168,7 @@ void BufferedSerial::prime(void)
     if(serial_writable(&_serial)) {
         RawSerial::attach(NULL, RawSerial::TxIrq);    // make sure not to cause contention in the irq
         BufferedSerial::txIrq();                // only write to hardware in one place
-        RawSerial::attach(this, &BufferedSerial::txIrq, RawSerial::TxIrq);
+        RawSerial::attach(callback(this, &BufferedSerial::txIrq), RawSerial::TxIrq);
     }
 
     return;

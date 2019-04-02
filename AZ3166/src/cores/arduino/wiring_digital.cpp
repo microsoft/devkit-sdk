@@ -24,7 +24,7 @@
 
 void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
-  if (ulMode < 0 || ulMode > 5)
+  if (ulMode > 5)
   {
     return;
   }

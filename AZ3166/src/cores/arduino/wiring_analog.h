@@ -19,6 +19,14 @@
 #ifndef _WIRING_ANALOG_
 #define _WIRING_ANALOG_
 
+//ADC resolution
+#define ADC_RESOLUTION                10
+
+//PWR resolution
+#define PWM_RESOLUTION                8
+#define PWM_FREQUENCY                 1000
+#define PWM_MAX_DUTY_CYCLE            255
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,7 +45,7 @@ typedef enum _eAnalogReference
  *
  * \param ulMmode Should be set to AR_DEFAULT.
  */
-extern void analogReference( eAnalogReference ulMode ) ;
+void analogReference( eAnalogReference ulMode ) ;
 
 /*
  * \brief Writes an analog value (PWM wave) to a pin.
@@ -45,7 +53,7 @@ extern void analogReference( eAnalogReference ulMode ) ;
  * \param ulPin
  * \param ulValue
  */
-extern void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
+void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
 
 /*
  * \brief Reads the value from the specified analog pin.
@@ -54,23 +62,23 @@ extern void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
  *
  * \return Read value from selected pin, if no error.
  */
-extern uint32_t analogRead( uint32_t ulPin ) ;
+uint32_t analogRead( uint32_t ulPin ) ;
 
 /*
  * \brief Set the resolution of analogRead return values. Default is 10 bits (range from 0 to 1023).
  *
  * \param res
  */
-extern void analogReadResolution(int res);
+void analogReadResolution(int res);
 
 /*
  * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 0 to 255).
  *
  * \param res
  */
-extern void analogWriteResolution(int res);
+void analogWriteResolution(int res);
 
-extern void analogOutputInit( void ) ;
+void analogOutputInit( void ) ;
 
 #ifdef __cplusplus
 }

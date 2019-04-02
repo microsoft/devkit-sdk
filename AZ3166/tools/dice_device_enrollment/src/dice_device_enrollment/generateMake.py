@@ -17,7 +17,7 @@ def generateMakefile(rootdir = '.', outputName = 'dps_cert_gen_mac'):
 
 	includeFlag = ""
 	for a in includePaths: includeFlag += " -I" + a
-	print("CXXFLAGS = -g" + includeFlag)
+	print("CXXFLAGS=-Os -lstdc++ " + includeFlag)
 
 	for a in sourceFiles:
 		if (a[1] != "."):
@@ -25,16 +25,16 @@ def generateMakefile(rootdir = '.', outputName = 'dps_cert_gen_mac'):
 
 	for a in sourceFiles:
 		if a[2].endswith('.cpp'):
-			print("\tc++ -g" + includeFlag + " -c -o " + a[0] + " " + os.path.join(a[1], a[2]))
+			print("\tc++ $(CXXFLAGS) -c -o " + a[0] + " " + os.path.join(a[1], a[2]))
 		else :
-			print("\tgcc -g" + includeFlag + " -c -o " + a[0] + " " + os.path.join(a[1], a[2]))
+			print("\tgcc $(CXXFLAGS) -c -o " + a[0] + " " + os.path.join(a[1], a[2]))
 
-	print("\tcc -o " + outputName + targets)
+	print("\tc++ -o " + outputName + targets)
 	print("\trm *.o")
 
 	print("\nclean:")
-	print("\trm *.o")
-	print("\trm " + outputName)
+	print("\trm -f *.o")
+	print("\trm -f " + outputName)
 
 generateMakefile()
 

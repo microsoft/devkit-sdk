@@ -109,7 +109,7 @@ void HttpResponse::set_header_field(const char* field_at, size_t length)
 
 void HttpResponse::set_header_value(const char* value_at, size_t length) 
 {
-    if (value_at == NULL || length == NULL)
+    if (value_at == NULL || length == 0)
     {
         return;
     }

@@ -15,6 +15,7 @@
 #include "iothub_client_ll.h"
 #include "iothub_client_hsm_ll.h"
 #include "iothub_device_client_ll.h"
+#include "azure_c_shared_utility/shared_util_options.h"
 
 #define CONNECT_TIMEOUT_MS 30000
 #define CHECK_INTERVAL_MS 5000
@@ -39,6 +40,7 @@ static DEVICE_TWIN_CALLBACK _device_twin_callback = NULL;
 static DEVICE_METHOD_CALLBACK _device_method_callback = NULL;
 static REPORT_CONFIRMATION_CALLBACK _report_confirmation_callback = NULL;
 static bool enableDeviceTwin = false;
+static const char* trustedCerts = certificates;
 
 static uint64_t iothub_check_ms;
 
@@ -64,8 +66,8 @@ static void CheckConnection()
             LogInfo(">>>Re-connect.");
             // Re-connect the IoT Hub
             DevKitMQTTClient_Close();
-            DevKitMQTTClient_Init(enableDeviceTwin);
             resetClient = false;
+            DevKitMQTTClient_Init(enableDeviceTwin);
         }
     }
 }
@@ -104,7 +106,7 @@ static void AZIoTLog(LOG_CATEGORY log_category, const char *file, const char *fu
         serial_xlog("%s INFO:  ", ct);
         break;
     case AZ_LOG_ERROR:
-        serial_xlog("%s ERROR: File:%s Func:%s Line:%d, ", ct, file, func, line);
+        serial_xlog("%s ERROR: %s (ln %d): ", ct, xlogging_get_filename(file), line);
         break;
     default:
         break;
@@ -360,10 +362,14 @@ static bool SendEventOnce(EVENT_INSTANCE *event)
     event->trackingId = trackingId++;
     currentTrackingId = event->trackingId;
 
-    uint64_t start_ms = SystemTickCounterRead();
-
     CheckConnection();
+    if (resetClient)
+    {
+        // Disconnected
+        return false;
+    }
 
+    uint64_t start_ms = SystemTickCounterRead();
     if (event->type == MESSAGE)
     {
         if (IoTHubDeviceClient_LL_SendEventAsync(iotHubClientHandle, event->messageHandle, SendConfirmationCallback, event) != IOTHUB_CLIENT_OK)
@@ -521,7 +527,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
-    if (IoTHubClient_LL_SetOption(iotHubClientHandle, "TrustedCerts", certificates) != IOTHUB_CLIENT_OK)
+    if (IoTHubClient_LL_SetOption(iotHubClientHandle, OPTION_TRUSTED_CERT, trustedCerts) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"TrustedCerts\"");
         return false;
@@ -582,6 +588,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     iothub_check_ms = SystemTickCounterRead();
 
     // Waiting for the confirmation
+    resetClient = false;
     uint64_t start_ms = SystemTickCounterRead();
     while (true)
     {
@@ -589,6 +596,10 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
         if (clientConnected)
         {
             break;
+        }
+        if (resetClient)
+        {
+            return false;
         }
         int diff = (int)(SystemTickCounterRead() - start_ms);
         if (diff >= CONNECT_TIMEOUT_MS)
@@ -605,10 +616,14 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
 
 bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
 {
-    if ((iotHubClientHandle == NULL && (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) != 0))
-            || optionName == NULL || value == NULL)
+    if (optionName == NULL || value == NULL)
     {
         return false;
+    }
+
+    if (strcmp(optionName, OPTION_TRUSTED_CERT) == 0)
+    {
+        trustedCerts = (const char*)value;
     }
 
     if (strcmp(optionName, OPTION_MINI_SOLUTION_NAME) == 0)
@@ -620,15 +635,19 @@ bool DevKitMQTTClient_SetOption(const char* optionName, const void* value)
         miniSolutionName = strdup((char *)value);
         return true;
     }
-    else if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) != IOTHUB_CLIENT_OK)
+
+    if (iotHubClientHandle != NULL)
     {
-        LogError("Failed to set option \"%s\"", optionName);
-        return false;
+        if (IoTHubClient_LL_SetOption(iotHubClientHandle, optionName, value) == IOTHUB_CLIENT_OK)
+        {
+            return true;
+        }
+        else
+        {
+            LogError("Failed to set option \"%s\"", optionName);
+        }
     }
-    else
-    {
-        return true;
-    }
+    return false;
 }
 
 bool DevKitMQTTClient_SendEvent(const char *text)
@@ -650,6 +669,11 @@ bool DevKitMQTTClient_SendEvent(const char *text)
 bool DevKitMQTTClient_ReceiveEvent()
 {
     CheckConnection();
+    if (resetClient)
+    {
+        // Disconnected
+        return false;
+    }
 
     int count = receiveContext;
     uint64_t tm = SystemTickCounterRead();
@@ -711,6 +735,12 @@ void DevKitMQTTClient_Check(bool hasDelay)
     if (diff >= CHECK_INTERVAL_MS)
     {
         CheckConnection();
+        if (resetClient)
+        {
+            // Disconnected
+            return;
+        }
+        
         for (int i = 0; i < 5; i++)
         {
             IoTHubClient_LL_DoWork(iotHubClientHandle);

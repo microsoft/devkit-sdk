@@ -76,7 +76,7 @@ void showMotionAccelSensor()
 {
   int x, y, z;
   getDevKitAcceleratorValue(&x, &y, &z);
-  snprintf(buffInfo, sizeof(buffInfo), "Accelorometer \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", x, y, z);
+  snprintf(buffInfo, sizeof(buffInfo), "Accelerometer \r\n    x:%d   \r\n    y:%d   \r\n    z:%d  ", x, y, z);
   textOutDevKitScreen(0, buffInfo, 1);
 }
 

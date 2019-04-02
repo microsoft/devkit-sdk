@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,7 @@ public:
     static int16_t  _state[MAX_SOCK_NUM];
 
     WiFiClass();
-    
+
     /*
      * Get firmware version
      */
@@ -88,35 +88,35 @@ public:
      * return: pointer to unsigned char array with length WL_MAC_ADDR_LENGTH
      */
     unsigned char* macAddress(unsigned char* mac);
-     
+
     /*
      * Get the interface IP address.
      *
      * return: Ip address value
      */
     IPAddress localIP();
-     
+
     /*
      * Get the interface subnet mask address.
      *
      * return: subnet mask address value
      */
     IPAddress subnetMask();
-     
+
     /*
      * Get the gateway ip address.
      *
      * return: gateway ip address value
      */
     IPAddress gatewayIP();
-     
+
     /*
      * Return the current SSID associated with the network
      *
      * return: ssid string
      */
     const char* SSID();
-     
+
     /*
      * Return the current BSSID associated with the network.
      * It is the MAC address of the Access Point
@@ -124,7 +124,7 @@ public:
      * return: pointer to uint8_t array with length WL_MAC_ADDR_LENGTH
      */
     unsigned char* BSSID(unsigned char* bssid);
-     
+
     /*
      * Return the current RSSI /Received Signal Strength in dBm)
      * associated with the network
@@ -132,21 +132,21 @@ public:
      * return: signed value
      */
     int RSSI();
-     
+
     /*
      * Return the Encryption Type associated with the network
      *
      * return: one value of wl_enc_type enum
      */
     int encryptionType();
-     
+
     /*
      * Start scan WiFi networks available
      *
      * return: Number of discovered networks
      */
     int scanNetworks();
-     
+
     /*
      * Return the SSID discovered during the network scan.
      *
@@ -155,7 +155,7 @@ public:
      * return: ssid string of the specified item on the networks scanned list
      */
     const char* SSID(unsigned char networkItem);
-     
+
     /*
      * Return the encryption type of the networks discovered during the scanNetworks
      *
@@ -164,7 +164,7 @@ public:
      * return: encryption type (enum wl_enc_type) of the specified item on the networks scanned list
      */
     int encryptionType(unsigned char networkItem);
-     
+
     /*
      * Return the RSSI of the networks discovered during the scanNetworks
      *
@@ -173,7 +173,7 @@ public:
      * return: signed value of RSSI of the specified item on the networks scanned list
      */
     int RSSI(unsigned char networkItem);
-     
+
     /*
      * Return Connection status.
      *

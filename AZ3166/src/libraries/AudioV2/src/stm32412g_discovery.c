@@ -136,7 +136,7 @@ const uint16_t COM_TX_AF[COMn] = { DISCOVERY_COM1_TX_AF };
 const uint16_t COM_RX_AF[COMn] = { DISCOVERY_COM1_RX_AF };
 
 static I2C_HandleTypeDef hI2cAudioHandler;
-static I2C_HandleTypeDef hI2cExtHandler;
+//static I2C_HandleTypeDef hI2cExtHandler;
 
 /**
  * @}
@@ -152,7 +152,7 @@ static HAL_StatusTypeDef I2Cx_ReadMultiple( I2C_HandleTypeDef *i2c_handler, uint
                                             uint16_t MemAddSize, uint8_t *Buffer, uint16_t Length );
 static HAL_StatusTypeDef I2Cx_WriteMultiple( I2C_HandleTypeDef *i2c_handler, uint8_t Addr, uint16_t Reg,
                                              uint16_t MemAddSize, uint8_t *Buffer, uint16_t Length );
-static HAL_StatusTypeDef I2Cx_IsDeviceReady( I2C_HandleTypeDef *i2c_handler, uint16_t DevAddress, uint32_t Trials );
+//static HAL_StatusTypeDef I2Cx_IsDeviceReady( I2C_HandleTypeDef *i2c_handler, uint16_t DevAddress, uint32_t Trials );
 static void I2Cx_Error( I2C_HandleTypeDef *i2c_handler, uint8_t Addr );
 
 static void FMC_BANK1_WriteData( uint16_t Data );
@@ -405,10 +405,10 @@ static HAL_StatusTypeDef I2Cx_WriteMultiple( I2C_HandleTypeDef *i2c_handler,
  * @param  Trials: Number of trials
  * @retval HAL status
  */
-static HAL_StatusTypeDef I2Cx_IsDeviceReady( I2C_HandleTypeDef *i2c_handler, uint16_t DevAddress, uint32_t Trials )
-{
-    return (HAL_I2C_IsDeviceReady( i2c_handler, DevAddress, Trials, 1000 ));
-}
+//static HAL_StatusTypeDef I2Cx_IsDeviceReady( I2C_HandleTypeDef *i2c_handler, uint16_t DevAddress, uint32_t Trials )
+//{
+//    return (HAL_I2C_IsDeviceReady( i2c_handler, DevAddress, Trials, 1000 ));
+//}
 
 /**
  * @brief  Manages error callback by re-initializing I2C.

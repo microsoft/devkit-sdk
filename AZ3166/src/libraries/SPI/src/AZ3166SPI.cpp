@@ -65,7 +65,7 @@ void SPIClass::setDataMode(uint8_t dataMode)
     begin();
   }
   
-  if (dataMode >= 0 && dataMode < 4)
+  if (dataMode < 4)
   {
     spiSetting._dataMode = dataMode;
     deviceSPI->format(SPI_DEFAULT_BITS_PER_FRAME, spiSetting._dataMode);

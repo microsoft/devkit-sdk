@@ -124,6 +124,23 @@ bool connect_wifi(char *value_ssid, char *value_pass)
   return true;
 }
 
+bool set_az_iothub(char *value_device_connection_string)
+{
+  int len = strlen(value_device_connection_string);
+  if (len == 0 || len > AZ_IOT_HUB_MAX_LEN)
+  {
+    return false;
+  }
+
+  int err = write_eeprom(value_device_connection_string, AZ_IOT_HUB_ZONE_IDX);
+  if (err != 0)
+  {
+    return false;
+  }
+  return true;
+}
+
+
 int web_send_wifisetting_page(httpd_request_t *req)
 {
   int setting_page_len = 0;
@@ -225,17 +242,24 @@ exit:
   return err;
 }
 
-int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
+int web_send_result(httpd_request_t *req, bool connect_success, bool set_device_success, char *value_ssid)
 {
   int result_page_len = 0;
   char *result_page = NULL;
   OSStatus err = kNoErr;
-  if (is_success)
+  if (connect_success && set_device_success)
   {
     result_page_len = strlen(page_head) + strlen(success_result) + strlen(value_ssid) + strlen(_defaultSystemNetwork->get_ip_address()) - 5;
     result_page = (char *)malloc(result_page_len);
     snprintf(result_page, result_page_len, success_result, page_head, value_ssid, _defaultSystemNetwork->get_ip_address());
-  } else
+  } 
+  else if (connect_success)
+  {
+    result_page_len = strlen(page_head) + strlen(wifi_success_result) + strlen(value_ssid) + strlen(_defaultSystemNetwork->get_ip_address()) - 5;
+    result_page = (char *)malloc(result_page_len);
+    snprintf(result_page, result_page_len, wifi_success_result, page_head, value_ssid, _defaultSystemNetwork->get_ip_address());
+  } 
+  else
   {
     result_page_len = strlen(page_head) + strlen(failed_result) + strlen(value_ssid) - 3;
     result_page = (char *)malloc(result_page_len);
@@ -253,7 +277,7 @@ exit:
   {
     free(result_page);
   }
-  if (err == 0 && is_success)
+  if (err == 0 && connect_success)
   {
     wait_ms(3000);
     mico_system_reboot();
@@ -265,12 +289,15 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
 {
   OSStatus err = kNoErr;
   bool connect_succ = false;
+  bool set_succ = false;
   int buf_size = 512;
   char *buf;
   char value_ssid[WIFI_SSID_MAX_LEN + 1];
   char value_pass[WIFI_PWD_MAX_LEN + 1];
+  char value_device_connection_string[AZ_IOT_HUB_MAX_LEN + 1];
   value_ssid[0] = '\0';
   value_pass[0] = '\0';
+  value_device_connection_string[0] = '\0';
   char *boundary = NULL;
   // mico_Context_t* context = NULL;
 
@@ -294,6 +321,9 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
 
     err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
     require_noerr( err, Save_Out );
+
+    err = httpd_get_tag_from_multipart_form(buf, boundary, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
+    require_noerr( err, Save_Out );
   }
   else // Post data is URL encoded
   {
@@ -307,7 +337,12 @@ int web_send_wifisetting_result_page(httpd_request_t *req)
 
     err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
     require_noerr( err, Save_Out );
+
+    err = httpd_get_tag_from_post_data(buf, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
+    require_noerr( err, Save_Out );
   }
+
+  set_succ = set_az_iothub(value_device_connection_string);
 
   connect_succ = connect_wifi(value_ssid, value_pass);
 
@@ -315,14 +350,14 @@ Save_Out:
 
   if (connect_succ == true)
   {
-    err = web_send_result(req, true, value_ssid);
+    err = web_send_result(req, connect_succ, set_succ, value_ssid);
     require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http success result"));
 
     // mico_system_power_perform(context, eState_Software_Reset);
   }
   else
   {
-    err = web_send_result(req, false, value_ssid);
+    err = web_send_result(req, connect_succ, set_succ, value_ssid);
     require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http failed result"));
   }
 
