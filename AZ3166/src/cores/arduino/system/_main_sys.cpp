@@ -99,11 +99,13 @@ static void EnterConfigurationMode()
     cli_main();
 }
 
+extern "C" bool StartupSystemWeb(void);
+
 static void EnterAPMode()
 {
     pinMode(USER_BUTTON_B, INPUT);
 
-    Screen.print("IoT DevKit");
+    Screen.print("IoT DevKit - AP");
 
     if (!InitSystemWiFi())
     {
@@ -119,15 +121,21 @@ static void EnterAPMode()
         Serial.println("Soft ap creation failed");
         return;
     }
-
-    httpd_server_start();
-
-    Screen.print(1, ap_name);
-    Screen.print(2, "Config WiFi on");
-    Screen.print(3, "192.168.0.1");
-
-    Serial.printf("Soft AP %s is running...\r\n", ap_name);
-    Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the Wi-Fi settings.\r\n");
+    
+    if (StartupSystemWeb())
+    {
+        Screen.print(1, ap_name);
+        Screen.print(2, "Config board on");
+        Screen.print(3, "192.168.0.1");
+        Serial.printf("Soft AP %s is running...\r\n", ap_name);
+        Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the system settings.\r\n");
+    }
+    else
+    {
+        Screen.print(2, "192.168.0.1");
+        Serial.printf("Soft AP %s is running...\r\n", ap_name);
+    }
+    
 }
 
 extern void start_arduino(void);
@@ -148,6 +156,8 @@ static void EnterUserMode()
 int main(void)
 {
     Initialization();
+
+    __sys_setup();
 
     if (IsConfigurationMode())
     {
