@@ -216,6 +216,7 @@ typedef enum {
     D13         = MBED_GPIO_6,
     D14         = MBED_GPIO_18,
     D15         = MBED_GPIO_17,
+    LED_BUILTIN = PC_13,
 
     // Generic signals namings
     LED1            = MBED_GPIO_2,
