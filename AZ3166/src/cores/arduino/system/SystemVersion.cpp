@@ -9,12 +9,11 @@
 #define DEVKIT_MINOR_VERSION 6
 #define DEVKIT_PATCH_VERSION 2
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char version[12] = { "\0" };
+static char version[12] = { "\0" };
 
 const char* getDevkitVersion()
 {

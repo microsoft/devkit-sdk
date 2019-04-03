@@ -15,8 +15,8 @@
 
 // The segment length of each data partition
 const static int DATA_SEGMENT_LENGTH[11] = {
-    STSAFE_ZONE_0_SIZE, 
-    STSAFE_ZONE_1_SIZE, 
+    STSAFE_ZONE_0_SIZE,
+    STSAFE_ZONE_1_SIZE,
     STSAFE_ZONE_2_SIZE,
     STSAFE_ZONE_3_SIZE,
     STSAFE_ZONE_4_SIZE,
@@ -25,7 +25,7 @@ const static int DATA_SEGMENT_LENGTH[11] = {
     STSAFE_ZONE_7_SIZE,
     STSAFE_ZONE_8_SIZE,
     STSAFE_ZONE_9_SIZE,
-    STSAFE_ZONE_10_SIZE};
+    STSAFE_ZONE_10_SIZE };
 
 EEPROMInterface::EEPROMInterface()
 {
@@ -85,7 +85,7 @@ int EEPROMInterface::enableHostSecureChannel(int level, uint8_t* key)
         int segmentLength = DATA_SEGMENT_LENGTH[dataZoneIndex];
         if (segmentLength == 0) continue;
         readWithoutEnvelope(buf, segmentLength, 0, dataZoneIndex);
-        for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < segmentLength; i ++)
+        for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < segmentLength; i++)
         {
             int dataSize = min(segmentLength - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
             if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
@@ -149,7 +149,7 @@ int EEPROMInterface::writeWithEnvelope(uint8_t* dataBuff, int buffSize, uint8_t 
         return -1;
     }
     memcpy(buf, dataBuff, buffSize);
-    for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < readSize; i ++)
+    for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < readSize; i++)
     {
         int dataSize = min(readSize - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
         if (HAL_Store_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
@@ -174,7 +174,7 @@ int EEPROMInterface::writeWithoutEnvelope(uint8_t* dataBuff, int buffSize, uint8
 int EEPROMInterface::readWithEnvelope(uint8_t* dataBuff, int buffSize, uint16_t offset, uint8_t dataZoneIndex)
 {
     uint8_t* buf = (uint8_t*)malloc(MAX_BUFFER_SIZE);
-    for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < buffSize + offset; i ++)
+    for (int i = 0; i * MAX_ENCRYPT_DATA_SIZE < buffSize + offset; i++)
     {
         int dataSize = min(DATA_SEGMENT_LENGTH[dataZoneIndex] - i * MAX_ENCRYPT_DATA_SIZE, MAX_ENCRYPT_DATA_SIZE);
         if (HAL_Get_Data_WithinEnvelop(handle, dataZoneIndex, dataSize, buf + i * MAX_ENCRYPT_DATA_SIZE, i * MAX_ENVELOPE_SIZE))
@@ -246,5 +246,199 @@ bool EEPROMInterface::checkZoneSize(int dataZoneIndex, int &size, bool write)
     {
         size = segmentLength;
     }
+    return 0;
+}
+
+int EEPROMInterface::writeWithVerify(uint8_t* dataBuff, int dataSize, uint8_t dataZoneIndex)
+{
+    int result = write(dataBuff, dataSize, dataZoneIndex);
+    if (result)
+    {
+        return -1;
+    }
+
+    // Verify
+    uint8_t *pBuff = (uint8_t*)malloc(dataSize);
+    result = read(pBuff, dataSize, 0x00, dataZoneIndex);
+    if (result != dataSize || memcmp(dataBuff, pBuff, dataSize) != 0)
+    {
+        result = -1;
+    }
+    else
+    {
+        result = 0;
+    }
+    free(pBuff);
+
+    return result;
+}
+
+int EEPROMInterface::saveWiFiSetting(char *ssid, char *pwd)
+{
+    if (ssid == NULL || ssid[0] == 0 || strlen(ssid) > WIFI_SSID_MAX_LEN)
+    {
+        return -1;
+    }
+    if (pwd && strlen(pwd) > WIFI_PWD_MAX_LEN)
+    {
+        return -1;
+    }
+
+    int ret = writeWithVerify((uint8_t*)ssid, strlen(ssid) + 1, WIFI_SSID_ZONE_IDX);
+    if (ret != 0)
+    {
+        return -1;
+    }
+
+    if (pwd == NULL)
+    {
+        // No password
+        ret = writeWithVerify((uint8_t*)"", 1, WIFI_PWD_ZONE_IDX);
+    }
+    else
+    {
+        ret = writeWithVerify((uint8_t*)pwd, strlen(pwd) + 1, WIFI_PWD_ZONE_IDX);
+    }
+
+    return ret;
+}
+
+int EEPROMInterface::saveDeviceConnectionString(char *iotHubString)
+{
+    if (strlen(iotHubString) > AZ_IOT_HUB_MAX_LEN)
+    {
+        return -1;
+    }
+    int ret = 0;
+    if (iotHubString == NULL)
+    {
+        ret = writeWithVerify((uint8_t*)"", 1, AZ_IOT_HUB_ZONE_IDX);
+    }
+    else
+    {
+        ret = writeWithVerify((uint8_t*)iotHubString, strlen(iotHubString), AZ_IOT_HUB_ZONE_IDX);
+    }
+    return ret;
+}
+
+int EEPROMInterface::saveX509Cert(char *x509Cert)
+{
+    if (x509Cert == NULL || strlen(x509Cert) > AZ_IOT_X509_MAX_LEN)
+    {
+        return -1;
+    }
+
+    int len = strlen(x509Cert) + 1;
+    int size = (len > STSAFE_ZONE_0_SIZE ? STSAFE_ZONE_0_SIZE : len);
+    int written = 0;
+    if (writeWithVerify((uint8_t*)x509Cert, size, STSAFE_ZONE_0_IDX) != 0)
+    {
+        return -1;
+    }
+    len -= size;
+    written += size;
+
+    if (len > 0)
+    {
+        size = (len > STSAFE_ZONE_7_SIZE ? STSAFE_ZONE_7_SIZE : len);
+        if (writeWithVerify((uint8_t*)&x509Cert[written], size, STSAFE_ZONE_7_IDX) != 0)
+        {
+            return -1;
+        }
+        len -= size;
+        written += size;
+    }
+
+    if (len > 0)
+    {
+        size = (len > STSAFE_ZONE_8_SIZE ? STSAFE_ZONE_8_SIZE : len);
+        if (writeWithVerify((uint8_t*)&x509Cert[written], size, STSAFE_ZONE_8_IDX) != 0)
+        {
+            return -1;
+        }
+        len -= size;
+        written += size;
+    }
+    return 0;
+}
+
+int EEPROMInterface::readWiFiSetting(char *ssid, int ssidSize, char *pwd, int pwdSize)
+{
+    if (ssid == NULL || ssidSize <= 0)
+    {
+        return -1;
+    }
+    if (read((uint8_t*)ssid, ssidSize, 0x00, WIFI_SSID_ZONE_IDX) == -1)
+    {
+        return -1;
+    }
+    ssid[ssidSize - 1] = 0;
+
+    if (pwd && pwdSize > 0)
+    {
+        if (read((uint8_t*)pwd, pwdSize, 0x00, WIFI_PWD_ZONE_IDX) == -1)
+        {
+            return -1;
+        }
+        pwd[pwdSize - 1] = 0;
+    }
+    return 0;
+}
+
+int EEPROMInterface::readDeviceConnectionString(char *deviceConnString, int buffSize)
+{
+    if (deviceConnString == NULL || buffSize <= 0)
+    {
+        return -1;
+    }
+    if (read((uint8_t*)deviceConnString, buffSize, 0x00, AZ_IOT_HUB_ZONE_IDX) == -1)
+    {
+        return -1;
+    }
+    deviceConnString[buffSize - 1] = 0;
+    return 0;
+}
+
+int EEPROMInterface::readX509Cert(char *x509Cert, int buffSize)
+{
+    if (x509Cert == NULL || buffSize <= 0)
+    {
+        return -1;
+    }
+    int len = buffSize;
+    int size = (len > STSAFE_ZONE_0_SIZE ? STSAFE_ZONE_0_SIZE : len);
+    int dataRead = 0;
+    if (read((uint8_t*)x509Cert, size, 0x00, STSAFE_ZONE_0_IDX) == -1)
+    {
+        return -1;
+    }
+    len -= size;
+    dataRead += size;
+    printf("x509 - 0: %d\r\n", size);
+
+    if (len > 0)
+    {
+        size = (len > STSAFE_ZONE_7_SIZE ? STSAFE_ZONE_7_SIZE : len);
+        if (read((uint8_t*)&x509Cert[dataRead], size, 0x00, STSAFE_ZONE_7_IDX) == -1)
+        {
+            return -1;
+        }
+        len -= size;
+        dataRead += size;
+        printf("x509 - 1: %d\r\n", size);
+    }
+
+    if (len > 0)
+    {
+        size = (len > STSAFE_ZONE_8_SIZE ? STSAFE_ZONE_8_SIZE : len);
+        if (read((uint8_t*)&x509Cert[dataRead], size, 0x00, STSAFE_ZONE_8_IDX) == -1)
+        {
+            return -1;
+        }
+        len -= size;
+        dataRead += size;
+        printf("x509 - 2: %d\r\n", size);
+    }
+    x509Cert[buffSize - 1] = 0;
     return 0;
 }
