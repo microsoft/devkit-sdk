@@ -14,7 +14,7 @@
 static uint32_t _sampleRate;
 static uint16_t _sampleBitDepth;
 static uint8_t _channels;
-static uint8_t _durationInSeconds;
+//static uint8_t _durationInSeconds;
 
 static char _play_buffer[AUDIO_CHUNK_SIZE];
 static char _record_buffer[AUDIO_CHUNK_SIZE];
@@ -321,7 +321,7 @@ int AudioClass::convertToMono(char* audioBuffer, int size, int sampleBitLength)
 
 bool AudioClass::setVolume(uint8_t volume)
 {
-    if (volume < 0 || volume > 100)
+    if (volume > 100)
     {
         return false;
     }

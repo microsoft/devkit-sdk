@@ -29,378 +29,512 @@
  *
  ******************************************************************************
  */
-
-#include "EEPROMInterface.h"
-#include <httpd.h>
+#include "mbed.h"
 #include "mico.h"
 #include "app_httpd.h"
-#include "OledDisplay.h"
+#include "EEPROMInterface.h"
 #include "EMW10xxInterface.h"
+#include "httpd.h"
+#include "OledDisplay.h"
 #include "SystemVariables.h"
-
-#define app_httpd_log(...)
+#include "SystemWeb.h"
 
 #define HTTPD_HDR_DEFORT (HTTPD_HDR_ADD_SERVER|HTTPD_HDR_ADD_CONN_CLOSE|HTTPD_HDR_ADD_PRAGMA_NO_CACHE)
+
+#define DEFAULT_PAGE_SIZE (10*1024)
+
+static const char * page_head = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\"><title>AZ3166 WiFi Config</title><style>@charset \"UTF-8\";/*Flavor name:Default (mini-default)Author:Angelos Chalaris (chalarangelo@gmail.com)Maintainers:Angelos Chalarismini.css version:v2.1.5 (Fermion)*//*Browsers resets and base typography.*/html{font-size:16px;}html, *{font-family:-apple-system, BlinkMacSystemFont,\"Segoe UI\",\"Roboto\", \"Droid Sans\",\"Helvetica Neue\", Helvetica, Arial, sans-serif;line-height:1.5;-webkit-text-size-adjust:100%;}*{font-size:1rem;}body{margin:0;color:#212121;background:#f8f8f8;}section{display:block;}input{overflow:visible;}[type=\"radio\"]{position:absolute;left:-2rem;}h1, h2{line-height:1.2em;margin:0.75rem 0.5rem;font-weight:500;}h2 small{color:#424242;display:block;margin-top:-0.25rem;}h1{font-size:2rem;}h2{font-size:1.6875rem;}p{margin:0.5rem;}small{font-size:0.75em;}a{color:#0277bd;text-decoration:underline;opacity:1;transition:opacity 0.3s;}a:visited{color:#01579b;}a:hover, a:focus{opacity:0.75;}/*Definitions for the grid system.*/.container{margin:0 auto;padding:0 0.75rem;}.row{box-sizing:border-box;display:-webkit-box;-webkit-box-flex:0;-webkit-box-orient:horizontal;-webkit-box-direction:normal;display:-webkit-flex;display:flex;-webkit-flex:0 1 auto;flex:0 1 auto;-webkit-flex-flow:row wrap;flex-flow:row wrap;}[class^='col-sm-']{box-sizing:border-box;-webkit-box-flex:0;-webkit-flex:0 0 auto;flex:0 0 auto;padding:0 0.25rem;}.col-sm-10{max-width:83.33333%;-webkit-flex-basis:83.33333%;flex-basis:83.33333%;}.col-sm-offset-1{margin-left:8.33333%;}@media screen and (min-width:768px){.col-md-4{max-width:33.33333%;-webkit-flex-basis:33.33333%;flex-basis:33.33333%;}.col-md-offset-4{margin-left:33.33333%;}}/*Definitions for navigation elements.*/header{display:block;height:2.75rem;background:#1e6bb8;color:#f5f5f5;padding:0.125rem 0.5rem;white-space:nowrap;overflow-x:auto;overflow-y:hidden;}header .logo{color:#f5f5f5;font-size:1.35rem;line-height:1.8125em;margin:0.0625rem 0.375rem 0.0625rem 0.0625rem;transition:opacity 0.3s;}header .logo{text-decoration:none;}/*Definitions for forms and input elements.*/form{background:#eeeeee;border:1px solid #c9c9c9;margin:0.5rem;padding:0.75rem 0.5rem 1.125rem;}.input-group{display:inline-block;margin-left:2rem;position:relative;}.input-group.fluid{display:-webkit-box;-webkit-box-pack:justify;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;}.input-group.fluid>input:not([type=\"radio\"]),.input-group.fluid>textarea{-webkit-box-flex:1;width:100%;-webkit-flex-grow:1;flex-grow:1;-webkit-flex-basis:0;flex-basis:0;}@media screen and (max-width:767px){.input-group.fluid{-webkit-box-orient:vertical;-webkit-align-items:stretch;align-items:stretch;-webkit-flex-direction:column;flex-direction:column;}}[type=\"password\"],[type=\"text\"],select,textarea{width:100%;box-sizing:border-box;background:#fafafa;color:#212121;border:1px solid #c9c9c9;border-radius:2px;margin:0.25rem 0;padding:0.5rem 0.75rem;}input:not([type=\"button\"]):not([type=\"submit\"]):not([type=\"reset\"]):hover, input:not([type=\"button\"]):not([type=\"submit\"]):not([type=\"reset\"]):focus, select:hover, select:focus{border-color:#0288d1;box-shadow:none;}input:not([type=\"button\"]):not([type=\"submit\"]):not([type=\"reset\"]):disabled, select:disabled{cursor:not-allowed;opacity:0.75;}::-webkit-input-placeholder{opacity:1;color:#616161;}::-moz-placeholder{opacity:1;color:#616161;}::-ms-placeholder{opacity:1;color:#616161;}::placeholder{opacity:1;color:#616161;}button::-moz-focus-inner, [type=\"submit\"]::-moz-focus-inner{border-style:none;padding:0;}button, [type=\"submit\"]{-webkit-appearance:button;}button{overflow:visible;text-transform:none;}button, [type=\"submit\"], a.button, .button{display:inline-block;background:rgba(208, 208, 208, 0.75);color:#212121;border:0;border-radius:2px;padding:0.5rem 0.75rem;margin:0.5rem;text-decoration:none;transition:background 0.3s;cursor:pointer;}button:hover, button:focus, [type=\"submit\"]:hover, [type=\"submit\"]:focus, a.button:hover, a.button:focus, .button:hover, .button:focus{background:#d0d0d0;opacity:1;}button:disabled, [type=\"submit\"]:disabled, a.button:disabled, .button:disabled{cursor:not-allowed;opacity:0.75;}/*Custom elements for forms and input elements.*/button.primary, [type=\"submit\"].primary, .button.primary{background:rgba(30, 107, 184, 0.9);color:#fafafa;}button.primary:hover, button.primary:focus, [type=\"submit\"].primary:hover, [type=\"submit\"].primary:focus, .button.primary:hover, .button.primary:focus{background:#0277bd;}#content{margin-top:2em;} table, th, td {border:1px solid #c9c9c9; border-collapse:collapse;} th, td {padding:5px;padding-left:10px} td {text-align: left;} th {background-color:#EEEEEE;color: #616161;} tr {background-color: #EEEEEE;color: #616161;}</style></head>";
+static const char * wifi_setting_a = "<body><header><h1 class=\"logo\">IoT DevKit Settings</h1></header><section class=\"container\"><div id=\"content\" class=\"row\"><div class=\"col-sm-10 col-sm-offset-1 col-md-4 col-md-offset-4\" style=\"text-align:center;\"><form action=\"result\" method=\"post\" enctype=\"multipart/form-data\"><div class=\"input-group fluid\"><input type=\"radio\" name=\"input_ssid_method\" value=\"select\" onclick=\"changeSSIDInput()\" checked><select name=\"SSID\" id=\"SSID-select\"> ";
+static const char * wifi_setting_b = "</select></div><div class=\"input-group fluid\"><input type=\"radio\" name=\"input_ssid_method\" value=\"text\" onclick=\"changeSSIDInput()\"><input type=\"text\" id=\"SSID-text\" placeholder=\"SSID\" disabled></div><div class=\"input-group fluid\"><input type=\"password\" value=\"\" name=\"PASS\" id=\"password\" placeholder=\"Password\"></div>";
+static const char * device_conn_setting = "<div class=\"input-group fluid\"><input type=\"text\" name=\"DeviceConnectionString\" id=\"DeviceConnectionString\" placeholder=\"IoT Device Connection String\"></div>";
+static const char * cert_setting = "<div class=\"input-group fluid\"><textarea name=\"certificate\" rows=\"5\" placeholder=\"X.509 Certificate\"></textarea></div>";
+static const char * setting_end = "<div class=\"input-group fluid\"><button type=\"submit\" class=\"primary\">Save</button></div></form><h5 style=\"color:#616161;\">Please refresh this page to update SSID if you cannot find it from the list</h5></div></div></section><script>function changeSSIDInput(){var inputFromSelect=document.getElementsByName(\"input_ssid_method\")[0].checked;var select=document.getElementById(\"SSID-select\");var text=document.getElementById(\"SSID-text\");if(inputFromSelect){select.name=\"SSID\";select.removeAttribute(\"disabled\");text.name=\"\";text.setAttribute(\"disabled\",\"\")}else{select.name=\"\";select.setAttribute(\"disabled\",\"\");text.name=\"SSID\";text.removeAttribute(\"disabled\")}};</script></body></html>";
+
+static const char * result_head = "<body><header> <h1 class=\"logo\">IoT DevKit Settings</h1></header><section class=\"container\"> <div id=\"content\" class=\"row\"> <div class=\"col-sm-10 col-sm-offset-1 col-md-4 col-md-offset-4\" style=\"text-align:center;\"><table align=\"center\" style=\"width:80%\"><tr><th>Settings</td></tr>";
+static const char * result_wifi = "<tr><td>Wi-Fi SSID and Password - %s</th></tr>";
+static const char * result_conn_string = "<tr><td>IoT Device Connection String - %s</td></tr>";
+static const char * result_cert = "<tr><td>X.509 Certificate - %s</td></tr>";
+static const char * result_table_end = "</table>";
+static const char * result_wifi_connect_1 = "<h3 style=\"color:Tomato;\">Failed to connect： %s</h3>";
+static const char * result_wifi_connect_2 = "<h3 style=\"color:DodgerBlue;\">Wi-Fi %s is connected: %s</h3>";
+static const char * result_retry = "<p><a href=\"/\" class=\"button primary\" target=\"_self\">Retry</a></p>";
+static const char * result_wait = "<h5 style=\"color:#616161;\">Wait a few seconds for the IoT DevKit to reboot...</h5>";
+static const char * result_end = "</div></div></section></body></html>";
 
 extern OLEDDisplay Screen;
 extern NetworkInterface *_defaultSystemNetwork;
 
-bool is_http_init;
-bool is_handlers_registered;
+static int web_settings = 0;
+static bool is_http_init;
+static bool is_handlers_registered;
 
-int write_eeprom(char* string, int idxZone)
+bool set_wifi_value(char *value_ssid, char *value_pass)
 {
-  int result;
-  EEPROMInterface eeprom;
-  int len = strlen(string) + 1;
-
-  // Write data to EEPROM
-  result = eeprom.write((uint8_t*)string, len, idxZone);
-  if (result)
-  {
-    app_httpd_log("ERROR: Failed to write EEPROM");
-    return -1;
-  }
-
-  // Verify
-  uint8_t *pBuff = (uint8_t*)malloc(len);
-  result = eeprom.read(pBuff, len, 0x00, idxZone);
-  if (result != len || strncmp(string, (char*)pBuff, len) != 0)
-  {
-    app_httpd_log("ERROR: Verify failed.\r\n");
-    return -1;
-  }
-  free(pBuff);
-  return 0;
+    EEPROMInterface eeprom;
+    if (eeprom.saveWiFiSetting(value_ssid, value_pass) == 0)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
 }
 
 bool connect_wifi(char *value_ssid, char *value_pass)
 {
-  int len = strlen(value_ssid);
-  if (len == 0 || len > WIFI_SSID_MAX_LEN)
-  {
-    return false;
-  }
+    Screen.clean();
+    Screen.print("WiFi \r\n \r\nConnecting...\r\n \r\n");
 
-  len = strlen(value_pass);
-  if (len > WIFI_PWD_MAX_LEN)
-  {
-    return false;
-  }
+    if (_defaultSystemNetwork == NULL)
+    {
+        _defaultSystemNetwork = new EMW10xxInterface();
+    }
 
-  Screen.clean();
-  Screen.print("WiFi \r\n \r\nConnecting...\r\n \r\n");
+    ((EMW10xxInterface*)_defaultSystemNetwork)->set_interface(Station);
+    int err = ((EMW10xxInterface*)_defaultSystemNetwork)->connect((char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0);
+    if (err != 0)
+    {
+        Screen.print("WiFi \r\n \r\nNo connection \r\n \r\n");
+        return false;
+    }
+    else
+    {
+        char wifiBuff[128];
+        sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n", value_ssid, _defaultSystemNetwork->get_ip_address());
+        Screen.print(wifiBuff);
+    }
 
-  if (_defaultSystemNetwork == NULL)
-  {
-    _defaultSystemNetwork = new EMW10xxInterface();
-  }
-
-  ((EMW10xxInterface*)_defaultSystemNetwork)->set_interface(Station);
-  int err = ((EMW10xxInterface*)_defaultSystemNetwork)->connect( (char*)value_ssid, (char*)value_pass, NSAPI_SECURITY_WPA_WPA2, 0 );
-  if (err != 0)
-  {
-    Screen.print("WiFi \r\n \r\nNo connection \r\n \r\n");
-    return false;
-  }
-  else
-  {
-    char wifiBuff[128];
-    sprintf(wifiBuff, "WiFi \r\n %s\r\n %s \r\n \r\n", value_ssid, _defaultSystemNetwork->get_ip_address());
-    Screen.print(wifiBuff);
-  }
-
-  err = write_eeprom(value_ssid, WIFI_SSID_ZONE_IDX);
-  if (err != 0)
-  {
-    return false;
-  }
-  err = write_eeprom(value_pass, WIFI_PWD_ZONE_IDX);
-  if (err != 0)
-  {
-    return false;
-  }
-
-  return true;
+    return true;
 }
 
-int web_send_wifisetting_page(httpd_request_t *req)
+bool set_az_iothub(char *value_device_connection_string)
 {
-  int setting_page_len = 0;
-  char *setting_page = NULL;
-  int err = kNoErr;
-  const char *ssid = "";
-  int ssidLen = 0;
-
-  // scan network
-  WiFiAccessPoint wifiScanResult[100];
-  int validWifiIndex[15];
-  int wifiCount = ((EMW10xxInterface*)_defaultSystemNetwork)->scan(wifiScanResult, 100);
-  int validWifiCount = 0;
-
-  setting_page_len = strlen(page_head) + strlen(wifi_setting_a) + strlen(wifi_setting_b) + 1;
-  for (int i = 0; i < wifiCount; ++i)
-  {
-    // too weak
-    if (wifiScanResult[i].get_rssi() < -100)
+    EEPROMInterface eeprom;
+    if (eeprom.saveDeviceConnectionString(value_device_connection_string) == 0)
     {
-      continue;
+      return true;
     }
-
-    bool shouldSkip = false;
-    for (int j = 0; j < i; ++j)
+    else
     {
-      // this ap has been skipped before
-      if (wifiScanResult[j].get_rssi() < -100)
-      {
-        continue;
-      }
-      else if (strcmp(wifiScanResult[i].get_ssid(), wifiScanResult[j].get_ssid()) == 0)
-      {
-        // duplicate ap name
-        shouldSkip = true;
-        break;
-      }
+      return false;
     }
+}
 
-    if (shouldSkip)
+bool set_az_x509(char *value_x509)
+{
+    EEPROMInterface eeprom;
+    if (eeprom.saveX509Cert(value_x509) == 0)
     {
-      continue;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+}
 
-    ssid = (char *)wifiScanResult[i].get_ssid();
-    ssidLen = strlen(ssid);
-    if (ssidLen == BOARD_AP_LENGTH && strncmp(ssid, boardAPHeader, strlen(boardAPHeader)) == 0) {
-      shouldSkip = true;
-      for (int j = strlen(boardAPHeader); j < BOARD_AP_LENGTH; ++j) {
-        if (!isxdigit(ssid[j])) {
-          shouldSkip = false;
+static int web_system_setting_page(httpd_request_t *req)
+{
+    char *setting_page = NULL;
+    int len = 0;
+    int err = kNoErr;
+    const char *ssid = "";
+    int ssidLen = 0;
+
+    // scan network
+    WiFiAccessPoint wifiScanResult[50];
+    int validWifiIndex[15];
+    int wifiCount = ((EMW10xxInterface*)_defaultSystemNetwork)->scan(wifiScanResult, 50);
+    int validWifiCount = 0;
+    // Scan Wi-Fi AP
+    for (int i = 0; i < wifiCount; ++i)
+    {
+        // too weak
+        if (wifiScanResult[i].get_rssi() < -100)
+        {
+            continue;
         }
-      }
-      if (shouldSkip)
-      {
-        continue;
-      }
+
+        bool shouldSkip = false;
+        for (int j = 0; j < i; ++j)
+        {
+            // this ap has been skipped before
+            if (wifiScanResult[j].get_rssi() < -100)
+            {
+                continue;
+            }
+            else if (strcmp(wifiScanResult[i].get_ssid(), wifiScanResult[j].get_ssid()) == 0)
+            {
+                // duplicate ap name
+                shouldSkip = true;
+                break;
+            }
+        }
+
+        if (shouldSkip)
+        {
+            continue;
+        }
+
+        ssid = (char *)wifiScanResult[i].get_ssid();
+        ssidLen = strlen(ssid);
+        if (ssidLen == BOARD_AP_LENGTH && strncmp(ssid, boardAPHeader, strlen(boardAPHeader)) == 0)
+        {
+            shouldSkip = true;
+            for (int j = strlen(boardAPHeader); j < BOARD_AP_LENGTH; ++j)
+            {
+                if (!isxdigit(ssid[j])) {
+                    shouldSkip = false;
+                }
+            }
+            if (shouldSkip)
+            {
+                continue;
+            }
+        }
+
+        if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN)
+        {
+            validWifiIndex[validWifiCount++] = i;
+        }
+
+        if (validWifiCount >= 15)
+        {
+            break;
+        }
     }
 
-    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN)
+    // Prepare the web view
+    setting_page = (char*)calloc(DEFAULT_PAGE_SIZE, 1);
+    if (setting_page == NULL)
     {
-      validWifiIndex[validWifiCount++] = i;
-      setting_page_len += 26 + 2 * ssidLen;
+        err = kGeneralErr;
+        goto exit;
     }
-
-    if (validWifiCount >= 15)
+    strcpy(setting_page, page_head);
+    len += strlen(page_head);
+    strcpy(&setting_page[len], wifi_setting_a);
+    len += strlen(wifi_setting_a);
+    for (int i = 0; i < validWifiCount; ++i)
     {
-      break;
+        ssid = (char *)wifiScanResult[validWifiIndex[i]].get_ssid();
+        ssidLen = strlen((char *)wifiScanResult[validWifiIndex[i]].get_ssid());
+        if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN)
+        {
+            int ret = snprintf(&setting_page[len], DEFAULT_PAGE_SIZE - len, "<option value=\"%s\">%s</option>", ssid, ssid);
+            len += (ret > 0 ? ret : 0);
+        }
     }
-  }
-  setting_page = (char *)malloc(setting_page_len);
-  char *p = setting_page;
-
-  snprintf(p, strlen(page_head) + strlen(wifi_setting_a) + 1, "%s%s", page_head, wifi_setting_a);
-  p += strlen(page_head) + strlen(wifi_setting_a);
-  for(int i = 0; i < validWifiCount; ++i)
-  {
-    ssid = (char *)wifiScanResult[validWifiIndex[i]].get_ssid();
-    ssidLen = strlen((char *)wifiScanResult[validWifiIndex[i]].get_ssid());
-    if (ssidLen && ssidLen <= WIFI_SSID_MAX_LEN)
+    strcpy(&setting_page[len], wifi_setting_b);
+    len += strlen(wifi_setting_b);
+    if (web_settings & WEB_SETTING_IOT_DEVICE_CONN_STRING)
     {
-      snprintf(p, 27 + 2 * ssidLen, "<option value=\"%s\">%s</option>", ssid, ssid);
+        // Enable IoT Device Connection string
+        strcpy(&setting_page[len], device_conn_setting);
+        len += strlen(device_conn_setting);
     }
-    p += 26 + 2 * strlen(ssid);
-  }
-  snprintf(p, strlen(wifi_setting_b) + 1, "%s", wifi_setting_b);
+    if (web_settings & WEB_SETTING_IOT_CERT)
+    {
+        // Enable X.509 cert
+        strcpy(&setting_page[len], cert_setting);
+        len += strlen(cert_setting);
+    }
+    strcat(&setting_page[len], setting_end);
+    len += strlen(setting_end) + 1;
+    
+    err = httpd_send_all_header(req, HTTP_RES_200, len, HTTP_CONTENT_HTML_STR);
+    require_noerr(err, exit);
 
-  err = httpd_send_all_header(req, HTTP_RES_200, setting_page_len, HTTP_CONTENT_HTML_STR);
-  require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http wifisetting headers.") );
-
-  err = httpd_send_body(req->sock, (const unsigned char*)setting_page, setting_page_len);
-  require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http wifisetting body.") );
+    err = httpd_send_body(req->sock, (const unsigned char*)setting_page, len);
+    require_noerr(err, exit);
 
 exit:
-  if (setting_page)
-  {
-    free(setting_page);
-  }
-  return err;
+    if (setting_page)
+    {
+        free(setting_page);
+    }
+    return err;
 }
 
-int web_send_result(httpd_request_t *req, bool is_success, char *value_ssid)
+int web_system_setting_result_page(httpd_request_t *req)
 {
-  int result_page_len = 0;
-  char *result_page = NULL;
-  OSStatus err = kNoErr;
-  if (is_success)
-  {
-    result_page_len = strlen(page_head) + strlen(success_result) + strlen(value_ssid) + strlen(_defaultSystemNetwork->get_ip_address()) - 5;
-    result_page = (char *)malloc(result_page_len);
-    snprintf(result_page, result_page_len, success_result, page_head, value_ssid, _defaultSystemNetwork->get_ip_address());
-  } else
-  {
-    result_page_len = strlen(page_head) + strlen(failed_result) + strlen(value_ssid) - 3;
-    result_page = (char *)malloc(result_page_len);
-    snprintf(result_page, result_page_len, failed_result, page_head, value_ssid);
-  }
+    OSStatus err = kNoErr;
+    bool retry = false;
+    int buf_size;
+    char *buf = NULL;
+    char value_ssid[WIFI_SSID_MAX_LEN + 1];
+    char value_pass[WIFI_PWD_MAX_LEN + 1];
+    char *value_device_connection_string = NULL;
+    char *value_x509 = NULL;
+    char *boundary = NULL;
+    char *result_page = NULL;
+    int len = 0;
+    int ret;
 
-  err = httpd_send_all_header(req, HTTP_RES_200, result_page_len, HTTP_CONTENT_HTML_STR);
-  require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http result headers.") );
+    memset(value_ssid, 0, sizeof(value_ssid));
+    memset(value_pass, 0, sizeof(value_pass));
 
-  err = httpd_send_body(req->sock, (const unsigned char*)result_page, result_page_len);
-  require_noerr_action( err, exit, app_httpd_log("ERROR: Unable to send http result body.") );
-
-exit:
-  if (result_page)
-  {
-    free(result_page);
-  }
-  if (err == 0 && is_success)
-  {
-    wait_ms(3000);
-    mico_system_reboot();
-  }
-  return err;
-}
-
-int web_send_wifisetting_result_page(httpd_request_t *req)
-{
-  OSStatus err = kNoErr;
-  bool connect_succ = false;
-  int buf_size = 512;
-  char *buf;
-  char value_ssid[WIFI_SSID_MAX_LEN + 1];
-  char value_pass[WIFI_PWD_MAX_LEN + 1];
-  value_ssid[0] = '\0';
-  value_pass[0] = '\0';
-  char *boundary = NULL;
-  // mico_Context_t* context = NULL;
-
-  buf = (char *)malloc(buf_size);
-  err = httpd_get_data(req, buf, buf_size);
-  app_httpd_log("httpd_get_data return value: %d", err);
-  require_noerr( err, Save_Out );
-
-  if (strstr(req->content_type, "multipart/form-data") != NULL) // Post data is multipart encoded
-  {
-    boundary = strstr(req->content_type, "boundary=");
-    boundary += 9;
-
-    err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
-    require_noerr( err, Save_Out );
-
-    if (!strncmp(value_ssid, "\0", 1))
+    buf_size = 512 + WIFI_SSID_MAX_LEN + WIFI_PWD_MAX_LEN;
+    if (web_settings & WEB_SETTING_IOT_DEVICE_CONN_STRING)
     {
-      goto Save_Out;
+        value_device_connection_string = (char*)calloc(AZ_IOT_HUB_MAX_LEN + 1, 1);
+        buf_size += AZ_IOT_HUB_MAX_LEN;
+    }
+    if (web_settings & WEB_SETTING_IOT_CERT)
+    {
+        value_x509 = (char*)calloc(AZ_IOT_X509_MAX_LEN + 1, 1);
+        buf_size += AZ_IOT_X509_MAX_LEN;
+    }
+    buf = (char *)calloc(buf_size, 1);
+    if (buf == NULL)
+    {
+        err = kGeneralErr;
+        goto _exit;
     }
 
-    err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
-    require_noerr( err, Save_Out );
-  }
-  else // Post data is URL encoded
-  {
-    err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
-    require_noerr( err, Save_Out );
-
-    if (!strncmp(value_ssid, "\0", 1))
+    // Get data
+    err = httpd_get_data(req, buf, buf_size - 1);
+    require_noerr(err, _exit);
+    // Extract settings
+    if (strstr(req->content_type, "multipart/form-data") != NULL) // Post data is multipart encoded
     {
-      goto Save_Out;
+        boundary = strstr(req->content_type, "boundary=");
+        boundary += 9;
+
+        err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
+        require_noerr(err, _exit);
+
+        err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
+        require_noerr(err, _exit);
+
+        if (value_device_connection_string)
+        {
+            err = httpd_get_tag_from_multipart_form(buf, boundary, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
+            require_noerr(err, _exit);
+        }
+
+        if (value_x509)
+        {
+            err = httpd_get_tag_from_multipart_form(buf, boundary, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
+            require_noerr(err, _exit);
+        }
     }
+    else // Post data is URL encoded
+    {
+        err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
+        require_noerr(err, _exit);
 
-    err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
-    require_noerr( err, Save_Out );
-  }
+        err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
+        require_noerr(err, _exit);
 
-  connect_succ = connect_wifi(value_ssid, value_pass);
+        if (value_device_connection_string)
+        {
+            err = httpd_get_tag_from_post_data(buf, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
+            require_noerr(err, _exit);
+        }
 
-Save_Out:
-
-  if (connect_succ == true)
-  {
-    err = web_send_result(req, true, value_ssid);
-    require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http success result"));
-
-    // mico_system_power_perform(context, eState_Software_Reset);
-  }
-  else
-  {
-    err = web_send_result(req, false, value_ssid);
-    require_noerr_action(err, exit, app_httpd_log("ERROR: Unable to send http failed result"));
-  }
-
-exit:
-  if (buf)
-  {
+        if (value_x509)
+        {
+            err = httpd_get_tag_from_post_data(buf, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
+            require_noerr(err, _exit);
+        }
+    }
+    // Free the data buffer
     free(buf);
-  }
-  return err;
+    buf = NULL;
+
+    // Prepare the result page
+    result_page = (char*)calloc(DEFAULT_PAGE_SIZE, 1);
+    if (result_page == NULL)
+    {
+        err = kGeneralErr;
+        goto _exit;
+    }
+    // Head
+    strcpy(result_page, page_head);
+    len = strlen(page_head);
+    // Result body head
+    strcpy(&result_page[len], result_head);
+    len += strlen(result_head);
+    // Wi-Fi setting
+    if (value_ssid[0] == 0)
+    {
+        ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "no change");
+    }
+    else
+    {
+        if (set_wifi_value(value_ssid, value_pass))
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "saved");
+        }
+        else
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "save failed");
+        }
+    }
+    len += (ret > 0 ? ret : 0);
+    
+    // IoT Device Connection string
+    if (value_device_connection_string)
+    {
+        if (value_device_connection_string[0] == 0)
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "no change");
+        }
+        else
+        {
+            if (set_az_iothub(value_device_connection_string))
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "saved");
+            }
+            else
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "save failed");
+            }
+        }
+        len += (ret > 0 ? ret : 0);
+    }
+    // X.509 cert
+    if (value_x509)
+    {
+        if (value_x509[0] == 0)
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "no change");
+        }
+        else
+        {
+            if (set_az_x509(value_x509))
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "saved");
+            }
+            else
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "save failed");
+            }
+        }
+        len += (ret > 0 ? ret : 0);
+    }
+    strcpy(&result_page[len], result_table_end);
+    len += strlen(result_table_end);
+    
+    // Connect Wi-Fi
+    retry = false;
+    if (value_ssid[0])
+    {
+        if (connect_wifi(value_ssid, value_pass))
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi_connect_2, value_ssid, _defaultSystemNetwork->get_ip_address());
+        }
+        else
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi_connect_1, value_ssid);
+            retry = true;
+        }
+        len += (ret > 0 ? ret : 0);
+    }
+    if (retry)
+    {
+        strcpy(&result_page[len], result_retry);
+        len += strlen(result_retry);
+    }
+    else
+    {
+        strcpy(&result_page[len], result_wait);
+        len += strlen(result_wait);
+    }
+    strcpy(&result_page[len], result_end);
+    len += strlen(result_end) + 1;
+
+    // Show the result page
+    err = httpd_send_all_header(req, HTTP_RES_200, len, HTTP_CONTENT_HTML_STR);
+    require_noerr(err, _exit);
+
+    err = httpd_send_body(req->sock, (const unsigned char*)result_page, len);
+    require_noerr(err, _exit);
+
+_exit:
+    if (buf)
+    {
+        free(buf);
+    }
+    if (value_device_connection_string)
+    {
+        free(value_device_connection_string);
+    }
+    if (result_page)
+    {
+        free(result_page);
+    }
+
+    if (err == 0 && !retry)
+    {
+        wait_ms(5000);
+        mico_system_reboot();
+    }
+    return err;
 }
 
 struct httpd_wsgi_call g_app_handlers[] = {
-  {"/", HTTPD_HDR_DEFORT, 0, web_send_wifisetting_page, NULL, NULL, NULL},
-  {"/result", HTTPD_HDR_DEFORT, 0, NULL, web_send_wifisetting_result_page, NULL, NULL},
-  {"/setting", HTTPD_HDR_DEFORT, 0, web_send_wifisetting_page, NULL, NULL, NULL},
+  {"/", HTTPD_HDR_DEFORT, 0, web_system_setting_page, NULL, NULL, NULL},
+  {"/result", HTTPD_HDR_DEFORT, 0, NULL, web_system_setting_result_page, NULL, NULL},
+  {"/setting", HTTPD_HDR_DEFORT, 0, web_system_setting_page, NULL, NULL, NULL},
 };
 
-int g_app_handlers_no = sizeof(g_app_handlers)/sizeof(struct httpd_wsgi_call);
+int g_app_handlers_no = sizeof(g_app_handlers) / sizeof(struct httpd_wsgi_call);
 
 void app_http_register_handlers()
 {
-  int rc;
-  rc = httpd_register_wsgi_handlers(g_app_handlers, g_app_handlers_no);
-  if (rc)
-  {
-    app_httpd_log("failed to register test web handler");
-  }
+    httpd_register_wsgi_handlers(g_app_handlers, g_app_handlers_no);
 }
 
 int _app_httpd_start()
 {
-  OSStatus err = kNoErr;
-  app_httpd_log("initializing web-services");
+    OSStatus err = kNoErr;
 
-  /*Initialize HTTPD*/
-  if (is_http_init == false)
-  {
-    err = httpd_init();
-    require_noerr_action( err, exit, app_httpd_log("failed to initialize httpd") );
-    is_http_init = true;
-  }
+    /*Initialize HTTPD*/
+    if (is_http_init == false)
+    {
+        err = httpd_init();
+        require_noerr(err, exit);
+        is_http_init = true;
+    }
 
-  /*Start http thread*/
-  err = httpd_start();
-  if (err != kNoErr)
-  {
-    app_httpd_log("failed to start httpd thread");
-    httpd_shutdown();
-  }
+    /*Start http thread*/
+    err = httpd_start();
+    if (err != kNoErr)
+    {
+        httpd_shutdown();
+    }
 exit:
-  return err;
+    return err;
 }
 
-int httpd_server_start()
+int httpd_server_start(int settings)
 {
-  int err = kNoErr;
-  err = _app_httpd_start();
-  require_noerr( err, exit );
+    int err = kNoErr;
+    web_settings = settings;
+    err = _app_httpd_start();
+    require_noerr(err, exit);
 
-  if (is_handlers_registered == false)
-  {
-    app_http_register_handlers();
-    is_handlers_registered = true;
-  }
+    if (is_handlers_registered == false)
+    {
+        app_http_register_handlers();
+        is_handlers_registered = true;
+    }
 
 exit:
-  return err;
+    return err;
 }
 
 int app_httpd_stop()
 {
-  OSStatus err = kNoErr;
+    OSStatus err = kNoErr;
 
-  /* HTTPD and services */
-  app_httpd_log("stopping down httpd");
-  err = httpd_stop();
-  require_noerr_action( err, exit, app_httpd_log("failed to halt httpd") );
+    /* HTTPD and services */
+    err = httpd_stop();
+    require_noerr(err, exit);
 
 exit:
-  return err;
+    return err;
 }

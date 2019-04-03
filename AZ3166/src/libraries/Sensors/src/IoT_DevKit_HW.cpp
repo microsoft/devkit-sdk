@@ -57,11 +57,10 @@ static bool initWiFi(void)
 
 int initIoTDevKit(int isShowInfo)
 {
-    // Init the screen
-    Screen.init();
-
     if (isShowInfo)
     {
+        // Init the screen
+        Screen.init();
         Screen.print(0, "IoT DevKit");
         Screen.print(2, "Initializing...");
     }

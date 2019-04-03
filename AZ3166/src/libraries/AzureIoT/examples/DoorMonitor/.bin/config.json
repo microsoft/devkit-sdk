@@ -1,7 +1,0 @@
-{
-  "sketch": "../DoorMonitor.ino",
-  "config": "deviceConnectionString",
-  "tasks": {
-    "provision": ["subscription", "iothub", "device"]
-  }
-}

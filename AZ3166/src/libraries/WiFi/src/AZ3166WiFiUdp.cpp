@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,32 +11,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-extern "C" {
-extern int rtl_printf(const char *fmt, ...);
-}
+
 #include <string.h>
 #include "AZ3166WiFi.h"
 #include "AZ3166WiFiUdp.h"
 #include "AZ3166WiFiClient.h"
 #include "SystemWiFi.h"
-//#include "WiFiServer.h"
 
 /* Constructor */
-WiFiUDP::WiFiUDP() 
+WiFiUDP::WiFiUDP()
 {
     _pUdpSocket = new UDPSocket();
-    
+
     _localPort = 0;
     is_initialized = false;
 }
 
 /* Start WiFiUDP socket, listening at local port PORT */
-int WiFiUDP::begin(unsigned short port) {
-
-    if ( !is_initialized ) 
+int WiFiUDP::begin(unsigned short port)
+{
+    if ( !is_initialized )
     {
-        _pUdpSocket->set_blocking(false);  
+        _pUdpSocket->set_blocking(false);
         _pUdpSocket->set_timeout(5000);
         if(_pUdpSocket->open(WiFiInterface()) != 0)
         {
@@ -44,7 +40,7 @@ int WiFiUDP::begin(unsigned short port) {
         }
         is_initialized = true;
     }
-    
+
     if ( is_initialized )
     {
         _localPort = port;
@@ -83,24 +79,33 @@ int WiFiUDP::beginPacket(const char *host, unsigned short port)
 
 int WiFiUDP::beginPacket(IPAddress ip, unsigned short port)
 {
-    if ( !is_initialized ) 
+    if (!is_initialized)
     {
         if(_pUdpSocket->open(WiFiInterface()) != 0)
         {
             return 0;
         }
-        
-        _pUdpSocket->set_blocking(false);  
+
+        _pUdpSocket->set_blocking(false);
         _pUdpSocket->set_timeout(5000);
 
         is_initialized = true;
     }
-    
-    if ( is_initialized )
+
+    if (_address != NULL)
     {
-        _address = new SocketAddress(ip.get_address(), port);
-    }   
-    return 1;       
+        delete _address;
+        _address = NULL;
+    }
+    _address = new SocketAddress(ip.get_address(), port);
+    if (_address == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 int WiFiUDP::endPacket()
@@ -115,9 +120,10 @@ size_t WiFiUDP::write(unsigned char data)
 
 size_t WiFiUDP::write(const unsigned char *buffer, size_t size)
 {
-    if ( !is_initialized ) 
+    if (!is_initialized)
+    {
         return 0;
-
+    }
     _pUdpSocket->sendto(*_address, (char*)buffer, size);
     return size;
 }
@@ -127,8 +133,13 @@ int WiFiUDP::read()
     int n;
     char b;
 
-    if (_address == NULL){
+    if (_address == NULL)
+    {
         _address = new SocketAddress();
+        if (_address == NULL)
+        {
+            return 0;
+        }
     }
     n =  _pUdpSocket->recvfrom(_address,  &b, 1);
     return ( n != 1 )? (-1) : (int)(b);
@@ -136,8 +147,13 @@ int WiFiUDP::read()
 
 int WiFiUDP::read(unsigned char* buffer, size_t len)
 {
-    if (_address == NULL){
+    if (_address == NULL)
+    {
         _address = new SocketAddress();
+        if (_address == NULL)
+        {
+            return 0;
+        }
     }
     return _pUdpSocket->recvfrom(_address, (char*)buffer, len);
 }
@@ -161,7 +177,9 @@ IPAddress WiFiUDP::remoteIP()
 unsigned short  WiFiUDP::remotePort()
 {
     if(_address == NULL)
+    {
         return 0;
+    }
     return _address->get_port();
 }
 

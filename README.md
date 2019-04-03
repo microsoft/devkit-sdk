@@ -4,7 +4,7 @@ This SDK is used to develop and prototype Internet of Things (IoT) solutions lev
 
 With this SDK, you can use [Visual Studio Code](https://code.visualstudio.com/) with [Arduino Extension](https://marketplace.visualstudio.com) to rapidly build a full-fledged IoT application that integrates multiple services like Azure IoT Hub, Logic Apps and Cognitive Services.
 
-## Contributing
+## Contribution
 
 There are a couple of ways you can contribute to this repo:
 

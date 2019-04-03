@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +40,7 @@ WiFiClass::WiFiClass()
 
 const char* WiFiClass::firmwareVersion()
 {
-    if (!is_wifi_inited) 
+    if (!is_wifi_inited)
     {
         return NULL;
     }
@@ -63,7 +63,7 @@ const char* WiFiClass::firmwareVersion()
 
 int WiFiClass::begin(void)
 {
-    if (!is_wifi_inited) 
+    if (!is_wifi_inited)
     {
         return WL_CONNECT_FAILED;
     }
@@ -110,8 +110,8 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
 
         // Initialize the telemetry only after Wi-Fi established
         telemetry_init();
-        
-        // Microsoft collects data to operate effectively and provide you the best experiences with our products. 
+
+        // Microsoft collects data to operate effectively and provide you the best experiences with our products.
         // We collect data about the features you use, how often you use them, and how you use them.
         send_telemetry_data_async("", "wifi", "Wi-Fi connected");
 
@@ -127,7 +127,7 @@ int WiFiClass::begin(char* ssid, const char *passphrase)
 
 int WiFiClass::disconnect()
 {
-    if (!is_wifi_inited) 
+    if (!is_wifi_inited)
     {
         return WL_CONNECT_FAILED;
     }

@@ -102,7 +102,7 @@ HttpResponse* HttpsRequest::send(const void* body, size_t body_size)
     size_t request_size = 0;
     char* request = _headerBuilder->build(body_size, request_size);
     _error = _tlssocket->send(request, request_size);
-    if (_error != request_size)
+    if ((size_t)_error != request_size)
     {
         ERROR("Failed to send the HTTP header");
         _tlssocket->close();

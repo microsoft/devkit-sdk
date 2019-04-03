@@ -12,8 +12,7 @@
 #ifndef _SPI_H_INCLUDED
 #define _SPI_H_INCLUDED
 
-#include "mbed.h"
-#include "variant.h"
+#include "Arduino.h"
 
 // This defines are not representing the real Divider of the STM32F412
 // the Defines match to an AVR Arduino on 16MHz for better compatibility

@@ -35,10 +35,15 @@ NTPClient::NTPClient(NetworkInterface *networkInterface)
 
 NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
 {
+    if (host == NULL || host[0] == 0)
+    {
+        return NTP_DNS;
+    }
+
     //Create & bind socket
     m_sock.set_blocking(false);
     m_sock.set_timeout(timeout);
-    
+
     struct NTPPacket pkt;
 
     //Now ping the server and wait for response
@@ -66,9 +71,9 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
     if(m_net->gethostbyname(host, &outEndpoint)!= 0)
     {
         m_sock.close();
-        return NTP_DNS;    
+        return NTP_DNS;
     }
-    
+
     //Set timeout, non-blocking and wait using select
     int ret = m_sock.sendto(outEndpoint, (char*)&pkt, sizeof(NTPPacket) );
     if (ret < 0 )
@@ -76,7 +81,7 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
         m_sock.close();
         return NTP_CONN;
     }
-    
+
     SocketAddress recvAddress;
     recvAddress.set_ip_address(outEndpoint.get_ip_address());
     recvAddress.set_port(port);
@@ -122,7 +127,7 @@ NTPResult NTPClient::setTime(const char* host, uint16_t port, uint32_t timeout)
     int64_t offset = ( (int64_t)( pkt.rxTm_s - pkt.origTm_s ) + (int64_t) ( pkt.txTm_s - destTm_s ) ) / 2; //Avoid overflow
     //Set time accordingly
     set_time( time(NULL) + offset );
-    
+
     m_sock.close();
 
     return NTP_OK;

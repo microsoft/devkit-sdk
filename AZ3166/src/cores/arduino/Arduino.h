@@ -20,18 +20,33 @@
 #ifndef Arduino_h
 #define Arduino_h
 
-// Useful C libraries
 #include <math.h>
-#include <time.h>
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "mbed.h"
+#include "mbed_stats.h"
+#include "PinNames.h"
 
-#include "wiring_constants.h"
+#include "AttachInterrupt.h"
+#include "EEPROMInterface.h"
+#include "floatIO.h" 
+#include "Stream.h"	
+#include "SystemFunc.h"
+#include "SystemVersion.h"
+#include "SystemTickCounter.h"
+#include "SystemVariables.h"
+#include "SystemWeb.h"
+#include "Watchdog.h"
+#include "WCharacter.h"
+#include "wiring.h"
+#include "wiring_analog.h"
+#include "wiring_digital.h"
+#include "WMath.h"
+#include "WString.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -43,52 +58,24 @@ extern "C"{
 #define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
 
-/* sketch */
-extern void setup( void ) ;
-extern void loop( void ) ;
-
-
-/* Types used for the tables below */
-typedef struct _PinDescription
-{
-  uint32_t arduino_id;
-  uint32_t ulPin ;
-  GPIO_TypeDef  * ulPort;
-  uint32_t mode;
-  bool configured;
-} PinDescription ;
-
-#define NB_PIN_DESCRIPTIONS (16*3)
-
-/* Pins table to be instantiated into variant.cpp */
-extern const PinDescription g_APinDescription[] ;
+// Sketch
+extern void setup(void) ;
+extern void loop(void) ;
 
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
 
-#include "wiring.h"
-#include "wiring_digital.h"
-#include "WMath.h"
-#include "wiring_analog.h"
+// Arduino objects - C++ only
+#ifdef __cplusplus
+#include "UARTClass.h"
+#include "OledDisplay.h"
 
-#include "variant.h"
+extern UARTClass Serial;
+extern OLEDDisplay Screen;
+#endif // __cplusplus
 
-#include "WString.h"
-#include "WCharacter.h"
-#include "Stream.h"	
+// SPI interface
+#define SPI_INTERFACES_COUNT    1
 
-#include "floatIO.h" 
-
-#include "app_httpd.h"
-#include "SystemFunc.h"
-#include "SystemVersion.h"
-#include "SystemTickCounter.h"
-#include "SystemVariables.h"
-#include "EEPROMInterface.h"
-#include "AttachInterrupt.h"
-
-#include "mbed_stats.h"
-#include "Watchdog.h"
-
-#endif
+#endif // Arduino_h
