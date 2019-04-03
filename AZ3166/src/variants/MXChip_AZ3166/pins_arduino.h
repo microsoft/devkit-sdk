@@ -21,9 +21,6 @@
 
 #include "PinNames.h"
 
-//On-board LED pin number
-#define LED_BUILTIN    PC_13
-
 // Micro：Bit Edge pins
 #define PIN_0          PB_0;   // GPIO, ADC, SPI CS
 #define PIN_4          PA_5;   // GPIO, ADC
