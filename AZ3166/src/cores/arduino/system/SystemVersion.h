@@ -5,11 +5,15 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
+#define DEVKIT_MAJOR_VERSION 1
+#define DEVKIT_MINOR_VERSION 6
+#define DEVKIT_PATCH_VERSION 2
+#define DEVKIT_SDK_VERSION (DEVKIT_MAJOR_VERSION * 10000 + DEVKIT_MINOR_VERSION * 100 + DEVKIT_PATCH_VERSION)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
 //Get the whole version string
 const char* getDevkitVersion();
 

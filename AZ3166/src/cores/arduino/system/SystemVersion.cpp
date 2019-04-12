@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include "SystemVersion.h"
 
-#define DEVKIT_MAJOR_VERSION 1
-#define DEVKIT_MINOR_VERSION 6
-#define DEVKIT_PATCH_VERSION 2
-
 #ifdef __cplusplus
 extern "C" {
 #endif
