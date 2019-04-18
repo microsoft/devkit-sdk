@@ -106,7 +106,7 @@ static void AZIoTLog(LOG_CATEGORY log_category, const char *file, const char *fu
         serial_xlog("%s INFO:  ", ct);
         break;
     case AZ_LOG_ERROR:
-        serial_xlog("%s ERROR: %s (ln %d): ", ct, xlogging_get_filename(file), line);
+        serial_xlog("%s ERROR: %s (ln %d): ", ct, "" /*xlogging_get_filename(file)*/, line);
         break;
     default:
         break;
@@ -239,7 +239,7 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
 static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
 {
     EVENT_INSTANCE *event = (EVENT_INSTANCE *)userContextCallback;
-    LogInfo(">>>Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, event->trackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
+    LogInfo(">>>Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, event->trackingId, MU_ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
 
     if (currentTrackingId == event->trackingId)
     {

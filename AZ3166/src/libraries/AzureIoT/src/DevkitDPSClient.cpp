@@ -15,8 +15,8 @@
 #include "azure_prov_client/prov_transport_mqtt_client.h"
 #include "azure_prov_client/iothub_security_factory.h"
 
-DEFINE_ENUM_STRINGS(PROV_DEVICE_RESULT, PROV_DEVICE_RESULT_VALUE);
-DEFINE_ENUM_STRINGS(PROV_DEVICE_REG_STATUS, PROV_DEVICE_REG_STATUS_VALUES);
+MU_DEFINE_ENUM_STRINGS(PROV_DEVICE_RESULT, PROV_DEVICE_RESULT_VALUE);
+MU_DEFINE_ENUM_STRINGS(PROV_DEVICE_REG_STATUS, PROV_DEVICE_REG_STATUS_VALUES);
 
 typedef struct CLIENT_SAMPLE_INFO_TAG
 {
@@ -109,7 +109,7 @@ static void registation_status_callback(PROV_DEVICE_REG_STATUS reg_status, void*
     }
     else
     {
-        LogInfo(">>>Provisioning Status: %s", ENUM_TO_STRING(PROV_DEVICE_REG_STATUS, reg_status));
+        LogInfo(">>>Provisioning Status: %s", MU_ENUM_TO_STRING(PROV_DEVICE_REG_STATUS, reg_status));
         if (reg_status == PROV_DEVICE_REG_STATUS_CONNECTED)
         {
             (void)printf("\r\nRegistration status: CONNECTED\r\n");
