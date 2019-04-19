@@ -5,6 +5,7 @@
 #define MQTTCONST_H
 
 #include "azure_c_shared_utility/crt_abstractions.h"
+#include "azure_c_shared_utility/macro_utils.h"
 
 #ifdef __cplusplus
 #include <cstddef>
@@ -33,7 +34,7 @@ extern "C" {
     PACKET_TYPE_ERROR, \
     UNKNOWN_TYPE
 
-DEFINE_ENUM(CONTROL_PACKET_TYPE, CONTROL_PACKET_TYPE_VALUES)
+MU_DEFINE_ENUM(CONTROL_PACKET_TYPE, CONTROL_PACKET_TYPE_VALUES)
 
 #define QOS_VALUE_VALUES \
     DELIVER_AT_MOST_ONCE = 0x00, \
@@ -41,7 +42,7 @@ DEFINE_ENUM(CONTROL_PACKET_TYPE, CONTROL_PACKET_TYPE_VALUES)
     DELIVER_EXACTLY_ONCE = 0x02, \
     DELIVER_FAILURE = 0x80
 
-DEFINE_ENUM(QOS_VALUE, QOS_VALUE_VALUES)
+MU_DEFINE_ENUM(QOS_VALUE, QOS_VALUE_VALUES)
 
 typedef struct APP_PAYLOAD_TAG
 {
