@@ -67,7 +67,7 @@ extern "C"
 
     /*
     * @brief This option should be used instead of OPTION_MESSAGE_TIMEOUT if using AMQP protocol.
-    *        It defines the maximum amount of time, in seconds, the client will wait for a telemetry message to complete sending before returning it with a IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT error.
+    *        It defines the maximum ammount of time, in seconds, the client will wait for a telemetry message to complete sending before returning it with a IOTHUB_CLIENT_CONFIRMATION_MESSAGE_TIMEOUT error.
     *        The default value 5 (five) minutes.
     *        This option is applicable only to AMQP protocol.
     */

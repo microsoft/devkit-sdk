@@ -17,6 +17,6 @@
 
 #include "iothub_client_ll.h"
 
-/*This header is deprecated and maintained only for backward compatibility*/
+/*This header is DEPREPCATED and mainatined only for backward compatibility*/
 
 #endif // IOTHUB_CLIENT_PROVISIONING_H
