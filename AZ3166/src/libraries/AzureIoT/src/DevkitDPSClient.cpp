@@ -208,7 +208,7 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
     }
     else if (is_iothub_from_dps)
     {
-        return result; // already've been here
+        return result; // already been here
     }
     
     LogInfo("   DPS Version: %s\r\n", Prov_Device_GetVersionString());

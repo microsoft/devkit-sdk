@@ -133,7 +133,7 @@ public:
     * @param    ssid                The buffer to retrieve Wi-Fi SSID.
     *           ssidSize            The buffer size of Wi-Fi SSID.
     *           pwd                 The buffer to retrieve Wi-Fi password.
-    *           pwdSize             The buffer size of passowrd.
+    *           pwdSize             The buffer size of password.
     *
     * @return   Return 0 on success, otherwise return -1.
     */
