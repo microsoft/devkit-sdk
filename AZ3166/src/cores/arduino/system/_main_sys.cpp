@@ -3,11 +3,11 @@
 
 #include "Arduino.h"
 #include "console_cli.h"
+#include "emw10xx_lwip_stack.h"
 #include "EMW10xxInterface.h"
 #include "mbed.h"
 #include "mbed_stats.h"
 #include "mico_system.h"
-#include "SystemLock.h"
 #include "SystemTickCounter.h"
 #include "SystemWiFi.h"
 
@@ -16,7 +16,7 @@ static bool Initialization(void)
     mbed_stats_heap_t heap_stats;
     mbed_stats_heap_get(&heap_stats);
 
-    init_system_lock();
+    mbed_lwip_init();
 
 #if defined(USBCON)
     USBDevice.attach();
