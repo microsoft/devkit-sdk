@@ -60,7 +60,7 @@ public:
 private:
     uint8_t *buf;
     int size;
-    int addr_w, addr_r;
+    volatile int addr_w, addr_r;
 };
 
 #endif

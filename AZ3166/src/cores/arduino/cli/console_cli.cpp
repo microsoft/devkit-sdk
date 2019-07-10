@@ -347,9 +347,9 @@ static bool get_input(char *inbuf, unsigned int *bp)
     
     while (true) 
     {
-        while (!Serial.available())
+        if (!Serial.available())
         {
-            wait_ms(50);
+            continue;
         }
         inbuf[*bp] = (char)Serial.read();
         
