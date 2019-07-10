@@ -50,7 +50,6 @@ static bool initWiFi(void)
     }
     else
     {
-        LogError("Failed to initialize Wi-Fi.");
         return -100;
     }
 }
