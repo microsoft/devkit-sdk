@@ -3,17 +3,35 @@
 
 /*THIS FILE IS GENERATED*/
 /*DO NOT EDIT BY HAND!!!*/
-/*instead edit macro_utils.tt */
+/*instead edit macro_utils.tt here: http://www.github.com/azure/azure-macro-utils-c.git */
+/*and then propagate the generated file to all the repos*/
+/* !!! CAUTION!!! This file is copied to multiple places */
+/* in https://github.com/Azure/azure-c-shared-utility.git, */
+/* and all of these copies must be located and replaced. */
+
+
 
 #ifndef MACRO_UTILS_H
 #define MACRO_UTILS_H
 
+#ifdef __cplusplus
+#include <cstring>
+#include <cstddef>
+extern "C" {
+#else
 #include <string.h>
 #include <stddef.h>
-#include "azure_c_shared_utility/optimize_size.h"
+#endif
 
-/*"pointer or NULL" macro - because when printf-ing arguments NULL is not valid for %p or %s (section 7.1.4 of C11 standard) */
+#if (defined OPTIMIZE_RETURN_CODES)
+    #define MU_FAILURE 1
+#else
+    #define MU_FAILURE __LINE__
+#endif
+
+/*"pointer or NULL" macro - because when printf-ing arguments NULL is not valid for %s (section 7.1.4 of C11 standard) */
 #define MU_P_OR_NULL(p) (((p)!=NULL)?(p):"NULL")
+#define MU_WP_OR_NULL(p) (((p)!=NULL)?(p):L"NULL")
 
 #define MU_TOSTRING_(x) #x
 #define MU_TOSTRING(x) MU_TOSTRING_(x)
@@ -82,6 +100,133 @@
 #define MU_IFCOMMA_120 ,
 #define MU_IFCOMMA_122 ,
 #define MU_IFCOMMA_124 ,
+
+#define MU_IFCOMMALOGIC(N) MU_C2(MU_IFCOMMALOGIC_, N)
+#define MU_IFCOMMALOGIC_0 
+#define MU_IFCOMMALOGIC_1 ,
+#define MU_IFCOMMALOGIC_2 ,
+#define MU_IFCOMMALOGIC_3 ,
+#define MU_IFCOMMALOGIC_4 ,
+#define MU_IFCOMMALOGIC_5 ,
+#define MU_IFCOMMALOGIC_6 ,
+#define MU_IFCOMMALOGIC_7 ,
+#define MU_IFCOMMALOGIC_8 ,
+#define MU_IFCOMMALOGIC_9 ,
+#define MU_IFCOMMALOGIC_10 ,
+#define MU_IFCOMMALOGIC_11 ,
+#define MU_IFCOMMALOGIC_12 ,
+#define MU_IFCOMMALOGIC_13 ,
+#define MU_IFCOMMALOGIC_14 ,
+#define MU_IFCOMMALOGIC_15 ,
+#define MU_IFCOMMALOGIC_16 ,
+#define MU_IFCOMMALOGIC_17 ,
+#define MU_IFCOMMALOGIC_18 ,
+#define MU_IFCOMMALOGIC_19 ,
+#define MU_IFCOMMALOGIC_20 ,
+#define MU_IFCOMMALOGIC_21 ,
+#define MU_IFCOMMALOGIC_22 ,
+#define MU_IFCOMMALOGIC_23 ,
+#define MU_IFCOMMALOGIC_24 ,
+#define MU_IFCOMMALOGIC_25 ,
+#define MU_IFCOMMALOGIC_26 ,
+#define MU_IFCOMMALOGIC_27 ,
+#define MU_IFCOMMALOGIC_28 ,
+#define MU_IFCOMMALOGIC_29 ,
+#define MU_IFCOMMALOGIC_30 ,
+#define MU_IFCOMMALOGIC_31 ,
+#define MU_IFCOMMALOGIC_32 ,
+#define MU_IFCOMMALOGIC_33 ,
+#define MU_IFCOMMALOGIC_34 ,
+#define MU_IFCOMMALOGIC_35 ,
+#define MU_IFCOMMALOGIC_36 ,
+#define MU_IFCOMMALOGIC_37 ,
+#define MU_IFCOMMALOGIC_38 ,
+#define MU_IFCOMMALOGIC_39 ,
+#define MU_IFCOMMALOGIC_40 ,
+#define MU_IFCOMMALOGIC_41 ,
+#define MU_IFCOMMALOGIC_42 ,
+#define MU_IFCOMMALOGIC_43 ,
+#define MU_IFCOMMALOGIC_44 ,
+#define MU_IFCOMMALOGIC_45 ,
+#define MU_IFCOMMALOGIC_46 ,
+#define MU_IFCOMMALOGIC_47 ,
+#define MU_IFCOMMALOGIC_48 ,
+#define MU_IFCOMMALOGIC_49 ,
+#define MU_IFCOMMALOGIC_50 ,
+#define MU_IFCOMMALOGIC_51 ,
+#define MU_IFCOMMALOGIC_52 ,
+#define MU_IFCOMMALOGIC_53 ,
+#define MU_IFCOMMALOGIC_54 ,
+#define MU_IFCOMMALOGIC_55 ,
+#define MU_IFCOMMALOGIC_56 ,
+#define MU_IFCOMMALOGIC_57 ,
+#define MU_IFCOMMALOGIC_58 ,
+#define MU_IFCOMMALOGIC_59 ,
+#define MU_IFCOMMALOGIC_60 ,
+#define MU_IFCOMMALOGIC_61 ,
+#define MU_IFCOMMALOGIC_62 ,
+#define MU_IFCOMMALOGIC_63 ,
+#define MU_IFCOMMALOGIC_64 ,
+#define MU_IFCOMMALOGIC_65 ,
+#define MU_IFCOMMALOGIC_66 ,
+#define MU_IFCOMMALOGIC_67 ,
+#define MU_IFCOMMALOGIC_68 ,
+#define MU_IFCOMMALOGIC_69 ,
+#define MU_IFCOMMALOGIC_70 ,
+#define MU_IFCOMMALOGIC_71 ,
+#define MU_IFCOMMALOGIC_72 ,
+#define MU_IFCOMMALOGIC_73 ,
+#define MU_IFCOMMALOGIC_74 ,
+#define MU_IFCOMMALOGIC_75 ,
+#define MU_IFCOMMALOGIC_76 ,
+#define MU_IFCOMMALOGIC_77 ,
+#define MU_IFCOMMALOGIC_78 ,
+#define MU_IFCOMMALOGIC_79 ,
+#define MU_IFCOMMALOGIC_80 ,
+#define MU_IFCOMMALOGIC_81 ,
+#define MU_IFCOMMALOGIC_82 ,
+#define MU_IFCOMMALOGIC_83 ,
+#define MU_IFCOMMALOGIC_84 ,
+#define MU_IFCOMMALOGIC_85 ,
+#define MU_IFCOMMALOGIC_86 ,
+#define MU_IFCOMMALOGIC_87 ,
+#define MU_IFCOMMALOGIC_88 ,
+#define MU_IFCOMMALOGIC_89 ,
+#define MU_IFCOMMALOGIC_90 ,
+#define MU_IFCOMMALOGIC_91 ,
+#define MU_IFCOMMALOGIC_92 ,
+#define MU_IFCOMMALOGIC_93 ,
+#define MU_IFCOMMALOGIC_94 ,
+#define MU_IFCOMMALOGIC_95 ,
+#define MU_IFCOMMALOGIC_96 ,
+#define MU_IFCOMMALOGIC_97 ,
+#define MU_IFCOMMALOGIC_98 ,
+#define MU_IFCOMMALOGIC_99 ,
+#define MU_IFCOMMALOGIC_100 ,
+#define MU_IFCOMMALOGIC_101 ,
+#define MU_IFCOMMALOGIC_102 ,
+#define MU_IFCOMMALOGIC_103 ,
+#define MU_IFCOMMALOGIC_104 ,
+#define MU_IFCOMMALOGIC_105 ,
+#define MU_IFCOMMALOGIC_106 ,
+#define MU_IFCOMMALOGIC_107 ,
+#define MU_IFCOMMALOGIC_108 ,
+#define MU_IFCOMMALOGIC_109 ,
+#define MU_IFCOMMALOGIC_110 ,
+#define MU_IFCOMMALOGIC_111 ,
+#define MU_IFCOMMALOGIC_112 ,
+#define MU_IFCOMMALOGIC_113 ,
+#define MU_IFCOMMALOGIC_114 ,
+#define MU_IFCOMMALOGIC_115 ,
+#define MU_IFCOMMALOGIC_116 ,
+#define MU_IFCOMMALOGIC_117 ,
+#define MU_IFCOMMALOGIC_118 ,
+#define MU_IFCOMMALOGIC_119 ,
+#define MU_IFCOMMALOGIC_120 ,
+#define MU_IFCOMMALOGIC_121 ,
+#define MU_IFCOMMALOGIC_122 ,
+#define MU_IFCOMMALOGIC_123 ,
+#define MU_IFCOMMALOGIC_124 ,
 
 #define MU_IFCOMMA_NOFIRST(N) MU_C2(MU_IFCOMMA_NOFIRST, N)
 #define MU_IFCOMMA_NOFIRST1 
@@ -3290,6 +3435,1033 @@
 #define MU_DIV2_1 0
 #define MU_DIV2_0 0
 
+#define MU_MOD2(x) MU_C2(MU_MOD2_,x)
+#define MU_MOD2_1024 0
+#define MU_MOD2_1023 1
+#define MU_MOD2_1022 0
+#define MU_MOD2_1021 1
+#define MU_MOD2_1020 0
+#define MU_MOD2_1019 1
+#define MU_MOD2_1018 0
+#define MU_MOD2_1017 1
+#define MU_MOD2_1016 0
+#define MU_MOD2_1015 1
+#define MU_MOD2_1014 0
+#define MU_MOD2_1013 1
+#define MU_MOD2_1012 0
+#define MU_MOD2_1011 1
+#define MU_MOD2_1010 0
+#define MU_MOD2_1009 1
+#define MU_MOD2_1008 0
+#define MU_MOD2_1007 1
+#define MU_MOD2_1006 0
+#define MU_MOD2_1005 1
+#define MU_MOD2_1004 0
+#define MU_MOD2_1003 1
+#define MU_MOD2_1002 0
+#define MU_MOD2_1001 1
+#define MU_MOD2_1000 0
+#define MU_MOD2_999 1
+#define MU_MOD2_998 0
+#define MU_MOD2_997 1
+#define MU_MOD2_996 0
+#define MU_MOD2_995 1
+#define MU_MOD2_994 0
+#define MU_MOD2_993 1
+#define MU_MOD2_992 0
+#define MU_MOD2_991 1
+#define MU_MOD2_990 0
+#define MU_MOD2_989 1
+#define MU_MOD2_988 0
+#define MU_MOD2_987 1
+#define MU_MOD2_986 0
+#define MU_MOD2_985 1
+#define MU_MOD2_984 0
+#define MU_MOD2_983 1
+#define MU_MOD2_982 0
+#define MU_MOD2_981 1
+#define MU_MOD2_980 0
+#define MU_MOD2_979 1
+#define MU_MOD2_978 0
+#define MU_MOD2_977 1
+#define MU_MOD2_976 0
+#define MU_MOD2_975 1
+#define MU_MOD2_974 0
+#define MU_MOD2_973 1
+#define MU_MOD2_972 0
+#define MU_MOD2_971 1
+#define MU_MOD2_970 0
+#define MU_MOD2_969 1
+#define MU_MOD2_968 0
+#define MU_MOD2_967 1
+#define MU_MOD2_966 0
+#define MU_MOD2_965 1
+#define MU_MOD2_964 0
+#define MU_MOD2_963 1
+#define MU_MOD2_962 0
+#define MU_MOD2_961 1
+#define MU_MOD2_960 0
+#define MU_MOD2_959 1
+#define MU_MOD2_958 0
+#define MU_MOD2_957 1
+#define MU_MOD2_956 0
+#define MU_MOD2_955 1
+#define MU_MOD2_954 0
+#define MU_MOD2_953 1
+#define MU_MOD2_952 0
+#define MU_MOD2_951 1
+#define MU_MOD2_950 0
+#define MU_MOD2_949 1
+#define MU_MOD2_948 0
+#define MU_MOD2_947 1
+#define MU_MOD2_946 0
+#define MU_MOD2_945 1
+#define MU_MOD2_944 0
+#define MU_MOD2_943 1
+#define MU_MOD2_942 0
+#define MU_MOD2_941 1
+#define MU_MOD2_940 0
+#define MU_MOD2_939 1
+#define MU_MOD2_938 0
+#define MU_MOD2_937 1
+#define MU_MOD2_936 0
+#define MU_MOD2_935 1
+#define MU_MOD2_934 0
+#define MU_MOD2_933 1
+#define MU_MOD2_932 0
+#define MU_MOD2_931 1
+#define MU_MOD2_930 0
+#define MU_MOD2_929 1
+#define MU_MOD2_928 0
+#define MU_MOD2_927 1
+#define MU_MOD2_926 0
+#define MU_MOD2_925 1
+#define MU_MOD2_924 0
+#define MU_MOD2_923 1
+#define MU_MOD2_922 0
+#define MU_MOD2_921 1
+#define MU_MOD2_920 0
+#define MU_MOD2_919 1
+#define MU_MOD2_918 0
+#define MU_MOD2_917 1
+#define MU_MOD2_916 0
+#define MU_MOD2_915 1
+#define MU_MOD2_914 0
+#define MU_MOD2_913 1
+#define MU_MOD2_912 0
+#define MU_MOD2_911 1
+#define MU_MOD2_910 0
+#define MU_MOD2_909 1
+#define MU_MOD2_908 0
+#define MU_MOD2_907 1
+#define MU_MOD2_906 0
+#define MU_MOD2_905 1
+#define MU_MOD2_904 0
+#define MU_MOD2_903 1
+#define MU_MOD2_902 0
+#define MU_MOD2_901 1
+#define MU_MOD2_900 0
+#define MU_MOD2_899 1
+#define MU_MOD2_898 0
+#define MU_MOD2_897 1
+#define MU_MOD2_896 0
+#define MU_MOD2_895 1
+#define MU_MOD2_894 0
+#define MU_MOD2_893 1
+#define MU_MOD2_892 0
+#define MU_MOD2_891 1
+#define MU_MOD2_890 0
+#define MU_MOD2_889 1
+#define MU_MOD2_888 0
+#define MU_MOD2_887 1
+#define MU_MOD2_886 0
+#define MU_MOD2_885 1
+#define MU_MOD2_884 0
+#define MU_MOD2_883 1
+#define MU_MOD2_882 0
+#define MU_MOD2_881 1
+#define MU_MOD2_880 0
+#define MU_MOD2_879 1
+#define MU_MOD2_878 0
+#define MU_MOD2_877 1
+#define MU_MOD2_876 0
+#define MU_MOD2_875 1
+#define MU_MOD2_874 0
+#define MU_MOD2_873 1
+#define MU_MOD2_872 0
+#define MU_MOD2_871 1
+#define MU_MOD2_870 0
+#define MU_MOD2_869 1
+#define MU_MOD2_868 0
+#define MU_MOD2_867 1
+#define MU_MOD2_866 0
+#define MU_MOD2_865 1
+#define MU_MOD2_864 0
+#define MU_MOD2_863 1
+#define MU_MOD2_862 0
+#define MU_MOD2_861 1
+#define MU_MOD2_860 0
+#define MU_MOD2_859 1
+#define MU_MOD2_858 0
+#define MU_MOD2_857 1
+#define MU_MOD2_856 0
+#define MU_MOD2_855 1
+#define MU_MOD2_854 0
+#define MU_MOD2_853 1
+#define MU_MOD2_852 0
+#define MU_MOD2_851 1
+#define MU_MOD2_850 0
+#define MU_MOD2_849 1
+#define MU_MOD2_848 0
+#define MU_MOD2_847 1
+#define MU_MOD2_846 0
+#define MU_MOD2_845 1
+#define MU_MOD2_844 0
+#define MU_MOD2_843 1
+#define MU_MOD2_842 0
+#define MU_MOD2_841 1
+#define MU_MOD2_840 0
+#define MU_MOD2_839 1
+#define MU_MOD2_838 0
+#define MU_MOD2_837 1
+#define MU_MOD2_836 0
+#define MU_MOD2_835 1
+#define MU_MOD2_834 0
+#define MU_MOD2_833 1
+#define MU_MOD2_832 0
+#define MU_MOD2_831 1
+#define MU_MOD2_830 0
+#define MU_MOD2_829 1
+#define MU_MOD2_828 0
+#define MU_MOD2_827 1
+#define MU_MOD2_826 0
+#define MU_MOD2_825 1
+#define MU_MOD2_824 0
+#define MU_MOD2_823 1
+#define MU_MOD2_822 0
+#define MU_MOD2_821 1
+#define MU_MOD2_820 0
+#define MU_MOD2_819 1
+#define MU_MOD2_818 0
+#define MU_MOD2_817 1
+#define MU_MOD2_816 0
+#define MU_MOD2_815 1
+#define MU_MOD2_814 0
+#define MU_MOD2_813 1
+#define MU_MOD2_812 0
+#define MU_MOD2_811 1
+#define MU_MOD2_810 0
+#define MU_MOD2_809 1
+#define MU_MOD2_808 0
+#define MU_MOD2_807 1
+#define MU_MOD2_806 0
+#define MU_MOD2_805 1
+#define MU_MOD2_804 0
+#define MU_MOD2_803 1
+#define MU_MOD2_802 0
+#define MU_MOD2_801 1
+#define MU_MOD2_800 0
+#define MU_MOD2_799 1
+#define MU_MOD2_798 0
+#define MU_MOD2_797 1
+#define MU_MOD2_796 0
+#define MU_MOD2_795 1
+#define MU_MOD2_794 0
+#define MU_MOD2_793 1
+#define MU_MOD2_792 0
+#define MU_MOD2_791 1
+#define MU_MOD2_790 0
+#define MU_MOD2_789 1
+#define MU_MOD2_788 0
+#define MU_MOD2_787 1
+#define MU_MOD2_786 0
+#define MU_MOD2_785 1
+#define MU_MOD2_784 0
+#define MU_MOD2_783 1
+#define MU_MOD2_782 0
+#define MU_MOD2_781 1
+#define MU_MOD2_780 0
+#define MU_MOD2_779 1
+#define MU_MOD2_778 0
+#define MU_MOD2_777 1
+#define MU_MOD2_776 0
+#define MU_MOD2_775 1
+#define MU_MOD2_774 0
+#define MU_MOD2_773 1
+#define MU_MOD2_772 0
+#define MU_MOD2_771 1
+#define MU_MOD2_770 0
+#define MU_MOD2_769 1
+#define MU_MOD2_768 0
+#define MU_MOD2_767 1
+#define MU_MOD2_766 0
+#define MU_MOD2_765 1
+#define MU_MOD2_764 0
+#define MU_MOD2_763 1
+#define MU_MOD2_762 0
+#define MU_MOD2_761 1
+#define MU_MOD2_760 0
+#define MU_MOD2_759 1
+#define MU_MOD2_758 0
+#define MU_MOD2_757 1
+#define MU_MOD2_756 0
+#define MU_MOD2_755 1
+#define MU_MOD2_754 0
+#define MU_MOD2_753 1
+#define MU_MOD2_752 0
+#define MU_MOD2_751 1
+#define MU_MOD2_750 0
+#define MU_MOD2_749 1
+#define MU_MOD2_748 0
+#define MU_MOD2_747 1
+#define MU_MOD2_746 0
+#define MU_MOD2_745 1
+#define MU_MOD2_744 0
+#define MU_MOD2_743 1
+#define MU_MOD2_742 0
+#define MU_MOD2_741 1
+#define MU_MOD2_740 0
+#define MU_MOD2_739 1
+#define MU_MOD2_738 0
+#define MU_MOD2_737 1
+#define MU_MOD2_736 0
+#define MU_MOD2_735 1
+#define MU_MOD2_734 0
+#define MU_MOD2_733 1
+#define MU_MOD2_732 0
+#define MU_MOD2_731 1
+#define MU_MOD2_730 0
+#define MU_MOD2_729 1
+#define MU_MOD2_728 0
+#define MU_MOD2_727 1
+#define MU_MOD2_726 0
+#define MU_MOD2_725 1
+#define MU_MOD2_724 0
+#define MU_MOD2_723 1
+#define MU_MOD2_722 0
+#define MU_MOD2_721 1
+#define MU_MOD2_720 0
+#define MU_MOD2_719 1
+#define MU_MOD2_718 0
+#define MU_MOD2_717 1
+#define MU_MOD2_716 0
+#define MU_MOD2_715 1
+#define MU_MOD2_714 0
+#define MU_MOD2_713 1
+#define MU_MOD2_712 0
+#define MU_MOD2_711 1
+#define MU_MOD2_710 0
+#define MU_MOD2_709 1
+#define MU_MOD2_708 0
+#define MU_MOD2_707 1
+#define MU_MOD2_706 0
+#define MU_MOD2_705 1
+#define MU_MOD2_704 0
+#define MU_MOD2_703 1
+#define MU_MOD2_702 0
+#define MU_MOD2_701 1
+#define MU_MOD2_700 0
+#define MU_MOD2_699 1
+#define MU_MOD2_698 0
+#define MU_MOD2_697 1
+#define MU_MOD2_696 0
+#define MU_MOD2_695 1
+#define MU_MOD2_694 0
+#define MU_MOD2_693 1
+#define MU_MOD2_692 0
+#define MU_MOD2_691 1
+#define MU_MOD2_690 0
+#define MU_MOD2_689 1
+#define MU_MOD2_688 0
+#define MU_MOD2_687 1
+#define MU_MOD2_686 0
+#define MU_MOD2_685 1
+#define MU_MOD2_684 0
+#define MU_MOD2_683 1
+#define MU_MOD2_682 0
+#define MU_MOD2_681 1
+#define MU_MOD2_680 0
+#define MU_MOD2_679 1
+#define MU_MOD2_678 0
+#define MU_MOD2_677 1
+#define MU_MOD2_676 0
+#define MU_MOD2_675 1
+#define MU_MOD2_674 0
+#define MU_MOD2_673 1
+#define MU_MOD2_672 0
+#define MU_MOD2_671 1
+#define MU_MOD2_670 0
+#define MU_MOD2_669 1
+#define MU_MOD2_668 0
+#define MU_MOD2_667 1
+#define MU_MOD2_666 0
+#define MU_MOD2_665 1
+#define MU_MOD2_664 0
+#define MU_MOD2_663 1
+#define MU_MOD2_662 0
+#define MU_MOD2_661 1
+#define MU_MOD2_660 0
+#define MU_MOD2_659 1
+#define MU_MOD2_658 0
+#define MU_MOD2_657 1
+#define MU_MOD2_656 0
+#define MU_MOD2_655 1
+#define MU_MOD2_654 0
+#define MU_MOD2_653 1
+#define MU_MOD2_652 0
+#define MU_MOD2_651 1
+#define MU_MOD2_650 0
+#define MU_MOD2_649 1
+#define MU_MOD2_648 0
+#define MU_MOD2_647 1
+#define MU_MOD2_646 0
+#define MU_MOD2_645 1
+#define MU_MOD2_644 0
+#define MU_MOD2_643 1
+#define MU_MOD2_642 0
+#define MU_MOD2_641 1
+#define MU_MOD2_640 0
+#define MU_MOD2_639 1
+#define MU_MOD2_638 0
+#define MU_MOD2_637 1
+#define MU_MOD2_636 0
+#define MU_MOD2_635 1
+#define MU_MOD2_634 0
+#define MU_MOD2_633 1
+#define MU_MOD2_632 0
+#define MU_MOD2_631 1
+#define MU_MOD2_630 0
+#define MU_MOD2_629 1
+#define MU_MOD2_628 0
+#define MU_MOD2_627 1
+#define MU_MOD2_626 0
+#define MU_MOD2_625 1
+#define MU_MOD2_624 0
+#define MU_MOD2_623 1
+#define MU_MOD2_622 0
+#define MU_MOD2_621 1
+#define MU_MOD2_620 0
+#define MU_MOD2_619 1
+#define MU_MOD2_618 0
+#define MU_MOD2_617 1
+#define MU_MOD2_616 0
+#define MU_MOD2_615 1
+#define MU_MOD2_614 0
+#define MU_MOD2_613 1
+#define MU_MOD2_612 0
+#define MU_MOD2_611 1
+#define MU_MOD2_610 0
+#define MU_MOD2_609 1
+#define MU_MOD2_608 0
+#define MU_MOD2_607 1
+#define MU_MOD2_606 0
+#define MU_MOD2_605 1
+#define MU_MOD2_604 0
+#define MU_MOD2_603 1
+#define MU_MOD2_602 0
+#define MU_MOD2_601 1
+#define MU_MOD2_600 0
+#define MU_MOD2_599 1
+#define MU_MOD2_598 0
+#define MU_MOD2_597 1
+#define MU_MOD2_596 0
+#define MU_MOD2_595 1
+#define MU_MOD2_594 0
+#define MU_MOD2_593 1
+#define MU_MOD2_592 0
+#define MU_MOD2_591 1
+#define MU_MOD2_590 0
+#define MU_MOD2_589 1
+#define MU_MOD2_588 0
+#define MU_MOD2_587 1
+#define MU_MOD2_586 0
+#define MU_MOD2_585 1
+#define MU_MOD2_584 0
+#define MU_MOD2_583 1
+#define MU_MOD2_582 0
+#define MU_MOD2_581 1
+#define MU_MOD2_580 0
+#define MU_MOD2_579 1
+#define MU_MOD2_578 0
+#define MU_MOD2_577 1
+#define MU_MOD2_576 0
+#define MU_MOD2_575 1
+#define MU_MOD2_574 0
+#define MU_MOD2_573 1
+#define MU_MOD2_572 0
+#define MU_MOD2_571 1
+#define MU_MOD2_570 0
+#define MU_MOD2_569 1
+#define MU_MOD2_568 0
+#define MU_MOD2_567 1
+#define MU_MOD2_566 0
+#define MU_MOD2_565 1
+#define MU_MOD2_564 0
+#define MU_MOD2_563 1
+#define MU_MOD2_562 0
+#define MU_MOD2_561 1
+#define MU_MOD2_560 0
+#define MU_MOD2_559 1
+#define MU_MOD2_558 0
+#define MU_MOD2_557 1
+#define MU_MOD2_556 0
+#define MU_MOD2_555 1
+#define MU_MOD2_554 0
+#define MU_MOD2_553 1
+#define MU_MOD2_552 0
+#define MU_MOD2_551 1
+#define MU_MOD2_550 0
+#define MU_MOD2_549 1
+#define MU_MOD2_548 0
+#define MU_MOD2_547 1
+#define MU_MOD2_546 0
+#define MU_MOD2_545 1
+#define MU_MOD2_544 0
+#define MU_MOD2_543 1
+#define MU_MOD2_542 0
+#define MU_MOD2_541 1
+#define MU_MOD2_540 0
+#define MU_MOD2_539 1
+#define MU_MOD2_538 0
+#define MU_MOD2_537 1
+#define MU_MOD2_536 0
+#define MU_MOD2_535 1
+#define MU_MOD2_534 0
+#define MU_MOD2_533 1
+#define MU_MOD2_532 0
+#define MU_MOD2_531 1
+#define MU_MOD2_530 0
+#define MU_MOD2_529 1
+#define MU_MOD2_528 0
+#define MU_MOD2_527 1
+#define MU_MOD2_526 0
+#define MU_MOD2_525 1
+#define MU_MOD2_524 0
+#define MU_MOD2_523 1
+#define MU_MOD2_522 0
+#define MU_MOD2_521 1
+#define MU_MOD2_520 0
+#define MU_MOD2_519 1
+#define MU_MOD2_518 0
+#define MU_MOD2_517 1
+#define MU_MOD2_516 0
+#define MU_MOD2_515 1
+#define MU_MOD2_514 0
+#define MU_MOD2_513 1
+#define MU_MOD2_512 0
+#define MU_MOD2_511 1
+#define MU_MOD2_510 0
+#define MU_MOD2_509 1
+#define MU_MOD2_508 0
+#define MU_MOD2_507 1
+#define MU_MOD2_506 0
+#define MU_MOD2_505 1
+#define MU_MOD2_504 0
+#define MU_MOD2_503 1
+#define MU_MOD2_502 0
+#define MU_MOD2_501 1
+#define MU_MOD2_500 0
+#define MU_MOD2_499 1
+#define MU_MOD2_498 0
+#define MU_MOD2_497 1
+#define MU_MOD2_496 0
+#define MU_MOD2_495 1
+#define MU_MOD2_494 0
+#define MU_MOD2_493 1
+#define MU_MOD2_492 0
+#define MU_MOD2_491 1
+#define MU_MOD2_490 0
+#define MU_MOD2_489 1
+#define MU_MOD2_488 0
+#define MU_MOD2_487 1
+#define MU_MOD2_486 0
+#define MU_MOD2_485 1
+#define MU_MOD2_484 0
+#define MU_MOD2_483 1
+#define MU_MOD2_482 0
+#define MU_MOD2_481 1
+#define MU_MOD2_480 0
+#define MU_MOD2_479 1
+#define MU_MOD2_478 0
+#define MU_MOD2_477 1
+#define MU_MOD2_476 0
+#define MU_MOD2_475 1
+#define MU_MOD2_474 0
+#define MU_MOD2_473 1
+#define MU_MOD2_472 0
+#define MU_MOD2_471 1
+#define MU_MOD2_470 0
+#define MU_MOD2_469 1
+#define MU_MOD2_468 0
+#define MU_MOD2_467 1
+#define MU_MOD2_466 0
+#define MU_MOD2_465 1
+#define MU_MOD2_464 0
+#define MU_MOD2_463 1
+#define MU_MOD2_462 0
+#define MU_MOD2_461 1
+#define MU_MOD2_460 0
+#define MU_MOD2_459 1
+#define MU_MOD2_458 0
+#define MU_MOD2_457 1
+#define MU_MOD2_456 0
+#define MU_MOD2_455 1
+#define MU_MOD2_454 0
+#define MU_MOD2_453 1
+#define MU_MOD2_452 0
+#define MU_MOD2_451 1
+#define MU_MOD2_450 0
+#define MU_MOD2_449 1
+#define MU_MOD2_448 0
+#define MU_MOD2_447 1
+#define MU_MOD2_446 0
+#define MU_MOD2_445 1
+#define MU_MOD2_444 0
+#define MU_MOD2_443 1
+#define MU_MOD2_442 0
+#define MU_MOD2_441 1
+#define MU_MOD2_440 0
+#define MU_MOD2_439 1
+#define MU_MOD2_438 0
+#define MU_MOD2_437 1
+#define MU_MOD2_436 0
+#define MU_MOD2_435 1
+#define MU_MOD2_434 0
+#define MU_MOD2_433 1
+#define MU_MOD2_432 0
+#define MU_MOD2_431 1
+#define MU_MOD2_430 0
+#define MU_MOD2_429 1
+#define MU_MOD2_428 0
+#define MU_MOD2_427 1
+#define MU_MOD2_426 0
+#define MU_MOD2_425 1
+#define MU_MOD2_424 0
+#define MU_MOD2_423 1
+#define MU_MOD2_422 0
+#define MU_MOD2_421 1
+#define MU_MOD2_420 0
+#define MU_MOD2_419 1
+#define MU_MOD2_418 0
+#define MU_MOD2_417 1
+#define MU_MOD2_416 0
+#define MU_MOD2_415 1
+#define MU_MOD2_414 0
+#define MU_MOD2_413 1
+#define MU_MOD2_412 0
+#define MU_MOD2_411 1
+#define MU_MOD2_410 0
+#define MU_MOD2_409 1
+#define MU_MOD2_408 0
+#define MU_MOD2_407 1
+#define MU_MOD2_406 0
+#define MU_MOD2_405 1
+#define MU_MOD2_404 0
+#define MU_MOD2_403 1
+#define MU_MOD2_402 0
+#define MU_MOD2_401 1
+#define MU_MOD2_400 0
+#define MU_MOD2_399 1
+#define MU_MOD2_398 0
+#define MU_MOD2_397 1
+#define MU_MOD2_396 0
+#define MU_MOD2_395 1
+#define MU_MOD2_394 0
+#define MU_MOD2_393 1
+#define MU_MOD2_392 0
+#define MU_MOD2_391 1
+#define MU_MOD2_390 0
+#define MU_MOD2_389 1
+#define MU_MOD2_388 0
+#define MU_MOD2_387 1
+#define MU_MOD2_386 0
+#define MU_MOD2_385 1
+#define MU_MOD2_384 0
+#define MU_MOD2_383 1
+#define MU_MOD2_382 0
+#define MU_MOD2_381 1
+#define MU_MOD2_380 0
+#define MU_MOD2_379 1
+#define MU_MOD2_378 0
+#define MU_MOD2_377 1
+#define MU_MOD2_376 0
+#define MU_MOD2_375 1
+#define MU_MOD2_374 0
+#define MU_MOD2_373 1
+#define MU_MOD2_372 0
+#define MU_MOD2_371 1
+#define MU_MOD2_370 0
+#define MU_MOD2_369 1
+#define MU_MOD2_368 0
+#define MU_MOD2_367 1
+#define MU_MOD2_366 0
+#define MU_MOD2_365 1
+#define MU_MOD2_364 0
+#define MU_MOD2_363 1
+#define MU_MOD2_362 0
+#define MU_MOD2_361 1
+#define MU_MOD2_360 0
+#define MU_MOD2_359 1
+#define MU_MOD2_358 0
+#define MU_MOD2_357 1
+#define MU_MOD2_356 0
+#define MU_MOD2_355 1
+#define MU_MOD2_354 0
+#define MU_MOD2_353 1
+#define MU_MOD2_352 0
+#define MU_MOD2_351 1
+#define MU_MOD2_350 0
+#define MU_MOD2_349 1
+#define MU_MOD2_348 0
+#define MU_MOD2_347 1
+#define MU_MOD2_346 0
+#define MU_MOD2_345 1
+#define MU_MOD2_344 0
+#define MU_MOD2_343 1
+#define MU_MOD2_342 0
+#define MU_MOD2_341 1
+#define MU_MOD2_340 0
+#define MU_MOD2_339 1
+#define MU_MOD2_338 0
+#define MU_MOD2_337 1
+#define MU_MOD2_336 0
+#define MU_MOD2_335 1
+#define MU_MOD2_334 0
+#define MU_MOD2_333 1
+#define MU_MOD2_332 0
+#define MU_MOD2_331 1
+#define MU_MOD2_330 0
+#define MU_MOD2_329 1
+#define MU_MOD2_328 0
+#define MU_MOD2_327 1
+#define MU_MOD2_326 0
+#define MU_MOD2_325 1
+#define MU_MOD2_324 0
+#define MU_MOD2_323 1
+#define MU_MOD2_322 0
+#define MU_MOD2_321 1
+#define MU_MOD2_320 0
+#define MU_MOD2_319 1
+#define MU_MOD2_318 0
+#define MU_MOD2_317 1
+#define MU_MOD2_316 0
+#define MU_MOD2_315 1
+#define MU_MOD2_314 0
+#define MU_MOD2_313 1
+#define MU_MOD2_312 0
+#define MU_MOD2_311 1
+#define MU_MOD2_310 0
+#define MU_MOD2_309 1
+#define MU_MOD2_308 0
+#define MU_MOD2_307 1
+#define MU_MOD2_306 0
+#define MU_MOD2_305 1
+#define MU_MOD2_304 0
+#define MU_MOD2_303 1
+#define MU_MOD2_302 0
+#define MU_MOD2_301 1
+#define MU_MOD2_300 0
+#define MU_MOD2_299 1
+#define MU_MOD2_298 0
+#define MU_MOD2_297 1
+#define MU_MOD2_296 0
+#define MU_MOD2_295 1
+#define MU_MOD2_294 0
+#define MU_MOD2_293 1
+#define MU_MOD2_292 0
+#define MU_MOD2_291 1
+#define MU_MOD2_290 0
+#define MU_MOD2_289 1
+#define MU_MOD2_288 0
+#define MU_MOD2_287 1
+#define MU_MOD2_286 0
+#define MU_MOD2_285 1
+#define MU_MOD2_284 0
+#define MU_MOD2_283 1
+#define MU_MOD2_282 0
+#define MU_MOD2_281 1
+#define MU_MOD2_280 0
+#define MU_MOD2_279 1
+#define MU_MOD2_278 0
+#define MU_MOD2_277 1
+#define MU_MOD2_276 0
+#define MU_MOD2_275 1
+#define MU_MOD2_274 0
+#define MU_MOD2_273 1
+#define MU_MOD2_272 0
+#define MU_MOD2_271 1
+#define MU_MOD2_270 0
+#define MU_MOD2_269 1
+#define MU_MOD2_268 0
+#define MU_MOD2_267 1
+#define MU_MOD2_266 0
+#define MU_MOD2_265 1
+#define MU_MOD2_264 0
+#define MU_MOD2_263 1
+#define MU_MOD2_262 0
+#define MU_MOD2_261 1
+#define MU_MOD2_260 0
+#define MU_MOD2_259 1
+#define MU_MOD2_258 0
+#define MU_MOD2_257 1
+#define MU_MOD2_256 0
+#define MU_MOD2_255 1
+#define MU_MOD2_254 0
+#define MU_MOD2_253 1
+#define MU_MOD2_252 0
+#define MU_MOD2_251 1
+#define MU_MOD2_250 0
+#define MU_MOD2_249 1
+#define MU_MOD2_248 0
+#define MU_MOD2_247 1
+#define MU_MOD2_246 0
+#define MU_MOD2_245 1
+#define MU_MOD2_244 0
+#define MU_MOD2_243 1
+#define MU_MOD2_242 0
+#define MU_MOD2_241 1
+#define MU_MOD2_240 0
+#define MU_MOD2_239 1
+#define MU_MOD2_238 0
+#define MU_MOD2_237 1
+#define MU_MOD2_236 0
+#define MU_MOD2_235 1
+#define MU_MOD2_234 0
+#define MU_MOD2_233 1
+#define MU_MOD2_232 0
+#define MU_MOD2_231 1
+#define MU_MOD2_230 0
+#define MU_MOD2_229 1
+#define MU_MOD2_228 0
+#define MU_MOD2_227 1
+#define MU_MOD2_226 0
+#define MU_MOD2_225 1
+#define MU_MOD2_224 0
+#define MU_MOD2_223 1
+#define MU_MOD2_222 0
+#define MU_MOD2_221 1
+#define MU_MOD2_220 0
+#define MU_MOD2_219 1
+#define MU_MOD2_218 0
+#define MU_MOD2_217 1
+#define MU_MOD2_216 0
+#define MU_MOD2_215 1
+#define MU_MOD2_214 0
+#define MU_MOD2_213 1
+#define MU_MOD2_212 0
+#define MU_MOD2_211 1
+#define MU_MOD2_210 0
+#define MU_MOD2_209 1
+#define MU_MOD2_208 0
+#define MU_MOD2_207 1
+#define MU_MOD2_206 0
+#define MU_MOD2_205 1
+#define MU_MOD2_204 0
+#define MU_MOD2_203 1
+#define MU_MOD2_202 0
+#define MU_MOD2_201 1
+#define MU_MOD2_200 0
+#define MU_MOD2_199 1
+#define MU_MOD2_198 0
+#define MU_MOD2_197 1
+#define MU_MOD2_196 0
+#define MU_MOD2_195 1
+#define MU_MOD2_194 0
+#define MU_MOD2_193 1
+#define MU_MOD2_192 0
+#define MU_MOD2_191 1
+#define MU_MOD2_190 0
+#define MU_MOD2_189 1
+#define MU_MOD2_188 0
+#define MU_MOD2_187 1
+#define MU_MOD2_186 0
+#define MU_MOD2_185 1
+#define MU_MOD2_184 0
+#define MU_MOD2_183 1
+#define MU_MOD2_182 0
+#define MU_MOD2_181 1
+#define MU_MOD2_180 0
+#define MU_MOD2_179 1
+#define MU_MOD2_178 0
+#define MU_MOD2_177 1
+#define MU_MOD2_176 0
+#define MU_MOD2_175 1
+#define MU_MOD2_174 0
+#define MU_MOD2_173 1
+#define MU_MOD2_172 0
+#define MU_MOD2_171 1
+#define MU_MOD2_170 0
+#define MU_MOD2_169 1
+#define MU_MOD2_168 0
+#define MU_MOD2_167 1
+#define MU_MOD2_166 0
+#define MU_MOD2_165 1
+#define MU_MOD2_164 0
+#define MU_MOD2_163 1
+#define MU_MOD2_162 0
+#define MU_MOD2_161 1
+#define MU_MOD2_160 0
+#define MU_MOD2_159 1
+#define MU_MOD2_158 0
+#define MU_MOD2_157 1
+#define MU_MOD2_156 0
+#define MU_MOD2_155 1
+#define MU_MOD2_154 0
+#define MU_MOD2_153 1
+#define MU_MOD2_152 0
+#define MU_MOD2_151 1
+#define MU_MOD2_150 0
+#define MU_MOD2_149 1
+#define MU_MOD2_148 0
+#define MU_MOD2_147 1
+#define MU_MOD2_146 0
+#define MU_MOD2_145 1
+#define MU_MOD2_144 0
+#define MU_MOD2_143 1
+#define MU_MOD2_142 0
+#define MU_MOD2_141 1
+#define MU_MOD2_140 0
+#define MU_MOD2_139 1
+#define MU_MOD2_138 0
+#define MU_MOD2_137 1
+#define MU_MOD2_136 0
+#define MU_MOD2_135 1
+#define MU_MOD2_134 0
+#define MU_MOD2_133 1
+#define MU_MOD2_132 0
+#define MU_MOD2_131 1
+#define MU_MOD2_130 0
+#define MU_MOD2_129 1
+#define MU_MOD2_128 0
+#define MU_MOD2_127 1
+#define MU_MOD2_126 0
+#define MU_MOD2_125 1
+#define MU_MOD2_124 0
+#define MU_MOD2_123 1
+#define MU_MOD2_122 0
+#define MU_MOD2_121 1
+#define MU_MOD2_120 0
+#define MU_MOD2_119 1
+#define MU_MOD2_118 0
+#define MU_MOD2_117 1
+#define MU_MOD2_116 0
+#define MU_MOD2_115 1
+#define MU_MOD2_114 0
+#define MU_MOD2_113 1
+#define MU_MOD2_112 0
+#define MU_MOD2_111 1
+#define MU_MOD2_110 0
+#define MU_MOD2_109 1
+#define MU_MOD2_108 0
+#define MU_MOD2_107 1
+#define MU_MOD2_106 0
+#define MU_MOD2_105 1
+#define MU_MOD2_104 0
+#define MU_MOD2_103 1
+#define MU_MOD2_102 0
+#define MU_MOD2_101 1
+#define MU_MOD2_100 0
+#define MU_MOD2_99 1
+#define MU_MOD2_98 0
+#define MU_MOD2_97 1
+#define MU_MOD2_96 0
+#define MU_MOD2_95 1
+#define MU_MOD2_94 0
+#define MU_MOD2_93 1
+#define MU_MOD2_92 0
+#define MU_MOD2_91 1
+#define MU_MOD2_90 0
+#define MU_MOD2_89 1
+#define MU_MOD2_88 0
+#define MU_MOD2_87 1
+#define MU_MOD2_86 0
+#define MU_MOD2_85 1
+#define MU_MOD2_84 0
+#define MU_MOD2_83 1
+#define MU_MOD2_82 0
+#define MU_MOD2_81 1
+#define MU_MOD2_80 0
+#define MU_MOD2_79 1
+#define MU_MOD2_78 0
+#define MU_MOD2_77 1
+#define MU_MOD2_76 0
+#define MU_MOD2_75 1
+#define MU_MOD2_74 0
+#define MU_MOD2_73 1
+#define MU_MOD2_72 0
+#define MU_MOD2_71 1
+#define MU_MOD2_70 0
+#define MU_MOD2_69 1
+#define MU_MOD2_68 0
+#define MU_MOD2_67 1
+#define MU_MOD2_66 0
+#define MU_MOD2_65 1
+#define MU_MOD2_64 0
+#define MU_MOD2_63 1
+#define MU_MOD2_62 0
+#define MU_MOD2_61 1
+#define MU_MOD2_60 0
+#define MU_MOD2_59 1
+#define MU_MOD2_58 0
+#define MU_MOD2_57 1
+#define MU_MOD2_56 0
+#define MU_MOD2_55 1
+#define MU_MOD2_54 0
+#define MU_MOD2_53 1
+#define MU_MOD2_52 0
+#define MU_MOD2_51 1
+#define MU_MOD2_50 0
+#define MU_MOD2_49 1
+#define MU_MOD2_48 0
+#define MU_MOD2_47 1
+#define MU_MOD2_46 0
+#define MU_MOD2_45 1
+#define MU_MOD2_44 0
+#define MU_MOD2_43 1
+#define MU_MOD2_42 0
+#define MU_MOD2_41 1
+#define MU_MOD2_40 0
+#define MU_MOD2_39 1
+#define MU_MOD2_38 0
+#define MU_MOD2_37 1
+#define MU_MOD2_36 0
+#define MU_MOD2_35 1
+#define MU_MOD2_34 0
+#define MU_MOD2_33 1
+#define MU_MOD2_32 0
+#define MU_MOD2_31 1
+#define MU_MOD2_30 0
+#define MU_MOD2_29 1
+#define MU_MOD2_28 0
+#define MU_MOD2_27 1
+#define MU_MOD2_26 0
+#define MU_MOD2_25 1
+#define MU_MOD2_24 0
+#define MU_MOD2_23 1
+#define MU_MOD2_22 0
+#define MU_MOD2_21 1
+#define MU_MOD2_20 0
+#define MU_MOD2_19 1
+#define MU_MOD2_18 0
+#define MU_MOD2_17 1
+#define MU_MOD2_16 0
+#define MU_MOD2_15 1
+#define MU_MOD2_14 0
+#define MU_MOD2_13 1
+#define MU_MOD2_12 0
+#define MU_MOD2_11 1
+#define MU_MOD2_10 0
+#define MU_MOD2_9 1
+#define MU_MOD2_8 0
+#define MU_MOD2_7 1
+#define MU_MOD2_6 0
+#define MU_MOD2_5 1
+#define MU_MOD2_4 0
+#define MU_MOD2_3 1
+#define MU_MOD2_2 0
+#define MU_MOD2_1 1
+#define MU_MOD2_0 0
+
 #define MU_THE_NTH_ARG(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18, P19, P20, P21, P22, P23, P24, P25, P26, P27, P28, P29, P30, P31, P32, P33, P34, P35, P36, P37, P38, P39, P40, P41, P42, P43, P44, P45, P46, P47, P48, P49, P50, P51, P52, P53, P54, P55, P56, P57, P58, P59, P60, P61, P62, P63, P64, P65, P66, P67, P68, P69, P70, P71, P72, P73, P74, P75, P76, P77, P78, P79, P80, P81, P82, P83, P84, P85, P86, P87, P88, P89, P90, P91, P92, P93, P94, P95, P96, P97, P98, P99, P100, P101, P102, P103, P104, P105, P106, P107, P108, P109, P110, P111, P112, P113, P114, P115, P116, P117, P118, P119, P120, P121, P122, P123, P124,  ... ) P124
 
 #define MU_TRIGGER_PARENTHESIS(...) ,
@@ -6392,5122 +7564,5122 @@ MACRO(0, __VA_ARGS__)
 
 #define MU_DO_1(MACRO, ...) \
 MACRO(1, __VA_ARGS__) \
-DO_0(MACRO, __VA_ARGS__)
+MU_DO_0(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_2(MACRO, ...) \
 MACRO(2, __VA_ARGS__) \
-DO_1(MACRO, __VA_ARGS__)
+MU_DO_1(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_3(MACRO, ...) \
 MACRO(3, __VA_ARGS__) \
-DO_2(MACRO, __VA_ARGS__)
+MU_DO_2(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_4(MACRO, ...) \
 MACRO(4, __VA_ARGS__) \
-DO_3(MACRO, __VA_ARGS__)
+MU_DO_3(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_5(MACRO, ...) \
 MACRO(5, __VA_ARGS__) \
-DO_4(MACRO, __VA_ARGS__)
+MU_DO_4(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_6(MACRO, ...) \
 MACRO(6, __VA_ARGS__) \
-DO_5(MACRO, __VA_ARGS__)
+MU_DO_5(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_7(MACRO, ...) \
 MACRO(7, __VA_ARGS__) \
-DO_6(MACRO, __VA_ARGS__)
+MU_DO_6(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_8(MACRO, ...) \
 MACRO(8, __VA_ARGS__) \
-DO_7(MACRO, __VA_ARGS__)
+MU_DO_7(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_9(MACRO, ...) \
 MACRO(9, __VA_ARGS__) \
-DO_8(MACRO, __VA_ARGS__)
+MU_DO_8(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_10(MACRO, ...) \
 MACRO(10, __VA_ARGS__) \
-DO_9(MACRO, __VA_ARGS__)
+MU_DO_9(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_11(MACRO, ...) \
 MACRO(11, __VA_ARGS__) \
-DO_10(MACRO, __VA_ARGS__)
+MU_DO_10(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_12(MACRO, ...) \
 MACRO(12, __VA_ARGS__) \
-DO_11(MACRO, __VA_ARGS__)
+MU_DO_11(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_13(MACRO, ...) \
 MACRO(13, __VA_ARGS__) \
-DO_12(MACRO, __VA_ARGS__)
+MU_DO_12(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_14(MACRO, ...) \
 MACRO(14, __VA_ARGS__) \
-DO_13(MACRO, __VA_ARGS__)
+MU_DO_13(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_15(MACRO, ...) \
 MACRO(15, __VA_ARGS__) \
-DO_14(MACRO, __VA_ARGS__)
+MU_DO_14(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_16(MACRO, ...) \
 MACRO(16, __VA_ARGS__) \
-DO_15(MACRO, __VA_ARGS__)
+MU_DO_15(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_17(MACRO, ...) \
 MACRO(17, __VA_ARGS__) \
-DO_16(MACRO, __VA_ARGS__)
+MU_DO_16(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_18(MACRO, ...) \
 MACRO(18, __VA_ARGS__) \
-DO_17(MACRO, __VA_ARGS__)
+MU_DO_17(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_19(MACRO, ...) \
 MACRO(19, __VA_ARGS__) \
-DO_18(MACRO, __VA_ARGS__)
+MU_DO_18(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_20(MACRO, ...) \
 MACRO(20, __VA_ARGS__) \
-DO_19(MACRO, __VA_ARGS__)
+MU_DO_19(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_21(MACRO, ...) \
 MACRO(21, __VA_ARGS__) \
-DO_20(MACRO, __VA_ARGS__)
+MU_DO_20(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_22(MACRO, ...) \
 MACRO(22, __VA_ARGS__) \
-DO_21(MACRO, __VA_ARGS__)
+MU_DO_21(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_23(MACRO, ...) \
 MACRO(23, __VA_ARGS__) \
-DO_22(MACRO, __VA_ARGS__)
+MU_DO_22(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_24(MACRO, ...) \
 MACRO(24, __VA_ARGS__) \
-DO_23(MACRO, __VA_ARGS__)
+MU_DO_23(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_25(MACRO, ...) \
 MACRO(25, __VA_ARGS__) \
-DO_24(MACRO, __VA_ARGS__)
+MU_DO_24(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_26(MACRO, ...) \
 MACRO(26, __VA_ARGS__) \
-DO_25(MACRO, __VA_ARGS__)
+MU_DO_25(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_27(MACRO, ...) \
 MACRO(27, __VA_ARGS__) \
-DO_26(MACRO, __VA_ARGS__)
+MU_DO_26(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_28(MACRO, ...) \
 MACRO(28, __VA_ARGS__) \
-DO_27(MACRO, __VA_ARGS__)
+MU_DO_27(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_29(MACRO, ...) \
 MACRO(29, __VA_ARGS__) \
-DO_28(MACRO, __VA_ARGS__)
+MU_DO_28(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_30(MACRO, ...) \
 MACRO(30, __VA_ARGS__) \
-DO_29(MACRO, __VA_ARGS__)
+MU_DO_29(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_31(MACRO, ...) \
 MACRO(31, __VA_ARGS__) \
-DO_30(MACRO, __VA_ARGS__)
+MU_DO_30(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_32(MACRO, ...) \
 MACRO(32, __VA_ARGS__) \
-DO_31(MACRO, __VA_ARGS__)
+MU_DO_31(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_33(MACRO, ...) \
 MACRO(33, __VA_ARGS__) \
-DO_32(MACRO, __VA_ARGS__)
+MU_DO_32(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_34(MACRO, ...) \
 MACRO(34, __VA_ARGS__) \
-DO_33(MACRO, __VA_ARGS__)
+MU_DO_33(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_35(MACRO, ...) \
 MACRO(35, __VA_ARGS__) \
-DO_34(MACRO, __VA_ARGS__)
+MU_DO_34(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_36(MACRO, ...) \
 MACRO(36, __VA_ARGS__) \
-DO_35(MACRO, __VA_ARGS__)
+MU_DO_35(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_37(MACRO, ...) \
 MACRO(37, __VA_ARGS__) \
-DO_36(MACRO, __VA_ARGS__)
+MU_DO_36(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_38(MACRO, ...) \
 MACRO(38, __VA_ARGS__) \
-DO_37(MACRO, __VA_ARGS__)
+MU_DO_37(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_39(MACRO, ...) \
 MACRO(39, __VA_ARGS__) \
-DO_38(MACRO, __VA_ARGS__)
+MU_DO_38(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_40(MACRO, ...) \
 MACRO(40, __VA_ARGS__) \
-DO_39(MACRO, __VA_ARGS__)
+MU_DO_39(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_41(MACRO, ...) \
 MACRO(41, __VA_ARGS__) \
-DO_40(MACRO, __VA_ARGS__)
+MU_DO_40(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_42(MACRO, ...) \
 MACRO(42, __VA_ARGS__) \
-DO_41(MACRO, __VA_ARGS__)
+MU_DO_41(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_43(MACRO, ...) \
 MACRO(43, __VA_ARGS__) \
-DO_42(MACRO, __VA_ARGS__)
+MU_DO_42(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_44(MACRO, ...) \
 MACRO(44, __VA_ARGS__) \
-DO_43(MACRO, __VA_ARGS__)
+MU_DO_43(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_45(MACRO, ...) \
 MACRO(45, __VA_ARGS__) \
-DO_44(MACRO, __VA_ARGS__)
+MU_DO_44(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_46(MACRO, ...) \
 MACRO(46, __VA_ARGS__) \
-DO_45(MACRO, __VA_ARGS__)
+MU_DO_45(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_47(MACRO, ...) \
 MACRO(47, __VA_ARGS__) \
-DO_46(MACRO, __VA_ARGS__)
+MU_DO_46(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_48(MACRO, ...) \
 MACRO(48, __VA_ARGS__) \
-DO_47(MACRO, __VA_ARGS__)
+MU_DO_47(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_49(MACRO, ...) \
 MACRO(49, __VA_ARGS__) \
-DO_48(MACRO, __VA_ARGS__)
+MU_DO_48(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_50(MACRO, ...) \
 MACRO(50, __VA_ARGS__) \
-DO_49(MACRO, __VA_ARGS__)
+MU_DO_49(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_51(MACRO, ...) \
 MACRO(51, __VA_ARGS__) \
-DO_50(MACRO, __VA_ARGS__)
+MU_DO_50(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_52(MACRO, ...) \
 MACRO(52, __VA_ARGS__) \
-DO_51(MACRO, __VA_ARGS__)
+MU_DO_51(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_53(MACRO, ...) \
 MACRO(53, __VA_ARGS__) \
-DO_52(MACRO, __VA_ARGS__)
+MU_DO_52(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_54(MACRO, ...) \
 MACRO(54, __VA_ARGS__) \
-DO_53(MACRO, __VA_ARGS__)
+MU_DO_53(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_55(MACRO, ...) \
 MACRO(55, __VA_ARGS__) \
-DO_54(MACRO, __VA_ARGS__)
+MU_DO_54(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_56(MACRO, ...) \
 MACRO(56, __VA_ARGS__) \
-DO_55(MACRO, __VA_ARGS__)
+MU_DO_55(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_57(MACRO, ...) \
 MACRO(57, __VA_ARGS__) \
-DO_56(MACRO, __VA_ARGS__)
+MU_DO_56(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_58(MACRO, ...) \
 MACRO(58, __VA_ARGS__) \
-DO_57(MACRO, __VA_ARGS__)
+MU_DO_57(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_59(MACRO, ...) \
 MACRO(59, __VA_ARGS__) \
-DO_58(MACRO, __VA_ARGS__)
+MU_DO_58(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_60(MACRO, ...) \
 MACRO(60, __VA_ARGS__) \
-DO_59(MACRO, __VA_ARGS__)
+MU_DO_59(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_61(MACRO, ...) \
 MACRO(61, __VA_ARGS__) \
-DO_60(MACRO, __VA_ARGS__)
+MU_DO_60(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_62(MACRO, ...) \
 MACRO(62, __VA_ARGS__) \
-DO_61(MACRO, __VA_ARGS__)
+MU_DO_61(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_63(MACRO, ...) \
 MACRO(63, __VA_ARGS__) \
-DO_62(MACRO, __VA_ARGS__)
+MU_DO_62(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_64(MACRO, ...) \
 MACRO(64, __VA_ARGS__) \
-DO_63(MACRO, __VA_ARGS__)
+MU_DO_63(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_65(MACRO, ...) \
 MACRO(65, __VA_ARGS__) \
-DO_64(MACRO, __VA_ARGS__)
+MU_DO_64(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_66(MACRO, ...) \
 MACRO(66, __VA_ARGS__) \
-DO_65(MACRO, __VA_ARGS__)
+MU_DO_65(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_67(MACRO, ...) \
 MACRO(67, __VA_ARGS__) \
-DO_66(MACRO, __VA_ARGS__)
+MU_DO_66(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_68(MACRO, ...) \
 MACRO(68, __VA_ARGS__) \
-DO_67(MACRO, __VA_ARGS__)
+MU_DO_67(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_69(MACRO, ...) \
 MACRO(69, __VA_ARGS__) \
-DO_68(MACRO, __VA_ARGS__)
+MU_DO_68(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_70(MACRO, ...) \
 MACRO(70, __VA_ARGS__) \
-DO_69(MACRO, __VA_ARGS__)
+MU_DO_69(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_71(MACRO, ...) \
 MACRO(71, __VA_ARGS__) \
-DO_70(MACRO, __VA_ARGS__)
+MU_DO_70(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_72(MACRO, ...) \
 MACRO(72, __VA_ARGS__) \
-DO_71(MACRO, __VA_ARGS__)
+MU_DO_71(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_73(MACRO, ...) \
 MACRO(73, __VA_ARGS__) \
-DO_72(MACRO, __VA_ARGS__)
+MU_DO_72(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_74(MACRO, ...) \
 MACRO(74, __VA_ARGS__) \
-DO_73(MACRO, __VA_ARGS__)
+MU_DO_73(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_75(MACRO, ...) \
 MACRO(75, __VA_ARGS__) \
-DO_74(MACRO, __VA_ARGS__)
+MU_DO_74(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_76(MACRO, ...) \
 MACRO(76, __VA_ARGS__) \
-DO_75(MACRO, __VA_ARGS__)
+MU_DO_75(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_77(MACRO, ...) \
 MACRO(77, __VA_ARGS__) \
-DO_76(MACRO, __VA_ARGS__)
+MU_DO_76(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_78(MACRO, ...) \
 MACRO(78, __VA_ARGS__) \
-DO_77(MACRO, __VA_ARGS__)
+MU_DO_77(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_79(MACRO, ...) \
 MACRO(79, __VA_ARGS__) \
-DO_78(MACRO, __VA_ARGS__)
+MU_DO_78(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_80(MACRO, ...) \
 MACRO(80, __VA_ARGS__) \
-DO_79(MACRO, __VA_ARGS__)
+MU_DO_79(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_81(MACRO, ...) \
 MACRO(81, __VA_ARGS__) \
-DO_80(MACRO, __VA_ARGS__)
+MU_DO_80(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_82(MACRO, ...) \
 MACRO(82, __VA_ARGS__) \
-DO_81(MACRO, __VA_ARGS__)
+MU_DO_81(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_83(MACRO, ...) \
 MACRO(83, __VA_ARGS__) \
-DO_82(MACRO, __VA_ARGS__)
+MU_DO_82(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_84(MACRO, ...) \
 MACRO(84, __VA_ARGS__) \
-DO_83(MACRO, __VA_ARGS__)
+MU_DO_83(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_85(MACRO, ...) \
 MACRO(85, __VA_ARGS__) \
-DO_84(MACRO, __VA_ARGS__)
+MU_DO_84(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_86(MACRO, ...) \
 MACRO(86, __VA_ARGS__) \
-DO_85(MACRO, __VA_ARGS__)
+MU_DO_85(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_87(MACRO, ...) \
 MACRO(87, __VA_ARGS__) \
-DO_86(MACRO, __VA_ARGS__)
+MU_DO_86(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_88(MACRO, ...) \
 MACRO(88, __VA_ARGS__) \
-DO_87(MACRO, __VA_ARGS__)
+MU_DO_87(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_89(MACRO, ...) \
 MACRO(89, __VA_ARGS__) \
-DO_88(MACRO, __VA_ARGS__)
+MU_DO_88(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_90(MACRO, ...) \
 MACRO(90, __VA_ARGS__) \
-DO_89(MACRO, __VA_ARGS__)
+MU_DO_89(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_91(MACRO, ...) \
 MACRO(91, __VA_ARGS__) \
-DO_90(MACRO, __VA_ARGS__)
+MU_DO_90(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_92(MACRO, ...) \
 MACRO(92, __VA_ARGS__) \
-DO_91(MACRO, __VA_ARGS__)
+MU_DO_91(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_93(MACRO, ...) \
 MACRO(93, __VA_ARGS__) \
-DO_92(MACRO, __VA_ARGS__)
+MU_DO_92(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_94(MACRO, ...) \
 MACRO(94, __VA_ARGS__) \
-DO_93(MACRO, __VA_ARGS__)
+MU_DO_93(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_95(MACRO, ...) \
 MACRO(95, __VA_ARGS__) \
-DO_94(MACRO, __VA_ARGS__)
+MU_DO_94(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_96(MACRO, ...) \
 MACRO(96, __VA_ARGS__) \
-DO_95(MACRO, __VA_ARGS__)
+MU_DO_95(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_97(MACRO, ...) \
 MACRO(97, __VA_ARGS__) \
-DO_96(MACRO, __VA_ARGS__)
+MU_DO_96(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_98(MACRO, ...) \
 MACRO(98, __VA_ARGS__) \
-DO_97(MACRO, __VA_ARGS__)
+MU_DO_97(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_99(MACRO, ...) \
 MACRO(99, __VA_ARGS__) \
-DO_98(MACRO, __VA_ARGS__)
+MU_DO_98(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_100(MACRO, ...) \
 MACRO(100, __VA_ARGS__) \
-DO_99(MACRO, __VA_ARGS__)
+MU_DO_99(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_101(MACRO, ...) \
 MACRO(101, __VA_ARGS__) \
-DO_100(MACRO, __VA_ARGS__)
+MU_DO_100(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_102(MACRO, ...) \
 MACRO(102, __VA_ARGS__) \
-DO_101(MACRO, __VA_ARGS__)
+MU_DO_101(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_103(MACRO, ...) \
 MACRO(103, __VA_ARGS__) \
-DO_102(MACRO, __VA_ARGS__)
+MU_DO_102(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_104(MACRO, ...) \
 MACRO(104, __VA_ARGS__) \
-DO_103(MACRO, __VA_ARGS__)
+MU_DO_103(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_105(MACRO, ...) \
 MACRO(105, __VA_ARGS__) \
-DO_104(MACRO, __VA_ARGS__)
+MU_DO_104(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_106(MACRO, ...) \
 MACRO(106, __VA_ARGS__) \
-DO_105(MACRO, __VA_ARGS__)
+MU_DO_105(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_107(MACRO, ...) \
 MACRO(107, __VA_ARGS__) \
-DO_106(MACRO, __VA_ARGS__)
+MU_DO_106(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_108(MACRO, ...) \
 MACRO(108, __VA_ARGS__) \
-DO_107(MACRO, __VA_ARGS__)
+MU_DO_107(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_109(MACRO, ...) \
 MACRO(109, __VA_ARGS__) \
-DO_108(MACRO, __VA_ARGS__)
+MU_DO_108(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_110(MACRO, ...) \
 MACRO(110, __VA_ARGS__) \
-DO_109(MACRO, __VA_ARGS__)
+MU_DO_109(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_111(MACRO, ...) \
 MACRO(111, __VA_ARGS__) \
-DO_110(MACRO, __VA_ARGS__)
+MU_DO_110(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_112(MACRO, ...) \
 MACRO(112, __VA_ARGS__) \
-DO_111(MACRO, __VA_ARGS__)
+MU_DO_111(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_113(MACRO, ...) \
 MACRO(113, __VA_ARGS__) \
-DO_112(MACRO, __VA_ARGS__)
+MU_DO_112(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_114(MACRO, ...) \
 MACRO(114, __VA_ARGS__) \
-DO_113(MACRO, __VA_ARGS__)
+MU_DO_113(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_115(MACRO, ...) \
 MACRO(115, __VA_ARGS__) \
-DO_114(MACRO, __VA_ARGS__)
+MU_DO_114(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_116(MACRO, ...) \
 MACRO(116, __VA_ARGS__) \
-DO_115(MACRO, __VA_ARGS__)
+MU_DO_115(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_117(MACRO, ...) \
 MACRO(117, __VA_ARGS__) \
-DO_116(MACRO, __VA_ARGS__)
+MU_DO_116(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_118(MACRO, ...) \
 MACRO(118, __VA_ARGS__) \
-DO_117(MACRO, __VA_ARGS__)
+MU_DO_117(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_119(MACRO, ...) \
 MACRO(119, __VA_ARGS__) \
-DO_118(MACRO, __VA_ARGS__)
+MU_DO_118(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_120(MACRO, ...) \
 MACRO(120, __VA_ARGS__) \
-DO_119(MACRO, __VA_ARGS__)
+MU_DO_119(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_121(MACRO, ...) \
 MACRO(121, __VA_ARGS__) \
-DO_120(MACRO, __VA_ARGS__)
+MU_DO_120(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_122(MACRO, ...) \
 MACRO(122, __VA_ARGS__) \
-DO_121(MACRO, __VA_ARGS__)
+MU_DO_121(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_123(MACRO, ...) \
 MACRO(123, __VA_ARGS__) \
-DO_122(MACRO, __VA_ARGS__)
+MU_DO_122(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_124(MACRO, ...) \
 MACRO(124, __VA_ARGS__) \
-DO_123(MACRO, __VA_ARGS__)
+MU_DO_123(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_125(MACRO, ...) \
 MACRO(125, __VA_ARGS__) \
-DO_124(MACRO, __VA_ARGS__)
+MU_DO_124(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_126(MACRO, ...) \
 MACRO(126, __VA_ARGS__) \
-DO_125(MACRO, __VA_ARGS__)
+MU_DO_125(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_127(MACRO, ...) \
 MACRO(127, __VA_ARGS__) \
-DO_126(MACRO, __VA_ARGS__)
+MU_DO_126(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_128(MACRO, ...) \
 MACRO(128, __VA_ARGS__) \
-DO_127(MACRO, __VA_ARGS__)
+MU_DO_127(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_129(MACRO, ...) \
 MACRO(129, __VA_ARGS__) \
-DO_128(MACRO, __VA_ARGS__)
+MU_DO_128(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_130(MACRO, ...) \
 MACRO(130, __VA_ARGS__) \
-DO_129(MACRO, __VA_ARGS__)
+MU_DO_129(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_131(MACRO, ...) \
 MACRO(131, __VA_ARGS__) \
-DO_130(MACRO, __VA_ARGS__)
+MU_DO_130(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_132(MACRO, ...) \
 MACRO(132, __VA_ARGS__) \
-DO_131(MACRO, __VA_ARGS__)
+MU_DO_131(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_133(MACRO, ...) \
 MACRO(133, __VA_ARGS__) \
-DO_132(MACRO, __VA_ARGS__)
+MU_DO_132(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_134(MACRO, ...) \
 MACRO(134, __VA_ARGS__) \
-DO_133(MACRO, __VA_ARGS__)
+MU_DO_133(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_135(MACRO, ...) \
 MACRO(135, __VA_ARGS__) \
-DO_134(MACRO, __VA_ARGS__)
+MU_DO_134(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_136(MACRO, ...) \
 MACRO(136, __VA_ARGS__) \
-DO_135(MACRO, __VA_ARGS__)
+MU_DO_135(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_137(MACRO, ...) \
 MACRO(137, __VA_ARGS__) \
-DO_136(MACRO, __VA_ARGS__)
+MU_DO_136(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_138(MACRO, ...) \
 MACRO(138, __VA_ARGS__) \
-DO_137(MACRO, __VA_ARGS__)
+MU_DO_137(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_139(MACRO, ...) \
 MACRO(139, __VA_ARGS__) \
-DO_138(MACRO, __VA_ARGS__)
+MU_DO_138(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_140(MACRO, ...) \
 MACRO(140, __VA_ARGS__) \
-DO_139(MACRO, __VA_ARGS__)
+MU_DO_139(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_141(MACRO, ...) \
 MACRO(141, __VA_ARGS__) \
-DO_140(MACRO, __VA_ARGS__)
+MU_DO_140(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_142(MACRO, ...) \
 MACRO(142, __VA_ARGS__) \
-DO_141(MACRO, __VA_ARGS__)
+MU_DO_141(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_143(MACRO, ...) \
 MACRO(143, __VA_ARGS__) \
-DO_142(MACRO, __VA_ARGS__)
+MU_DO_142(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_144(MACRO, ...) \
 MACRO(144, __VA_ARGS__) \
-DO_143(MACRO, __VA_ARGS__)
+MU_DO_143(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_145(MACRO, ...) \
 MACRO(145, __VA_ARGS__) \
-DO_144(MACRO, __VA_ARGS__)
+MU_DO_144(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_146(MACRO, ...) \
 MACRO(146, __VA_ARGS__) \
-DO_145(MACRO, __VA_ARGS__)
+MU_DO_145(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_147(MACRO, ...) \
 MACRO(147, __VA_ARGS__) \
-DO_146(MACRO, __VA_ARGS__)
+MU_DO_146(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_148(MACRO, ...) \
 MACRO(148, __VA_ARGS__) \
-DO_147(MACRO, __VA_ARGS__)
+MU_DO_147(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_149(MACRO, ...) \
 MACRO(149, __VA_ARGS__) \
-DO_148(MACRO, __VA_ARGS__)
+MU_DO_148(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_150(MACRO, ...) \
 MACRO(150, __VA_ARGS__) \
-DO_149(MACRO, __VA_ARGS__)
+MU_DO_149(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_151(MACRO, ...) \
 MACRO(151, __VA_ARGS__) \
-DO_150(MACRO, __VA_ARGS__)
+MU_DO_150(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_152(MACRO, ...) \
 MACRO(152, __VA_ARGS__) \
-DO_151(MACRO, __VA_ARGS__)
+MU_DO_151(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_153(MACRO, ...) \
 MACRO(153, __VA_ARGS__) \
-DO_152(MACRO, __VA_ARGS__)
+MU_DO_152(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_154(MACRO, ...) \
 MACRO(154, __VA_ARGS__) \
-DO_153(MACRO, __VA_ARGS__)
+MU_DO_153(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_155(MACRO, ...) \
 MACRO(155, __VA_ARGS__) \
-DO_154(MACRO, __VA_ARGS__)
+MU_DO_154(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_156(MACRO, ...) \
 MACRO(156, __VA_ARGS__) \
-DO_155(MACRO, __VA_ARGS__)
+MU_DO_155(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_157(MACRO, ...) \
 MACRO(157, __VA_ARGS__) \
-DO_156(MACRO, __VA_ARGS__)
+MU_DO_156(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_158(MACRO, ...) \
 MACRO(158, __VA_ARGS__) \
-DO_157(MACRO, __VA_ARGS__)
+MU_DO_157(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_159(MACRO, ...) \
 MACRO(159, __VA_ARGS__) \
-DO_158(MACRO, __VA_ARGS__)
+MU_DO_158(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_160(MACRO, ...) \
 MACRO(160, __VA_ARGS__) \
-DO_159(MACRO, __VA_ARGS__)
+MU_DO_159(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_161(MACRO, ...) \
 MACRO(161, __VA_ARGS__) \
-DO_160(MACRO, __VA_ARGS__)
+MU_DO_160(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_162(MACRO, ...) \
 MACRO(162, __VA_ARGS__) \
-DO_161(MACRO, __VA_ARGS__)
+MU_DO_161(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_163(MACRO, ...) \
 MACRO(163, __VA_ARGS__) \
-DO_162(MACRO, __VA_ARGS__)
+MU_DO_162(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_164(MACRO, ...) \
 MACRO(164, __VA_ARGS__) \
-DO_163(MACRO, __VA_ARGS__)
+MU_DO_163(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_165(MACRO, ...) \
 MACRO(165, __VA_ARGS__) \
-DO_164(MACRO, __VA_ARGS__)
+MU_DO_164(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_166(MACRO, ...) \
 MACRO(166, __VA_ARGS__) \
-DO_165(MACRO, __VA_ARGS__)
+MU_DO_165(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_167(MACRO, ...) \
 MACRO(167, __VA_ARGS__) \
-DO_166(MACRO, __VA_ARGS__)
+MU_DO_166(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_168(MACRO, ...) \
 MACRO(168, __VA_ARGS__) \
-DO_167(MACRO, __VA_ARGS__)
+MU_DO_167(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_169(MACRO, ...) \
 MACRO(169, __VA_ARGS__) \
-DO_168(MACRO, __VA_ARGS__)
+MU_DO_168(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_170(MACRO, ...) \
 MACRO(170, __VA_ARGS__) \
-DO_169(MACRO, __VA_ARGS__)
+MU_DO_169(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_171(MACRO, ...) \
 MACRO(171, __VA_ARGS__) \
-DO_170(MACRO, __VA_ARGS__)
+MU_DO_170(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_172(MACRO, ...) \
 MACRO(172, __VA_ARGS__) \
-DO_171(MACRO, __VA_ARGS__)
+MU_DO_171(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_173(MACRO, ...) \
 MACRO(173, __VA_ARGS__) \
-DO_172(MACRO, __VA_ARGS__)
+MU_DO_172(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_174(MACRO, ...) \
 MACRO(174, __VA_ARGS__) \
-DO_173(MACRO, __VA_ARGS__)
+MU_DO_173(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_175(MACRO, ...) \
 MACRO(175, __VA_ARGS__) \
-DO_174(MACRO, __VA_ARGS__)
+MU_DO_174(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_176(MACRO, ...) \
 MACRO(176, __VA_ARGS__) \
-DO_175(MACRO, __VA_ARGS__)
+MU_DO_175(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_177(MACRO, ...) \
 MACRO(177, __VA_ARGS__) \
-DO_176(MACRO, __VA_ARGS__)
+MU_DO_176(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_178(MACRO, ...) \
 MACRO(178, __VA_ARGS__) \
-DO_177(MACRO, __VA_ARGS__)
+MU_DO_177(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_179(MACRO, ...) \
 MACRO(179, __VA_ARGS__) \
-DO_178(MACRO, __VA_ARGS__)
+MU_DO_178(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_180(MACRO, ...) \
 MACRO(180, __VA_ARGS__) \
-DO_179(MACRO, __VA_ARGS__)
+MU_DO_179(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_181(MACRO, ...) \
 MACRO(181, __VA_ARGS__) \
-DO_180(MACRO, __VA_ARGS__)
+MU_DO_180(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_182(MACRO, ...) \
 MACRO(182, __VA_ARGS__) \
-DO_181(MACRO, __VA_ARGS__)
+MU_DO_181(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_183(MACRO, ...) \
 MACRO(183, __VA_ARGS__) \
-DO_182(MACRO, __VA_ARGS__)
+MU_DO_182(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_184(MACRO, ...) \
 MACRO(184, __VA_ARGS__) \
-DO_183(MACRO, __VA_ARGS__)
+MU_DO_183(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_185(MACRO, ...) \
 MACRO(185, __VA_ARGS__) \
-DO_184(MACRO, __VA_ARGS__)
+MU_DO_184(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_186(MACRO, ...) \
 MACRO(186, __VA_ARGS__) \
-DO_185(MACRO, __VA_ARGS__)
+MU_DO_185(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_187(MACRO, ...) \
 MACRO(187, __VA_ARGS__) \
-DO_186(MACRO, __VA_ARGS__)
+MU_DO_186(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_188(MACRO, ...) \
 MACRO(188, __VA_ARGS__) \
-DO_187(MACRO, __VA_ARGS__)
+MU_DO_187(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_189(MACRO, ...) \
 MACRO(189, __VA_ARGS__) \
-DO_188(MACRO, __VA_ARGS__)
+MU_DO_188(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_190(MACRO, ...) \
 MACRO(190, __VA_ARGS__) \
-DO_189(MACRO, __VA_ARGS__)
+MU_DO_189(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_191(MACRO, ...) \
 MACRO(191, __VA_ARGS__) \
-DO_190(MACRO, __VA_ARGS__)
+MU_DO_190(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_192(MACRO, ...) \
 MACRO(192, __VA_ARGS__) \
-DO_191(MACRO, __VA_ARGS__)
+MU_DO_191(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_193(MACRO, ...) \
 MACRO(193, __VA_ARGS__) \
-DO_192(MACRO, __VA_ARGS__)
+MU_DO_192(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_194(MACRO, ...) \
 MACRO(194, __VA_ARGS__) \
-DO_193(MACRO, __VA_ARGS__)
+MU_DO_193(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_195(MACRO, ...) \
 MACRO(195, __VA_ARGS__) \
-DO_194(MACRO, __VA_ARGS__)
+MU_DO_194(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_196(MACRO, ...) \
 MACRO(196, __VA_ARGS__) \
-DO_195(MACRO, __VA_ARGS__)
+MU_DO_195(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_197(MACRO, ...) \
 MACRO(197, __VA_ARGS__) \
-DO_196(MACRO, __VA_ARGS__)
+MU_DO_196(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_198(MACRO, ...) \
 MACRO(198, __VA_ARGS__) \
-DO_197(MACRO, __VA_ARGS__)
+MU_DO_197(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_199(MACRO, ...) \
 MACRO(199, __VA_ARGS__) \
-DO_198(MACRO, __VA_ARGS__)
+MU_DO_198(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_200(MACRO, ...) \
 MACRO(200, __VA_ARGS__) \
-DO_199(MACRO, __VA_ARGS__)
+MU_DO_199(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_201(MACRO, ...) \
 MACRO(201, __VA_ARGS__) \
-DO_200(MACRO, __VA_ARGS__)
+MU_DO_200(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_202(MACRO, ...) \
 MACRO(202, __VA_ARGS__) \
-DO_201(MACRO, __VA_ARGS__)
+MU_DO_201(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_203(MACRO, ...) \
 MACRO(203, __VA_ARGS__) \
-DO_202(MACRO, __VA_ARGS__)
+MU_DO_202(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_204(MACRO, ...) \
 MACRO(204, __VA_ARGS__) \
-DO_203(MACRO, __VA_ARGS__)
+MU_DO_203(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_205(MACRO, ...) \
 MACRO(205, __VA_ARGS__) \
-DO_204(MACRO, __VA_ARGS__)
+MU_DO_204(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_206(MACRO, ...) \
 MACRO(206, __VA_ARGS__) \
-DO_205(MACRO, __VA_ARGS__)
+MU_DO_205(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_207(MACRO, ...) \
 MACRO(207, __VA_ARGS__) \
-DO_206(MACRO, __VA_ARGS__)
+MU_DO_206(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_208(MACRO, ...) \
 MACRO(208, __VA_ARGS__) \
-DO_207(MACRO, __VA_ARGS__)
+MU_DO_207(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_209(MACRO, ...) \
 MACRO(209, __VA_ARGS__) \
-DO_208(MACRO, __VA_ARGS__)
+MU_DO_208(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_210(MACRO, ...) \
 MACRO(210, __VA_ARGS__) \
-DO_209(MACRO, __VA_ARGS__)
+MU_DO_209(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_211(MACRO, ...) \
 MACRO(211, __VA_ARGS__) \
-DO_210(MACRO, __VA_ARGS__)
+MU_DO_210(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_212(MACRO, ...) \
 MACRO(212, __VA_ARGS__) \
-DO_211(MACRO, __VA_ARGS__)
+MU_DO_211(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_213(MACRO, ...) \
 MACRO(213, __VA_ARGS__) \
-DO_212(MACRO, __VA_ARGS__)
+MU_DO_212(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_214(MACRO, ...) \
 MACRO(214, __VA_ARGS__) \
-DO_213(MACRO, __VA_ARGS__)
+MU_DO_213(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_215(MACRO, ...) \
 MACRO(215, __VA_ARGS__) \
-DO_214(MACRO, __VA_ARGS__)
+MU_DO_214(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_216(MACRO, ...) \
 MACRO(216, __VA_ARGS__) \
-DO_215(MACRO, __VA_ARGS__)
+MU_DO_215(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_217(MACRO, ...) \
 MACRO(217, __VA_ARGS__) \
-DO_216(MACRO, __VA_ARGS__)
+MU_DO_216(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_218(MACRO, ...) \
 MACRO(218, __VA_ARGS__) \
-DO_217(MACRO, __VA_ARGS__)
+MU_DO_217(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_219(MACRO, ...) \
 MACRO(219, __VA_ARGS__) \
-DO_218(MACRO, __VA_ARGS__)
+MU_DO_218(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_220(MACRO, ...) \
 MACRO(220, __VA_ARGS__) \
-DO_219(MACRO, __VA_ARGS__)
+MU_DO_219(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_221(MACRO, ...) \
 MACRO(221, __VA_ARGS__) \
-DO_220(MACRO, __VA_ARGS__)
+MU_DO_220(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_222(MACRO, ...) \
 MACRO(222, __VA_ARGS__) \
-DO_221(MACRO, __VA_ARGS__)
+MU_DO_221(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_223(MACRO, ...) \
 MACRO(223, __VA_ARGS__) \
-DO_222(MACRO, __VA_ARGS__)
+MU_DO_222(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_224(MACRO, ...) \
 MACRO(224, __VA_ARGS__) \
-DO_223(MACRO, __VA_ARGS__)
+MU_DO_223(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_225(MACRO, ...) \
 MACRO(225, __VA_ARGS__) \
-DO_224(MACRO, __VA_ARGS__)
+MU_DO_224(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_226(MACRO, ...) \
 MACRO(226, __VA_ARGS__) \
-DO_225(MACRO, __VA_ARGS__)
+MU_DO_225(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_227(MACRO, ...) \
 MACRO(227, __VA_ARGS__) \
-DO_226(MACRO, __VA_ARGS__)
+MU_DO_226(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_228(MACRO, ...) \
 MACRO(228, __VA_ARGS__) \
-DO_227(MACRO, __VA_ARGS__)
+MU_DO_227(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_229(MACRO, ...) \
 MACRO(229, __VA_ARGS__) \
-DO_228(MACRO, __VA_ARGS__)
+MU_DO_228(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_230(MACRO, ...) \
 MACRO(230, __VA_ARGS__) \
-DO_229(MACRO, __VA_ARGS__)
+MU_DO_229(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_231(MACRO, ...) \
 MACRO(231, __VA_ARGS__) \
-DO_230(MACRO, __VA_ARGS__)
+MU_DO_230(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_232(MACRO, ...) \
 MACRO(232, __VA_ARGS__) \
-DO_231(MACRO, __VA_ARGS__)
+MU_DO_231(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_233(MACRO, ...) \
 MACRO(233, __VA_ARGS__) \
-DO_232(MACRO, __VA_ARGS__)
+MU_DO_232(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_234(MACRO, ...) \
 MACRO(234, __VA_ARGS__) \
-DO_233(MACRO, __VA_ARGS__)
+MU_DO_233(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_235(MACRO, ...) \
 MACRO(235, __VA_ARGS__) \
-DO_234(MACRO, __VA_ARGS__)
+MU_DO_234(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_236(MACRO, ...) \
 MACRO(236, __VA_ARGS__) \
-DO_235(MACRO, __VA_ARGS__)
+MU_DO_235(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_237(MACRO, ...) \
 MACRO(237, __VA_ARGS__) \
-DO_236(MACRO, __VA_ARGS__)
+MU_DO_236(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_238(MACRO, ...) \
 MACRO(238, __VA_ARGS__) \
-DO_237(MACRO, __VA_ARGS__)
+MU_DO_237(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_239(MACRO, ...) \
 MACRO(239, __VA_ARGS__) \
-DO_238(MACRO, __VA_ARGS__)
+MU_DO_238(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_240(MACRO, ...) \
 MACRO(240, __VA_ARGS__) \
-DO_239(MACRO, __VA_ARGS__)
+MU_DO_239(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_241(MACRO, ...) \
 MACRO(241, __VA_ARGS__) \
-DO_240(MACRO, __VA_ARGS__)
+MU_DO_240(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_242(MACRO, ...) \
 MACRO(242, __VA_ARGS__) \
-DO_241(MACRO, __VA_ARGS__)
+MU_DO_241(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_243(MACRO, ...) \
 MACRO(243, __VA_ARGS__) \
-DO_242(MACRO, __VA_ARGS__)
+MU_DO_242(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_244(MACRO, ...) \
 MACRO(244, __VA_ARGS__) \
-DO_243(MACRO, __VA_ARGS__)
+MU_DO_243(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_245(MACRO, ...) \
 MACRO(245, __VA_ARGS__) \
-DO_244(MACRO, __VA_ARGS__)
+MU_DO_244(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_246(MACRO, ...) \
 MACRO(246, __VA_ARGS__) \
-DO_245(MACRO, __VA_ARGS__)
+MU_DO_245(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_247(MACRO, ...) \
 MACRO(247, __VA_ARGS__) \
-DO_246(MACRO, __VA_ARGS__)
+MU_DO_246(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_248(MACRO, ...) \
 MACRO(248, __VA_ARGS__) \
-DO_247(MACRO, __VA_ARGS__)
+MU_DO_247(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_249(MACRO, ...) \
 MACRO(249, __VA_ARGS__) \
-DO_248(MACRO, __VA_ARGS__)
+MU_DO_248(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_250(MACRO, ...) \
 MACRO(250, __VA_ARGS__) \
-DO_249(MACRO, __VA_ARGS__)
+MU_DO_249(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_251(MACRO, ...) \
 MACRO(251, __VA_ARGS__) \
-DO_250(MACRO, __VA_ARGS__)
+MU_DO_250(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_252(MACRO, ...) \
 MACRO(252, __VA_ARGS__) \
-DO_251(MACRO, __VA_ARGS__)
+MU_DO_251(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_253(MACRO, ...) \
 MACRO(253, __VA_ARGS__) \
-DO_252(MACRO, __VA_ARGS__)
+MU_DO_252(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_254(MACRO, ...) \
 MACRO(254, __VA_ARGS__) \
-DO_253(MACRO, __VA_ARGS__)
+MU_DO_253(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_255(MACRO, ...) \
 MACRO(255, __VA_ARGS__) \
-DO_254(MACRO, __VA_ARGS__)
+MU_DO_254(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_256(MACRO, ...) \
 MACRO(256, __VA_ARGS__) \
-DO_255(MACRO, __VA_ARGS__)
+MU_DO_255(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_257(MACRO, ...) \
 MACRO(257, __VA_ARGS__) \
-DO_256(MACRO, __VA_ARGS__)
+MU_DO_256(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_258(MACRO, ...) \
 MACRO(258, __VA_ARGS__) \
-DO_257(MACRO, __VA_ARGS__)
+MU_DO_257(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_259(MACRO, ...) \
 MACRO(259, __VA_ARGS__) \
-DO_258(MACRO, __VA_ARGS__)
+MU_DO_258(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_260(MACRO, ...) \
 MACRO(260, __VA_ARGS__) \
-DO_259(MACRO, __VA_ARGS__)
+MU_DO_259(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_261(MACRO, ...) \
 MACRO(261, __VA_ARGS__) \
-DO_260(MACRO, __VA_ARGS__)
+MU_DO_260(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_262(MACRO, ...) \
 MACRO(262, __VA_ARGS__) \
-DO_261(MACRO, __VA_ARGS__)
+MU_DO_261(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_263(MACRO, ...) \
 MACRO(263, __VA_ARGS__) \
-DO_262(MACRO, __VA_ARGS__)
+MU_DO_262(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_264(MACRO, ...) \
 MACRO(264, __VA_ARGS__) \
-DO_263(MACRO, __VA_ARGS__)
+MU_DO_263(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_265(MACRO, ...) \
 MACRO(265, __VA_ARGS__) \
-DO_264(MACRO, __VA_ARGS__)
+MU_DO_264(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_266(MACRO, ...) \
 MACRO(266, __VA_ARGS__) \
-DO_265(MACRO, __VA_ARGS__)
+MU_DO_265(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_267(MACRO, ...) \
 MACRO(267, __VA_ARGS__) \
-DO_266(MACRO, __VA_ARGS__)
+MU_DO_266(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_268(MACRO, ...) \
 MACRO(268, __VA_ARGS__) \
-DO_267(MACRO, __VA_ARGS__)
+MU_DO_267(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_269(MACRO, ...) \
 MACRO(269, __VA_ARGS__) \
-DO_268(MACRO, __VA_ARGS__)
+MU_DO_268(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_270(MACRO, ...) \
 MACRO(270, __VA_ARGS__) \
-DO_269(MACRO, __VA_ARGS__)
+MU_DO_269(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_271(MACRO, ...) \
 MACRO(271, __VA_ARGS__) \
-DO_270(MACRO, __VA_ARGS__)
+MU_DO_270(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_272(MACRO, ...) \
 MACRO(272, __VA_ARGS__) \
-DO_271(MACRO, __VA_ARGS__)
+MU_DO_271(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_273(MACRO, ...) \
 MACRO(273, __VA_ARGS__) \
-DO_272(MACRO, __VA_ARGS__)
+MU_DO_272(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_274(MACRO, ...) \
 MACRO(274, __VA_ARGS__) \
-DO_273(MACRO, __VA_ARGS__)
+MU_DO_273(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_275(MACRO, ...) \
 MACRO(275, __VA_ARGS__) \
-DO_274(MACRO, __VA_ARGS__)
+MU_DO_274(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_276(MACRO, ...) \
 MACRO(276, __VA_ARGS__) \
-DO_275(MACRO, __VA_ARGS__)
+MU_DO_275(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_277(MACRO, ...) \
 MACRO(277, __VA_ARGS__) \
-DO_276(MACRO, __VA_ARGS__)
+MU_DO_276(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_278(MACRO, ...) \
 MACRO(278, __VA_ARGS__) \
-DO_277(MACRO, __VA_ARGS__)
+MU_DO_277(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_279(MACRO, ...) \
 MACRO(279, __VA_ARGS__) \
-DO_278(MACRO, __VA_ARGS__)
+MU_DO_278(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_280(MACRO, ...) \
 MACRO(280, __VA_ARGS__) \
-DO_279(MACRO, __VA_ARGS__)
+MU_DO_279(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_281(MACRO, ...) \
 MACRO(281, __VA_ARGS__) \
-DO_280(MACRO, __VA_ARGS__)
+MU_DO_280(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_282(MACRO, ...) \
 MACRO(282, __VA_ARGS__) \
-DO_281(MACRO, __VA_ARGS__)
+MU_DO_281(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_283(MACRO, ...) \
 MACRO(283, __VA_ARGS__) \
-DO_282(MACRO, __VA_ARGS__)
+MU_DO_282(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_284(MACRO, ...) \
 MACRO(284, __VA_ARGS__) \
-DO_283(MACRO, __VA_ARGS__)
+MU_DO_283(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_285(MACRO, ...) \
 MACRO(285, __VA_ARGS__) \
-DO_284(MACRO, __VA_ARGS__)
+MU_DO_284(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_286(MACRO, ...) \
 MACRO(286, __VA_ARGS__) \
-DO_285(MACRO, __VA_ARGS__)
+MU_DO_285(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_287(MACRO, ...) \
 MACRO(287, __VA_ARGS__) \
-DO_286(MACRO, __VA_ARGS__)
+MU_DO_286(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_288(MACRO, ...) \
 MACRO(288, __VA_ARGS__) \
-DO_287(MACRO, __VA_ARGS__)
+MU_DO_287(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_289(MACRO, ...) \
 MACRO(289, __VA_ARGS__) \
-DO_288(MACRO, __VA_ARGS__)
+MU_DO_288(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_290(MACRO, ...) \
 MACRO(290, __VA_ARGS__) \
-DO_289(MACRO, __VA_ARGS__)
+MU_DO_289(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_291(MACRO, ...) \
 MACRO(291, __VA_ARGS__) \
-DO_290(MACRO, __VA_ARGS__)
+MU_DO_290(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_292(MACRO, ...) \
 MACRO(292, __VA_ARGS__) \
-DO_291(MACRO, __VA_ARGS__)
+MU_DO_291(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_293(MACRO, ...) \
 MACRO(293, __VA_ARGS__) \
-DO_292(MACRO, __VA_ARGS__)
+MU_DO_292(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_294(MACRO, ...) \
 MACRO(294, __VA_ARGS__) \
-DO_293(MACRO, __VA_ARGS__)
+MU_DO_293(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_295(MACRO, ...) \
 MACRO(295, __VA_ARGS__) \
-DO_294(MACRO, __VA_ARGS__)
+MU_DO_294(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_296(MACRO, ...) \
 MACRO(296, __VA_ARGS__) \
-DO_295(MACRO, __VA_ARGS__)
+MU_DO_295(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_297(MACRO, ...) \
 MACRO(297, __VA_ARGS__) \
-DO_296(MACRO, __VA_ARGS__)
+MU_DO_296(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_298(MACRO, ...) \
 MACRO(298, __VA_ARGS__) \
-DO_297(MACRO, __VA_ARGS__)
+MU_DO_297(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_299(MACRO, ...) \
 MACRO(299, __VA_ARGS__) \
-DO_298(MACRO, __VA_ARGS__)
+MU_DO_298(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_300(MACRO, ...) \
 MACRO(300, __VA_ARGS__) \
-DO_299(MACRO, __VA_ARGS__)
+MU_DO_299(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_301(MACRO, ...) \
 MACRO(301, __VA_ARGS__) \
-DO_300(MACRO, __VA_ARGS__)
+MU_DO_300(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_302(MACRO, ...) \
 MACRO(302, __VA_ARGS__) \
-DO_301(MACRO, __VA_ARGS__)
+MU_DO_301(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_303(MACRO, ...) \
 MACRO(303, __VA_ARGS__) \
-DO_302(MACRO, __VA_ARGS__)
+MU_DO_302(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_304(MACRO, ...) \
 MACRO(304, __VA_ARGS__) \
-DO_303(MACRO, __VA_ARGS__)
+MU_DO_303(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_305(MACRO, ...) \
 MACRO(305, __VA_ARGS__) \
-DO_304(MACRO, __VA_ARGS__)
+MU_DO_304(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_306(MACRO, ...) \
 MACRO(306, __VA_ARGS__) \
-DO_305(MACRO, __VA_ARGS__)
+MU_DO_305(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_307(MACRO, ...) \
 MACRO(307, __VA_ARGS__) \
-DO_306(MACRO, __VA_ARGS__)
+MU_DO_306(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_308(MACRO, ...) \
 MACRO(308, __VA_ARGS__) \
-DO_307(MACRO, __VA_ARGS__)
+MU_DO_307(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_309(MACRO, ...) \
 MACRO(309, __VA_ARGS__) \
-DO_308(MACRO, __VA_ARGS__)
+MU_DO_308(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_310(MACRO, ...) \
 MACRO(310, __VA_ARGS__) \
-DO_309(MACRO, __VA_ARGS__)
+MU_DO_309(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_311(MACRO, ...) \
 MACRO(311, __VA_ARGS__) \
-DO_310(MACRO, __VA_ARGS__)
+MU_DO_310(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_312(MACRO, ...) \
 MACRO(312, __VA_ARGS__) \
-DO_311(MACRO, __VA_ARGS__)
+MU_DO_311(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_313(MACRO, ...) \
 MACRO(313, __VA_ARGS__) \
-DO_312(MACRO, __VA_ARGS__)
+MU_DO_312(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_314(MACRO, ...) \
 MACRO(314, __VA_ARGS__) \
-DO_313(MACRO, __VA_ARGS__)
+MU_DO_313(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_315(MACRO, ...) \
 MACRO(315, __VA_ARGS__) \
-DO_314(MACRO, __VA_ARGS__)
+MU_DO_314(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_316(MACRO, ...) \
 MACRO(316, __VA_ARGS__) \
-DO_315(MACRO, __VA_ARGS__)
+MU_DO_315(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_317(MACRO, ...) \
 MACRO(317, __VA_ARGS__) \
-DO_316(MACRO, __VA_ARGS__)
+MU_DO_316(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_318(MACRO, ...) \
 MACRO(318, __VA_ARGS__) \
-DO_317(MACRO, __VA_ARGS__)
+MU_DO_317(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_319(MACRO, ...) \
 MACRO(319, __VA_ARGS__) \
-DO_318(MACRO, __VA_ARGS__)
+MU_DO_318(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_320(MACRO, ...) \
 MACRO(320, __VA_ARGS__) \
-DO_319(MACRO, __VA_ARGS__)
+MU_DO_319(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_321(MACRO, ...) \
 MACRO(321, __VA_ARGS__) \
-DO_320(MACRO, __VA_ARGS__)
+MU_DO_320(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_322(MACRO, ...) \
 MACRO(322, __VA_ARGS__) \
-DO_321(MACRO, __VA_ARGS__)
+MU_DO_321(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_323(MACRO, ...) \
 MACRO(323, __VA_ARGS__) \
-DO_322(MACRO, __VA_ARGS__)
+MU_DO_322(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_324(MACRO, ...) \
 MACRO(324, __VA_ARGS__) \
-DO_323(MACRO, __VA_ARGS__)
+MU_DO_323(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_325(MACRO, ...) \
 MACRO(325, __VA_ARGS__) \
-DO_324(MACRO, __VA_ARGS__)
+MU_DO_324(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_326(MACRO, ...) \
 MACRO(326, __VA_ARGS__) \
-DO_325(MACRO, __VA_ARGS__)
+MU_DO_325(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_327(MACRO, ...) \
 MACRO(327, __VA_ARGS__) \
-DO_326(MACRO, __VA_ARGS__)
+MU_DO_326(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_328(MACRO, ...) \
 MACRO(328, __VA_ARGS__) \
-DO_327(MACRO, __VA_ARGS__)
+MU_DO_327(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_329(MACRO, ...) \
 MACRO(329, __VA_ARGS__) \
-DO_328(MACRO, __VA_ARGS__)
+MU_DO_328(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_330(MACRO, ...) \
 MACRO(330, __VA_ARGS__) \
-DO_329(MACRO, __VA_ARGS__)
+MU_DO_329(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_331(MACRO, ...) \
 MACRO(331, __VA_ARGS__) \
-DO_330(MACRO, __VA_ARGS__)
+MU_DO_330(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_332(MACRO, ...) \
 MACRO(332, __VA_ARGS__) \
-DO_331(MACRO, __VA_ARGS__)
+MU_DO_331(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_333(MACRO, ...) \
 MACRO(333, __VA_ARGS__) \
-DO_332(MACRO, __VA_ARGS__)
+MU_DO_332(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_334(MACRO, ...) \
 MACRO(334, __VA_ARGS__) \
-DO_333(MACRO, __VA_ARGS__)
+MU_DO_333(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_335(MACRO, ...) \
 MACRO(335, __VA_ARGS__) \
-DO_334(MACRO, __VA_ARGS__)
+MU_DO_334(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_336(MACRO, ...) \
 MACRO(336, __VA_ARGS__) \
-DO_335(MACRO, __VA_ARGS__)
+MU_DO_335(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_337(MACRO, ...) \
 MACRO(337, __VA_ARGS__) \
-DO_336(MACRO, __VA_ARGS__)
+MU_DO_336(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_338(MACRO, ...) \
 MACRO(338, __VA_ARGS__) \
-DO_337(MACRO, __VA_ARGS__)
+MU_DO_337(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_339(MACRO, ...) \
 MACRO(339, __VA_ARGS__) \
-DO_338(MACRO, __VA_ARGS__)
+MU_DO_338(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_340(MACRO, ...) \
 MACRO(340, __VA_ARGS__) \
-DO_339(MACRO, __VA_ARGS__)
+MU_DO_339(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_341(MACRO, ...) \
 MACRO(341, __VA_ARGS__) \
-DO_340(MACRO, __VA_ARGS__)
+MU_DO_340(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_342(MACRO, ...) \
 MACRO(342, __VA_ARGS__) \
-DO_341(MACRO, __VA_ARGS__)
+MU_DO_341(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_343(MACRO, ...) \
 MACRO(343, __VA_ARGS__) \
-DO_342(MACRO, __VA_ARGS__)
+MU_DO_342(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_344(MACRO, ...) \
 MACRO(344, __VA_ARGS__) \
-DO_343(MACRO, __VA_ARGS__)
+MU_DO_343(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_345(MACRO, ...) \
 MACRO(345, __VA_ARGS__) \
-DO_344(MACRO, __VA_ARGS__)
+MU_DO_344(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_346(MACRO, ...) \
 MACRO(346, __VA_ARGS__) \
-DO_345(MACRO, __VA_ARGS__)
+MU_DO_345(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_347(MACRO, ...) \
 MACRO(347, __VA_ARGS__) \
-DO_346(MACRO, __VA_ARGS__)
+MU_DO_346(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_348(MACRO, ...) \
 MACRO(348, __VA_ARGS__) \
-DO_347(MACRO, __VA_ARGS__)
+MU_DO_347(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_349(MACRO, ...) \
 MACRO(349, __VA_ARGS__) \
-DO_348(MACRO, __VA_ARGS__)
+MU_DO_348(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_350(MACRO, ...) \
 MACRO(350, __VA_ARGS__) \
-DO_349(MACRO, __VA_ARGS__)
+MU_DO_349(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_351(MACRO, ...) \
 MACRO(351, __VA_ARGS__) \
-DO_350(MACRO, __VA_ARGS__)
+MU_DO_350(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_352(MACRO, ...) \
 MACRO(352, __VA_ARGS__) \
-DO_351(MACRO, __VA_ARGS__)
+MU_DO_351(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_353(MACRO, ...) \
 MACRO(353, __VA_ARGS__) \
-DO_352(MACRO, __VA_ARGS__)
+MU_DO_352(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_354(MACRO, ...) \
 MACRO(354, __VA_ARGS__) \
-DO_353(MACRO, __VA_ARGS__)
+MU_DO_353(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_355(MACRO, ...) \
 MACRO(355, __VA_ARGS__) \
-DO_354(MACRO, __VA_ARGS__)
+MU_DO_354(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_356(MACRO, ...) \
 MACRO(356, __VA_ARGS__) \
-DO_355(MACRO, __VA_ARGS__)
+MU_DO_355(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_357(MACRO, ...) \
 MACRO(357, __VA_ARGS__) \
-DO_356(MACRO, __VA_ARGS__)
+MU_DO_356(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_358(MACRO, ...) \
 MACRO(358, __VA_ARGS__) \
-DO_357(MACRO, __VA_ARGS__)
+MU_DO_357(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_359(MACRO, ...) \
 MACRO(359, __VA_ARGS__) \
-DO_358(MACRO, __VA_ARGS__)
+MU_DO_358(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_360(MACRO, ...) \
 MACRO(360, __VA_ARGS__) \
-DO_359(MACRO, __VA_ARGS__)
+MU_DO_359(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_361(MACRO, ...) \
 MACRO(361, __VA_ARGS__) \
-DO_360(MACRO, __VA_ARGS__)
+MU_DO_360(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_362(MACRO, ...) \
 MACRO(362, __VA_ARGS__) \
-DO_361(MACRO, __VA_ARGS__)
+MU_DO_361(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_363(MACRO, ...) \
 MACRO(363, __VA_ARGS__) \
-DO_362(MACRO, __VA_ARGS__)
+MU_DO_362(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_364(MACRO, ...) \
 MACRO(364, __VA_ARGS__) \
-DO_363(MACRO, __VA_ARGS__)
+MU_DO_363(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_365(MACRO, ...) \
 MACRO(365, __VA_ARGS__) \
-DO_364(MACRO, __VA_ARGS__)
+MU_DO_364(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_366(MACRO, ...) \
 MACRO(366, __VA_ARGS__) \
-DO_365(MACRO, __VA_ARGS__)
+MU_DO_365(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_367(MACRO, ...) \
 MACRO(367, __VA_ARGS__) \
-DO_366(MACRO, __VA_ARGS__)
+MU_DO_366(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_368(MACRO, ...) \
 MACRO(368, __VA_ARGS__) \
-DO_367(MACRO, __VA_ARGS__)
+MU_DO_367(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_369(MACRO, ...) \
 MACRO(369, __VA_ARGS__) \
-DO_368(MACRO, __VA_ARGS__)
+MU_DO_368(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_370(MACRO, ...) \
 MACRO(370, __VA_ARGS__) \
-DO_369(MACRO, __VA_ARGS__)
+MU_DO_369(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_371(MACRO, ...) \
 MACRO(371, __VA_ARGS__) \
-DO_370(MACRO, __VA_ARGS__)
+MU_DO_370(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_372(MACRO, ...) \
 MACRO(372, __VA_ARGS__) \
-DO_371(MACRO, __VA_ARGS__)
+MU_DO_371(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_373(MACRO, ...) \
 MACRO(373, __VA_ARGS__) \
-DO_372(MACRO, __VA_ARGS__)
+MU_DO_372(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_374(MACRO, ...) \
 MACRO(374, __VA_ARGS__) \
-DO_373(MACRO, __VA_ARGS__)
+MU_DO_373(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_375(MACRO, ...) \
 MACRO(375, __VA_ARGS__) \
-DO_374(MACRO, __VA_ARGS__)
+MU_DO_374(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_376(MACRO, ...) \
 MACRO(376, __VA_ARGS__) \
-DO_375(MACRO, __VA_ARGS__)
+MU_DO_375(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_377(MACRO, ...) \
 MACRO(377, __VA_ARGS__) \
-DO_376(MACRO, __VA_ARGS__)
+MU_DO_376(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_378(MACRO, ...) \
 MACRO(378, __VA_ARGS__) \
-DO_377(MACRO, __VA_ARGS__)
+MU_DO_377(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_379(MACRO, ...) \
 MACRO(379, __VA_ARGS__) \
-DO_378(MACRO, __VA_ARGS__)
+MU_DO_378(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_380(MACRO, ...) \
 MACRO(380, __VA_ARGS__) \
-DO_379(MACRO, __VA_ARGS__)
+MU_DO_379(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_381(MACRO, ...) \
 MACRO(381, __VA_ARGS__) \
-DO_380(MACRO, __VA_ARGS__)
+MU_DO_380(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_382(MACRO, ...) \
 MACRO(382, __VA_ARGS__) \
-DO_381(MACRO, __VA_ARGS__)
+MU_DO_381(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_383(MACRO, ...) \
 MACRO(383, __VA_ARGS__) \
-DO_382(MACRO, __VA_ARGS__)
+MU_DO_382(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_384(MACRO, ...) \
 MACRO(384, __VA_ARGS__) \
-DO_383(MACRO, __VA_ARGS__)
+MU_DO_383(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_385(MACRO, ...) \
 MACRO(385, __VA_ARGS__) \
-DO_384(MACRO, __VA_ARGS__)
+MU_DO_384(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_386(MACRO, ...) \
 MACRO(386, __VA_ARGS__) \
-DO_385(MACRO, __VA_ARGS__)
+MU_DO_385(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_387(MACRO, ...) \
 MACRO(387, __VA_ARGS__) \
-DO_386(MACRO, __VA_ARGS__)
+MU_DO_386(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_388(MACRO, ...) \
 MACRO(388, __VA_ARGS__) \
-DO_387(MACRO, __VA_ARGS__)
+MU_DO_387(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_389(MACRO, ...) \
 MACRO(389, __VA_ARGS__) \
-DO_388(MACRO, __VA_ARGS__)
+MU_DO_388(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_390(MACRO, ...) \
 MACRO(390, __VA_ARGS__) \
-DO_389(MACRO, __VA_ARGS__)
+MU_DO_389(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_391(MACRO, ...) \
 MACRO(391, __VA_ARGS__) \
-DO_390(MACRO, __VA_ARGS__)
+MU_DO_390(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_392(MACRO, ...) \
 MACRO(392, __VA_ARGS__) \
-DO_391(MACRO, __VA_ARGS__)
+MU_DO_391(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_393(MACRO, ...) \
 MACRO(393, __VA_ARGS__) \
-DO_392(MACRO, __VA_ARGS__)
+MU_DO_392(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_394(MACRO, ...) \
 MACRO(394, __VA_ARGS__) \
-DO_393(MACRO, __VA_ARGS__)
+MU_DO_393(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_395(MACRO, ...) \
 MACRO(395, __VA_ARGS__) \
-DO_394(MACRO, __VA_ARGS__)
+MU_DO_394(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_396(MACRO, ...) \
 MACRO(396, __VA_ARGS__) \
-DO_395(MACRO, __VA_ARGS__)
+MU_DO_395(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_397(MACRO, ...) \
 MACRO(397, __VA_ARGS__) \
-DO_396(MACRO, __VA_ARGS__)
+MU_DO_396(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_398(MACRO, ...) \
 MACRO(398, __VA_ARGS__) \
-DO_397(MACRO, __VA_ARGS__)
+MU_DO_397(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_399(MACRO, ...) \
 MACRO(399, __VA_ARGS__) \
-DO_398(MACRO, __VA_ARGS__)
+MU_DO_398(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_400(MACRO, ...) \
 MACRO(400, __VA_ARGS__) \
-DO_399(MACRO, __VA_ARGS__)
+MU_DO_399(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_401(MACRO, ...) \
 MACRO(401, __VA_ARGS__) \
-DO_400(MACRO, __VA_ARGS__)
+MU_DO_400(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_402(MACRO, ...) \
 MACRO(402, __VA_ARGS__) \
-DO_401(MACRO, __VA_ARGS__)
+MU_DO_401(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_403(MACRO, ...) \
 MACRO(403, __VA_ARGS__) \
-DO_402(MACRO, __VA_ARGS__)
+MU_DO_402(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_404(MACRO, ...) \
 MACRO(404, __VA_ARGS__) \
-DO_403(MACRO, __VA_ARGS__)
+MU_DO_403(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_405(MACRO, ...) \
 MACRO(405, __VA_ARGS__) \
-DO_404(MACRO, __VA_ARGS__)
+MU_DO_404(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_406(MACRO, ...) \
 MACRO(406, __VA_ARGS__) \
-DO_405(MACRO, __VA_ARGS__)
+MU_DO_405(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_407(MACRO, ...) \
 MACRO(407, __VA_ARGS__) \
-DO_406(MACRO, __VA_ARGS__)
+MU_DO_406(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_408(MACRO, ...) \
 MACRO(408, __VA_ARGS__) \
-DO_407(MACRO, __VA_ARGS__)
+MU_DO_407(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_409(MACRO, ...) \
 MACRO(409, __VA_ARGS__) \
-DO_408(MACRO, __VA_ARGS__)
+MU_DO_408(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_410(MACRO, ...) \
 MACRO(410, __VA_ARGS__) \
-DO_409(MACRO, __VA_ARGS__)
+MU_DO_409(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_411(MACRO, ...) \
 MACRO(411, __VA_ARGS__) \
-DO_410(MACRO, __VA_ARGS__)
+MU_DO_410(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_412(MACRO, ...) \
 MACRO(412, __VA_ARGS__) \
-DO_411(MACRO, __VA_ARGS__)
+MU_DO_411(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_413(MACRO, ...) \
 MACRO(413, __VA_ARGS__) \
-DO_412(MACRO, __VA_ARGS__)
+MU_DO_412(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_414(MACRO, ...) \
 MACRO(414, __VA_ARGS__) \
-DO_413(MACRO, __VA_ARGS__)
+MU_DO_413(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_415(MACRO, ...) \
 MACRO(415, __VA_ARGS__) \
-DO_414(MACRO, __VA_ARGS__)
+MU_DO_414(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_416(MACRO, ...) \
 MACRO(416, __VA_ARGS__) \
-DO_415(MACRO, __VA_ARGS__)
+MU_DO_415(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_417(MACRO, ...) \
 MACRO(417, __VA_ARGS__) \
-DO_416(MACRO, __VA_ARGS__)
+MU_DO_416(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_418(MACRO, ...) \
 MACRO(418, __VA_ARGS__) \
-DO_417(MACRO, __VA_ARGS__)
+MU_DO_417(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_419(MACRO, ...) \
 MACRO(419, __VA_ARGS__) \
-DO_418(MACRO, __VA_ARGS__)
+MU_DO_418(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_420(MACRO, ...) \
 MACRO(420, __VA_ARGS__) \
-DO_419(MACRO, __VA_ARGS__)
+MU_DO_419(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_421(MACRO, ...) \
 MACRO(421, __VA_ARGS__) \
-DO_420(MACRO, __VA_ARGS__)
+MU_DO_420(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_422(MACRO, ...) \
 MACRO(422, __VA_ARGS__) \
-DO_421(MACRO, __VA_ARGS__)
+MU_DO_421(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_423(MACRO, ...) \
 MACRO(423, __VA_ARGS__) \
-DO_422(MACRO, __VA_ARGS__)
+MU_DO_422(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_424(MACRO, ...) \
 MACRO(424, __VA_ARGS__) \
-DO_423(MACRO, __VA_ARGS__)
+MU_DO_423(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_425(MACRO, ...) \
 MACRO(425, __VA_ARGS__) \
-DO_424(MACRO, __VA_ARGS__)
+MU_DO_424(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_426(MACRO, ...) \
 MACRO(426, __VA_ARGS__) \
-DO_425(MACRO, __VA_ARGS__)
+MU_DO_425(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_427(MACRO, ...) \
 MACRO(427, __VA_ARGS__) \
-DO_426(MACRO, __VA_ARGS__)
+MU_DO_426(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_428(MACRO, ...) \
 MACRO(428, __VA_ARGS__) \
-DO_427(MACRO, __VA_ARGS__)
+MU_DO_427(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_429(MACRO, ...) \
 MACRO(429, __VA_ARGS__) \
-DO_428(MACRO, __VA_ARGS__)
+MU_DO_428(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_430(MACRO, ...) \
 MACRO(430, __VA_ARGS__) \
-DO_429(MACRO, __VA_ARGS__)
+MU_DO_429(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_431(MACRO, ...) \
 MACRO(431, __VA_ARGS__) \
-DO_430(MACRO, __VA_ARGS__)
+MU_DO_430(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_432(MACRO, ...) \
 MACRO(432, __VA_ARGS__) \
-DO_431(MACRO, __VA_ARGS__)
+MU_DO_431(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_433(MACRO, ...) \
 MACRO(433, __VA_ARGS__) \
-DO_432(MACRO, __VA_ARGS__)
+MU_DO_432(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_434(MACRO, ...) \
 MACRO(434, __VA_ARGS__) \
-DO_433(MACRO, __VA_ARGS__)
+MU_DO_433(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_435(MACRO, ...) \
 MACRO(435, __VA_ARGS__) \
-DO_434(MACRO, __VA_ARGS__)
+MU_DO_434(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_436(MACRO, ...) \
 MACRO(436, __VA_ARGS__) \
-DO_435(MACRO, __VA_ARGS__)
+MU_DO_435(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_437(MACRO, ...) \
 MACRO(437, __VA_ARGS__) \
-DO_436(MACRO, __VA_ARGS__)
+MU_DO_436(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_438(MACRO, ...) \
 MACRO(438, __VA_ARGS__) \
-DO_437(MACRO, __VA_ARGS__)
+MU_DO_437(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_439(MACRO, ...) \
 MACRO(439, __VA_ARGS__) \
-DO_438(MACRO, __VA_ARGS__)
+MU_DO_438(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_440(MACRO, ...) \
 MACRO(440, __VA_ARGS__) \
-DO_439(MACRO, __VA_ARGS__)
+MU_DO_439(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_441(MACRO, ...) \
 MACRO(441, __VA_ARGS__) \
-DO_440(MACRO, __VA_ARGS__)
+MU_DO_440(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_442(MACRO, ...) \
 MACRO(442, __VA_ARGS__) \
-DO_441(MACRO, __VA_ARGS__)
+MU_DO_441(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_443(MACRO, ...) \
 MACRO(443, __VA_ARGS__) \
-DO_442(MACRO, __VA_ARGS__)
+MU_DO_442(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_444(MACRO, ...) \
 MACRO(444, __VA_ARGS__) \
-DO_443(MACRO, __VA_ARGS__)
+MU_DO_443(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_445(MACRO, ...) \
 MACRO(445, __VA_ARGS__) \
-DO_444(MACRO, __VA_ARGS__)
+MU_DO_444(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_446(MACRO, ...) \
 MACRO(446, __VA_ARGS__) \
-DO_445(MACRO, __VA_ARGS__)
+MU_DO_445(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_447(MACRO, ...) \
 MACRO(447, __VA_ARGS__) \
-DO_446(MACRO, __VA_ARGS__)
+MU_DO_446(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_448(MACRO, ...) \
 MACRO(448, __VA_ARGS__) \
-DO_447(MACRO, __VA_ARGS__)
+MU_DO_447(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_449(MACRO, ...) \
 MACRO(449, __VA_ARGS__) \
-DO_448(MACRO, __VA_ARGS__)
+MU_DO_448(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_450(MACRO, ...) \
 MACRO(450, __VA_ARGS__) \
-DO_449(MACRO, __VA_ARGS__)
+MU_DO_449(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_451(MACRO, ...) \
 MACRO(451, __VA_ARGS__) \
-DO_450(MACRO, __VA_ARGS__)
+MU_DO_450(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_452(MACRO, ...) \
 MACRO(452, __VA_ARGS__) \
-DO_451(MACRO, __VA_ARGS__)
+MU_DO_451(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_453(MACRO, ...) \
 MACRO(453, __VA_ARGS__) \
-DO_452(MACRO, __VA_ARGS__)
+MU_DO_452(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_454(MACRO, ...) \
 MACRO(454, __VA_ARGS__) \
-DO_453(MACRO, __VA_ARGS__)
+MU_DO_453(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_455(MACRO, ...) \
 MACRO(455, __VA_ARGS__) \
-DO_454(MACRO, __VA_ARGS__)
+MU_DO_454(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_456(MACRO, ...) \
 MACRO(456, __VA_ARGS__) \
-DO_455(MACRO, __VA_ARGS__)
+MU_DO_455(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_457(MACRO, ...) \
 MACRO(457, __VA_ARGS__) \
-DO_456(MACRO, __VA_ARGS__)
+MU_DO_456(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_458(MACRO, ...) \
 MACRO(458, __VA_ARGS__) \
-DO_457(MACRO, __VA_ARGS__)
+MU_DO_457(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_459(MACRO, ...) \
 MACRO(459, __VA_ARGS__) \
-DO_458(MACRO, __VA_ARGS__)
+MU_DO_458(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_460(MACRO, ...) \
 MACRO(460, __VA_ARGS__) \
-DO_459(MACRO, __VA_ARGS__)
+MU_DO_459(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_461(MACRO, ...) \
 MACRO(461, __VA_ARGS__) \
-DO_460(MACRO, __VA_ARGS__)
+MU_DO_460(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_462(MACRO, ...) \
 MACRO(462, __VA_ARGS__) \
-DO_461(MACRO, __VA_ARGS__)
+MU_DO_461(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_463(MACRO, ...) \
 MACRO(463, __VA_ARGS__) \
-DO_462(MACRO, __VA_ARGS__)
+MU_DO_462(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_464(MACRO, ...) \
 MACRO(464, __VA_ARGS__) \
-DO_463(MACRO, __VA_ARGS__)
+MU_DO_463(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_465(MACRO, ...) \
 MACRO(465, __VA_ARGS__) \
-DO_464(MACRO, __VA_ARGS__)
+MU_DO_464(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_466(MACRO, ...) \
 MACRO(466, __VA_ARGS__) \
-DO_465(MACRO, __VA_ARGS__)
+MU_DO_465(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_467(MACRO, ...) \
 MACRO(467, __VA_ARGS__) \
-DO_466(MACRO, __VA_ARGS__)
+MU_DO_466(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_468(MACRO, ...) \
 MACRO(468, __VA_ARGS__) \
-DO_467(MACRO, __VA_ARGS__)
+MU_DO_467(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_469(MACRO, ...) \
 MACRO(469, __VA_ARGS__) \
-DO_468(MACRO, __VA_ARGS__)
+MU_DO_468(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_470(MACRO, ...) \
 MACRO(470, __VA_ARGS__) \
-DO_469(MACRO, __VA_ARGS__)
+MU_DO_469(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_471(MACRO, ...) \
 MACRO(471, __VA_ARGS__) \
-DO_470(MACRO, __VA_ARGS__)
+MU_DO_470(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_472(MACRO, ...) \
 MACRO(472, __VA_ARGS__) \
-DO_471(MACRO, __VA_ARGS__)
+MU_DO_471(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_473(MACRO, ...) \
 MACRO(473, __VA_ARGS__) \
-DO_472(MACRO, __VA_ARGS__)
+MU_DO_472(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_474(MACRO, ...) \
 MACRO(474, __VA_ARGS__) \
-DO_473(MACRO, __VA_ARGS__)
+MU_DO_473(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_475(MACRO, ...) \
 MACRO(475, __VA_ARGS__) \
-DO_474(MACRO, __VA_ARGS__)
+MU_DO_474(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_476(MACRO, ...) \
 MACRO(476, __VA_ARGS__) \
-DO_475(MACRO, __VA_ARGS__)
+MU_DO_475(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_477(MACRO, ...) \
 MACRO(477, __VA_ARGS__) \
-DO_476(MACRO, __VA_ARGS__)
+MU_DO_476(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_478(MACRO, ...) \
 MACRO(478, __VA_ARGS__) \
-DO_477(MACRO, __VA_ARGS__)
+MU_DO_477(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_479(MACRO, ...) \
 MACRO(479, __VA_ARGS__) \
-DO_478(MACRO, __VA_ARGS__)
+MU_DO_478(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_480(MACRO, ...) \
 MACRO(480, __VA_ARGS__) \
-DO_479(MACRO, __VA_ARGS__)
+MU_DO_479(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_481(MACRO, ...) \
 MACRO(481, __VA_ARGS__) \
-DO_480(MACRO, __VA_ARGS__)
+MU_DO_480(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_482(MACRO, ...) \
 MACRO(482, __VA_ARGS__) \
-DO_481(MACRO, __VA_ARGS__)
+MU_DO_481(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_483(MACRO, ...) \
 MACRO(483, __VA_ARGS__) \
-DO_482(MACRO, __VA_ARGS__)
+MU_DO_482(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_484(MACRO, ...) \
 MACRO(484, __VA_ARGS__) \
-DO_483(MACRO, __VA_ARGS__)
+MU_DO_483(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_485(MACRO, ...) \
 MACRO(485, __VA_ARGS__) \
-DO_484(MACRO, __VA_ARGS__)
+MU_DO_484(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_486(MACRO, ...) \
 MACRO(486, __VA_ARGS__) \
-DO_485(MACRO, __VA_ARGS__)
+MU_DO_485(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_487(MACRO, ...) \
 MACRO(487, __VA_ARGS__) \
-DO_486(MACRO, __VA_ARGS__)
+MU_DO_486(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_488(MACRO, ...) \
 MACRO(488, __VA_ARGS__) \
-DO_487(MACRO, __VA_ARGS__)
+MU_DO_487(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_489(MACRO, ...) \
 MACRO(489, __VA_ARGS__) \
-DO_488(MACRO, __VA_ARGS__)
+MU_DO_488(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_490(MACRO, ...) \
 MACRO(490, __VA_ARGS__) \
-DO_489(MACRO, __VA_ARGS__)
+MU_DO_489(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_491(MACRO, ...) \
 MACRO(491, __VA_ARGS__) \
-DO_490(MACRO, __VA_ARGS__)
+MU_DO_490(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_492(MACRO, ...) \
 MACRO(492, __VA_ARGS__) \
-DO_491(MACRO, __VA_ARGS__)
+MU_DO_491(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_493(MACRO, ...) \
 MACRO(493, __VA_ARGS__) \
-DO_492(MACRO, __VA_ARGS__)
+MU_DO_492(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_494(MACRO, ...) \
 MACRO(494, __VA_ARGS__) \
-DO_493(MACRO, __VA_ARGS__)
+MU_DO_493(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_495(MACRO, ...) \
 MACRO(495, __VA_ARGS__) \
-DO_494(MACRO, __VA_ARGS__)
+MU_DO_494(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_496(MACRO, ...) \
 MACRO(496, __VA_ARGS__) \
-DO_495(MACRO, __VA_ARGS__)
+MU_DO_495(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_497(MACRO, ...) \
 MACRO(497, __VA_ARGS__) \
-DO_496(MACRO, __VA_ARGS__)
+MU_DO_496(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_498(MACRO, ...) \
 MACRO(498, __VA_ARGS__) \
-DO_497(MACRO, __VA_ARGS__)
+MU_DO_497(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_499(MACRO, ...) \
 MACRO(499, __VA_ARGS__) \
-DO_498(MACRO, __VA_ARGS__)
+MU_DO_498(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_500(MACRO, ...) \
 MACRO(500, __VA_ARGS__) \
-DO_499(MACRO, __VA_ARGS__)
+MU_DO_499(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_501(MACRO, ...) \
 MACRO(501, __VA_ARGS__) \
-DO_500(MACRO, __VA_ARGS__)
+MU_DO_500(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_502(MACRO, ...) \
 MACRO(502, __VA_ARGS__) \
-DO_501(MACRO, __VA_ARGS__)
+MU_DO_501(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_503(MACRO, ...) \
 MACRO(503, __VA_ARGS__) \
-DO_502(MACRO, __VA_ARGS__)
+MU_DO_502(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_504(MACRO, ...) \
 MACRO(504, __VA_ARGS__) \
-DO_503(MACRO, __VA_ARGS__)
+MU_DO_503(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_505(MACRO, ...) \
 MACRO(505, __VA_ARGS__) \
-DO_504(MACRO, __VA_ARGS__)
+MU_DO_504(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_506(MACRO, ...) \
 MACRO(506, __VA_ARGS__) \
-DO_505(MACRO, __VA_ARGS__)
+MU_DO_505(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_507(MACRO, ...) \
 MACRO(507, __VA_ARGS__) \
-DO_506(MACRO, __VA_ARGS__)
+MU_DO_506(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_508(MACRO, ...) \
 MACRO(508, __VA_ARGS__) \
-DO_507(MACRO, __VA_ARGS__)
+MU_DO_507(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_509(MACRO, ...) \
 MACRO(509, __VA_ARGS__) \
-DO_508(MACRO, __VA_ARGS__)
+MU_DO_508(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_510(MACRO, ...) \
 MACRO(510, __VA_ARGS__) \
-DO_509(MACRO, __VA_ARGS__)
+MU_DO_509(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_511(MACRO, ...) \
 MACRO(511, __VA_ARGS__) \
-DO_510(MACRO, __VA_ARGS__)
+MU_DO_510(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_512(MACRO, ...) \
 MACRO(512, __VA_ARGS__) \
-DO_511(MACRO, __VA_ARGS__)
+MU_DO_511(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_513(MACRO, ...) \
 MACRO(513, __VA_ARGS__) \
-DO_512(MACRO, __VA_ARGS__)
+MU_DO_512(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_514(MACRO, ...) \
 MACRO(514, __VA_ARGS__) \
-DO_513(MACRO, __VA_ARGS__)
+MU_DO_513(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_515(MACRO, ...) \
 MACRO(515, __VA_ARGS__) \
-DO_514(MACRO, __VA_ARGS__)
+MU_DO_514(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_516(MACRO, ...) \
 MACRO(516, __VA_ARGS__) \
-DO_515(MACRO, __VA_ARGS__)
+MU_DO_515(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_517(MACRO, ...) \
 MACRO(517, __VA_ARGS__) \
-DO_516(MACRO, __VA_ARGS__)
+MU_DO_516(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_518(MACRO, ...) \
 MACRO(518, __VA_ARGS__) \
-DO_517(MACRO, __VA_ARGS__)
+MU_DO_517(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_519(MACRO, ...) \
 MACRO(519, __VA_ARGS__) \
-DO_518(MACRO, __VA_ARGS__)
+MU_DO_518(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_520(MACRO, ...) \
 MACRO(520, __VA_ARGS__) \
-DO_519(MACRO, __VA_ARGS__)
+MU_DO_519(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_521(MACRO, ...) \
 MACRO(521, __VA_ARGS__) \
-DO_520(MACRO, __VA_ARGS__)
+MU_DO_520(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_522(MACRO, ...) \
 MACRO(522, __VA_ARGS__) \
-DO_521(MACRO, __VA_ARGS__)
+MU_DO_521(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_523(MACRO, ...) \
 MACRO(523, __VA_ARGS__) \
-DO_522(MACRO, __VA_ARGS__)
+MU_DO_522(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_524(MACRO, ...) \
 MACRO(524, __VA_ARGS__) \
-DO_523(MACRO, __VA_ARGS__)
+MU_DO_523(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_525(MACRO, ...) \
 MACRO(525, __VA_ARGS__) \
-DO_524(MACRO, __VA_ARGS__)
+MU_DO_524(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_526(MACRO, ...) \
 MACRO(526, __VA_ARGS__) \
-DO_525(MACRO, __VA_ARGS__)
+MU_DO_525(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_527(MACRO, ...) \
 MACRO(527, __VA_ARGS__) \
-DO_526(MACRO, __VA_ARGS__)
+MU_DO_526(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_528(MACRO, ...) \
 MACRO(528, __VA_ARGS__) \
-DO_527(MACRO, __VA_ARGS__)
+MU_DO_527(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_529(MACRO, ...) \
 MACRO(529, __VA_ARGS__) \
-DO_528(MACRO, __VA_ARGS__)
+MU_DO_528(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_530(MACRO, ...) \
 MACRO(530, __VA_ARGS__) \
-DO_529(MACRO, __VA_ARGS__)
+MU_DO_529(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_531(MACRO, ...) \
 MACRO(531, __VA_ARGS__) \
-DO_530(MACRO, __VA_ARGS__)
+MU_DO_530(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_532(MACRO, ...) \
 MACRO(532, __VA_ARGS__) \
-DO_531(MACRO, __VA_ARGS__)
+MU_DO_531(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_533(MACRO, ...) \
 MACRO(533, __VA_ARGS__) \
-DO_532(MACRO, __VA_ARGS__)
+MU_DO_532(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_534(MACRO, ...) \
 MACRO(534, __VA_ARGS__) \
-DO_533(MACRO, __VA_ARGS__)
+MU_DO_533(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_535(MACRO, ...) \
 MACRO(535, __VA_ARGS__) \
-DO_534(MACRO, __VA_ARGS__)
+MU_DO_534(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_536(MACRO, ...) \
 MACRO(536, __VA_ARGS__) \
-DO_535(MACRO, __VA_ARGS__)
+MU_DO_535(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_537(MACRO, ...) \
 MACRO(537, __VA_ARGS__) \
-DO_536(MACRO, __VA_ARGS__)
+MU_DO_536(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_538(MACRO, ...) \
 MACRO(538, __VA_ARGS__) \
-DO_537(MACRO, __VA_ARGS__)
+MU_DO_537(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_539(MACRO, ...) \
 MACRO(539, __VA_ARGS__) \
-DO_538(MACRO, __VA_ARGS__)
+MU_DO_538(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_540(MACRO, ...) \
 MACRO(540, __VA_ARGS__) \
-DO_539(MACRO, __VA_ARGS__)
+MU_DO_539(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_541(MACRO, ...) \
 MACRO(541, __VA_ARGS__) \
-DO_540(MACRO, __VA_ARGS__)
+MU_DO_540(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_542(MACRO, ...) \
 MACRO(542, __VA_ARGS__) \
-DO_541(MACRO, __VA_ARGS__)
+MU_DO_541(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_543(MACRO, ...) \
 MACRO(543, __VA_ARGS__) \
-DO_542(MACRO, __VA_ARGS__)
+MU_DO_542(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_544(MACRO, ...) \
 MACRO(544, __VA_ARGS__) \
-DO_543(MACRO, __VA_ARGS__)
+MU_DO_543(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_545(MACRO, ...) \
 MACRO(545, __VA_ARGS__) \
-DO_544(MACRO, __VA_ARGS__)
+MU_DO_544(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_546(MACRO, ...) \
 MACRO(546, __VA_ARGS__) \
-DO_545(MACRO, __VA_ARGS__)
+MU_DO_545(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_547(MACRO, ...) \
 MACRO(547, __VA_ARGS__) \
-DO_546(MACRO, __VA_ARGS__)
+MU_DO_546(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_548(MACRO, ...) \
 MACRO(548, __VA_ARGS__) \
-DO_547(MACRO, __VA_ARGS__)
+MU_DO_547(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_549(MACRO, ...) \
 MACRO(549, __VA_ARGS__) \
-DO_548(MACRO, __VA_ARGS__)
+MU_DO_548(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_550(MACRO, ...) \
 MACRO(550, __VA_ARGS__) \
-DO_549(MACRO, __VA_ARGS__)
+MU_DO_549(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_551(MACRO, ...) \
 MACRO(551, __VA_ARGS__) \
-DO_550(MACRO, __VA_ARGS__)
+MU_DO_550(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_552(MACRO, ...) \
 MACRO(552, __VA_ARGS__) \
-DO_551(MACRO, __VA_ARGS__)
+MU_DO_551(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_553(MACRO, ...) \
 MACRO(553, __VA_ARGS__) \
-DO_552(MACRO, __VA_ARGS__)
+MU_DO_552(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_554(MACRO, ...) \
 MACRO(554, __VA_ARGS__) \
-DO_553(MACRO, __VA_ARGS__)
+MU_DO_553(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_555(MACRO, ...) \
 MACRO(555, __VA_ARGS__) \
-DO_554(MACRO, __VA_ARGS__)
+MU_DO_554(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_556(MACRO, ...) \
 MACRO(556, __VA_ARGS__) \
-DO_555(MACRO, __VA_ARGS__)
+MU_DO_555(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_557(MACRO, ...) \
 MACRO(557, __VA_ARGS__) \
-DO_556(MACRO, __VA_ARGS__)
+MU_DO_556(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_558(MACRO, ...) \
 MACRO(558, __VA_ARGS__) \
-DO_557(MACRO, __VA_ARGS__)
+MU_DO_557(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_559(MACRO, ...) \
 MACRO(559, __VA_ARGS__) \
-DO_558(MACRO, __VA_ARGS__)
+MU_DO_558(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_560(MACRO, ...) \
 MACRO(560, __VA_ARGS__) \
-DO_559(MACRO, __VA_ARGS__)
+MU_DO_559(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_561(MACRO, ...) \
 MACRO(561, __VA_ARGS__) \
-DO_560(MACRO, __VA_ARGS__)
+MU_DO_560(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_562(MACRO, ...) \
 MACRO(562, __VA_ARGS__) \
-DO_561(MACRO, __VA_ARGS__)
+MU_DO_561(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_563(MACRO, ...) \
 MACRO(563, __VA_ARGS__) \
-DO_562(MACRO, __VA_ARGS__)
+MU_DO_562(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_564(MACRO, ...) \
 MACRO(564, __VA_ARGS__) \
-DO_563(MACRO, __VA_ARGS__)
+MU_DO_563(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_565(MACRO, ...) \
 MACRO(565, __VA_ARGS__) \
-DO_564(MACRO, __VA_ARGS__)
+MU_DO_564(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_566(MACRO, ...) \
 MACRO(566, __VA_ARGS__) \
-DO_565(MACRO, __VA_ARGS__)
+MU_DO_565(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_567(MACRO, ...) \
 MACRO(567, __VA_ARGS__) \
-DO_566(MACRO, __VA_ARGS__)
+MU_DO_566(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_568(MACRO, ...) \
 MACRO(568, __VA_ARGS__) \
-DO_567(MACRO, __VA_ARGS__)
+MU_DO_567(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_569(MACRO, ...) \
 MACRO(569, __VA_ARGS__) \
-DO_568(MACRO, __VA_ARGS__)
+MU_DO_568(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_570(MACRO, ...) \
 MACRO(570, __VA_ARGS__) \
-DO_569(MACRO, __VA_ARGS__)
+MU_DO_569(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_571(MACRO, ...) \
 MACRO(571, __VA_ARGS__) \
-DO_570(MACRO, __VA_ARGS__)
+MU_DO_570(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_572(MACRO, ...) \
 MACRO(572, __VA_ARGS__) \
-DO_571(MACRO, __VA_ARGS__)
+MU_DO_571(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_573(MACRO, ...) \
 MACRO(573, __VA_ARGS__) \
-DO_572(MACRO, __VA_ARGS__)
+MU_DO_572(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_574(MACRO, ...) \
 MACRO(574, __VA_ARGS__) \
-DO_573(MACRO, __VA_ARGS__)
+MU_DO_573(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_575(MACRO, ...) \
 MACRO(575, __VA_ARGS__) \
-DO_574(MACRO, __VA_ARGS__)
+MU_DO_574(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_576(MACRO, ...) \
 MACRO(576, __VA_ARGS__) \
-DO_575(MACRO, __VA_ARGS__)
+MU_DO_575(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_577(MACRO, ...) \
 MACRO(577, __VA_ARGS__) \
-DO_576(MACRO, __VA_ARGS__)
+MU_DO_576(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_578(MACRO, ...) \
 MACRO(578, __VA_ARGS__) \
-DO_577(MACRO, __VA_ARGS__)
+MU_DO_577(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_579(MACRO, ...) \
 MACRO(579, __VA_ARGS__) \
-DO_578(MACRO, __VA_ARGS__)
+MU_DO_578(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_580(MACRO, ...) \
 MACRO(580, __VA_ARGS__) \
-DO_579(MACRO, __VA_ARGS__)
+MU_DO_579(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_581(MACRO, ...) \
 MACRO(581, __VA_ARGS__) \
-DO_580(MACRO, __VA_ARGS__)
+MU_DO_580(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_582(MACRO, ...) \
 MACRO(582, __VA_ARGS__) \
-DO_581(MACRO, __VA_ARGS__)
+MU_DO_581(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_583(MACRO, ...) \
 MACRO(583, __VA_ARGS__) \
-DO_582(MACRO, __VA_ARGS__)
+MU_DO_582(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_584(MACRO, ...) \
 MACRO(584, __VA_ARGS__) \
-DO_583(MACRO, __VA_ARGS__)
+MU_DO_583(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_585(MACRO, ...) \
 MACRO(585, __VA_ARGS__) \
-DO_584(MACRO, __VA_ARGS__)
+MU_DO_584(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_586(MACRO, ...) \
 MACRO(586, __VA_ARGS__) \
-DO_585(MACRO, __VA_ARGS__)
+MU_DO_585(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_587(MACRO, ...) \
 MACRO(587, __VA_ARGS__) \
-DO_586(MACRO, __VA_ARGS__)
+MU_DO_586(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_588(MACRO, ...) \
 MACRO(588, __VA_ARGS__) \
-DO_587(MACRO, __VA_ARGS__)
+MU_DO_587(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_589(MACRO, ...) \
 MACRO(589, __VA_ARGS__) \
-DO_588(MACRO, __VA_ARGS__)
+MU_DO_588(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_590(MACRO, ...) \
 MACRO(590, __VA_ARGS__) \
-DO_589(MACRO, __VA_ARGS__)
+MU_DO_589(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_591(MACRO, ...) \
 MACRO(591, __VA_ARGS__) \
-DO_590(MACRO, __VA_ARGS__)
+MU_DO_590(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_592(MACRO, ...) \
 MACRO(592, __VA_ARGS__) \
-DO_591(MACRO, __VA_ARGS__)
+MU_DO_591(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_593(MACRO, ...) \
 MACRO(593, __VA_ARGS__) \
-DO_592(MACRO, __VA_ARGS__)
+MU_DO_592(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_594(MACRO, ...) \
 MACRO(594, __VA_ARGS__) \
-DO_593(MACRO, __VA_ARGS__)
+MU_DO_593(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_595(MACRO, ...) \
 MACRO(595, __VA_ARGS__) \
-DO_594(MACRO, __VA_ARGS__)
+MU_DO_594(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_596(MACRO, ...) \
 MACRO(596, __VA_ARGS__) \
-DO_595(MACRO, __VA_ARGS__)
+MU_DO_595(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_597(MACRO, ...) \
 MACRO(597, __VA_ARGS__) \
-DO_596(MACRO, __VA_ARGS__)
+MU_DO_596(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_598(MACRO, ...) \
 MACRO(598, __VA_ARGS__) \
-DO_597(MACRO, __VA_ARGS__)
+MU_DO_597(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_599(MACRO, ...) \
 MACRO(599, __VA_ARGS__) \
-DO_598(MACRO, __VA_ARGS__)
+MU_DO_598(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_600(MACRO, ...) \
 MACRO(600, __VA_ARGS__) \
-DO_599(MACRO, __VA_ARGS__)
+MU_DO_599(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_601(MACRO, ...) \
 MACRO(601, __VA_ARGS__) \
-DO_600(MACRO, __VA_ARGS__)
+MU_DO_600(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_602(MACRO, ...) \
 MACRO(602, __VA_ARGS__) \
-DO_601(MACRO, __VA_ARGS__)
+MU_DO_601(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_603(MACRO, ...) \
 MACRO(603, __VA_ARGS__) \
-DO_602(MACRO, __VA_ARGS__)
+MU_DO_602(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_604(MACRO, ...) \
 MACRO(604, __VA_ARGS__) \
-DO_603(MACRO, __VA_ARGS__)
+MU_DO_603(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_605(MACRO, ...) \
 MACRO(605, __VA_ARGS__) \
-DO_604(MACRO, __VA_ARGS__)
+MU_DO_604(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_606(MACRO, ...) \
 MACRO(606, __VA_ARGS__) \
-DO_605(MACRO, __VA_ARGS__)
+MU_DO_605(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_607(MACRO, ...) \
 MACRO(607, __VA_ARGS__) \
-DO_606(MACRO, __VA_ARGS__)
+MU_DO_606(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_608(MACRO, ...) \
 MACRO(608, __VA_ARGS__) \
-DO_607(MACRO, __VA_ARGS__)
+MU_DO_607(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_609(MACRO, ...) \
 MACRO(609, __VA_ARGS__) \
-DO_608(MACRO, __VA_ARGS__)
+MU_DO_608(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_610(MACRO, ...) \
 MACRO(610, __VA_ARGS__) \
-DO_609(MACRO, __VA_ARGS__)
+MU_DO_609(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_611(MACRO, ...) \
 MACRO(611, __VA_ARGS__) \
-DO_610(MACRO, __VA_ARGS__)
+MU_DO_610(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_612(MACRO, ...) \
 MACRO(612, __VA_ARGS__) \
-DO_611(MACRO, __VA_ARGS__)
+MU_DO_611(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_613(MACRO, ...) \
 MACRO(613, __VA_ARGS__) \
-DO_612(MACRO, __VA_ARGS__)
+MU_DO_612(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_614(MACRO, ...) \
 MACRO(614, __VA_ARGS__) \
-DO_613(MACRO, __VA_ARGS__)
+MU_DO_613(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_615(MACRO, ...) \
 MACRO(615, __VA_ARGS__) \
-DO_614(MACRO, __VA_ARGS__)
+MU_DO_614(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_616(MACRO, ...) \
 MACRO(616, __VA_ARGS__) \
-DO_615(MACRO, __VA_ARGS__)
+MU_DO_615(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_617(MACRO, ...) \
 MACRO(617, __VA_ARGS__) \
-DO_616(MACRO, __VA_ARGS__)
+MU_DO_616(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_618(MACRO, ...) \
 MACRO(618, __VA_ARGS__) \
-DO_617(MACRO, __VA_ARGS__)
+MU_DO_617(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_619(MACRO, ...) \
 MACRO(619, __VA_ARGS__) \
-DO_618(MACRO, __VA_ARGS__)
+MU_DO_618(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_620(MACRO, ...) \
 MACRO(620, __VA_ARGS__) \
-DO_619(MACRO, __VA_ARGS__)
+MU_DO_619(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_621(MACRO, ...) \
 MACRO(621, __VA_ARGS__) \
-DO_620(MACRO, __VA_ARGS__)
+MU_DO_620(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_622(MACRO, ...) \
 MACRO(622, __VA_ARGS__) \
-DO_621(MACRO, __VA_ARGS__)
+MU_DO_621(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_623(MACRO, ...) \
 MACRO(623, __VA_ARGS__) \
-DO_622(MACRO, __VA_ARGS__)
+MU_DO_622(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_624(MACRO, ...) \
 MACRO(624, __VA_ARGS__) \
-DO_623(MACRO, __VA_ARGS__)
+MU_DO_623(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_625(MACRO, ...) \
 MACRO(625, __VA_ARGS__) \
-DO_624(MACRO, __VA_ARGS__)
+MU_DO_624(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_626(MACRO, ...) \
 MACRO(626, __VA_ARGS__) \
-DO_625(MACRO, __VA_ARGS__)
+MU_DO_625(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_627(MACRO, ...) \
 MACRO(627, __VA_ARGS__) \
-DO_626(MACRO, __VA_ARGS__)
+MU_DO_626(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_628(MACRO, ...) \
 MACRO(628, __VA_ARGS__) \
-DO_627(MACRO, __VA_ARGS__)
+MU_DO_627(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_629(MACRO, ...) \
 MACRO(629, __VA_ARGS__) \
-DO_628(MACRO, __VA_ARGS__)
+MU_DO_628(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_630(MACRO, ...) \
 MACRO(630, __VA_ARGS__) \
-DO_629(MACRO, __VA_ARGS__)
+MU_DO_629(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_631(MACRO, ...) \
 MACRO(631, __VA_ARGS__) \
-DO_630(MACRO, __VA_ARGS__)
+MU_DO_630(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_632(MACRO, ...) \
 MACRO(632, __VA_ARGS__) \
-DO_631(MACRO, __VA_ARGS__)
+MU_DO_631(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_633(MACRO, ...) \
 MACRO(633, __VA_ARGS__) \
-DO_632(MACRO, __VA_ARGS__)
+MU_DO_632(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_634(MACRO, ...) \
 MACRO(634, __VA_ARGS__) \
-DO_633(MACRO, __VA_ARGS__)
+MU_DO_633(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_635(MACRO, ...) \
 MACRO(635, __VA_ARGS__) \
-DO_634(MACRO, __VA_ARGS__)
+MU_DO_634(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_636(MACRO, ...) \
 MACRO(636, __VA_ARGS__) \
-DO_635(MACRO, __VA_ARGS__)
+MU_DO_635(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_637(MACRO, ...) \
 MACRO(637, __VA_ARGS__) \
-DO_636(MACRO, __VA_ARGS__)
+MU_DO_636(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_638(MACRO, ...) \
 MACRO(638, __VA_ARGS__) \
-DO_637(MACRO, __VA_ARGS__)
+MU_DO_637(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_639(MACRO, ...) \
 MACRO(639, __VA_ARGS__) \
-DO_638(MACRO, __VA_ARGS__)
+MU_DO_638(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_640(MACRO, ...) \
 MACRO(640, __VA_ARGS__) \
-DO_639(MACRO, __VA_ARGS__)
+MU_DO_639(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_641(MACRO, ...) \
 MACRO(641, __VA_ARGS__) \
-DO_640(MACRO, __VA_ARGS__)
+MU_DO_640(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_642(MACRO, ...) \
 MACRO(642, __VA_ARGS__) \
-DO_641(MACRO, __VA_ARGS__)
+MU_DO_641(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_643(MACRO, ...) \
 MACRO(643, __VA_ARGS__) \
-DO_642(MACRO, __VA_ARGS__)
+MU_DO_642(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_644(MACRO, ...) \
 MACRO(644, __VA_ARGS__) \
-DO_643(MACRO, __VA_ARGS__)
+MU_DO_643(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_645(MACRO, ...) \
 MACRO(645, __VA_ARGS__) \
-DO_644(MACRO, __VA_ARGS__)
+MU_DO_644(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_646(MACRO, ...) \
 MACRO(646, __VA_ARGS__) \
-DO_645(MACRO, __VA_ARGS__)
+MU_DO_645(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_647(MACRO, ...) \
 MACRO(647, __VA_ARGS__) \
-DO_646(MACRO, __VA_ARGS__)
+MU_DO_646(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_648(MACRO, ...) \
 MACRO(648, __VA_ARGS__) \
-DO_647(MACRO, __VA_ARGS__)
+MU_DO_647(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_649(MACRO, ...) \
 MACRO(649, __VA_ARGS__) \
-DO_648(MACRO, __VA_ARGS__)
+MU_DO_648(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_650(MACRO, ...) \
 MACRO(650, __VA_ARGS__) \
-DO_649(MACRO, __VA_ARGS__)
+MU_DO_649(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_651(MACRO, ...) \
 MACRO(651, __VA_ARGS__) \
-DO_650(MACRO, __VA_ARGS__)
+MU_DO_650(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_652(MACRO, ...) \
 MACRO(652, __VA_ARGS__) \
-DO_651(MACRO, __VA_ARGS__)
+MU_DO_651(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_653(MACRO, ...) \
 MACRO(653, __VA_ARGS__) \
-DO_652(MACRO, __VA_ARGS__)
+MU_DO_652(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_654(MACRO, ...) \
 MACRO(654, __VA_ARGS__) \
-DO_653(MACRO, __VA_ARGS__)
+MU_DO_653(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_655(MACRO, ...) \
 MACRO(655, __VA_ARGS__) \
-DO_654(MACRO, __VA_ARGS__)
+MU_DO_654(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_656(MACRO, ...) \
 MACRO(656, __VA_ARGS__) \
-DO_655(MACRO, __VA_ARGS__)
+MU_DO_655(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_657(MACRO, ...) \
 MACRO(657, __VA_ARGS__) \
-DO_656(MACRO, __VA_ARGS__)
+MU_DO_656(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_658(MACRO, ...) \
 MACRO(658, __VA_ARGS__) \
-DO_657(MACRO, __VA_ARGS__)
+MU_DO_657(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_659(MACRO, ...) \
 MACRO(659, __VA_ARGS__) \
-DO_658(MACRO, __VA_ARGS__)
+MU_DO_658(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_660(MACRO, ...) \
 MACRO(660, __VA_ARGS__) \
-DO_659(MACRO, __VA_ARGS__)
+MU_DO_659(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_661(MACRO, ...) \
 MACRO(661, __VA_ARGS__) \
-DO_660(MACRO, __VA_ARGS__)
+MU_DO_660(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_662(MACRO, ...) \
 MACRO(662, __VA_ARGS__) \
-DO_661(MACRO, __VA_ARGS__)
+MU_DO_661(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_663(MACRO, ...) \
 MACRO(663, __VA_ARGS__) \
-DO_662(MACRO, __VA_ARGS__)
+MU_DO_662(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_664(MACRO, ...) \
 MACRO(664, __VA_ARGS__) \
-DO_663(MACRO, __VA_ARGS__)
+MU_DO_663(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_665(MACRO, ...) \
 MACRO(665, __VA_ARGS__) \
-DO_664(MACRO, __VA_ARGS__)
+MU_DO_664(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_666(MACRO, ...) \
 MACRO(666, __VA_ARGS__) \
-DO_665(MACRO, __VA_ARGS__)
+MU_DO_665(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_667(MACRO, ...) \
 MACRO(667, __VA_ARGS__) \
-DO_666(MACRO, __VA_ARGS__)
+MU_DO_666(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_668(MACRO, ...) \
 MACRO(668, __VA_ARGS__) \
-DO_667(MACRO, __VA_ARGS__)
+MU_DO_667(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_669(MACRO, ...) \
 MACRO(669, __VA_ARGS__) \
-DO_668(MACRO, __VA_ARGS__)
+MU_DO_668(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_670(MACRO, ...) \
 MACRO(670, __VA_ARGS__) \
-DO_669(MACRO, __VA_ARGS__)
+MU_DO_669(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_671(MACRO, ...) \
 MACRO(671, __VA_ARGS__) \
-DO_670(MACRO, __VA_ARGS__)
+MU_DO_670(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_672(MACRO, ...) \
 MACRO(672, __VA_ARGS__) \
-DO_671(MACRO, __VA_ARGS__)
+MU_DO_671(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_673(MACRO, ...) \
 MACRO(673, __VA_ARGS__) \
-DO_672(MACRO, __VA_ARGS__)
+MU_DO_672(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_674(MACRO, ...) \
 MACRO(674, __VA_ARGS__) \
-DO_673(MACRO, __VA_ARGS__)
+MU_DO_673(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_675(MACRO, ...) \
 MACRO(675, __VA_ARGS__) \
-DO_674(MACRO, __VA_ARGS__)
+MU_DO_674(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_676(MACRO, ...) \
 MACRO(676, __VA_ARGS__) \
-DO_675(MACRO, __VA_ARGS__)
+MU_DO_675(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_677(MACRO, ...) \
 MACRO(677, __VA_ARGS__) \
-DO_676(MACRO, __VA_ARGS__)
+MU_DO_676(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_678(MACRO, ...) \
 MACRO(678, __VA_ARGS__) \
-DO_677(MACRO, __VA_ARGS__)
+MU_DO_677(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_679(MACRO, ...) \
 MACRO(679, __VA_ARGS__) \
-DO_678(MACRO, __VA_ARGS__)
+MU_DO_678(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_680(MACRO, ...) \
 MACRO(680, __VA_ARGS__) \
-DO_679(MACRO, __VA_ARGS__)
+MU_DO_679(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_681(MACRO, ...) \
 MACRO(681, __VA_ARGS__) \
-DO_680(MACRO, __VA_ARGS__)
+MU_DO_680(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_682(MACRO, ...) \
 MACRO(682, __VA_ARGS__) \
-DO_681(MACRO, __VA_ARGS__)
+MU_DO_681(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_683(MACRO, ...) \
 MACRO(683, __VA_ARGS__) \
-DO_682(MACRO, __VA_ARGS__)
+MU_DO_682(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_684(MACRO, ...) \
 MACRO(684, __VA_ARGS__) \
-DO_683(MACRO, __VA_ARGS__)
+MU_DO_683(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_685(MACRO, ...) \
 MACRO(685, __VA_ARGS__) \
-DO_684(MACRO, __VA_ARGS__)
+MU_DO_684(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_686(MACRO, ...) \
 MACRO(686, __VA_ARGS__) \
-DO_685(MACRO, __VA_ARGS__)
+MU_DO_685(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_687(MACRO, ...) \
 MACRO(687, __VA_ARGS__) \
-DO_686(MACRO, __VA_ARGS__)
+MU_DO_686(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_688(MACRO, ...) \
 MACRO(688, __VA_ARGS__) \
-DO_687(MACRO, __VA_ARGS__)
+MU_DO_687(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_689(MACRO, ...) \
 MACRO(689, __VA_ARGS__) \
-DO_688(MACRO, __VA_ARGS__)
+MU_DO_688(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_690(MACRO, ...) \
 MACRO(690, __VA_ARGS__) \
-DO_689(MACRO, __VA_ARGS__)
+MU_DO_689(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_691(MACRO, ...) \
 MACRO(691, __VA_ARGS__) \
-DO_690(MACRO, __VA_ARGS__)
+MU_DO_690(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_692(MACRO, ...) \
 MACRO(692, __VA_ARGS__) \
-DO_691(MACRO, __VA_ARGS__)
+MU_DO_691(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_693(MACRO, ...) \
 MACRO(693, __VA_ARGS__) \
-DO_692(MACRO, __VA_ARGS__)
+MU_DO_692(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_694(MACRO, ...) \
 MACRO(694, __VA_ARGS__) \
-DO_693(MACRO, __VA_ARGS__)
+MU_DO_693(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_695(MACRO, ...) \
 MACRO(695, __VA_ARGS__) \
-DO_694(MACRO, __VA_ARGS__)
+MU_DO_694(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_696(MACRO, ...) \
 MACRO(696, __VA_ARGS__) \
-DO_695(MACRO, __VA_ARGS__)
+MU_DO_695(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_697(MACRO, ...) \
 MACRO(697, __VA_ARGS__) \
-DO_696(MACRO, __VA_ARGS__)
+MU_DO_696(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_698(MACRO, ...) \
 MACRO(698, __VA_ARGS__) \
-DO_697(MACRO, __VA_ARGS__)
+MU_DO_697(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_699(MACRO, ...) \
 MACRO(699, __VA_ARGS__) \
-DO_698(MACRO, __VA_ARGS__)
+MU_DO_698(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_700(MACRO, ...) \
 MACRO(700, __VA_ARGS__) \
-DO_699(MACRO, __VA_ARGS__)
+MU_DO_699(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_701(MACRO, ...) \
 MACRO(701, __VA_ARGS__) \
-DO_700(MACRO, __VA_ARGS__)
+MU_DO_700(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_702(MACRO, ...) \
 MACRO(702, __VA_ARGS__) \
-DO_701(MACRO, __VA_ARGS__)
+MU_DO_701(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_703(MACRO, ...) \
 MACRO(703, __VA_ARGS__) \
-DO_702(MACRO, __VA_ARGS__)
+MU_DO_702(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_704(MACRO, ...) \
 MACRO(704, __VA_ARGS__) \
-DO_703(MACRO, __VA_ARGS__)
+MU_DO_703(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_705(MACRO, ...) \
 MACRO(705, __VA_ARGS__) \
-DO_704(MACRO, __VA_ARGS__)
+MU_DO_704(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_706(MACRO, ...) \
 MACRO(706, __VA_ARGS__) \
-DO_705(MACRO, __VA_ARGS__)
+MU_DO_705(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_707(MACRO, ...) \
 MACRO(707, __VA_ARGS__) \
-DO_706(MACRO, __VA_ARGS__)
+MU_DO_706(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_708(MACRO, ...) \
 MACRO(708, __VA_ARGS__) \
-DO_707(MACRO, __VA_ARGS__)
+MU_DO_707(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_709(MACRO, ...) \
 MACRO(709, __VA_ARGS__) \
-DO_708(MACRO, __VA_ARGS__)
+MU_DO_708(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_710(MACRO, ...) \
 MACRO(710, __VA_ARGS__) \
-DO_709(MACRO, __VA_ARGS__)
+MU_DO_709(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_711(MACRO, ...) \
 MACRO(711, __VA_ARGS__) \
-DO_710(MACRO, __VA_ARGS__)
+MU_DO_710(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_712(MACRO, ...) \
 MACRO(712, __VA_ARGS__) \
-DO_711(MACRO, __VA_ARGS__)
+MU_DO_711(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_713(MACRO, ...) \
 MACRO(713, __VA_ARGS__) \
-DO_712(MACRO, __VA_ARGS__)
+MU_DO_712(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_714(MACRO, ...) \
 MACRO(714, __VA_ARGS__) \
-DO_713(MACRO, __VA_ARGS__)
+MU_DO_713(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_715(MACRO, ...) \
 MACRO(715, __VA_ARGS__) \
-DO_714(MACRO, __VA_ARGS__)
+MU_DO_714(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_716(MACRO, ...) \
 MACRO(716, __VA_ARGS__) \
-DO_715(MACRO, __VA_ARGS__)
+MU_DO_715(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_717(MACRO, ...) \
 MACRO(717, __VA_ARGS__) \
-DO_716(MACRO, __VA_ARGS__)
+MU_DO_716(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_718(MACRO, ...) \
 MACRO(718, __VA_ARGS__) \
-DO_717(MACRO, __VA_ARGS__)
+MU_DO_717(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_719(MACRO, ...) \
 MACRO(719, __VA_ARGS__) \
-DO_718(MACRO, __VA_ARGS__)
+MU_DO_718(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_720(MACRO, ...) \
 MACRO(720, __VA_ARGS__) \
-DO_719(MACRO, __VA_ARGS__)
+MU_DO_719(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_721(MACRO, ...) \
 MACRO(721, __VA_ARGS__) \
-DO_720(MACRO, __VA_ARGS__)
+MU_DO_720(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_722(MACRO, ...) \
 MACRO(722, __VA_ARGS__) \
-DO_721(MACRO, __VA_ARGS__)
+MU_DO_721(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_723(MACRO, ...) \
 MACRO(723, __VA_ARGS__) \
-DO_722(MACRO, __VA_ARGS__)
+MU_DO_722(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_724(MACRO, ...) \
 MACRO(724, __VA_ARGS__) \
-DO_723(MACRO, __VA_ARGS__)
+MU_DO_723(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_725(MACRO, ...) \
 MACRO(725, __VA_ARGS__) \
-DO_724(MACRO, __VA_ARGS__)
+MU_DO_724(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_726(MACRO, ...) \
 MACRO(726, __VA_ARGS__) \
-DO_725(MACRO, __VA_ARGS__)
+MU_DO_725(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_727(MACRO, ...) \
 MACRO(727, __VA_ARGS__) \
-DO_726(MACRO, __VA_ARGS__)
+MU_DO_726(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_728(MACRO, ...) \
 MACRO(728, __VA_ARGS__) \
-DO_727(MACRO, __VA_ARGS__)
+MU_DO_727(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_729(MACRO, ...) \
 MACRO(729, __VA_ARGS__) \
-DO_728(MACRO, __VA_ARGS__)
+MU_DO_728(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_730(MACRO, ...) \
 MACRO(730, __VA_ARGS__) \
-DO_729(MACRO, __VA_ARGS__)
+MU_DO_729(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_731(MACRO, ...) \
 MACRO(731, __VA_ARGS__) \
-DO_730(MACRO, __VA_ARGS__)
+MU_DO_730(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_732(MACRO, ...) \
 MACRO(732, __VA_ARGS__) \
-DO_731(MACRO, __VA_ARGS__)
+MU_DO_731(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_733(MACRO, ...) \
 MACRO(733, __VA_ARGS__) \
-DO_732(MACRO, __VA_ARGS__)
+MU_DO_732(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_734(MACRO, ...) \
 MACRO(734, __VA_ARGS__) \
-DO_733(MACRO, __VA_ARGS__)
+MU_DO_733(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_735(MACRO, ...) \
 MACRO(735, __VA_ARGS__) \
-DO_734(MACRO, __VA_ARGS__)
+MU_DO_734(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_736(MACRO, ...) \
 MACRO(736, __VA_ARGS__) \
-DO_735(MACRO, __VA_ARGS__)
+MU_DO_735(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_737(MACRO, ...) \
 MACRO(737, __VA_ARGS__) \
-DO_736(MACRO, __VA_ARGS__)
+MU_DO_736(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_738(MACRO, ...) \
 MACRO(738, __VA_ARGS__) \
-DO_737(MACRO, __VA_ARGS__)
+MU_DO_737(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_739(MACRO, ...) \
 MACRO(739, __VA_ARGS__) \
-DO_738(MACRO, __VA_ARGS__)
+MU_DO_738(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_740(MACRO, ...) \
 MACRO(740, __VA_ARGS__) \
-DO_739(MACRO, __VA_ARGS__)
+MU_DO_739(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_741(MACRO, ...) \
 MACRO(741, __VA_ARGS__) \
-DO_740(MACRO, __VA_ARGS__)
+MU_DO_740(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_742(MACRO, ...) \
 MACRO(742, __VA_ARGS__) \
-DO_741(MACRO, __VA_ARGS__)
+MU_DO_741(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_743(MACRO, ...) \
 MACRO(743, __VA_ARGS__) \
-DO_742(MACRO, __VA_ARGS__)
+MU_DO_742(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_744(MACRO, ...) \
 MACRO(744, __VA_ARGS__) \
-DO_743(MACRO, __VA_ARGS__)
+MU_DO_743(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_745(MACRO, ...) \
 MACRO(745, __VA_ARGS__) \
-DO_744(MACRO, __VA_ARGS__)
+MU_DO_744(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_746(MACRO, ...) \
 MACRO(746, __VA_ARGS__) \
-DO_745(MACRO, __VA_ARGS__)
+MU_DO_745(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_747(MACRO, ...) \
 MACRO(747, __VA_ARGS__) \
-DO_746(MACRO, __VA_ARGS__)
+MU_DO_746(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_748(MACRO, ...) \
 MACRO(748, __VA_ARGS__) \
-DO_747(MACRO, __VA_ARGS__)
+MU_DO_747(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_749(MACRO, ...) \
 MACRO(749, __VA_ARGS__) \
-DO_748(MACRO, __VA_ARGS__)
+MU_DO_748(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_750(MACRO, ...) \
 MACRO(750, __VA_ARGS__) \
-DO_749(MACRO, __VA_ARGS__)
+MU_DO_749(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_751(MACRO, ...) \
 MACRO(751, __VA_ARGS__) \
-DO_750(MACRO, __VA_ARGS__)
+MU_DO_750(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_752(MACRO, ...) \
 MACRO(752, __VA_ARGS__) \
-DO_751(MACRO, __VA_ARGS__)
+MU_DO_751(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_753(MACRO, ...) \
 MACRO(753, __VA_ARGS__) \
-DO_752(MACRO, __VA_ARGS__)
+MU_DO_752(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_754(MACRO, ...) \
 MACRO(754, __VA_ARGS__) \
-DO_753(MACRO, __VA_ARGS__)
+MU_DO_753(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_755(MACRO, ...) \
 MACRO(755, __VA_ARGS__) \
-DO_754(MACRO, __VA_ARGS__)
+MU_DO_754(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_756(MACRO, ...) \
 MACRO(756, __VA_ARGS__) \
-DO_755(MACRO, __VA_ARGS__)
+MU_DO_755(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_757(MACRO, ...) \
 MACRO(757, __VA_ARGS__) \
-DO_756(MACRO, __VA_ARGS__)
+MU_DO_756(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_758(MACRO, ...) \
 MACRO(758, __VA_ARGS__) \
-DO_757(MACRO, __VA_ARGS__)
+MU_DO_757(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_759(MACRO, ...) \
 MACRO(759, __VA_ARGS__) \
-DO_758(MACRO, __VA_ARGS__)
+MU_DO_758(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_760(MACRO, ...) \
 MACRO(760, __VA_ARGS__) \
-DO_759(MACRO, __VA_ARGS__)
+MU_DO_759(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_761(MACRO, ...) \
 MACRO(761, __VA_ARGS__) \
-DO_760(MACRO, __VA_ARGS__)
+MU_DO_760(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_762(MACRO, ...) \
 MACRO(762, __VA_ARGS__) \
-DO_761(MACRO, __VA_ARGS__)
+MU_DO_761(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_763(MACRO, ...) \
 MACRO(763, __VA_ARGS__) \
-DO_762(MACRO, __VA_ARGS__)
+MU_DO_762(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_764(MACRO, ...) \
 MACRO(764, __VA_ARGS__) \
-DO_763(MACRO, __VA_ARGS__)
+MU_DO_763(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_765(MACRO, ...) \
 MACRO(765, __VA_ARGS__) \
-DO_764(MACRO, __VA_ARGS__)
+MU_DO_764(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_766(MACRO, ...) \
 MACRO(766, __VA_ARGS__) \
-DO_765(MACRO, __VA_ARGS__)
+MU_DO_765(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_767(MACRO, ...) \
 MACRO(767, __VA_ARGS__) \
-DO_766(MACRO, __VA_ARGS__)
+MU_DO_766(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_768(MACRO, ...) \
 MACRO(768, __VA_ARGS__) \
-DO_767(MACRO, __VA_ARGS__)
+MU_DO_767(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_769(MACRO, ...) \
 MACRO(769, __VA_ARGS__) \
-DO_768(MACRO, __VA_ARGS__)
+MU_DO_768(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_770(MACRO, ...) \
 MACRO(770, __VA_ARGS__) \
-DO_769(MACRO, __VA_ARGS__)
+MU_DO_769(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_771(MACRO, ...) \
 MACRO(771, __VA_ARGS__) \
-DO_770(MACRO, __VA_ARGS__)
+MU_DO_770(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_772(MACRO, ...) \
 MACRO(772, __VA_ARGS__) \
-DO_771(MACRO, __VA_ARGS__)
+MU_DO_771(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_773(MACRO, ...) \
 MACRO(773, __VA_ARGS__) \
-DO_772(MACRO, __VA_ARGS__)
+MU_DO_772(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_774(MACRO, ...) \
 MACRO(774, __VA_ARGS__) \
-DO_773(MACRO, __VA_ARGS__)
+MU_DO_773(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_775(MACRO, ...) \
 MACRO(775, __VA_ARGS__) \
-DO_774(MACRO, __VA_ARGS__)
+MU_DO_774(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_776(MACRO, ...) \
 MACRO(776, __VA_ARGS__) \
-DO_775(MACRO, __VA_ARGS__)
+MU_DO_775(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_777(MACRO, ...) \
 MACRO(777, __VA_ARGS__) \
-DO_776(MACRO, __VA_ARGS__)
+MU_DO_776(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_778(MACRO, ...) \
 MACRO(778, __VA_ARGS__) \
-DO_777(MACRO, __VA_ARGS__)
+MU_DO_777(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_779(MACRO, ...) \
 MACRO(779, __VA_ARGS__) \
-DO_778(MACRO, __VA_ARGS__)
+MU_DO_778(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_780(MACRO, ...) \
 MACRO(780, __VA_ARGS__) \
-DO_779(MACRO, __VA_ARGS__)
+MU_DO_779(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_781(MACRO, ...) \
 MACRO(781, __VA_ARGS__) \
-DO_780(MACRO, __VA_ARGS__)
+MU_DO_780(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_782(MACRO, ...) \
 MACRO(782, __VA_ARGS__) \
-DO_781(MACRO, __VA_ARGS__)
+MU_DO_781(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_783(MACRO, ...) \
 MACRO(783, __VA_ARGS__) \
-DO_782(MACRO, __VA_ARGS__)
+MU_DO_782(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_784(MACRO, ...) \
 MACRO(784, __VA_ARGS__) \
-DO_783(MACRO, __VA_ARGS__)
+MU_DO_783(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_785(MACRO, ...) \
 MACRO(785, __VA_ARGS__) \
-DO_784(MACRO, __VA_ARGS__)
+MU_DO_784(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_786(MACRO, ...) \
 MACRO(786, __VA_ARGS__) \
-DO_785(MACRO, __VA_ARGS__)
+MU_DO_785(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_787(MACRO, ...) \
 MACRO(787, __VA_ARGS__) \
-DO_786(MACRO, __VA_ARGS__)
+MU_DO_786(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_788(MACRO, ...) \
 MACRO(788, __VA_ARGS__) \
-DO_787(MACRO, __VA_ARGS__)
+MU_DO_787(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_789(MACRO, ...) \
 MACRO(789, __VA_ARGS__) \
-DO_788(MACRO, __VA_ARGS__)
+MU_DO_788(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_790(MACRO, ...) \
 MACRO(790, __VA_ARGS__) \
-DO_789(MACRO, __VA_ARGS__)
+MU_DO_789(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_791(MACRO, ...) \
 MACRO(791, __VA_ARGS__) \
-DO_790(MACRO, __VA_ARGS__)
+MU_DO_790(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_792(MACRO, ...) \
 MACRO(792, __VA_ARGS__) \
-DO_791(MACRO, __VA_ARGS__)
+MU_DO_791(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_793(MACRO, ...) \
 MACRO(793, __VA_ARGS__) \
-DO_792(MACRO, __VA_ARGS__)
+MU_DO_792(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_794(MACRO, ...) \
 MACRO(794, __VA_ARGS__) \
-DO_793(MACRO, __VA_ARGS__)
+MU_DO_793(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_795(MACRO, ...) \
 MACRO(795, __VA_ARGS__) \
-DO_794(MACRO, __VA_ARGS__)
+MU_DO_794(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_796(MACRO, ...) \
 MACRO(796, __VA_ARGS__) \
-DO_795(MACRO, __VA_ARGS__)
+MU_DO_795(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_797(MACRO, ...) \
 MACRO(797, __VA_ARGS__) \
-DO_796(MACRO, __VA_ARGS__)
+MU_DO_796(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_798(MACRO, ...) \
 MACRO(798, __VA_ARGS__) \
-DO_797(MACRO, __VA_ARGS__)
+MU_DO_797(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_799(MACRO, ...) \
 MACRO(799, __VA_ARGS__) \
-DO_798(MACRO, __VA_ARGS__)
+MU_DO_798(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_800(MACRO, ...) \
 MACRO(800, __VA_ARGS__) \
-DO_799(MACRO, __VA_ARGS__)
+MU_DO_799(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_801(MACRO, ...) \
 MACRO(801, __VA_ARGS__) \
-DO_800(MACRO, __VA_ARGS__)
+MU_DO_800(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_802(MACRO, ...) \
 MACRO(802, __VA_ARGS__) \
-DO_801(MACRO, __VA_ARGS__)
+MU_DO_801(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_803(MACRO, ...) \
 MACRO(803, __VA_ARGS__) \
-DO_802(MACRO, __VA_ARGS__)
+MU_DO_802(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_804(MACRO, ...) \
 MACRO(804, __VA_ARGS__) \
-DO_803(MACRO, __VA_ARGS__)
+MU_DO_803(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_805(MACRO, ...) \
 MACRO(805, __VA_ARGS__) \
-DO_804(MACRO, __VA_ARGS__)
+MU_DO_804(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_806(MACRO, ...) \
 MACRO(806, __VA_ARGS__) \
-DO_805(MACRO, __VA_ARGS__)
+MU_DO_805(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_807(MACRO, ...) \
 MACRO(807, __VA_ARGS__) \
-DO_806(MACRO, __VA_ARGS__)
+MU_DO_806(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_808(MACRO, ...) \
 MACRO(808, __VA_ARGS__) \
-DO_807(MACRO, __VA_ARGS__)
+MU_DO_807(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_809(MACRO, ...) \
 MACRO(809, __VA_ARGS__) \
-DO_808(MACRO, __VA_ARGS__)
+MU_DO_808(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_810(MACRO, ...) \
 MACRO(810, __VA_ARGS__) \
-DO_809(MACRO, __VA_ARGS__)
+MU_DO_809(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_811(MACRO, ...) \
 MACRO(811, __VA_ARGS__) \
-DO_810(MACRO, __VA_ARGS__)
+MU_DO_810(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_812(MACRO, ...) \
 MACRO(812, __VA_ARGS__) \
-DO_811(MACRO, __VA_ARGS__)
+MU_DO_811(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_813(MACRO, ...) \
 MACRO(813, __VA_ARGS__) \
-DO_812(MACRO, __VA_ARGS__)
+MU_DO_812(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_814(MACRO, ...) \
 MACRO(814, __VA_ARGS__) \
-DO_813(MACRO, __VA_ARGS__)
+MU_DO_813(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_815(MACRO, ...) \
 MACRO(815, __VA_ARGS__) \
-DO_814(MACRO, __VA_ARGS__)
+MU_DO_814(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_816(MACRO, ...) \
 MACRO(816, __VA_ARGS__) \
-DO_815(MACRO, __VA_ARGS__)
+MU_DO_815(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_817(MACRO, ...) \
 MACRO(817, __VA_ARGS__) \
-DO_816(MACRO, __VA_ARGS__)
+MU_DO_816(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_818(MACRO, ...) \
 MACRO(818, __VA_ARGS__) \
-DO_817(MACRO, __VA_ARGS__)
+MU_DO_817(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_819(MACRO, ...) \
 MACRO(819, __VA_ARGS__) \
-DO_818(MACRO, __VA_ARGS__)
+MU_DO_818(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_820(MACRO, ...) \
 MACRO(820, __VA_ARGS__) \
-DO_819(MACRO, __VA_ARGS__)
+MU_DO_819(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_821(MACRO, ...) \
 MACRO(821, __VA_ARGS__) \
-DO_820(MACRO, __VA_ARGS__)
+MU_DO_820(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_822(MACRO, ...) \
 MACRO(822, __VA_ARGS__) \
-DO_821(MACRO, __VA_ARGS__)
+MU_DO_821(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_823(MACRO, ...) \
 MACRO(823, __VA_ARGS__) \
-DO_822(MACRO, __VA_ARGS__)
+MU_DO_822(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_824(MACRO, ...) \
 MACRO(824, __VA_ARGS__) \
-DO_823(MACRO, __VA_ARGS__)
+MU_DO_823(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_825(MACRO, ...) \
 MACRO(825, __VA_ARGS__) \
-DO_824(MACRO, __VA_ARGS__)
+MU_DO_824(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_826(MACRO, ...) \
 MACRO(826, __VA_ARGS__) \
-DO_825(MACRO, __VA_ARGS__)
+MU_DO_825(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_827(MACRO, ...) \
 MACRO(827, __VA_ARGS__) \
-DO_826(MACRO, __VA_ARGS__)
+MU_DO_826(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_828(MACRO, ...) \
 MACRO(828, __VA_ARGS__) \
-DO_827(MACRO, __VA_ARGS__)
+MU_DO_827(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_829(MACRO, ...) \
 MACRO(829, __VA_ARGS__) \
-DO_828(MACRO, __VA_ARGS__)
+MU_DO_828(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_830(MACRO, ...) \
 MACRO(830, __VA_ARGS__) \
-DO_829(MACRO, __VA_ARGS__)
+MU_DO_829(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_831(MACRO, ...) \
 MACRO(831, __VA_ARGS__) \
-DO_830(MACRO, __VA_ARGS__)
+MU_DO_830(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_832(MACRO, ...) \
 MACRO(832, __VA_ARGS__) \
-DO_831(MACRO, __VA_ARGS__)
+MU_DO_831(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_833(MACRO, ...) \
 MACRO(833, __VA_ARGS__) \
-DO_832(MACRO, __VA_ARGS__)
+MU_DO_832(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_834(MACRO, ...) \
 MACRO(834, __VA_ARGS__) \
-DO_833(MACRO, __VA_ARGS__)
+MU_DO_833(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_835(MACRO, ...) \
 MACRO(835, __VA_ARGS__) \
-DO_834(MACRO, __VA_ARGS__)
+MU_DO_834(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_836(MACRO, ...) \
 MACRO(836, __VA_ARGS__) \
-DO_835(MACRO, __VA_ARGS__)
+MU_DO_835(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_837(MACRO, ...) \
 MACRO(837, __VA_ARGS__) \
-DO_836(MACRO, __VA_ARGS__)
+MU_DO_836(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_838(MACRO, ...) \
 MACRO(838, __VA_ARGS__) \
-DO_837(MACRO, __VA_ARGS__)
+MU_DO_837(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_839(MACRO, ...) \
 MACRO(839, __VA_ARGS__) \
-DO_838(MACRO, __VA_ARGS__)
+MU_DO_838(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_840(MACRO, ...) \
 MACRO(840, __VA_ARGS__) \
-DO_839(MACRO, __VA_ARGS__)
+MU_DO_839(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_841(MACRO, ...) \
 MACRO(841, __VA_ARGS__) \
-DO_840(MACRO, __VA_ARGS__)
+MU_DO_840(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_842(MACRO, ...) \
 MACRO(842, __VA_ARGS__) \
-DO_841(MACRO, __VA_ARGS__)
+MU_DO_841(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_843(MACRO, ...) \
 MACRO(843, __VA_ARGS__) \
-DO_842(MACRO, __VA_ARGS__)
+MU_DO_842(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_844(MACRO, ...) \
 MACRO(844, __VA_ARGS__) \
-DO_843(MACRO, __VA_ARGS__)
+MU_DO_843(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_845(MACRO, ...) \
 MACRO(845, __VA_ARGS__) \
-DO_844(MACRO, __VA_ARGS__)
+MU_DO_844(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_846(MACRO, ...) \
 MACRO(846, __VA_ARGS__) \
-DO_845(MACRO, __VA_ARGS__)
+MU_DO_845(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_847(MACRO, ...) \
 MACRO(847, __VA_ARGS__) \
-DO_846(MACRO, __VA_ARGS__)
+MU_DO_846(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_848(MACRO, ...) \
 MACRO(848, __VA_ARGS__) \
-DO_847(MACRO, __VA_ARGS__)
+MU_DO_847(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_849(MACRO, ...) \
 MACRO(849, __VA_ARGS__) \
-DO_848(MACRO, __VA_ARGS__)
+MU_DO_848(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_850(MACRO, ...) \
 MACRO(850, __VA_ARGS__) \
-DO_849(MACRO, __VA_ARGS__)
+MU_DO_849(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_851(MACRO, ...) \
 MACRO(851, __VA_ARGS__) \
-DO_850(MACRO, __VA_ARGS__)
+MU_DO_850(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_852(MACRO, ...) \
 MACRO(852, __VA_ARGS__) \
-DO_851(MACRO, __VA_ARGS__)
+MU_DO_851(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_853(MACRO, ...) \
 MACRO(853, __VA_ARGS__) \
-DO_852(MACRO, __VA_ARGS__)
+MU_DO_852(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_854(MACRO, ...) \
 MACRO(854, __VA_ARGS__) \
-DO_853(MACRO, __VA_ARGS__)
+MU_DO_853(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_855(MACRO, ...) \
 MACRO(855, __VA_ARGS__) \
-DO_854(MACRO, __VA_ARGS__)
+MU_DO_854(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_856(MACRO, ...) \
 MACRO(856, __VA_ARGS__) \
-DO_855(MACRO, __VA_ARGS__)
+MU_DO_855(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_857(MACRO, ...) \
 MACRO(857, __VA_ARGS__) \
-DO_856(MACRO, __VA_ARGS__)
+MU_DO_856(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_858(MACRO, ...) \
 MACRO(858, __VA_ARGS__) \
-DO_857(MACRO, __VA_ARGS__)
+MU_DO_857(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_859(MACRO, ...) \
 MACRO(859, __VA_ARGS__) \
-DO_858(MACRO, __VA_ARGS__)
+MU_DO_858(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_860(MACRO, ...) \
 MACRO(860, __VA_ARGS__) \
-DO_859(MACRO, __VA_ARGS__)
+MU_DO_859(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_861(MACRO, ...) \
 MACRO(861, __VA_ARGS__) \
-DO_860(MACRO, __VA_ARGS__)
+MU_DO_860(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_862(MACRO, ...) \
 MACRO(862, __VA_ARGS__) \
-DO_861(MACRO, __VA_ARGS__)
+MU_DO_861(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_863(MACRO, ...) \
 MACRO(863, __VA_ARGS__) \
-DO_862(MACRO, __VA_ARGS__)
+MU_DO_862(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_864(MACRO, ...) \
 MACRO(864, __VA_ARGS__) \
-DO_863(MACRO, __VA_ARGS__)
+MU_DO_863(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_865(MACRO, ...) \
 MACRO(865, __VA_ARGS__) \
-DO_864(MACRO, __VA_ARGS__)
+MU_DO_864(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_866(MACRO, ...) \
 MACRO(866, __VA_ARGS__) \
-DO_865(MACRO, __VA_ARGS__)
+MU_DO_865(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_867(MACRO, ...) \
 MACRO(867, __VA_ARGS__) \
-DO_866(MACRO, __VA_ARGS__)
+MU_DO_866(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_868(MACRO, ...) \
 MACRO(868, __VA_ARGS__) \
-DO_867(MACRO, __VA_ARGS__)
+MU_DO_867(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_869(MACRO, ...) \
 MACRO(869, __VA_ARGS__) \
-DO_868(MACRO, __VA_ARGS__)
+MU_DO_868(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_870(MACRO, ...) \
 MACRO(870, __VA_ARGS__) \
-DO_869(MACRO, __VA_ARGS__)
+MU_DO_869(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_871(MACRO, ...) \
 MACRO(871, __VA_ARGS__) \
-DO_870(MACRO, __VA_ARGS__)
+MU_DO_870(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_872(MACRO, ...) \
 MACRO(872, __VA_ARGS__) \
-DO_871(MACRO, __VA_ARGS__)
+MU_DO_871(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_873(MACRO, ...) \
 MACRO(873, __VA_ARGS__) \
-DO_872(MACRO, __VA_ARGS__)
+MU_DO_872(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_874(MACRO, ...) \
 MACRO(874, __VA_ARGS__) \
-DO_873(MACRO, __VA_ARGS__)
+MU_DO_873(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_875(MACRO, ...) \
 MACRO(875, __VA_ARGS__) \
-DO_874(MACRO, __VA_ARGS__)
+MU_DO_874(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_876(MACRO, ...) \
 MACRO(876, __VA_ARGS__) \
-DO_875(MACRO, __VA_ARGS__)
+MU_DO_875(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_877(MACRO, ...) \
 MACRO(877, __VA_ARGS__) \
-DO_876(MACRO, __VA_ARGS__)
+MU_DO_876(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_878(MACRO, ...) \
 MACRO(878, __VA_ARGS__) \
-DO_877(MACRO, __VA_ARGS__)
+MU_DO_877(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_879(MACRO, ...) \
 MACRO(879, __VA_ARGS__) \
-DO_878(MACRO, __VA_ARGS__)
+MU_DO_878(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_880(MACRO, ...) \
 MACRO(880, __VA_ARGS__) \
-DO_879(MACRO, __VA_ARGS__)
+MU_DO_879(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_881(MACRO, ...) \
 MACRO(881, __VA_ARGS__) \
-DO_880(MACRO, __VA_ARGS__)
+MU_DO_880(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_882(MACRO, ...) \
 MACRO(882, __VA_ARGS__) \
-DO_881(MACRO, __VA_ARGS__)
+MU_DO_881(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_883(MACRO, ...) \
 MACRO(883, __VA_ARGS__) \
-DO_882(MACRO, __VA_ARGS__)
+MU_DO_882(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_884(MACRO, ...) \
 MACRO(884, __VA_ARGS__) \
-DO_883(MACRO, __VA_ARGS__)
+MU_DO_883(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_885(MACRO, ...) \
 MACRO(885, __VA_ARGS__) \
-DO_884(MACRO, __VA_ARGS__)
+MU_DO_884(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_886(MACRO, ...) \
 MACRO(886, __VA_ARGS__) \
-DO_885(MACRO, __VA_ARGS__)
+MU_DO_885(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_887(MACRO, ...) \
 MACRO(887, __VA_ARGS__) \
-DO_886(MACRO, __VA_ARGS__)
+MU_DO_886(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_888(MACRO, ...) \
 MACRO(888, __VA_ARGS__) \
-DO_887(MACRO, __VA_ARGS__)
+MU_DO_887(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_889(MACRO, ...) \
 MACRO(889, __VA_ARGS__) \
-DO_888(MACRO, __VA_ARGS__)
+MU_DO_888(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_890(MACRO, ...) \
 MACRO(890, __VA_ARGS__) \
-DO_889(MACRO, __VA_ARGS__)
+MU_DO_889(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_891(MACRO, ...) \
 MACRO(891, __VA_ARGS__) \
-DO_890(MACRO, __VA_ARGS__)
+MU_DO_890(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_892(MACRO, ...) \
 MACRO(892, __VA_ARGS__) \
-DO_891(MACRO, __VA_ARGS__)
+MU_DO_891(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_893(MACRO, ...) \
 MACRO(893, __VA_ARGS__) \
-DO_892(MACRO, __VA_ARGS__)
+MU_DO_892(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_894(MACRO, ...) \
 MACRO(894, __VA_ARGS__) \
-DO_893(MACRO, __VA_ARGS__)
+MU_DO_893(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_895(MACRO, ...) \
 MACRO(895, __VA_ARGS__) \
-DO_894(MACRO, __VA_ARGS__)
+MU_DO_894(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_896(MACRO, ...) \
 MACRO(896, __VA_ARGS__) \
-DO_895(MACRO, __VA_ARGS__)
+MU_DO_895(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_897(MACRO, ...) \
 MACRO(897, __VA_ARGS__) \
-DO_896(MACRO, __VA_ARGS__)
+MU_DO_896(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_898(MACRO, ...) \
 MACRO(898, __VA_ARGS__) \
-DO_897(MACRO, __VA_ARGS__)
+MU_DO_897(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_899(MACRO, ...) \
 MACRO(899, __VA_ARGS__) \
-DO_898(MACRO, __VA_ARGS__)
+MU_DO_898(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_900(MACRO, ...) \
 MACRO(900, __VA_ARGS__) \
-DO_899(MACRO, __VA_ARGS__)
+MU_DO_899(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_901(MACRO, ...) \
 MACRO(901, __VA_ARGS__) \
-DO_900(MACRO, __VA_ARGS__)
+MU_DO_900(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_902(MACRO, ...) \
 MACRO(902, __VA_ARGS__) \
-DO_901(MACRO, __VA_ARGS__)
+MU_DO_901(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_903(MACRO, ...) \
 MACRO(903, __VA_ARGS__) \
-DO_902(MACRO, __VA_ARGS__)
+MU_DO_902(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_904(MACRO, ...) \
 MACRO(904, __VA_ARGS__) \
-DO_903(MACRO, __VA_ARGS__)
+MU_DO_903(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_905(MACRO, ...) \
 MACRO(905, __VA_ARGS__) \
-DO_904(MACRO, __VA_ARGS__)
+MU_DO_904(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_906(MACRO, ...) \
 MACRO(906, __VA_ARGS__) \
-DO_905(MACRO, __VA_ARGS__)
+MU_DO_905(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_907(MACRO, ...) \
 MACRO(907, __VA_ARGS__) \
-DO_906(MACRO, __VA_ARGS__)
+MU_DO_906(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_908(MACRO, ...) \
 MACRO(908, __VA_ARGS__) \
-DO_907(MACRO, __VA_ARGS__)
+MU_DO_907(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_909(MACRO, ...) \
 MACRO(909, __VA_ARGS__) \
-DO_908(MACRO, __VA_ARGS__)
+MU_DO_908(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_910(MACRO, ...) \
 MACRO(910, __VA_ARGS__) \
-DO_909(MACRO, __VA_ARGS__)
+MU_DO_909(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_911(MACRO, ...) \
 MACRO(911, __VA_ARGS__) \
-DO_910(MACRO, __VA_ARGS__)
+MU_DO_910(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_912(MACRO, ...) \
 MACRO(912, __VA_ARGS__) \
-DO_911(MACRO, __VA_ARGS__)
+MU_DO_911(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_913(MACRO, ...) \
 MACRO(913, __VA_ARGS__) \
-DO_912(MACRO, __VA_ARGS__)
+MU_DO_912(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_914(MACRO, ...) \
 MACRO(914, __VA_ARGS__) \
-DO_913(MACRO, __VA_ARGS__)
+MU_DO_913(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_915(MACRO, ...) \
 MACRO(915, __VA_ARGS__) \
-DO_914(MACRO, __VA_ARGS__)
+MU_DO_914(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_916(MACRO, ...) \
 MACRO(916, __VA_ARGS__) \
-DO_915(MACRO, __VA_ARGS__)
+MU_DO_915(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_917(MACRO, ...) \
 MACRO(917, __VA_ARGS__) \
-DO_916(MACRO, __VA_ARGS__)
+MU_DO_916(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_918(MACRO, ...) \
 MACRO(918, __VA_ARGS__) \
-DO_917(MACRO, __VA_ARGS__)
+MU_DO_917(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_919(MACRO, ...) \
 MACRO(919, __VA_ARGS__) \
-DO_918(MACRO, __VA_ARGS__)
+MU_DO_918(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_920(MACRO, ...) \
 MACRO(920, __VA_ARGS__) \
-DO_919(MACRO, __VA_ARGS__)
+MU_DO_919(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_921(MACRO, ...) \
 MACRO(921, __VA_ARGS__) \
-DO_920(MACRO, __VA_ARGS__)
+MU_DO_920(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_922(MACRO, ...) \
 MACRO(922, __VA_ARGS__) \
-DO_921(MACRO, __VA_ARGS__)
+MU_DO_921(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_923(MACRO, ...) \
 MACRO(923, __VA_ARGS__) \
-DO_922(MACRO, __VA_ARGS__)
+MU_DO_922(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_924(MACRO, ...) \
 MACRO(924, __VA_ARGS__) \
-DO_923(MACRO, __VA_ARGS__)
+MU_DO_923(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_925(MACRO, ...) \
 MACRO(925, __VA_ARGS__) \
-DO_924(MACRO, __VA_ARGS__)
+MU_DO_924(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_926(MACRO, ...) \
 MACRO(926, __VA_ARGS__) \
-DO_925(MACRO, __VA_ARGS__)
+MU_DO_925(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_927(MACRO, ...) \
 MACRO(927, __VA_ARGS__) \
-DO_926(MACRO, __VA_ARGS__)
+MU_DO_926(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_928(MACRO, ...) \
 MACRO(928, __VA_ARGS__) \
-DO_927(MACRO, __VA_ARGS__)
+MU_DO_927(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_929(MACRO, ...) \
 MACRO(929, __VA_ARGS__) \
-DO_928(MACRO, __VA_ARGS__)
+MU_DO_928(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_930(MACRO, ...) \
 MACRO(930, __VA_ARGS__) \
-DO_929(MACRO, __VA_ARGS__)
+MU_DO_929(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_931(MACRO, ...) \
 MACRO(931, __VA_ARGS__) \
-DO_930(MACRO, __VA_ARGS__)
+MU_DO_930(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_932(MACRO, ...) \
 MACRO(932, __VA_ARGS__) \
-DO_931(MACRO, __VA_ARGS__)
+MU_DO_931(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_933(MACRO, ...) \
 MACRO(933, __VA_ARGS__) \
-DO_932(MACRO, __VA_ARGS__)
+MU_DO_932(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_934(MACRO, ...) \
 MACRO(934, __VA_ARGS__) \
-DO_933(MACRO, __VA_ARGS__)
+MU_DO_933(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_935(MACRO, ...) \
 MACRO(935, __VA_ARGS__) \
-DO_934(MACRO, __VA_ARGS__)
+MU_DO_934(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_936(MACRO, ...) \
 MACRO(936, __VA_ARGS__) \
-DO_935(MACRO, __VA_ARGS__)
+MU_DO_935(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_937(MACRO, ...) \
 MACRO(937, __VA_ARGS__) \
-DO_936(MACRO, __VA_ARGS__)
+MU_DO_936(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_938(MACRO, ...) \
 MACRO(938, __VA_ARGS__) \
-DO_937(MACRO, __VA_ARGS__)
+MU_DO_937(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_939(MACRO, ...) \
 MACRO(939, __VA_ARGS__) \
-DO_938(MACRO, __VA_ARGS__)
+MU_DO_938(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_940(MACRO, ...) \
 MACRO(940, __VA_ARGS__) \
-DO_939(MACRO, __VA_ARGS__)
+MU_DO_939(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_941(MACRO, ...) \
 MACRO(941, __VA_ARGS__) \
-DO_940(MACRO, __VA_ARGS__)
+MU_DO_940(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_942(MACRO, ...) \
 MACRO(942, __VA_ARGS__) \
-DO_941(MACRO, __VA_ARGS__)
+MU_DO_941(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_943(MACRO, ...) \
 MACRO(943, __VA_ARGS__) \
-DO_942(MACRO, __VA_ARGS__)
+MU_DO_942(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_944(MACRO, ...) \
 MACRO(944, __VA_ARGS__) \
-DO_943(MACRO, __VA_ARGS__)
+MU_DO_943(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_945(MACRO, ...) \
 MACRO(945, __VA_ARGS__) \
-DO_944(MACRO, __VA_ARGS__)
+MU_DO_944(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_946(MACRO, ...) \
 MACRO(946, __VA_ARGS__) \
-DO_945(MACRO, __VA_ARGS__)
+MU_DO_945(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_947(MACRO, ...) \
 MACRO(947, __VA_ARGS__) \
-DO_946(MACRO, __VA_ARGS__)
+MU_DO_946(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_948(MACRO, ...) \
 MACRO(948, __VA_ARGS__) \
-DO_947(MACRO, __VA_ARGS__)
+MU_DO_947(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_949(MACRO, ...) \
 MACRO(949, __VA_ARGS__) \
-DO_948(MACRO, __VA_ARGS__)
+MU_DO_948(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_950(MACRO, ...) \
 MACRO(950, __VA_ARGS__) \
-DO_949(MACRO, __VA_ARGS__)
+MU_DO_949(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_951(MACRO, ...) \
 MACRO(951, __VA_ARGS__) \
-DO_950(MACRO, __VA_ARGS__)
+MU_DO_950(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_952(MACRO, ...) \
 MACRO(952, __VA_ARGS__) \
-DO_951(MACRO, __VA_ARGS__)
+MU_DO_951(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_953(MACRO, ...) \
 MACRO(953, __VA_ARGS__) \
-DO_952(MACRO, __VA_ARGS__)
+MU_DO_952(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_954(MACRO, ...) \
 MACRO(954, __VA_ARGS__) \
-DO_953(MACRO, __VA_ARGS__)
+MU_DO_953(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_955(MACRO, ...) \
 MACRO(955, __VA_ARGS__) \
-DO_954(MACRO, __VA_ARGS__)
+MU_DO_954(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_956(MACRO, ...) \
 MACRO(956, __VA_ARGS__) \
-DO_955(MACRO, __VA_ARGS__)
+MU_DO_955(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_957(MACRO, ...) \
 MACRO(957, __VA_ARGS__) \
-DO_956(MACRO, __VA_ARGS__)
+MU_DO_956(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_958(MACRO, ...) \
 MACRO(958, __VA_ARGS__) \
-DO_957(MACRO, __VA_ARGS__)
+MU_DO_957(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_959(MACRO, ...) \
 MACRO(959, __VA_ARGS__) \
-DO_958(MACRO, __VA_ARGS__)
+MU_DO_958(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_960(MACRO, ...) \
 MACRO(960, __VA_ARGS__) \
-DO_959(MACRO, __VA_ARGS__)
+MU_DO_959(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_961(MACRO, ...) \
 MACRO(961, __VA_ARGS__) \
-DO_960(MACRO, __VA_ARGS__)
+MU_DO_960(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_962(MACRO, ...) \
 MACRO(962, __VA_ARGS__) \
-DO_961(MACRO, __VA_ARGS__)
+MU_DO_961(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_963(MACRO, ...) \
 MACRO(963, __VA_ARGS__) \
-DO_962(MACRO, __VA_ARGS__)
+MU_DO_962(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_964(MACRO, ...) \
 MACRO(964, __VA_ARGS__) \
-DO_963(MACRO, __VA_ARGS__)
+MU_DO_963(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_965(MACRO, ...) \
 MACRO(965, __VA_ARGS__) \
-DO_964(MACRO, __VA_ARGS__)
+MU_DO_964(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_966(MACRO, ...) \
 MACRO(966, __VA_ARGS__) \
-DO_965(MACRO, __VA_ARGS__)
+MU_DO_965(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_967(MACRO, ...) \
 MACRO(967, __VA_ARGS__) \
-DO_966(MACRO, __VA_ARGS__)
+MU_DO_966(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_968(MACRO, ...) \
 MACRO(968, __VA_ARGS__) \
-DO_967(MACRO, __VA_ARGS__)
+MU_DO_967(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_969(MACRO, ...) \
 MACRO(969, __VA_ARGS__) \
-DO_968(MACRO, __VA_ARGS__)
+MU_DO_968(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_970(MACRO, ...) \
 MACRO(970, __VA_ARGS__) \
-DO_969(MACRO, __VA_ARGS__)
+MU_DO_969(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_971(MACRO, ...) \
 MACRO(971, __VA_ARGS__) \
-DO_970(MACRO, __VA_ARGS__)
+MU_DO_970(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_972(MACRO, ...) \
 MACRO(972, __VA_ARGS__) \
-DO_971(MACRO, __VA_ARGS__)
+MU_DO_971(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_973(MACRO, ...) \
 MACRO(973, __VA_ARGS__) \
-DO_972(MACRO, __VA_ARGS__)
+MU_DO_972(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_974(MACRO, ...) \
 MACRO(974, __VA_ARGS__) \
-DO_973(MACRO, __VA_ARGS__)
+MU_DO_973(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_975(MACRO, ...) \
 MACRO(975, __VA_ARGS__) \
-DO_974(MACRO, __VA_ARGS__)
+MU_DO_974(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_976(MACRO, ...) \
 MACRO(976, __VA_ARGS__) \
-DO_975(MACRO, __VA_ARGS__)
+MU_DO_975(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_977(MACRO, ...) \
 MACRO(977, __VA_ARGS__) \
-DO_976(MACRO, __VA_ARGS__)
+MU_DO_976(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_978(MACRO, ...) \
 MACRO(978, __VA_ARGS__) \
-DO_977(MACRO, __VA_ARGS__)
+MU_DO_977(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_979(MACRO, ...) \
 MACRO(979, __VA_ARGS__) \
-DO_978(MACRO, __VA_ARGS__)
+MU_DO_978(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_980(MACRO, ...) \
 MACRO(980, __VA_ARGS__) \
-DO_979(MACRO, __VA_ARGS__)
+MU_DO_979(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_981(MACRO, ...) \
 MACRO(981, __VA_ARGS__) \
-DO_980(MACRO, __VA_ARGS__)
+MU_DO_980(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_982(MACRO, ...) \
 MACRO(982, __VA_ARGS__) \
-DO_981(MACRO, __VA_ARGS__)
+MU_DO_981(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_983(MACRO, ...) \
 MACRO(983, __VA_ARGS__) \
-DO_982(MACRO, __VA_ARGS__)
+MU_DO_982(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_984(MACRO, ...) \
 MACRO(984, __VA_ARGS__) \
-DO_983(MACRO, __VA_ARGS__)
+MU_DO_983(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_985(MACRO, ...) \
 MACRO(985, __VA_ARGS__) \
-DO_984(MACRO, __VA_ARGS__)
+MU_DO_984(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_986(MACRO, ...) \
 MACRO(986, __VA_ARGS__) \
-DO_985(MACRO, __VA_ARGS__)
+MU_DO_985(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_987(MACRO, ...) \
 MACRO(987, __VA_ARGS__) \
-DO_986(MACRO, __VA_ARGS__)
+MU_DO_986(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_988(MACRO, ...) \
 MACRO(988, __VA_ARGS__) \
-DO_987(MACRO, __VA_ARGS__)
+MU_DO_987(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_989(MACRO, ...) \
 MACRO(989, __VA_ARGS__) \
-DO_988(MACRO, __VA_ARGS__)
+MU_DO_988(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_990(MACRO, ...) \
 MACRO(990, __VA_ARGS__) \
-DO_989(MACRO, __VA_ARGS__)
+MU_DO_989(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_991(MACRO, ...) \
 MACRO(991, __VA_ARGS__) \
-DO_990(MACRO, __VA_ARGS__)
+MU_DO_990(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_992(MACRO, ...) \
 MACRO(992, __VA_ARGS__) \
-DO_991(MACRO, __VA_ARGS__)
+MU_DO_991(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_993(MACRO, ...) \
 MACRO(993, __VA_ARGS__) \
-DO_992(MACRO, __VA_ARGS__)
+MU_DO_992(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_994(MACRO, ...) \
 MACRO(994, __VA_ARGS__) \
-DO_993(MACRO, __VA_ARGS__)
+MU_DO_993(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_995(MACRO, ...) \
 MACRO(995, __VA_ARGS__) \
-DO_994(MACRO, __VA_ARGS__)
+MU_DO_994(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_996(MACRO, ...) \
 MACRO(996, __VA_ARGS__) \
-DO_995(MACRO, __VA_ARGS__)
+MU_DO_995(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_997(MACRO, ...) \
 MACRO(997, __VA_ARGS__) \
-DO_996(MACRO, __VA_ARGS__)
+MU_DO_996(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_998(MACRO, ...) \
 MACRO(998, __VA_ARGS__) \
-DO_997(MACRO, __VA_ARGS__)
+MU_DO_997(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_999(MACRO, ...) \
 MACRO(999, __VA_ARGS__) \
-DO_998(MACRO, __VA_ARGS__)
+MU_DO_998(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1000(MACRO, ...) \
 MACRO(1000, __VA_ARGS__) \
-DO_999(MACRO, __VA_ARGS__)
+MU_DO_999(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1001(MACRO, ...) \
 MACRO(1001, __VA_ARGS__) \
-DO_1000(MACRO, __VA_ARGS__)
+MU_DO_1000(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1002(MACRO, ...) \
 MACRO(1002, __VA_ARGS__) \
-DO_1001(MACRO, __VA_ARGS__)
+MU_DO_1001(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1003(MACRO, ...) \
 MACRO(1003, __VA_ARGS__) \
-DO_1002(MACRO, __VA_ARGS__)
+MU_DO_1002(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1004(MACRO, ...) \
 MACRO(1004, __VA_ARGS__) \
-DO_1003(MACRO, __VA_ARGS__)
+MU_DO_1003(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1005(MACRO, ...) \
 MACRO(1005, __VA_ARGS__) \
-DO_1004(MACRO, __VA_ARGS__)
+MU_DO_1004(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1006(MACRO, ...) \
 MACRO(1006, __VA_ARGS__) \
-DO_1005(MACRO, __VA_ARGS__)
+MU_DO_1005(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1007(MACRO, ...) \
 MACRO(1007, __VA_ARGS__) \
-DO_1006(MACRO, __VA_ARGS__)
+MU_DO_1006(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1008(MACRO, ...) \
 MACRO(1008, __VA_ARGS__) \
-DO_1007(MACRO, __VA_ARGS__)
+MU_DO_1007(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1009(MACRO, ...) \
 MACRO(1009, __VA_ARGS__) \
-DO_1008(MACRO, __VA_ARGS__)
+MU_DO_1008(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1010(MACRO, ...) \
 MACRO(1010, __VA_ARGS__) \
-DO_1009(MACRO, __VA_ARGS__)
+MU_DO_1009(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1011(MACRO, ...) \
 MACRO(1011, __VA_ARGS__) \
-DO_1010(MACRO, __VA_ARGS__)
+MU_DO_1010(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1012(MACRO, ...) \
 MACRO(1012, __VA_ARGS__) \
-DO_1011(MACRO, __VA_ARGS__)
+MU_DO_1011(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1013(MACRO, ...) \
 MACRO(1013, __VA_ARGS__) \
-DO_1012(MACRO, __VA_ARGS__)
+MU_DO_1012(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1014(MACRO, ...) \
 MACRO(1014, __VA_ARGS__) \
-DO_1013(MACRO, __VA_ARGS__)
+MU_DO_1013(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1015(MACRO, ...) \
 MACRO(1015, __VA_ARGS__) \
-DO_1014(MACRO, __VA_ARGS__)
+MU_DO_1014(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1016(MACRO, ...) \
 MACRO(1016, __VA_ARGS__) \
-DO_1015(MACRO, __VA_ARGS__)
+MU_DO_1015(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1017(MACRO, ...) \
 MACRO(1017, __VA_ARGS__) \
-DO_1016(MACRO, __VA_ARGS__)
+MU_DO_1016(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1018(MACRO, ...) \
 MACRO(1018, __VA_ARGS__) \
-DO_1017(MACRO, __VA_ARGS__)
+MU_DO_1017(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1019(MACRO, ...) \
 MACRO(1019, __VA_ARGS__) \
-DO_1018(MACRO, __VA_ARGS__)
+MU_DO_1018(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1020(MACRO, ...) \
 MACRO(1020, __VA_ARGS__) \
-DO_1019(MACRO, __VA_ARGS__)
+MU_DO_1019(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1021(MACRO, ...) \
 MACRO(1021, __VA_ARGS__) \
-DO_1020(MACRO, __VA_ARGS__)
+MU_DO_1020(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1022(MACRO, ...) \
 MACRO(1022, __VA_ARGS__) \
-DO_1021(MACRO, __VA_ARGS__)
+MU_DO_1021(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1023(MACRO, ...) \
 MACRO(1023, __VA_ARGS__) \
-DO_1022(MACRO, __VA_ARGS__)
+MU_DO_1022(MACRO, __VA_ARGS__)
 
 
 #define MU_DO_1024(MACRO, ...) \
 MACRO(1024, __VA_ARGS__) \
-DO_1023(MACRO, __VA_ARGS__)
+MU_DO_1023(MACRO, __VA_ARGS__)
 
 
 
@@ -11530,6 +12702,13 @@ MU_IF(X, "true", "false") => "true"
 #define MU_IF1(trueBranch, falseBranch) trueBranch
 
 
+/*the following macro want to eat empty arguments from a list */
+/*examples:                                                   */
+/*MU_EAT_EMPTY_ARGS(, , X) expands to X                       */
+
+#define MU_EXPAND_TO_NOTHING(arg)
+#define MU_EAT_EMPTY_ARG(arg_count, arg) MU_IF(MU_ISEMPTY(arg),,arg) MU_IF(MU_ISEMPTY(arg),MU_EXPAND_TO_NOTHING,MU_IFCOMMALOGIC)(MU_DEC(arg_count))
+#define MU_EAT_EMPTY_ARGS(...) MU_FOR_EACH_1_COUNTED(MU_EAT_EMPTY_ARG, __VA_ARGS__)
 
 #define MU_DEFINE_ENUMERATION_CONSTANT(x) x,
 /*MU_DEFINE_ENUM goes to header*/
@@ -11544,14 +12723,14 @@ MU_IF(X, "true", "false") => "true"
 #define MU_DEFINE_ENUM_STRINGS(enumName, ...) const char* MU_C2(enumName, StringStorage)[MU_COUNT_ARG(__VA_ARGS__)] = {MU_FOR_EACH_1(MU_DEFINE_ENUMERATION_CONSTANT_AS_STRING, __VA_ARGS__)}; \
 const char* MU_C2(enumName,Strings)(enumName value)                   \
 {                                                                  \
-    if((int)value>=MU_COUNT_ARG(__VA_ARGS__))                         \
+    if((int)value>=MU_COUNT_ARG(__VA_ARGS__))                      \
     {                                                              \
         /*this is an error case*/                                  \
         return "NULL";                                             \
     }                                                              \
     else                                                           \
     {                                                              \
-        return MU_C2(enumName, StringStorage)[value];                 \
+        return MU_C2(enumName, StringStorage)[value];              \
     }                                                              \
 }                                                                  \
 int MU_C2(enumName, _FromString)(const char* enumAsString, enumName* destination)  \
@@ -11581,14 +12760,14 @@ int MU_C2(enumName, _FromString)(const char* enumAsString, enumName* destination
 static const char* MU_C2(enumName, StringStorage)[MU_COUNT_ARG(__VA_ARGS__)] = {MU_FOR_EACH_1(MU_DEFINE_ENUMERATION_CONSTANT_AS_STRING, __VA_ARGS__)}; \
 static const char* MU_C2(enumName,Strings)(enumName value)            \
 {                                                                  \
-    if((int)value<0 || (int)value>=MU_COUNT_ARG(__VA_ARGS__))         \
+    if((int)value<0 || (int)value>=MU_COUNT_ARG(__VA_ARGS__))      \
     {                                                              \
         /*this is an error case*/                                  \
         return "NULL";                                             \
     }                                                              \
     else                                                           \
     {                                                              \
-        return MU_C2(enumName, StringStorage)[value];                 \
+        return MU_C2(enumName, StringStorage)[value];              \
     }                                                              \
 }
 
@@ -11596,9 +12775,45 @@ static const char* MU_C2(enumName,Strings)(enumName value)            \
 #define MU_ENUM_TO_STRING(enumName, enumValue) MU_C2(enumName, Strings)(enumValue)
 #define MU_STRING_TO_ENUM(stringValue, enumName, addressOfEnumVariable) MU_C2(enumName, _FromString)(stringValue, addressOfEnumVariable)
 
-#define MU_DEFINE_MICROMOCK_ENUM_TO_STRING(type, ...) MICROMOCK_ENUM_TO_STRING(type, MU_FOR_EACH_1(MU_DEFINE_ENUMERATION_CONSTANT_AS_WIDESTRING, __VA_ARGS__));
-
 #define MU_EMPTY()
 #define MACRO_UTILS_DELAY(id) id MU_EMPTY MU_LPAREN )
+
+#define MU_DEFINE_ENUMERATION_CONSTANT_2(enumerationConstant, constantExpression) enumerationConstant = constantExpression,
+
+#define MU_DECLARE_ENUM_STRINGS_2(enumIdentifier, ...) extern const char* MU_C2(enumIdentifier,_ToString)(enumIdentifier enumerationConstant);
+
+#define MU_DEFINE_ENUM_2(enumIdentifier, ... ) typedef enum MU_C2(enumIdentifier, _TAG) {MU_FOR_EACH_2(MU_DEFINE_ENUMERATION_CONSTANT_2, __VA_ARGS__)} enumIdentifier; \
+    MU_DECLARE_ENUM_STRINGS_2(enumIdentifier, __VA_ARGS__)
+
+typedef struct ENUM_VALUE_AND_STRING_TAG
+{
+    int value;
+    const char* valueAsString;
+}ENUM_VALUE_AND_STRING;
+
+#define MU_DEFINE_ENUM_VALUE_AND_STRING(enumerationConstant, constantExpression) {enumerationConstant, MU_TOSTRING(enumerationConstant)},
+#define MU_DEFINE_ENUM_STRINGS_2(enumIdentifier, ... ) static const ENUM_VALUE_AND_STRING MU_C2(enumIdentifier, _ValuesAndStrings)[MU_DIV2(MU_COUNT_ARG(__VA_ARGS__))] ={MU_FOR_EACH_2(MU_DEFINE_ENUM_VALUE_AND_STRING, __VA_ARGS__)}; \
+const char* MU_C2(enumIdentifier,_ToString)(enumIdentifier value)                                                                                                                                                       \
+{                                                                                                                                                                                                                    \
+    for(size_t i=0;i<sizeof(MU_C2(enumIdentifier, _ValuesAndStrings))/sizeof(MU_C2(enumIdentifier, _ValuesAndStrings)[0]);i++)                                                                                             \
+    {                                                                                                                                                                                                                \
+        if(MU_C2(enumIdentifier, _ValuesAndStrings)[i].value == (int)value)                                                                                                                                             \
+        {                                                                                                                                                                                                            \
+            return MU_C2(enumIdentifier, _ValuesAndStrings)[i].valueAsString;                                                                                                                                           \
+        }                                                                                                                                                                                                            \
+    }                                                                                                                                                                                                                \
+    return "NULL";                                                                                                                                                                                                   \
+}                                                                                                                                                                                                                    \
+
+#define MU_ENUM_TO_STRING_2(enumIdentifier, value) MU_C2(enumIdentifier,_ToString)(value)
+
+#define MU_DEFINE_STRUCT_FIELD(fieldType, fieldName) fieldType fieldName;
+
+/*MU_DEFINE_STRUCT allows creating a struct typedef based on a list of fields*/
+#define MU_DEFINE_STRUCT(structName, ...) typedef struct MU_C2(structName, _TAG) { MU_FOR_EACH_2(MU_DEFINE_STRUCT_FIELD, __VA_ARGS__)} structName;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*MACRO_UTILS_H*/
