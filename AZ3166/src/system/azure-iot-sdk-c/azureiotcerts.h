@@ -1,18 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#ifndef CERTS_H
-#define CERTS_H
+#ifndef AZUREIOTCERTS_H
+#define AZUREIOTCERTS_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#warning "azureiotcerts.h is obsoleted, please include certs/certs.h"
 
-	extern const char certificates[];
+#include "certs/certs.h"
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* CERTS_H */
+#endif /* AZUREIOTCERTS_H */
