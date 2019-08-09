@@ -157,7 +157,7 @@ static void wifi_ssid_command(int argc, char **argv)
         Serial.printf("Usage: set_wifissid <SSID>. Please provide the SSID of the Wi-Fi.\r\n");
         return;
     }
-    int len = strlen(argv[1]);
+    int len = strlen(argv[1]) + 1;
     if (len == 0 || len > WIFI_SSID_MAX_LEN)
     {
         Serial.printf("Invalid Wi-Fi SSID.\r\n");
@@ -186,7 +186,7 @@ static void wifi_pwd_Command(int argc, char **argv)
             Serial.printf("Usage: set_wifipwd [password]. Please provide the password of the Wi-Fi.\r\n");
             return;
         }
-        int len = strlen(argv[1]);
+        int len = strlen(argv[1]) + 1;
         if (len > WIFI_PWD_MAX_LEN)
         {
             Serial.printf("Invalid Wi-Fi password.\r\n");
@@ -208,7 +208,7 @@ static void az_iothub_command(int argc, char **argv)
         Serial.printf("Usage: set_az_iothub <connection string>. Please provide the connection string of the Azure IoT hub.\r\n");
         return;
     }
-    int len = strlen(argv[1]);
+    int len = strlen(argv[1]) + 1;
     if (len == 0 || len > AZ_IOT_HUB_MAX_LEN)
     {
         Serial.printf("Invalid Azure IoT hub connection string.\r\n");
@@ -231,7 +231,7 @@ static void dps_uds_command(int argc, char **argv)
         return;
     }
 
-    int len = strlen(argv[1]);
+    int len = strlen(argv[1]) + 1;
     if (len != DPS_UDS_MAX_LEN)
     {
         Serial.printf("Invalid UDS.\r\n");

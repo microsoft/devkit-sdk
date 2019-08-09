@@ -9,6 +9,7 @@
 #include "mbed_stats.h"
 #include "mico_system.h"
 #include "SystemTickCounter.h"
+#include "SystemWeb.h"
 #include "SystemWiFi.h"
 
 static bool Initialization(void)
@@ -99,8 +100,6 @@ static void EnterConfigurationMode()
     cli_main();
 }
 
-extern "C" bool StartupSystemWeb(void);
-
 static void EnterAPMode()
 {
     pinMode(USER_BUTTON_B, INPUT);
@@ -121,21 +120,15 @@ static void EnterAPMode()
         Serial.println("Soft ap creation failed");
         return;
     }
+
+    Screen.print(1, ap_name);
+    Screen.print(2, "Configuration");
+    Screen.print(3, "192.168.0.1");
     
-    if (StartupSystemWeb())
-    {
-        Screen.print(1, ap_name);
-        Screen.print(2, "Config board on");
-        Screen.print(3, "192.168.0.1");
-        Serial.printf("Soft AP %s is running...\r\n", ap_name);
-        Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the system settings.\r\n");
-    }
-    else
-    {
-        Screen.print(2, "192.168.0.1");
-        Serial.printf("Soft AP %s is running...\r\n", ap_name);
-    }
-    
+    Serial.printf("Soft AP %s is running...\r\n", ap_name);
+    Serial.printf("Connect and visit \"http://192.168.0.1/\" to config the system settings.\r\n");
+
+    StartupSystemWeb();
 }
 
 extern void start_arduino(void);

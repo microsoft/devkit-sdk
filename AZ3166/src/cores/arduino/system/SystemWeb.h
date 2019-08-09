@@ -16,6 +16,8 @@ extern "C"{
 
 void EnableSystemWeb(int extFunctions);
 
+void StartupSystemWeb(void);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

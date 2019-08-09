@@ -68,8 +68,8 @@ extern OLEDDisplay Screen;
 extern NetworkInterface *_defaultSystemNetwork;
 
 static int web_settings = 0;
-static bool is_http_init;
-static bool is_handlers_registered;
+static bool is_http_init = false;
+static bool is_handlers_registered = false;
 
 bool set_wifi_value(char *value_ssid, char *value_pass)
 {
