@@ -354,6 +354,8 @@ int web_system_setting_result_page(httpd_request_t *req)
             err = httpd_get_tag_from_multipart_form(buf, boundary, "SymmetricKey", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
             require_noerr(err, _exit);
             strcat(value_device_connection_string, value_x509);
+            free(value_x509);
+            value_x509 = NULL;
         }
         else
         {
@@ -396,6 +398,8 @@ int web_system_setting_result_page(httpd_request_t *req)
             err = httpd_get_tag_from_post_data(buf, "SymmetricKey", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
             require_noerr(err, _exit);
             strcat(value_device_connection_string, value_x509);
+            free(value_x509);
+            value_x509 = NULL;
         }
         else
         {
