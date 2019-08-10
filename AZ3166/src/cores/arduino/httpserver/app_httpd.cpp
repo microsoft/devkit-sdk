@@ -535,7 +535,6 @@ int web_system_setting_result_page(httpd_request_t *req)
     buf_size = 512 + WIFI_SSID_MAX_LEN + WIFI_PWD_MAX_LEN;
     if (web_settings & WEB_SETTING_IOT_DPS_SYMMETRIC_KEY)
     {
-        value_x509 = (char*)calloc(AZ_IOT_HUB_MAX_LEN / 4 + 1, 1);  // Temp buffer
         value_device_connection_string = (char*)calloc(AZ_IOT_HUB_MAX_LEN + 1, 1);
         buf_size += AZ_IOT_HUB_MAX_LEN;
     }
