@@ -51,17 +51,17 @@ static const char * device_conn_setting = "<div class=\"input-group fluid\"><inp
 static const char * cert_setting = "<div class=\"input-group fluid\"><textarea name=\"certificate\" rows=\"5\" placeholder=\"X.509 Certificate\"></textarea></div>";
 static const char * dps_symmetric_key = "<div class=\"input-group fluid\"><input type=\"text\" name=\"DPSEndpoint\" id=\"DPSEndpoint\" placeholder=\"The DPS endpoint\" value=\"global.azure-devices-provisioning.net\"></div><div class=\"input-group fluid\"><input type=\"text\" name=\"ScopeId\" id=\"ScopeId\" placeholder=\"The DPS ID Scope\"></div><div class=\"input-group fluid\"><input type=\"text\" name=\"RegistrationId\" id=\"RegistrationId\" placeholder=\"The Registration ID\"></div><div class=\"input-group fluid\"><input type=\"text\" name=\"SymmetricKey\" id=\"SymmetricKey\" placeholder=\"The symmetric key\"></div>";
 static const char * iot_setting_b = "</fieldset></div>";
-static const char * setting_end = "<div class=\"input-group fluid\"><button type=\"submit\" class=\"primary\">Save</button></div></form><h5 style=\"color:#616161;\">Please refresh this page to update SSID if you cannot find it from the list</h5></div></div></section><script>function changeSSIDInput(){var inputFromSelect=document.getElementsByName(\"input_ssid_method\")[0].checked;var select=document.getElementById(\"SSID-select\");var text=document.getElementById(\"SSID-text\");if(inputFromSelect){select.name=\"SSID\";select.removeAttribute(\"disabled\");text.name=\"\";text.setAttribute(\"disabled\",\"\")}else{select.name=\"\";select.setAttribute(\"disabled\",\"\");text.name=\"SSID\";text.removeAttribute(\"disabled\")}};</script></body></html>";
+static const char * setting_end = "<div class=\"input-group fluid\"><button type=\"submit\" class=\"primary\">Configure Device</button></div></form><h5 style=\"color:#616161;\">Please refresh this page to update SSID if you cannot find it from the list</h5></div></div></section><script>function changeSSIDInput(){var inputFromSelect=document.getElementsByName(\"input_ssid_method\")[0].checked;var select=document.getElementById(\"SSID-select\");var text=document.getElementById(\"SSID-text\");if(inputFromSelect){select.name=\"SSID\";select.removeAttribute(\"disabled\");text.name=\"\";text.setAttribute(\"disabled\",\"\")}else{select.name=\"\";select.setAttribute(\"disabled\",\"\");text.name=\"SSID\";text.removeAttribute(\"disabled\")}};</script></body></html>";
 
-static const char * result_head = "<body><header> <h1 class=\"logo\">IoT DevKit Settings</h1></header><section class=\"container\"> <div id=\"content\" class=\"row\"> <div class=\"col-sm-10 col-sm-offset-1 col-md-4 col-md-offset-4\" style=\"text-align:center;\"><table align=\"center\" style=\"width:80%\"><tr><th>Settings</td></tr>";
+static const char * result_head = "<body><header> <h1 class=\"logo\">IoT DevKit Settings</h1></header><section class=\"container\"> <div id=\"content\" class=\"row\"> <div class=\"col-sm-10 col-sm-offset-1 col-md-4 col-md-offset-4\" style=\"text-align:center;\">";
+static const char * result_table_start = "<table align=\"center\" style=\"width:80%\"><tr><th>Settings</td></tr>";
+static const char * result_table_end = "</table>";
 static const char * result_wifi = "<tr><td>Wi-Fi SSID and Password - %s</th></tr>";
 static const char * result_conn_string = "<tr><td>IoT Device Connection String - %s</td></tr>";
 static const char * result_cert = "<tr><td>X.509 Certificate - %s</td></tr>";
-static const char * result_table_end = "</table>";
-static const char * result_wifi_connect_1 = "<h3 style=\"color:Tomato;\">Failed to connect： %s</h3>";
-static const char * result_wifi_connect_2 = "<h3 style=\"color:DodgerBlue;\">Wi-Fi %s is connected: %s</h3>";
-static const char * result_retry = "<p><a href=\"/\" class=\"button primary\" target=\"_self\">Retry</a></p>";
-static const char * result_wait = "<h5 style=\"color:#616161;\">Wait a few seconds for the IoT DevKit to reboot...</h5>";
+static const char * result_failed = "<h5 style=\"color:Tomato;\">Configure device failed: error code %d.</h5>";
+static const char * result_rebooting = "<h5 style=\"color:DodgerBlue;\">The IoT DevKit is rebooting...</h5>";
+static const char * result_close = "<button onclick=\"self.close();\">Close</button>";
 static const char * result_end = "</div></div></section></body></html>";
 
 extern OLEDDisplay Screen;
@@ -276,20 +276,258 @@ exit:
     return err;
 }
 
+static int retrieve_settings_multipart(httpd_request_t *req, char *buf, char *value_ssid, char *value_pass, char *value_device_connection_string, char *value_x509)
+{
+    char *boundary = NULL;
+    OSStatus err = kNoErr;
+    char *buffTemp = NULL;
+
+    boundary = strstr(req->content_type, "boundary=");
+    boundary += 9;
+
+    err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
+    if (value_ssid[0] == 0) { err = kParamErr; }
+    require_noerr(err, _exit);
+
+    err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
+    require_noerr(err, _exit);
+
+    if (web_settings & WEB_SETTING_IOT_DPS_SYMMETRIC_KEY)
+    {
+        int lenTmp = AZ_IOT_HUB_MAX_LEN / 4 + 1;
+        buffTemp = (char*)calloc(lenTmp, 1);
+        if (buffTemp == NULL)
+        {
+            err = kGeneralErr;
+            goto _exit;
+        }
+
+        strcpy(value_device_connection_string, "DPSEndpoint=");
+        err = httpd_get_tag_from_multipart_form(buf, boundary, "DPSEndpoint", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+        strcat(value_device_connection_string, ";ScopeId=");
+        err = httpd_get_tag_from_multipart_form(buf, boundary, "ScopeId", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+        strcat(value_device_connection_string, ";RegistrationId=");
+        err = httpd_get_tag_from_multipart_form(buf, boundary, "RegistrationId", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+        strcat(value_device_connection_string, ";SymmetricKey=");
+        err = httpd_get_tag_from_multipart_form(buf, boundary, "SymmetricKey", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+    }
+    else
+    {
+        if (value_device_connection_string)
+        {
+            err = httpd_get_tag_from_multipart_form(buf, boundary, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
+            if (value_device_connection_string[0] == 0) { err = kParamErr; }
+            require_noerr(err, _exit);
+        }
+
+        if (value_x509)
+        {
+            err = httpd_get_tag_from_multipart_form(buf, boundary, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
+            if (value_x509[0] == 0) { err = kParamErr; }
+            require_noerr(err, _exit);
+        }
+    }
+
+_exit:
+    if (buffTemp)
+    {
+        free(buffTemp);
+    }
+    return err;
+}
+
+static int retrieve_settings_simple(char *buf, char *value_ssid, char *value_pass, char *value_device_connection_string, char *value_x509)
+{
+    OSStatus err = kNoErr;
+    char *buffTemp = NULL;
+
+    err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
+    if (value_ssid[0] == 0) { err = kParamErr; }
+    require_noerr(err, _exit);
+
+    err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
+    require_noerr(err, _exit);
+
+    if (web_settings & WEB_SETTING_IOT_DPS_SYMMETRIC_KEY)
+    {
+        int lenTmp = AZ_IOT_HUB_MAX_LEN / 4 + 1;
+        buffTemp = (char*)calloc(lenTmp, 1);
+        if (buffTemp == NULL)
+        {
+            err = kGeneralErr;
+            goto _exit;
+        }
+
+        strcpy(value_device_connection_string, "DPSEndpoint=");
+        err = httpd_get_tag_from_post_data(buf, "DPSEndpoint", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+        strcat(value_device_connection_string, ";ScopeId=");
+        err = httpd_get_tag_from_post_data(buf, "ScopeId", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+        strcat(value_device_connection_string, ";RegistrationId=");
+        err = httpd_get_tag_from_post_data(buf, "RegistrationId", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+        strcat(value_device_connection_string, ";SymmetricKey=");
+        err = httpd_get_tag_from_post_data(buf, "SymmetricKey", buffTemp, lenTmp);
+        if (buffTemp[0] == 0) { err = kParamErr; }
+        require_noerr(err, _exit);
+        strcat(value_device_connection_string, buffTemp);
+    }
+    else
+    {
+        if (value_device_connection_string)
+        {
+            err = httpd_get_tag_from_post_data(buf, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
+            if (value_device_connection_string[0] == 0) { err = kParamErr; }
+            require_noerr(err, _exit);
+        }
+
+        if (value_x509)
+        {
+            err = httpd_get_tag_from_post_data(buf, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
+            if (value_x509[0] == 0) { err = kParamErr; }
+            require_noerr(err, _exit);
+        }
+    }
+
+_exit:
+    if (buffTemp)
+    {
+        free(buffTemp);
+    }
+    return err;
+}
+
+static void show_setting_result_page(httpd_request_t *req, int err, char *value_ssid, char *value_pass, char *value_device_connection_string, char *value_x509)
+{
+    int ret = 0;
+    int len = 0;
+
+    // Prepare the result page
+    char *result_page = (char*)calloc(DEFAULT_PAGE_SIZE, 1);
+    if (result_page == NULL)
+    {
+        err = kGeneralErr;
+        return;
+    }
+    // Head
+    strcpy(result_page, page_head);
+    len = strlen(page_head);
+    // Result body head
+    strcpy(&result_page[len], result_head);
+    len += strlen(result_head);
+
+    if (err == 0)
+    {
+        strcpy(&result_page[len], result_table_start);
+        len += strlen(result_table_start);
+        // Wi-Fi setting
+        if (value_ssid[0] == 0)
+        {
+            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "no change");
+        }
+        else
+        {
+            if (set_wifi_value(value_ssid, value_pass))
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "saved");
+            }
+            else
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "save failed");
+            }
+        }
+        len += (ret > 0 ? ret : 0);
+        
+        // IoT Device Connection string
+        if (value_device_connection_string)
+        {
+            if (value_device_connection_string[0] == 0)
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "no change");
+            }
+            else
+            {
+                if (set_az_iothub(value_device_connection_string))
+                {
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "saved");
+                }
+                else
+                {
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "save failed");
+                }
+            }
+            len += (ret > 0 ? ret : 0);
+        }
+        // X.509 cert
+        if (value_x509)
+        {
+            if (value_x509[0] == 0)
+            {
+                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "no change");
+            }
+            else
+            {
+                if (set_az_x509(value_x509))
+                {
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "saved");
+                }
+                else
+                {
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "save failed");
+                }
+            }
+            len += (ret > 0 ? ret : 0);
+        }
+        strcpy(&result_page[len], result_table_end);
+        len += strlen(result_table_end);
+        strcpy(&result_page[len], result_rebooting);
+        len += strlen(result_rebooting);
+    }
+    else
+    {
+        ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_failed, err);
+        len += (ret > 0 ? ret : 0);
+    }
+    strcpy(&result_page[len], result_close);
+    len += strlen(result_close);
+    strcpy(&result_page[len], result_end);
+    len += strlen(result_end) + 1;
+
+    // Show the result page
+    httpd_send_all_header(req, HTTP_RES_200, len, HTTP_CONTENT_HTML_STR);
+    httpd_send_body(req->sock, (const unsigned char*)result_page, len);
+
+    free(result_page);
+}
+
 int web_system_setting_result_page(httpd_request_t *req)
 {
     OSStatus err = kNoErr;
-    bool retry = false;
     int buf_size;
     char *buf = NULL;
     char value_ssid[WIFI_SSID_MAX_LEN + 1];
     char value_pass[WIFI_PWD_MAX_LEN + 1];
     char *value_device_connection_string = NULL;
     char *value_x509 = NULL;
-    char *boundary = NULL;
-    char *result_page = NULL;
-    int len = 0;
-    int ret;
 
     memset(value_ssid, 0, sizeof(value_ssid));
     memset(value_pass, 0, sizeof(value_pass));
@@ -324,215 +562,29 @@ int web_system_setting_result_page(httpd_request_t *req)
     // Get data
     err = httpd_get_data(req, buf, buf_size - 1);
     require_noerr(err, _exit);
+
     // Extract settings
     if (strstr(req->content_type, "multipart/form-data") != NULL) // Post data is multipart encoded
     {
-        boundary = strstr(req->content_type, "boundary=");
-        boundary += 9;
-
-        err = httpd_get_tag_from_multipart_form(buf, boundary, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
+        err = retrieve_settings_multipart(req, buf, value_ssid, value_pass, value_device_connection_string, value_x509);
         require_noerr(err, _exit);
-
-        err = httpd_get_tag_from_multipart_form(buf, boundary, "PASS", value_pass, WIFI_PWD_MAX_LEN);
-        require_noerr(err, _exit);
-
-        if (web_settings & WEB_SETTING_IOT_DPS_SYMMETRIC_KEY)
-        {
-            strcpy(value_device_connection_string, "DPSEndpoint=");
-            err = httpd_get_tag_from_multipart_form(buf, boundary, "DPSEndpoint", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            strcat(value_device_connection_string, ";ScopeId=");
-            err = httpd_get_tag_from_multipart_form(buf, boundary, "ScopeId", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            strcat(value_device_connection_string, ";RegistrationId=");
-            err = httpd_get_tag_from_multipart_form(buf, boundary, "RegistrationId", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            strcat(value_device_connection_string, ";SymmetricKey=");
-            err = httpd_get_tag_from_multipart_form(buf, boundary, "SymmetricKey", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            free(value_x509);
-            value_x509 = NULL;
-        }
-        else
-        {
-            if (value_device_connection_string)
-            {
-                err = httpd_get_tag_from_multipart_form(buf, boundary, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
-                require_noerr(err, _exit);
-            }
-
-            if (value_x509)
-            {
-                err = httpd_get_tag_from_multipart_form(buf, boundary, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
-                require_noerr(err, _exit);
-            }
-        }
     }
     else // Post data is URL encoded
     {
-        err = httpd_get_tag_from_post_data(buf, "SSID", value_ssid, WIFI_SSID_MAX_LEN);
+        err = retrieve_settings_simple(buf, value_ssid, value_pass, value_device_connection_string, value_x509);
         require_noerr(err, _exit);
-
-        err = httpd_get_tag_from_post_data(buf, "PASS", value_pass, WIFI_PWD_MAX_LEN);
-        require_noerr(err, _exit);
-
-        if (web_settings & WEB_SETTING_IOT_DPS_SYMMETRIC_KEY)
-        {
-            strcpy(value_device_connection_string, "DPSEndpoint=");
-            err = httpd_get_tag_from_post_data(buf, "DPSEndpoint", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            strcat(value_device_connection_string, ";ScopeId=");
-            err = httpd_get_tag_from_post_data(buf, "ScopeId", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            strcat(value_device_connection_string, ";RegistrationId=");
-            err = httpd_get_tag_from_post_data(buf, "RegistrationId", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            strcat(value_device_connection_string, ";SymmetricKey=");
-            err = httpd_get_tag_from_post_data(buf, "SymmetricKey", value_x509, AZ_IOT_HUB_MAX_LEN / 4);
-            require_noerr(err, _exit);
-            strcat(value_device_connection_string, value_x509);
-            free(value_x509);
-            value_x509 = NULL;
-        }
-        else
-        {
-            if (value_device_connection_string)
-            {
-                err = httpd_get_tag_from_post_data(buf, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
-                require_noerr(err, _exit);
-            }
-
-            if (value_x509)
-            {
-                err = httpd_get_tag_from_post_data(buf, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
-                require_noerr(err, _exit);
-            }
-        }
     }
-    // Free the data buffer
-    free(buf);
-    buf = NULL;
-
-    // Prepare the result page
-    result_page = (char*)calloc(DEFAULT_PAGE_SIZE, 1);
-    if (result_page == NULL)
-    {
-        err = kGeneralErr;
-        goto _exit;
-    }
-    // Head
-    strcpy(result_page, page_head);
-    len = strlen(page_head);
-    // Result body head
-    strcpy(&result_page[len], result_head);
-    len += strlen(result_head);
-    // Wi-Fi setting
-    if (value_ssid[0] == 0)
-    {
-        ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "no change");
-    }
-    else
-    {
-        if (set_wifi_value(value_ssid, value_pass))
-        {
-            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "saved");
-        }
-        else
-        {
-            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi, "save failed");
-        }
-    }
-    len += (ret > 0 ? ret : 0);
     
-    // IoT Device Connection string
-    if (value_device_connection_string)
-    {
-        if (value_device_connection_string[0] == 0)
-        {
-            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "no change");
-        }
-        else
-        {
-            if (set_az_iothub(value_device_connection_string))
-            {
-                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "saved");
-            }
-            else
-            {
-                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_conn_string, "save failed");
-            }
-        }
-        len += (ret > 0 ? ret : 0);
-    }
-    // X.509 cert
-    if (value_x509)
-    {
-        if (value_x509[0] == 0)
-        {
-            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "no change");
-        }
-        else
-        {
-            if (set_az_x509(value_x509))
-            {
-                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "saved");
-            }
-            else
-            {
-                ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_cert, "save failed");
-            }
-        }
-        len += (ret > 0 ? ret : 0);
-    }
-    strcpy(&result_page[len], result_table_end);
-    len += strlen(result_table_end);
-    
-    // Connect Wi-Fi
-    retry = false;
-    if (value_ssid[0])
-    {
-        if (connect_wifi(value_ssid, value_pass))
-        {
-            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi_connect_2, value_ssid, _defaultSystemNetwork->get_ip_address());
-        }
-        else
-        {
-            ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_wifi_connect_1, value_ssid);
-            retry = true;
-        }
-        len += (ret > 0 ? ret : 0);
-    }
-    if (retry)
-    {
-        strcpy(&result_page[len], result_retry);
-        len += strlen(result_retry);
-    }
-    else
-    {
-        strcpy(&result_page[len], result_wait);
-        len += strlen(result_wait);
-    }
-    strcpy(&result_page[len], result_end);
-    len += strlen(result_end) + 1;
-
-    // Show the result page
-    err = httpd_send_all_header(req, HTTP_RES_200, len, HTTP_CONTENT_HTML_STR);
-    require_noerr(err, _exit);
-
-    err = httpd_send_body(req->sock, (const unsigned char*)result_page, len);
-    require_noerr(err, _exit);
-
 _exit:
     if (buf)
     {
         free(buf);
+    }
+    show_setting_result_page(req, err, value_ssid, value_pass, value_device_connection_string, value_x509);
+    if (err == 0)
+    {
+        wait_ms(3000);
+        mico_system_reboot();
     }
     if (value_device_connection_string)
     {
@@ -542,23 +594,12 @@ _exit:
     {
         free(value_x509);
     }
-    if (result_page)
-    {
-        free(result_page);
-    }
-
-    if (err == 0 && !retry)
-    {
-        wait_ms(5000);
-        mico_system_reboot();
-    }
     return err;
 }
 
 struct httpd_wsgi_call g_app_handlers[] = {
   {"/", HTTPD_HDR_DEFORT, 0, web_system_setting_page, NULL, NULL, NULL},
-  {"/result", HTTPD_HDR_DEFORT, 0, NULL, web_system_setting_result_page, NULL, NULL},
-  {"/setting", HTTPD_HDR_DEFORT, 0, web_system_setting_page, NULL, NULL, NULL},
+  {"/result", HTTPD_HDR_DEFORT, 0, NULL, web_system_setting_result_page, NULL, NULL}
 };
 
 int g_app_handlers_no = sizeof(g_app_handlers) / sizeof(struct httpd_wsgi_call);
