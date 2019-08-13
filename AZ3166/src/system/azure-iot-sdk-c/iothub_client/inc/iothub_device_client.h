@@ -23,6 +23,7 @@
 #include "iothub_client_core_ll.h"
 #include "iothub_client_core.h"
 #include "iothub_device_client_ll.h"
+#include "iothub_client_streaming.h"
 
 #ifndef IOTHUB_DEVICE_CLIENT_INSTANCE_TYPE
 typedef IOTHUB_CLIENT_CORE_HANDLE IOTHUB_DEVICE_CLIENT_HANDLE;
@@ -376,6 +377,31 @@ extern "C"
     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubDeviceClient_UploadMultipleBlocksToBlobAsync, IOTHUB_DEVICE_CLIENT_HANDLE, iotHubClientHandle, const char*, destinationFileName, IOTHUB_CLIENT_FILE_UPLOAD_GET_DATA_CALLBACK_EX, getDataCallbackEx, void*, context);
 
 #endif /* DONT_USE_UPLOADTOBLOB */
+
+    /**
+     * @brief    This API enables the device to use specific IoTHub features that are configured via device twins.
+     *
+     * @param    iotHubClientHandle        The handle created by a call to the create function.
+     * @param    policyType                The policy type that will be accepted from Azure IoT Hub.
+     * @param    enablePolicyConfiguration   True to enable parsing device twin for specific feature configuration.
+                                           Default is false.
+     *
+     * @return    IOTHUB_CLIENT_OK upon success or an error code upon failure.
+     */
+    MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubDeviceClient_EnablePolicyConfiguration, IOTHUB_DEVICE_CLIENT_HANDLE, iotHubClientHandle, POLICY_CONFIGURATION_TYPE, policyType, bool, enablePolicyConfiguration);
+
+    /**
+    * @brief    Subscribes/unsubscribes for cloud-to-device stream requests.
+    *
+    * @param    iotHubClientHandle      Handle to the device client instance.
+    *
+    * @param    streamRequestCallback   Callback to be invoked when a new stream request is received. To unsubscribe for incoming requests please provide NULL as its value.
+    *
+    * @param    context                 User-defined context to be provided to streamRequestCallback when it is invoked.
+    *
+    * @return   IOTHUB_CLIENT_OK if the subscription/unsubscription suceeds, or another value if any error occurs.
+    */
+    MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubDeviceClient_SetStreamRequestCallback, IOTHUB_DEVICE_CLIENT_HANDLE, iotHubClientHandle, DEVICE_STREAM_C2D_REQUEST_CALLBACK, streamRequestCallback, void*, context);
 
 #ifdef __cplusplus
 }
