@@ -43,7 +43,7 @@ static struct _tagRGB
         {0, 0, 255},
 };
 
-static bool initWiFi(void)
+static int initWiFi(void)
 {
     if (WiFi.begin() == WL_CONNECTED)
     {
