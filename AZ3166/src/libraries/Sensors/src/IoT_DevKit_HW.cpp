@@ -11,24 +11,25 @@
 static RGB_LED rgbLed;
 
 static DevI2C *ext_i2c;
-static LSM6DSLSensor *acc_gyro;
+static LSM6DSLSensor *acc_gyro_sensor;
 static HTS221Sensor *ht_sensor;
-static LIS2MDLSensor *magnetometer;
-static IRDASensor *IrdaSensor;
-static LPS22HBSensor *pressureSensor;
+static LIS2MDLSensor *magnetic_sensor;
+static IRDASensor *irda_sensor;
+static LPS22HBSensor *pressure_sensor;
 
-static char *connString = NULL;
-static const char *boardName = NULL;
+static const char *conn_string = NULL;
+static const char *board_name = NULL;
+static const char *ip_address = NULL;
 
 // Blink the RGB LED
-static volatile uint64_t blinkRGBLEDTimeStart = 0;
-static volatile int64_t blinkRGBLEDTime = -1;
-static volatile int colorRGBLED = 0;
+static volatile uint64_t rgbled_blink_start_time = 0;
+static volatile int64_t rgbled_blink_time = -1;
+static volatile int rgbled_color = 0;
 
 // Blink the User LED
-static volatile uint64_t blinkUserLEDTimeStart = 0;
-static volatile int64_t blinkUserLEDTime = -1;
-static volatile int userLEDStat = 0;
+static volatile uint64_t user_led_blink_start_time = 0;
+static volatile int64_t user_led_blink_time = -1;
+static volatile int user_led_stat = 0;
 
 static struct _tagRGB
 {
@@ -93,14 +94,14 @@ int initIoTDevKit(int isShowInfo)
     {
         Screen.print(3, "  LSM6DSL");
     }
-    if ((acc_gyro = new LSM6DSLSensor(*ext_i2c, D4, D5)) == NULL)
+    if ((acc_gyro_sensor = new LSM6DSLSensor(*ext_i2c, D4, D5)) == NULL)
     {
         LogError("Failed to initialize gyroscope and accelerator sensor.");
         return -102;
     }
-    acc_gyro->init(NULL);
-    acc_gyro->enableAccelerator();
-    acc_gyro->enableGyroscope();
+    acc_gyro_sensor->init(NULL);
+    acc_gyro_sensor->enableAccelerator();
+    acc_gyro_sensor->enableGyroscope();
 
     // Init the humidity and temperature sensor
     if (isShowInfo)
@@ -115,41 +116,41 @@ int initIoTDevKit(int isShowInfo)
     ht_sensor->init(NULL);
     ht_sensor->reset();
 
-    // Init the magnetometer sensor
+    // Init the magnetic sensor sensor
     if (isShowInfo)
     {
         Screen.print(3, "  LIS2MDL");
     }
-    if ((magnetometer = new LIS2MDLSensor(*ext_i2c)) == NULL)
+    if ((magnetic_sensor = new LIS2MDLSensor(*ext_i2c)) == NULL)
     {
-        LogError("Failed to initialize magnetometer sensor.");
+        LogError("Failed to initialize magnetic sensor.");
         return -104;
     }
-    magnetometer->init(NULL);
+    magnetic_sensor->init(NULL);
 
     // Init IrDA
     if (isShowInfo)
     {
         Screen.print(3, "  IrDA");
     }
-    if ((IrdaSensor = new IRDASensor()) == NULL)
+    if ((irda_sensor = new IRDASensor()) == NULL)
     {
         LogError("Failed to initialize IrDa sensor.");
         return -105;
     }
-    IrdaSensor->init();
+    irda_sensor->init();
 
     // Init pressure sensor
     if (isShowInfo)
     {
         Screen.print(3, "  LPS22HB");
     }
-    if ((pressureSensor = new LPS22HBSensor(*ext_i2c)) == NULL)
+    if ((pressure_sensor = new LPS22HBSensor(*ext_i2c)) == NULL)
     {
         LogError("Failed to initialize pressure sensor.");
         return -106;
     }
-    pressureSensor->init(NULL);
+    pressure_sensor->init(NULL);
 
     // Init WiFi
     if (isShowInfo)
@@ -161,7 +162,7 @@ int initIoTDevKit(int isShowInfo)
 
 const char *getIoTHubConnectionString(void)
 {
-    if (connString == NULL)
+    if (conn_string == NULL)
     {
         uint8_t _connString[AZ_IOT_HUB_MAX_LEN + 1] = {'\0'};
         EEPROMInterface eeprom;
@@ -176,25 +177,34 @@ const char *getIoTHubConnectionString(void)
             LogError("The connection string is empty.\r\nPlease set the value in configuration mode.");
             return NULL;
         }
-        connString = strdup((char*)_connString);
+        conn_string = strdup((char*)_connString);
     }
-    return connString;
+    return conn_string;
 }
 
 const char *getDevKitName(void)
 {
-    if (boardName == NULL)
+    if (board_name == NULL)
     {
         int len = snprintf(NULL, 0, "MXChip IoT DevKit %s", GetBoardID()) + 1;
-        boardName = (const char *)malloc(len);
-        if (boardName == NULL)
+        board_name = (const char *)malloc(len);
+        if (board_name == NULL)
         {
             LogError("No memory");
             return NULL;
         }
-        snprintf((char *)boardName, len, "MXChip IoT DevKit %s", GetBoardID());
+        snprintf((char *)board_name, len, "MXChip IoT DevKit %s", GetBoardID());
     }
-    return boardName;
+    return board_name;
+}
+
+const char *getIPAddress(void)
+{
+    if (ip_address == NULL)
+    {
+        ip_address = strdup(WiFi.localIP().get_address());
+    }
+    return ip_address;
 }
 
 const char *getDevKitSerialNumber(void)
@@ -224,14 +234,14 @@ float getDevKitTemperatureValue(int isFahrenheit)
 float getDevKitPressureValue(void)
 {
     float pressure = 0;
-    pressureSensor->getPressure(&pressure);
+    pressure_sensor->getPressure(&pressure);
     return pressure;
 }
 
 void getDevKitMagnetometerValue(int *x, int *y, int *z)
 {
     int axes[3];
-    magnetometer->getMAxes(axes);
+    magnetic_sensor->getMAxes(axes);
     *x = axes[0];
     *y = axes[1];
     *z = axes[2];
@@ -240,7 +250,7 @@ void getDevKitMagnetometerValue(int *x, int *y, int *z)
 void getDevKitGyroscopeValue(int *x, int *y, int *z)
 {
     int axes[3];
-    acc_gyro->getGAxes(axes);
+    acc_gyro_sensor->getGAxes(axes);
     *x = axes[0];
     *y = axes[1];
     *z = axes[2];
@@ -249,7 +259,7 @@ void getDevKitGyroscopeValue(int *x, int *y, int *z)
 void getDevKitAcceleratorValue(int *x, int *y, int *z)
 {
     int axes[3];
-    acc_gyro->getXAxes(axes);
+    acc_gyro_sensor->getXAxes(axes);
     *x = axes[0];
     *y = axes[1];
     *z = axes[2];
@@ -277,18 +287,18 @@ void turnOffRGBLED(void)
 
 void startBlinkDevKitUserLED(int msDuration)
 {
-    blinkUserLEDTimeStart = SystemTickCounterRead();
-    blinkUserLEDTime = (msDuration == -1 ? 0x7fffffffffffffff : msDuration);
-    userLEDStat = 1;
-    digitalWrite(LED_USER, userLEDStat);
+    user_led_blink_start_time = SystemTickCounterRead();
+    user_led_blink_time = (msDuration == -1 ? 0x7fffffffffffffff : msDuration);
+    user_led_stat = 1;
+    digitalWrite(LED_USER, user_led_stat);
 }
 
 void startBlinkDevKitRGBLED(int msDuration)
 {
-    blinkRGBLEDTimeStart = SystemTickCounterRead();
-    blinkRGBLEDTime = (msDuration == -1 ? 0x7fffffffffffffff : msDuration);
-    colorRGBLED = 0;
-    rgbLed.setColor(_rgb[colorRGBLED].red, _rgb[colorRGBLED].green, _rgb[colorRGBLED].blue);
+    rgbled_blink_start_time = SystemTickCounterRead();
+    rgbled_blink_time = (msDuration == -1 ? 0x7fffffffffffffff : msDuration);
+    rgbled_color = 0;
+    rgbLed.setColor(_rgb[rgbled_color].red, _rgb[rgbled_color].green, _rgb[rgbled_color].blue);
 }
 
 int textOutDevKitScreen(unsigned int line, const char *s, int wrap)
@@ -318,59 +328,59 @@ int getButtonBState(void)
 
 int transmitIrDA(unsigned char *data, int size, int timeout)
 {
-    return IrdaSensor->IRDATransmit(data, size, timeout);
+    return irda_sensor->IRDATransmit(data, size, timeout);
 }
 
 static void _blinkRGBLED(uint64_t msNow)
 {
-    if (blinkRGBLEDTime <= 0)
+    if (rgbled_blink_time <= 0)
     {
         return;
     }
 
-    uint64_t ms = msNow - blinkRGBLEDTimeStart;
+    uint64_t ms = msNow - rgbled_blink_start_time;
     if (ms >= 500)
     {
         // Change the color
-        colorRGBLED = (colorRGBLED + 1) % (sizeof(_rgb) / sizeof(struct _tagRGB));
-        rgbLed.setColor(_rgb[colorRGBLED].red, _rgb[colorRGBLED].green, _rgb[colorRGBLED].blue);
+        rgbled_color = (rgbled_color + 1) % (sizeof(_rgb) / sizeof(struct _tagRGB));
+        rgbLed.setColor(_rgb[rgbled_color].red, _rgb[rgbled_color].green, _rgb[rgbled_color].blue);
         
-        blinkRGBLEDTime -= ms;
-        if (blinkRGBLEDTime <= 0)
+        rgbled_blink_time -= ms;
+        if (rgbled_blink_time <= 0)
         {
             // End
             rgbLed.turnOff();
         }
         else
         {
-            blinkRGBLEDTimeStart = msNow;
+            rgbled_blink_start_time = msNow;
         }
     }
 }
 
 static void _blinkUserLED(uint64_t msNow)
 {
-    if (blinkUserLEDTime < 0)
+    if (user_led_blink_time < 0)
     {
         return;
     }
 
-    uint64_t ms = msNow - blinkUserLEDTimeStart;
+    uint64_t ms = msNow - user_led_blink_start_time;
     if (ms >= 500)
     {
         // Flip
-        userLEDStat = !userLEDStat;
-        digitalWrite(LED_USER, userLEDStat);
+        user_led_stat = !user_led_stat;
+        digitalWrite(LED_USER, user_led_stat);
 
-        blinkUserLEDTime -= ms;
-        if (blinkRGBLEDTime <= 0)
+        user_led_blink_time -= ms;
+        if (rgbled_blink_time <= 0)
         {
             // End
             digitalWrite(LED_USER, 0);
         }
         else
         {
-            blinkUserLEDTimeStart = msNow;
+            user_led_blink_start_time = msNow;
         }
     }
 }

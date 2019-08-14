@@ -30,6 +30,13 @@ extern "C"
     const char *getDevKitName(void);
 
     /**
+     * @brief    Get the local IP address.
+     *
+     * @return   Null-terminated representation of the IP Address.
+    **/
+    const char *getIPAddress(void);
+
+    /**
      * @brief    Get the serial number of the board.
      *
      * @return   Board serial number string.
