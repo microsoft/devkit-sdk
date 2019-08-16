@@ -191,7 +191,7 @@ static int web_system_setting_page(httpd_request_t *req)
             {
                 ret = snprintf(&setting_page[len], DEFAULT_PAGE_SIZE - len, user_setting_rich, 
                                 (user_settings->items[i].name),
-                                (user_settings->items[i].placeholder_text ? user_settings->items[i].placeholder_text : ""),
+                                (user_settings->items[i].display_name),
                                 (user_settings->items[i].value_len - 1)
                                 );
             }
@@ -201,7 +201,7 @@ static int web_system_setting_page(httpd_request_t *req)
                                 (user_settings->items[i].type == ITEM_INPUT_PASSWORD ? "password" : "text"),
                                 (user_settings->items[i].name),
                                 (user_settings->items[i].name),
-                                (user_settings->items[i].placeholder_text ? user_settings->items[i].placeholder_text : ""),
+                                (user_settings->items[i].display_name),
                                 (user_settings->items[i].default_text ? user_settings->items[i].default_text : ""),
                                 (user_settings->items[i].value_len - 1)
                                 );

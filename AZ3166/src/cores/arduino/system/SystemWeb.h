@@ -33,7 +33,6 @@ typedef struct web_page_setting_item_t
     const char *name;
     const char *display_name;
     int type;
-    const char *placeholder_text;
     const char *default_text;
     char *value_text;
     int value_len;
