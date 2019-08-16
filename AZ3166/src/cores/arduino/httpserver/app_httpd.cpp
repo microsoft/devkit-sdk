@@ -65,7 +65,6 @@ static const char * result_end = "</div></div></section></body></html>";
 extern OLEDDisplay Screen;
 extern NetworkInterface *_defaultSystemNetwork;
 
-static int web_settings = 0;
 static bool is_http_init = false;
 static bool is_handlers_registered = false;
 
@@ -270,55 +269,6 @@ static int retrieve_settings_multipart(httpd_request_t *req, char *buf, char *va
             require_noerr(err, _exit);
         }
     }
-
-    /*
-    if (web_settings & WEB_SETTING_IOT_DPS_SYMMETRIC_KEY)
-    {
-        int lenTmp = AZ_IOT_HUB_MAX_LEN / 4 + 1;
-        buffTemp = (char*)calloc(lenTmp, 1);
-        if (buffTemp == NULL)
-        {
-            err = kGeneralErr;
-            goto _exit;
-        }
-
-        strcpy(value_device_connection_string, "DPSEndpoint=");
-        err = httpd_get_tag_from_multipart_form(buf, boundary, "DPSEndpoint", buffTemp, lenTmp);
-        if (buffTemp[0] == 0) { err = kParamErr; }
-        require_noerr(err, _exit);
-        strcat(value_device_connection_string, buffTemp);
-        strcat(value_device_connection_string, ";ScopeId=");
-        err = httpd_get_tag_from_multipart_form(buf, boundary, "ScopeId", buffTemp, lenTmp);
-        if (buffTemp[0] == 0) { err = kParamErr; }
-        require_noerr(err, _exit);
-        strcat(value_device_connection_string, buffTemp);
-        strcat(value_device_connection_string, ";RegistrationId=");
-        err = httpd_get_tag_from_multipart_form(buf, boundary, "RegistrationId", buffTemp, lenTmp);
-        if (buffTemp[0] == 0) { err = kParamErr; }
-        require_noerr(err, _exit);
-        strcat(value_device_connection_string, buffTemp);
-        strcat(value_device_connection_string, ";SymmetricKey=");
-        err = httpd_get_tag_from_multipart_form(buf, boundary, "SymmetricKey", buffTemp, lenTmp);
-        if (buffTemp[0] == 0) { err = kParamErr; }
-        require_noerr(err, _exit);
-        strcat(value_device_connection_string, buffTemp);
-    }
-    else
-    {
-        if (value_device_connection_string)
-        {
-            err = httpd_get_tag_from_multipart_form(buf, boundary, "DeviceConnectionString", value_device_connection_string, AZ_IOT_HUB_MAX_LEN);
-            if (value_device_connection_string[0] == 0) { err = kParamErr; }
-            require_noerr(err, _exit);
-        }
-
-        if (value_x509)
-        {
-            err = httpd_get_tag_from_multipart_form(buf, boundary, "certificate", value_x509, AZ_IOT_X509_MAX_LEN);
-            if (value_x509[0] == 0) { err = kParamErr; }
-            require_noerr(err, _exit);
-        }
-    }*/
 
 _exit:
     if (buffTemp)
@@ -560,10 +510,9 @@ exit:
     return err;
 }
 
-int httpd_server_start(int settings)
+int httpd_server_start(void)
 {
     int err = kNoErr;
-    web_settings = settings;
     err = _app_httpd_start();
     require_noerr(err, exit);
 
@@ -577,7 +526,7 @@ exit:
     return err;
 }
 
-int app_httpd_stop()
+int app_httpd_stop(void)
 {
     OSStatus err = kNoErr;
 

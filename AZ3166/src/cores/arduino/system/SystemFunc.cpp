@@ -4,7 +4,6 @@
 #include "mbed.h"
 #include "mico.h"
 #include "SystemFunc.h"
-#include "SystemWeb.h"
 
 void SystemReboot(void)
 {
@@ -16,9 +15,7 @@ void SystemStandby(int timeout)
     MicoSystemStandBy(timeout);
 }
 
-
 WEAK void __sys_setup(void)
 {
     // Default only enable wifi setting
-    EnableSystemWeb(0);
 }

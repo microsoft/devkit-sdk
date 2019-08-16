@@ -4,8 +4,6 @@
 #ifndef __EEPROM_INTERFACE__
 #define __EEPROM_INTERFACE__
 
-#include "mbed.h"
-
 // Zone structure
 #define STSAFE_ZONE_0_IDX		0
 #define STSAFE_ZONE_1_IDX		1
@@ -43,6 +41,10 @@
 #define DPS_UDS_MAX_LEN         64
 #define EEPROM_DEFAULT_LEN      200
 #define AZ_IOT_X509_MAX_LEN 	(STSAFE_ZONE_0_SIZE + STSAFE_ZONE_7_SIZE + STSAFE_ZONE_8_SIZE - 1)	// Zone 0, 7, 8
+
+#ifdef __cplusplus
+
+#include "mbed.h"
 
 /**
  * \brief Write/Read data to/from EEPROM of STSAFE_A100 through I2C interface.
@@ -171,5 +173,7 @@ private:
 
     int writeWithVerify(uint8_t* dataBuff, int dataSize, uint8_t dataZoneIndex);
 };
+
+#endif  // __cplusplus
 
 #endif /* __EEPROM_INTERFACE__ */

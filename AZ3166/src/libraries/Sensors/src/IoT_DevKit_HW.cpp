@@ -182,6 +182,24 @@ const char *getIoTHubConnectionString(void)
     return conn_string;
 }
 
+int saveIoTHubConnectionString(char *connString)
+{
+    if (connString == NULL)
+    {
+        return -1;
+    }
+    EEPROMInterface eeprom;
+    if (eeprom.saveDeviceConnectionString(connString) == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        LogError("Failed to save device connection string.");
+        return -1;
+    }
+}
+
 const char *getDevKitName(void)
 {
     if (board_name == NULL)

@@ -135,7 +135,7 @@ WEB_PAGE_SETTINGS az_iot_x509_settings =
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Azure IoT hub device settings - symmetric key
-int process_az_symmetric_key_string(WEB_PAGE_SETTINGS *settings)
+static int process_az_symmetric_key_string(WEB_PAGE_SETTINGS *settings)
 {
     if (settings != &az_iot_symmetric_key_settings)
     {
@@ -215,7 +215,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
     {
         "SymmetricKey",
         "The symmetric key",
-        ITEM_INPUT_TEXT,
+        ITEM_INPUT_PASSWORD,
         "Symmetric key",
         NULL,
         NULL,

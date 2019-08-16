@@ -4,19 +4,19 @@
 #ifndef __SYSTEM_WEB_H__
 #define __SYSTEM_WEB_H__
 
-#include "mbed.h"
-
 #ifdef __cplusplus
 extern "C"{
 #endif  // __cplusplus
 
+#ifdef __cplusplus
 #define WEB_SETTING_IOT_DEVICE_CONN_STRING  0x00000001
 #define WEB_SETTING_IOT_CERT                0x00000002
 #define WEB_SETTING_IOT_DPS_SYMMETRIC_KEY   0x00000004
-
 [[deprecated("Replaced by SystemWebAddSettings, which can add new settings in the system setting web page")]]
 void EnableSystemWeb(int extFunctions);
+#endif  // __cplusplus
 
+void EnableSystemSettingWeb(void);
 void StartupSystemWeb(void);
 
 #define ITEM_INPUT_TEXT         0

@@ -44,11 +44,20 @@ extern "C"
     const char *getDevKitSerialNumber(void);
 
     /**
-     * @brief    Retrieve the saved IoT Hub connection string from the STSAFE chip.
+     * @brief    Retrieve the saved device connection string from the STSAFE chip.
      *
-     * @return   IoT Hub connection string.
+     * @return   Device connection string.
     **/
     const char *getIoTHubConnectionString(void);
+
+    /**
+     * @brief    Seve device connection string into the STSAFE chip.
+     *
+     * @param    conn_string - The device connection string to be saved.
+     * 
+     * @return   0 if saved.
+    **/
+    int saveIoTHubConnectionString(char *connString);
 
     /**
      * @brief    Retrieve the Humidity value from sensor.

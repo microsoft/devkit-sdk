@@ -40,8 +40,8 @@ extern "C"
 {
 #endif
 
-int httpd_server_start(int settings);
-int app_httpd_stop();
+int httpd_server_start(void);
+int app_httpd_stop(void);
 
 int app_httpd_add_settings(void* settings);
 
