@@ -30,6 +30,8 @@
  *
  ******************************************************************************
  */
+#ifndef _APP_HTTPD_H_
+#define _APP_HTTPD_H_
 
 #include "WiFiAccessPoint.h"
 
@@ -39,9 +41,12 @@ extern "C"
 #endif
 
 int httpd_server_start(int settings);
-
 int app_httpd_stop();
+
+int app_httpd_add_settings(void* settings);
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // _APP_HTTPD_H_
