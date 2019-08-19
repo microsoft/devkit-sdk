@@ -88,6 +88,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_default_items[] =
         NULL,
         NULL,
         AZ_IOT_HUB_MAX_LEN,
+        NULL,
         0
     }
 };
@@ -109,6 +110,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_x509_items[] =
         NULL,
         NULL,
         AZ_IOT_HUB_MAX_LEN,
+        NULL,
         0
     },
     {
@@ -118,6 +120,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_x509_items[] =
         NULL,
         NULL,
         AZ_IOT_X509_MAX_LEN,
+        NULL,
         0
     }
 };
@@ -186,6 +189,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
         "global.azure-devices-provisioning.net",
         NULL,
         128,
+        NULL,
         0
     },
     {
@@ -195,6 +199,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
         NULL,
         NULL,
         32,
+        NULL,
         0
     },
     {
@@ -204,6 +209,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
         NULL,
         NULL,
         128,
+        NULL,
         0
     },
     {
@@ -213,6 +219,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
         NULL,
         NULL,
         64,
+        NULL,
         0
     }
 };

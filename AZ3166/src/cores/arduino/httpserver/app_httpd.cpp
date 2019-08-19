@@ -365,19 +365,24 @@ static void show_setting_result_page(httpd_request_t *req, int err, char *value_
         {
             for (int i = 0; i < user_settings->item_number; i++)
             {
+                ret = 0;
+                const char *result_name = user_settings->items[i].result_name ? user_settings->items[i].result_name : user_settings->items[i].display_name;
                 switch(user_settings->items[i].result)
                 {
                 case SETTING_RESULT_NO_CHANGE:
-                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, user_settings->items[i].display_name, "no change");
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, result_name, "no change");
                     break;
                 case SETTING_RESULT_SAVED:
-                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, user_settings->items[i].display_name, "saved");
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, result_name, "saved");
                     break;
                 case SETTING_RESULT_SAVE_FAILED:
-                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, user_settings->items[i].display_name, "save failed");
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, result_name, "save failed");
                     break;
                 case SETTING_RESULT_INVALID_VALUE:
-                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, user_settings->items[i].display_name, "invalid value");
+                    ret = snprintf(&result_page[len], DEFAULT_PAGE_SIZE - len, result_setting, result_name, "invalid value");
+                    break;
+                case SETTING_RESULT_OMIT:
+                    // Omit the result
                     break;
                 }
                 len += (ret > 0 ? ret : 0);

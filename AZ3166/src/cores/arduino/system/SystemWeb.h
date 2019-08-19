@@ -27,6 +27,7 @@ void StartupSystemWeb(void);
 #define SETTING_RESULT_SAVED            1
 #define SETTING_RESULT_SAVE_FAILED      2
 #define SETTING_RESULT_INVALID_VALUE    3
+#define SETTING_RESULT_OMIT             4
 
 typedef struct web_page_setting_item_t
 {
@@ -36,6 +37,7 @@ typedef struct web_page_setting_item_t
     const char *default_text;
     char *value_text;
     int value_len;
+    const char *result_name;
     int result;
 }WEB_PAGE_SETTING_ITEM;
 
