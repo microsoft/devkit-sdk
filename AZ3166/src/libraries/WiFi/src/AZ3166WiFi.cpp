@@ -85,12 +85,12 @@ int WiFiClass::begin(void)
     return WL_CONNECT_FAILED;
 }
 
-int WiFiClass::begin(char* ssid)
+int WiFiClass::begin(const char* ssid)
 {
     return this->begin(ssid, NULL);
 }
 
-int WiFiClass::begin(char* ssid, const char *passphrase)
+int WiFiClass::begin(const char* ssid, const char *passphrase)
 {
     if (!is_wifi_inited)
     {
@@ -143,7 +143,7 @@ int WiFiClass::disconnect()
     return WL_SUCCESS;
 }
 
-int WiFiClass::beginAP(char* ssid, const char *passphrase)
+int WiFiClass::beginAP(const char* ssid, const char *passphrase)
 {
     if(is_ap_inited)
     {
