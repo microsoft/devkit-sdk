@@ -157,7 +157,7 @@ static int process_az_symmetric_key_string(WEB_PAGE_SETTINGS *settings)
         return -1;
     }
     snprintf(device_connection_string, AZ_IOT_HUB_MAX_LEN, 
-             "DPSEndpoint=%s;ScopeId=%s;RegistrationId=%s;SymmetricKey=%s",
+             "DPSEndpoint=%s;IdScope=%s;DeviceId=%s;SymmetricKey=%s",
              settings->items[0].value_text,
              settings->items[1].value_text,
              settings->items[2].value_text,
@@ -193,7 +193,7 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
         0
     },
     {
-        "ScopeId",
+        "IdScope",
         "DPS ID Scope",
         ITEM_INPUT_TEXT,
         NULL,
@@ -203,8 +203,8 @@ static WEB_PAGE_SETTING_ITEM az_iot_symmetric_key_items[] =
         0
     },
     {
-        "RegistrationId",
-        "Registration ID",
+        "DeviceId",
+        "Device ID",
         ITEM_INPUT_TEXT,
         NULL,
         NULL,
