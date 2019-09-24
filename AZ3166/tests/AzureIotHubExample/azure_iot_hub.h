@@ -4,4 +4,4 @@
 #include "azure_c_shared_utility/crt_abstractions.h"
 #include "azure_c_shared_utility/platform.h"
 #include "iothubtransportmqtt.h"
-#include "azureiotcerts.h"
+#include "certs/certs.h"

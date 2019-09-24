@@ -239,7 +239,7 @@ static void ConnectionStatusCallback(IOTHUB_CLIENT_CONNECTION_STATUS result, IOT
 static void SendConfirmationCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
 {
     EVENT_INSTANCE *event = (EVENT_INSTANCE *)userContextCallback;
-    LogInfo(">>>Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, event->trackingId, ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
+    LogInfo(">>>Confirmation[%d] received for message tracking id = %d with result = %s", callbackCounter++, event->trackingId, MU_ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
 
     if (currentTrackingId == event->trackingId)
     {
@@ -477,7 +477,7 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     srand((unsigned int)time(NULL));
     trackingId = 0;
 
-    LogInfo("Iothub Version: %s\r\n", IoTHubClient_GetVersionString());
+    LogInfo("IoThub Version: %s\r\n", IoTHubClient_GetVersionString());
     
     // Create the IoTHub client
     if (is_iothub_from_dps)

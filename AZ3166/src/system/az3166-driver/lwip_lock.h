@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-void init_system_lock(void);
+void init_lwip_lock(void);
 
 void lwip_lock(void);
 

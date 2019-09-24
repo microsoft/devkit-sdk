@@ -10,7 +10,7 @@
 #include "azure_c_shared_utility/platform.h"
 #include "azure_c_shared_utility/xlogging.h"
 #include "iothubtransportmqtt.h"
-#include "azureiotcerts.h"
+#include "certs/certs.h"
 
 typedef void (*CONNECTION_STATUS_CALLBACK)(IOTHUB_CLIENT_CONNECTION_STATUS result, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason);
 typedef void (*SEND_CONFIRMATION_CALLBACK)(IOTHUB_CLIENT_CONFIRMATION_RESULT result);

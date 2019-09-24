@@ -13,9 +13,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include "azure_c_shared_utility/httpheaders.h"
-#include "azure_c_shared_utility/macro_utils.h"
+#include "azure_macro_utils/macro_utils.h"
 #include "azure_c_shared_utility/xio.h"
-#include "azure_c_shared_utility/umock_c_prod.h"
+#include "umock_c/umock_c_prod.h"
 
 typedef struct HTTP_CLIENT_HANDLE_DATA_TAG* HTTP_CLIENT_HANDLE;
 
@@ -33,7 +33,7 @@ typedef struct HTTP_CLIENT_HANDLE_DATA_TAG* HTTP_CLIENT_HANDLE;
 /** @brief Enumeration specifying the possible return values for the APIs in
 *           this module.
 */
-DEFINE_ENUM(HTTP_CLIENT_RESULT, HTTP_CLIENT_RESULT_VALUES);
+MU_DEFINE_ENUM(HTTP_CLIENT_RESULT, HTTP_CLIENT_RESULT_VALUES);
 
 #define HTTP_CLIENT_REQUEST_TYPE_VALUES \
     HTTP_CLIENT_REQUEST_OPTIONS,        \
@@ -43,7 +43,7 @@ DEFINE_ENUM(HTTP_CLIENT_RESULT, HTTP_CLIENT_RESULT_VALUES);
     HTTP_CLIENT_REQUEST_DELETE,         \
     HTTP_CLIENT_REQUEST_PATCH
 
-DEFINE_ENUM(HTTP_CLIENT_REQUEST_TYPE, HTTP_CLIENT_REQUEST_TYPE_VALUES);
+MU_DEFINE_ENUM(HTTP_CLIENT_REQUEST_TYPE, HTTP_CLIENT_REQUEST_TYPE_VALUES);
 
 #define HTTP_CALLBACK_REASON_VALUES     \
     HTTP_CALLBACK_REASON_OK,            \
@@ -54,7 +54,7 @@ DEFINE_ENUM(HTTP_CLIENT_REQUEST_TYPE, HTTP_CLIENT_REQUEST_TYPE_VALUES);
     HTTP_CALLBACK_REASON_DESTROY,       \
     HTTP_CALLBACK_REASON_DISCONNECTED
 
-DEFINE_ENUM(HTTP_CALLBACK_REASON, HTTP_CALLBACK_REASON_VALUES);
+MU_DEFINE_ENUM(HTTP_CALLBACK_REASON, HTTP_CALLBACK_REASON_VALUES);
 
 typedef void(*ON_HTTP_OPEN_COMPLETE_CALLBACK)(void* callback_ctx, HTTP_CALLBACK_REASON open_result);
 typedef void(*ON_HTTP_ERROR_CALLBACK)(void* callback_ctx, HTTP_CALLBACK_REASON error_result);

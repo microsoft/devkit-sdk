@@ -122,7 +122,7 @@ enum wm_httpd_errno {
  *  \note This value does not include any NULL termination required internally
  *  by the httpd.
  */
-#define HTTPD_MAX_MESSAGE 512
+#define HTTPD_MAX_MESSAGE 1024
 
 /** Maximum URI length
  *
