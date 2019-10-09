@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+nsapi_error_t mbed_lwip_init(void);
+
 nsapi_error_t mbed_lwip_bringup(void);
 
 extern nsapi_stack_t lwip_stack;

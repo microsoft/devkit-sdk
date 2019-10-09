@@ -305,7 +305,8 @@ int EEPROMInterface::saveWiFiSetting(char *ssid, char *pwd)
 
 int EEPROMInterface::saveDeviceConnectionString(char *iotHubString)
 {
-    if (strlen(iotHubString) > AZ_IOT_HUB_MAX_LEN)
+    int len = strlen(iotHubString) + 1;
+    if (len > AZ_IOT_HUB_MAX_LEN)
     {
         return -1;
     }
@@ -316,7 +317,7 @@ int EEPROMInterface::saveDeviceConnectionString(char *iotHubString)
     }
     else
     {
-        ret = writeWithVerify((uint8_t*)iotHubString, strlen(iotHubString), AZ_IOT_HUB_ZONE_IDX);
+        ret = writeWithVerify((uint8_t*)iotHubString, len, AZ_IOT_HUB_ZONE_IDX);
     }
     return ret;
 }

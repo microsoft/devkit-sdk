@@ -19,11 +19,16 @@ void EnableSystemWeb(int extFunctions)
     settings = extFunctions;
 }
 
-extern "C" bool StartupSystemWeb(void)
+void StartupSystemWeb(void)
 {
     if (_startup_web_server == NULL)
     {
-        return false;
+        return;
     }
-    return _startup_web_server();
+    _startup_web_server();
+
+    while (true)
+    {
+        wait_ms(1000);
+    }
 }
