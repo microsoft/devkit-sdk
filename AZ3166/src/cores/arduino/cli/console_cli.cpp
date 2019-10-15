@@ -63,11 +63,6 @@ static const struct console_command cmds[] = {
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
 
-static const char *IOTHUBDPS_ENDPOINT = "DPSEndpoint";
-static const char *IOTHUBDPS_IDSCOPE = "IdScope";
-static const char *IOTHUBDPS_DEVICEID = "DeviceId";
-static const char *IOTHUBDPS_SYMMETRICKEY = "SymmetricKey";
-
 ////////////////////////////////////////////////////////////////////////////////////
 // Command handlers
 static void print_help()
