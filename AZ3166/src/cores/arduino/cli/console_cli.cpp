@@ -4,15 +4,11 @@
 #include "mbed.h"
 #include "mico.h"
 #include "mbedtls/version.h"
-#include "mbedtls/base64.h"
-#include "mbedtls/md.h"
-#include "mbedtls/md_internal.h"
 #include "EEPROMInterface.h"
 #include "SystemWiFi.h"
 #include "SystemVersion.h"
 #include "UARTClass.h"
 #include "console_cli.h"
-#include "azure_c_shared_utility/connection_string_parser.h"
 
 struct console_command 
 {
@@ -53,16 +49,16 @@ static void az_iotdps_command(int argc, char **argv);
 static void enable_secure_command(int argc, char **argv);
 
 static const struct console_command cmds[] = {
-  {"help",          "Help document",                                                                  false, help_command},
-  {"version",       "System version",                                                                 false, get_version_command},
-  {"exit",          "Exit and reboot",                                                                false, reboot_and_exit_command},
-  {"scan",          "Scan Wi-Fi AP",                                                                  false, wifi_scan},
-  {"set_wifissid",  "Set Wi-Fi SSID",                                                                 false, wifi_ssid_command},
-  {"set_wifipwd",   "Set Wi-Fi password",                                                             true,  wifi_pwd_Command},
-  {"set_az_iothub", "Set IoT Hub device connection string",                                           false, az_iothub_command},
-  {"set_dps_uds",   "Set DPS Unique Device Secret (UDS) for X.509 certificates.",                     true,  dps_uds_command},
-  {"set_az_iotdps", "Set DPS Symmetric Key. Format: \"IdScope=XXX;DeviceId=XXX;SymmetricKey=XXX\"",   false, az_iotdps_command},
-  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",                           false, enable_secure_command},
+  {"help",          "Help document",                                                                                                                    false, help_command},
+  {"version",       "System version",                                                                                                                   false, get_version_command},
+  {"exit",          "Exit and reboot",                                                                                                                  false, reboot_and_exit_command},
+  {"scan",          "Scan Wi-Fi AP",                                                                                                                    false, wifi_scan},
+  {"set_wifissid",  "Set Wi-Fi SSID",                                                                                                                   false, wifi_ssid_command},
+  {"set_wifipwd",   "Set Wi-Fi password",                                                                                                               true,  wifi_pwd_Command},
+  {"set_az_iothub", "Set IoT Hub device connection string",                                                                                             false, az_iothub_command},
+  {"set_dps_uds",   "Set DPS Unique Device Secret (UDS) for X.509 certificates.",                                                                       true,  dps_uds_command},
+  {"set_az_iotdps", "Set DPS Symmetric Key. Format: \"DPSEndpoint=global.azure-devices-provisioning.net;IdScope=XXX;DeviceId=XXX;SymmetricKey=XXX\"",   false, az_iotdps_command},
+  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",                                                                             false, enable_secure_command},
 }; 
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -71,99 +67,6 @@ static const char *IOTHUBDPS_ENDPOINT = "DPSEndpoint";
 static const char *IOTHUBDPS_IDSCOPE = "IdScope";
 static const char *IOTHUBDPS_DEVICEID = "DeviceId";
 static const char *IOTHUBDPS_SYMMETRICKEY = "SymmetricKey";
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-// Generate device SAS token
-static int base64DecodeKey(const unsigned char *input, int input_len, unsigned char **output, int *output_len)
-{
-    unsigned char *buffer = NULL;
-    size_t len = 0;
-    if (mbedtls_base64_decode(NULL, 0, &len, input, (size_t)input_len) == MBEDTLS_ERR_BASE64_INVALID_CHARACTER)
-    {
-        return -1;
-    }
-    buffer = (unsigned char *)calloc(1, len);
-    if(buffer == NULL)
-    {
-        return -2;
-    }
-    if(mbedtls_base64_decode(buffer, len, &len, input, (size_t)input_len))
-    {
-        free(buffer);
-        return -3;
-    }
-    *output = buffer;
-    *output_len = len;
-    return 0;
-}
-
-static int base64EncodeKey(const unsigned char *input, int input_len, char **output)
-{
-    size_t len = 0;
-    unsigned char *buffer = NULL;
-    mbedtls_base64_encode(NULL, 0, &len, input, (size_t)input_len);
-    if (len == 0)
-    {
-        return -1;
-    }
-    buffer = (unsigned char *)calloc(1, len + 1);
-    if(buffer == NULL)
-    {
-        return -2;
-    }
-    if(mbedtls_base64_encode(buffer, len, &len, input, (size_t)input_len))
-    {
-        free(buffer);
-        return -3;
-    }
-    *output = (char *)buffer;
-    return 0;
-}
-
-static int GenSasToken(const char *pkey, const char *device_id, char **sas_token)
-{
-    // Decoode key
-    unsigned char *key_data = NULL;
-    int key_len = 0;
-    if (base64DecodeKey((const unsigned char *)pkey, strlen(pkey), &key_data, &key_len))
-    {
-        return 1;
-    }
-
-    char *token = NULL;
-    unsigned char token_data[MBEDTLS_MD_MAX_SIZE] = { 0 };
-    mbedtls_md_context_t ctx;
-    mbedtls_md_init(&ctx);
-    if (mbedtls_md_setup(&ctx, &mbedtls_sha256_info, 1))
-    {
-        goto _exit;
-    }
-    if (mbedtls_md_hmac_starts(&ctx, key_data, key_len))
-    {
-        goto _exit;
-    }
-    if (mbedtls_md_hmac_update(&ctx, (const unsigned char *)device_id, (size_t)strlen(device_id)))
-    {
-        goto _exit;
-    }
-    if (mbedtls_md_hmac_finish(&ctx, token_data))
-    {
-        goto _exit;
-    }
-    if (base64EncodeKey(token_data, mbedtls_sha256_info.size, &token))
-    {
-        goto _exit;
-    }
-    *sas_token = token;
-
-_exit:
-    if (key_data)
-    {
-        free(key_data);
-    }
-    mbedtls_md_free(&ctx);
-    return (token ? 0 : -1);
-}
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Command handlers
@@ -351,86 +254,23 @@ static void dps_uds_command(int argc, char **argv)
 
 static void az_iotdps_command(int argc, char **argv)
 {
-    char *dpsIdScope = NULL;
-    char *symmetricKey = NULL;
-    char *deviceId = NULL;
-
     if (argc == 1 || argv[1] == NULL) 
     {
-        Serial.printf("Usage: set_az_iotdps <connection string>. Please provide the connection string of the IoT Central.\r\n");
+        Serial.printf("Usage: set_az_iotdps <connection string>. Please provide the connection string of DPS.\r\n");
         return;
     }
-
-    MAP_HANDLE connection_string_values_map;
-    if ((connection_string_values_map = connectionstringparser_parse_from_char(argv[1])) == NULL)
-    {
-        Serial.printf("Tokenizing failed on connectionString");
-        return;
-    }
-    const char *_dpsIdScope = Map_GetValueFromKey(connection_string_values_map, IOTHUBDPS_IDSCOPE);
-    const char *_symmetricKey = Map_GetValueFromKey(connection_string_values_map, IOTHUBDPS_SYMMETRICKEY);
-    const char *_deviceId = Map_GetValueFromKey(connection_string_values_map, IOTHUBDPS_DEVICEID);
-    if (_dpsIdScope)
-    {
-        mallocAndStrcpy_s(&dpsIdScope, _dpsIdScope);
-    }
-    else
-    {
-        Serial.printf("Couldn't find %s in connection string", IOTHUBDPS_IDSCOPE);
-        return;
-    }
-    if (_symmetricKey)
-    {
-        mallocAndStrcpy_s(&symmetricKey, _symmetricKey);
-    }
-    else
-    {
-        Serial.printf("Couldn't find %s in connection string", IOTHUBDPS_SYMMETRICKEY);
-        return;
-    }
-    if (_deviceId)
-    {
-        mallocAndStrcpy_s(&deviceId, _deviceId);
-    }
-    else
-    {
-        Serial.printf("Couldn't find %s in connection string", IOTHUBDPS_DEVICEID);
-        return;
-    }  
-
-    char *sasKey = NULL;
-    if (GenSasToken(symmetricKey, deviceId, &sasKey))
-    {
-        // Failed
-        Serial.printf("Couldn't generate SAS Key from %s in connection string", IOTHUBDPS_SYMMETRICKEY);
-        return;
-    }
-
-    char *dcs = (char*)calloc(AZ_IOT_HUB_MAX_LEN, 1);
-    if (dcs == NULL)
-    {
-        Serial.printf("INFO: Set Iot Central connection string failed. Please try again.\r\n");
-        return;
-    }
-    snprintf(dcs, AZ_IOT_HUB_MAX_LEN, 
-             "DPSEndpoint=global.azure-devices-provisioning.net;IdScope=%s;DeviceId=%s;SymmetricKey=%s",
-             dpsIdScope,
-             deviceId,
-             sasKey);
-    int len = strlen(dcs) + 1;
+    int len = strlen(argv[1]) + 1;
     if (len == 0 || len > AZ_IOT_HUB_MAX_LEN)
     {
-        Serial.printf("Invalid IoT Central connection string.\r\n");
-        free(dcs);
+        Serial.printf("Invalid DPS connection string.\r\n");
         return;
     }
-    int result = write_eeprom(dcs, AZ_IOT_HUB_ZONE_IDX);
+    
+    int result = write_eeprom(argv[1], AZ_IOT_HUB_ZONE_IDX);
     if (result == 0)
     {
-        Serial.printf("INFO: Set Iot Central connection string successfully.\r\n");
+        Serial.printf("INFO: Set DPS connection string successfully.\r\n");
     }
-
-    free(dcs);
 }
 
 static void enable_secure_command(int argc, char **argv)
