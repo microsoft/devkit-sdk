@@ -53,16 +53,16 @@ static void az_iotdps_command(int argc, char **argv);
 static void enable_secure_command(int argc, char **argv);
 
 static const struct console_command cmds[] = {
-  {"help",          "Help document",                                          false, help_command},
-  {"version",       "System version",                                         false, get_version_command},
-  {"exit",          "Exit and reboot",                                        false, reboot_and_exit_command},
-  {"scan",          "Scan Wi-Fi AP",                                          false, wifi_scan},
-  {"set_wifissid",  "Set Wi-Fi SSID",                                         false, wifi_ssid_command},
-  {"set_wifipwd",   "Set Wi-Fi password",                                     true,  wifi_pwd_Command},
-  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",   false, az_iothub_command},
-  {"set_dps_uds",   "Set DPS Unique Device Secret (DPS)",                     true,  dps_uds_command},
-  {"set_az_iotdps", "Format is IdScope=XXX;DeviceId=XXX;SymmetricKey=XXX",    false, az_iotdps_command},
-  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",   false, enable_secure_command},
+  {"help",          "Help document",                                                                  false, help_command},
+  {"version",       "System version",                                                                 false, get_version_command},
+  {"exit",          "Exit and reboot",                                                                false, reboot_and_exit_command},
+  {"scan",          "Scan Wi-Fi AP",                                                                  false, wifi_scan},
+  {"set_wifissid",  "Set Wi-Fi SSID",                                                                 false, wifi_ssid_command},
+  {"set_wifipwd",   "Set Wi-Fi password",                                                             true,  wifi_pwd_Command},
+  {"set_az_iothub", "Set IoT Hub device connection string",                                           false, az_iothub_command},
+  {"set_dps_uds",   "Set DPS Unique Device Secret (UDS) for X.509 certificates.",                     true,  dps_uds_command},
+  {"set_az_iotdps", "Set DPS Symmetric Key. Format: \"IdScope=XXX;DeviceId=XXX;SymmetricKey=XXX\"",   false, az_iotdps_command},
+  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",                           false, enable_secure_command},
 }; 
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
