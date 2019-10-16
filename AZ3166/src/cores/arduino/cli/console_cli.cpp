@@ -58,7 +58,7 @@ static const struct console_command cmds[] = {
   {"set_az_iothub", "Set IoT Hub device connection string",                                                                                             false, az_iothub_command},
   {"set_dps_uds",   "Set DPS Unique Device Secret (UDS) for X.509 certificates.",                                                                       true,  dps_uds_command},
   {"set_az_iotdps", "Set DPS Symmetric Key. Format: \"DPSEndpoint=global.azure-devices-provisioning.net;IdScope=XXX;DeviceId=XXX;SymmetricKey=XXX\"",   false, az_iotdps_command},
-  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",
+  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",                                                                             false, enable_secure_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
