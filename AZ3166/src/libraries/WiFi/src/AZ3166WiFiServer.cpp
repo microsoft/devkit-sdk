@@ -56,6 +56,16 @@ void WiFiServer::begin()
     }
 }
 
+void WiFiServer::setTimeout(int timeout = -1)
+{
+    if (_pTcpServer == NULL)
+    {
+        return;
+    }
+
+    _pTcpServer->set_timeout(timeout);
+}
+
 WiFiClient WiFiServer::available()
 {
     if (_pTcpServer == NULL )
