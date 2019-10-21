@@ -28,6 +28,14 @@ public:
 
     WiFiClient available();
     void begin();
+
+    /** Set timeout on blocking socket operations
+     *  
+     *  set_timeout(0) is equivalent to set_blocking(false)
+     *  set_timeout(-1) is equivalent to set_blocking(true)
+     *  @param timeout  Timeout in milliseconds
+     */
+    void setTimeout(int timeout /*= -1*/);
     void close();
     void send(int code, char *content_type, const String &content);
     virtual size_t write(unsigned char);
