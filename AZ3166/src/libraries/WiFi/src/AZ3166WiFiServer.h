@@ -31,8 +31,8 @@ public:
 
     /** Set timeout on blocking socket operations
      *  
-     *  set_timeout(0) is equivalent to set_blocking(false)
-     *  set_timeout(-1) is equivalent to set_blocking(true)
+     *  setTimeout(0) is equivalent to set blocking = false
+     *  setTimeout(-1) is equivalent to set blocking = true
      *  @param timeout  Timeout in milliseconds
      */
     void setTimeout(int timeout /*= -1*/);
