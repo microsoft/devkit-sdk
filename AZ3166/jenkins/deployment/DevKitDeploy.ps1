@@ -7,9 +7,9 @@ param(
 $ErrorActionPreference = "Stop"
 $CurrentDir = (Get-Location).Path
 
-Import-Module "C:\Program Files (x86)\Microsoft SDKs\Azure\PowerShell\ResourceManager\AzureResourceManager\AzureRM.Profile\AzureRM.Profile.psd1"
-Import-Module "C:\Program Files (x86)\Microsoft SDKs\Azure\PowerShell\Storage\Azure.Storage\Azure.Storage.psd1"
-Import-Module "C:\Program Files (x86)\Microsoft SDKs\Azure\PowerShell\ServiceManagement\Azure\Azure.psd1"
+Import-Module "C:\Program Files (x86)\WindowsPowerShell\Modules\AzureRM.Profile\4.6.0\AzureRM.Profile.psd1"
+Import-Module "C:\Program Files (x86)\WindowsPowerShell\Modules\Azure.Storage\4.2.1\Azure.Storage.psd1"
+Import-Module "C:\Program Files (x86)\WindowsPowerShell\Modules\Azure\5.1.2\Azure.psd1"
 
 $StorageHashTable = @{"azureboard2" = $env:Azureboard2StorageKey;
 					"azureboard" = $env:AzureboardStorageKey}; 
@@ -40,7 +40,7 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $ArduinoPackageFilePath -Blob "$ArduinoPackageContainer\$ArduinoPackageBlobName" -Force
 
 	# Upload Firmware bin file
-	$FirmwareFileName = "devkit-firmware-" + $CurrentVersion + "." + $env:BUILD_NUMBER + ".bin"
+	$FirmwareFileName = "devkit-firmware-" + $CurrentVersion + "." + $env:BUILD_NUMBER + "bin"
 	$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$FirmwareFileName"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob $FirmwareFileName -Force
 
