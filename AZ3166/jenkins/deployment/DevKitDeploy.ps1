@@ -48,7 +48,12 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 	$OTAFirmwareFileName = "devkit-firmware-latest.ota.bin"
 	$OTAFirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$OTAFirmwareFileName"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $OTAFirmwareFilePath -Blob $OTAFirmwareFileName -Force
-
+	
+	#Upload Getstarted bin file
+	$GetstartedFileName = "devkit-getstarted-" + $CurrentVersion + "." + $env:BUILD_NUMBER + "bin"
+	$GetstartedFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$GetstartedFileName"
+	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $GetstartedFilePath -Blob $GetstartedFileName -Force
+	
 	################################################################################
 	# Step 2: Calculate package MD5 checksum and Update to  configuration JSON file#
 	################################################################################
