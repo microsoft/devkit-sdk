@@ -7,7 +7,7 @@ int status = WL_IDLE_STATUS;
 int arrivedcount = 0;
 bool hasWifi = false;
 
-const char* mqttServer = "iot.eclipse.org";   //"m2m.eclipse.org";
+const char* mqttServer = "mqtt.eclipse.org";
 int port = 1883;
 
 void initWifi()
