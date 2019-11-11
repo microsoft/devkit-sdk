@@ -23,7 +23,7 @@
 #include "HardwareSerial.h"
 #include "BufferedSerial.h"
 
-#define UART_RCV_SIZE 128
+#define UART_RCV_SIZE 256
 
 class UARTClass : public HardwareSerial
 {
