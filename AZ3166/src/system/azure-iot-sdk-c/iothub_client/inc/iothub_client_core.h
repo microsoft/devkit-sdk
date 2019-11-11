@@ -20,7 +20,6 @@
 #include "umock_c/umock_c_prod.h"
 
 #include "iothub_client_core_ll.h"
-#include "iothub_client_streaming.h"
 
 #ifndef IOTHUB_CLIENT_CORE_INSTANCE_TYPE
 typedef struct IOTHUB_CLIENT_CORE_INSTANCE_TAG* IOTHUB_CLIENT_CORE_HANDLE;
@@ -59,14 +58,11 @@ extern "C"
 
     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubClientCore_SendEventToOutputAsync, IOTHUB_CLIENT_CORE_HANDLE, iotHubClientHandle, IOTHUB_MESSAGE_HANDLE, eventMessageHandle, const char*, outputName, IOTHUB_CLIENT_EVENT_CONFIRMATION_CALLBACK, eventConfirmationCallback, void*, userContextCallback);
     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubClientCore_SetInputMessageCallback, IOTHUB_CLIENT_CORE_HANDLE, iotHubClientHandle, const char*, inputName, IOTHUB_CLIENT_MESSAGE_CALLBACK_ASYNC, eventHandlerCallback, void*, userContextCallback);
-    MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubClientCore_EnablePolicyConfiguration, IOTHUB_CLIENT_CORE_HANDLE, iotHubClientHandle, POLICY_CONFIGURATION_TYPE, policyType, bool, enablePolicyConfiguration);
 
 #ifdef USE_EDGE_MODULES
     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_CORE_HANDLE, IoTHubClientCore_CreateFromEnvironment, IOTHUB_CLIENT_TRANSPORT_PROVIDER, protocol);
     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubClientCore_GenericMethodInvoke, IOTHUB_CLIENT_CORE_HANDLE, iotHubClientHandle, const char*, deviceId, const char*, moduleId, const char*, methodName, const char*, methodPayload, unsigned int, timeout, IOTHUB_METHOD_INVOKE_CALLBACK, methodInvokeCallback, void*, context);
 #endif /* USE_EDGE_MODULES */
-
-    MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubClientCore_SetStreamRequestCallback, IOTHUB_CLIENT_CORE_HANDLE, iotHubClientHandle, DEVICE_STREAM_C2D_REQUEST_CALLBACK, streamRequestCallback, void*, context);
 
 #ifdef __cplusplus
 }

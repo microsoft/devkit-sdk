@@ -6,9 +6,12 @@
 
 #ifdef __cplusplus
 #include <cstddef>
-extern "C" {
 #else
 #include <stddef.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef struct PAIRED_HANDLE_TAG
@@ -23,8 +26,8 @@ typedef struct PAIRED_HANDLES_TAG
     size_t paired_handle_count;
 } PAIRED_HANDLES;
 
-extern int umockcallpairs_track_create_paired_call(PAIRED_HANDLES* paired_handles, const void* handle, const char* handle_type, size_t handle_type_size);
-extern int umockcallpairs_track_destroy_paired_call(PAIRED_HANDLES* paired_handles, const void* handle);
+int umockcallpairs_track_create_paired_call(PAIRED_HANDLES* paired_handles, const void* handle, const char* handle_type, size_t handle_type_size);
+int umockcallpairs_track_destroy_paired_call(PAIRED_HANDLES* paired_handles, const void* handle);
 
 #ifdef __cplusplus
 }

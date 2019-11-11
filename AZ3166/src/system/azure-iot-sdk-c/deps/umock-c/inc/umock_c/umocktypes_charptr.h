@@ -10,17 +10,17 @@ extern "C" {
 
     /* Codes_SRS_UMOCK_C_LIB_01_067: [char\* and const char\* shall be supported out of the box through a separate header, umockvalue_charptr.h.]*/
     /* Codes_SRS_UMOCK_C_LIB_01_069: [The signature shall be: ...*/
-    extern int umocktypes_charptr_register_types(void);
+    int umocktypes_charptr_register_types(void);
 
-    extern char* umocktypes_stringify_charptr(const char** value);
-    extern int umocktypes_are_equal_charptr(const char** left, const char** right);
-    extern int umocktypes_copy_charptr(char** destination, const char** source);
-    extern void umocktypes_free_charptr(char** value);
+    char* umocktypes_stringify_charptr(const char** value);
+    int umocktypes_are_equal_charptr(const char** left, const char** right);
+    int umocktypes_copy_charptr(char** destination, const char** source);
+    void umocktypes_free_charptr(char** value);
 
-    extern char* umocktypes_stringify_const_charptr(const char** value);
-    extern int umocktypes_are_equal_const_charptr(const char** left, const char** right);
-    extern int umocktypes_copy_const_charptr(const char** destination, const char** source);
-    extern void umocktypes_free_const_charptr(const char** value);
+    char* umocktypes_stringify_const_charptr(const char** value);
+    int umocktypes_are_equal_const_charptr(const char** left, const char** right);
+    int umocktypes_copy_const_charptr(const char** destination, const char** source);
+    void umocktypes_free_const_charptr(const char** value);
 
 #ifdef __cplusplus
 }

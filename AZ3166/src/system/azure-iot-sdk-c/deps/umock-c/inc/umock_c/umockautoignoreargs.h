@@ -11,7 +11,7 @@ extern "C" {
 #include <stddef.h>
 #endif
 
-extern int umockautoignoreargs_is_call_argument_ignored(const char* call, size_t argument_index, int* is_argument_ignored);
+int umockautoignoreargs_is_call_argument_ignored(const char* call, size_t argument_index, int* is_argument_ignored);
 
 #ifdef __cplusplus
 }

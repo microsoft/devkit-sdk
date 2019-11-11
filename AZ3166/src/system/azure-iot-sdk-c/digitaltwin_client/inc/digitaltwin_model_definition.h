@@ -4,13 +4,17 @@
 #define DIGITALTWIN_MODEL_DEFINITION_H
 
 #include <stdio.h>
-#include <stdlib.h>
+
 #include "umock_c/umock_c_prod.h"
 #include "digitaltwin_client_common.h"
+
 
 #ifdef __cplusplus
 extern "C"
 {
+#include <cstdlib>
+#else
+#include <stdlib.h>
 #endif
 
 typedef struct MODEL_DEFINITION_CLIENT_TAG * MODEL_DEFINITION_CLIENT_HANDLE;
