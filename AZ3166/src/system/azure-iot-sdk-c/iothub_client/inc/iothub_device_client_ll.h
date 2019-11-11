@@ -31,7 +31,6 @@
 
 #include "iothub_transport_ll.h"
 #include "iothub_client_core_ll.h"
-#include "iothub_client_streaming.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -273,12 +272,13 @@ typedef struct IOTHUB_CLIENT_CORE_LL_HANDLE_DATA_TAG* IOTHUB_DEVICE_CLIENT_LL_HA
     *                - @b CURLOPT_VERBOSE - only available for HTTP protocol and only
     *                  when CURL is used. It has the same meaning as CURL's option with the same
     *                  name. @p value is pointer to a long.
-    *              - @b keepalive - available for MQTT protocol.  Integer value that sets the
-    *                interval in seconds when pings are sent to the server.
-    *              - @b logtrace - available for MQTT protocol.  Boolean value that turns on and
-    *                off the diagnostic logging.
-    *              - @b sas_token_lifetime - available for MQTT & AMQP protocol.  size_t value that that determines the
-    *                sas token timeout length.
+    *                - @b keepalive - available for MQTT protocol.  Integer value that sets the
+    *                  interval in seconds when pings are sent to the server.
+    *                - @b logtrace - available for MQTT protocol.  Boolean value that turns on and
+    *                  off the diagnostic logging.
+    *                - @b sas_token_lifetime - available for MQTT & AMQP protocol.  size_t value that that determines the
+    *                  sas token timeout length.
+    *                - @b OPTION_TRUSTED_CERT - Azure Server certificate used to validate TLS connection to iothub.
     *
     * @return   IOTHUB_CLIENT_OK upon success or an error code upon failure.
     */
@@ -389,31 +389,6 @@ typedef struct IOTHUB_CLIENT_CORE_LL_HANDLE_DATA_TAG* IOTHUB_DEVICE_CLIENT_LL_HA
      MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubDeviceClient_LL_UploadMultipleBlocksToBlob, IOTHUB_DEVICE_CLIENT_LL_HANDLE, iotHubClientHandle, const char*, destinationFileName, IOTHUB_CLIENT_FILE_UPLOAD_GET_DATA_CALLBACK_EX, getDataCallbackEx, void*, context);
 
 #endif /*DONT_USE_UPLOADTOBLOB*/
-
-     /**
-     * @brief    This API enables the device to use specific IoTHub features that are configured via device twins.
-     *
-     * @param    iotHubClientHandle        The handle created by a call to the create function.
-     * @param    policyType                The policy type that will be accepted from Azure IoT Hub.
-     * @param    enablePolicyConfiguration   True to enable parsing device twin for specific feature configuration.
-                                           Default is false.
-     *
-     * @return    IOTHUB_CLIENT_OK upon success or an error code upon failure.
-     */
-     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubDeviceClient_LL_EnablePolicyConfiguration, IOTHUB_DEVICE_CLIENT_LL_HANDLE, iotHubClientHandle, POLICY_CONFIGURATION_TYPE, policyType, bool, enablePolicyConfiguration);
-
-     /**
-     * @brief    Subscribes/unsubscribes for cloud-to-device stream requests.
-     *
-     * @param    iotHubClientHandle      Handle to the device client instance.
-     *
-     * @param    streamRequestCallback   Callback to be invoked when a new stream request is received. To unsubscribe for incoming requests please provide NULL as its value.
-     *
-     * @param    context                 User-defined context to be provided to streamRequestCallback when it is invoked.
-     *
-     * @return   IOTHUB_CLIENT_OK if the subscription/unsubscription suceeds, or another value if any error occurs.
-     */
-     MOCKABLE_FUNCTION(, IOTHUB_CLIENT_RESULT, IoTHubDeviceClient_LL_SetStreamRequestCallback, IOTHUB_DEVICE_CLIENT_LL_HANDLE, iotHubClientHandle, DEVICE_STREAM_C2D_REQUEST_CALLBACK, streamRequestCallback, void*, context);
 
 #ifdef __cplusplus
 }

@@ -10,13 +10,13 @@
 extern "C" {
 #endif
 
-    extern int umocktypes_c_register_types(void);
+    int umocktypes_c_register_types(void);
 
 #define UMOCKTYPES_HANDLERS(type, function_postfix) \
-    extern char* MU_C2(umocktypes_stringify_,function_postfix)(type* value); \
-    extern int MU_C2(umocktypes_are_equal_, function_postfix)(type* left, type* right); \
-    extern int MU_C2(umocktypes_copy_, function_postfix)(type* destination, type* source); \
-    extern void MU_C2(umocktypes_free_, function_postfix)(type* value);
+    char* MU_C2(umocktypes_stringify_,function_postfix)(type* value); \
+    int MU_C2(umocktypes_are_equal_, function_postfix)(type* left, type* right); \
+    int MU_C2(umocktypes_copy_, function_postfix)(type* destination, type* source); \
+    void MU_C2(umocktypes_free_, function_postfix)(type* value);
 
 UMOCKTYPES_HANDLERS(char, char)
 UMOCKTYPES_HANDLERS(unsigned char, unsignedchar)
