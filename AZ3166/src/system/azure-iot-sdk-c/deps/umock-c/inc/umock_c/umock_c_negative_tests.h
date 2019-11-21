@@ -6,18 +6,21 @@
 
 #ifdef __cplusplus
 #include <cstddef>
-extern "C" {
 #else
 #include <stddef.h>
 #endif
 
-    extern int umock_c_negative_tests_init(void);
-    extern void umock_c_negative_tests_deinit(void);
-    extern void umock_c_negative_tests_snapshot(void);
-    extern void umock_c_negative_tests_reset(void);
-    extern void umock_c_negative_tests_fail_call(size_t index);
-    extern size_t umock_c_negative_tests_call_count(void);
-    extern int umock_c_negative_tests_can_call_fail(size_t index);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    int umock_c_negative_tests_init(void);
+    void umock_c_negative_tests_deinit(void);
+    void umock_c_negative_tests_snapshot(void);
+    void umock_c_negative_tests_reset(void);
+    void umock_c_negative_tests_fail_call(size_t index);
+    size_t umock_c_negative_tests_call_count(void);
+    int umock_c_negative_tests_can_call_fail(size_t index);
 
 #ifdef __cplusplus
 }
