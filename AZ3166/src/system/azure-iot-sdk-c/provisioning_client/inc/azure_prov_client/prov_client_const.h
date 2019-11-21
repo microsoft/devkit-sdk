@@ -4,7 +4,7 @@
 #ifndef PROV_CLIENT_CONST_H
 #define PROV_CLIENT_CONST_H
 
-#define PROV_DEVICE_CLIENT_VERSION "1.3.4"
+#define PROV_DEVICE_CLIENT_VERSION "1.3.6"
 #define PROV_GET_THROTTLE_TIME      1
 #define MAX_PROV_GET_THROTTLE_TIME  5*60
 
@@ -15,6 +15,6 @@ static const char* const PROV_DISABLE_STATUS = "disabled";
 
 static const char* const RETRY_AFTER_KEY_VALUE = "retry-after";
 
-static const char* const PROV_API_VERSION = "2018-09-01-preview";
+static const char* const PROV_API_VERSION = "2019-03-31";
 
 #endif // PROV_CLIENT_CONST_H

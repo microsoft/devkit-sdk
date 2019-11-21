@@ -4,13 +4,19 @@
 #ifndef UMOCKTYPES_H
 #define UMOCKTYPES_H
 
-#include "umockalloc.h"
-
 #ifdef __cplusplus
 #include <cstddef>
-extern "C" {
 #else
 #include <stddef.h>
+#endif
+
+#include "azure_macro_utils/macro_utils.h"
+
+#include "umock_c/umock_c.h"
+#include "umock_c/umockalloc.h"
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
     typedef char*(*UMOCKTYPE_STRINGIFY_FUNC)(const void* value);
@@ -18,15 +24,15 @@ extern "C" {
     typedef void(*UMOCKTYPE_FREE_FUNC)(void* value);
     typedef int(*UMOCKTYPE_ARE_EQUAL_FUNC)(const void* left, const void* right);
 
-    extern int umocktypes_init(void);
-    extern void umocktypes_deinit(void);
-    extern int umocktypes_register_type(const char* type, UMOCKTYPE_STRINGIFY_FUNC stringify_func, UMOCKTYPE_ARE_EQUAL_FUNC are_equal_func, UMOCKTYPE_COPY_FUNC copy_func, UMOCKTYPE_FREE_FUNC free_func);
-    extern int umocktypes_register_alias_type(const char* type, const char* alias_type);
+    int umocktypes_init(void);
+    void umocktypes_deinit(void);
+    int umocktypes_register_type(const char* type, UMOCKTYPE_STRINGIFY_FUNC stringify_func, UMOCKTYPE_ARE_EQUAL_FUNC are_equal_func, UMOCKTYPE_COPY_FUNC copy_func, UMOCKTYPE_FREE_FUNC free_func);
+    int umocktypes_register_alias_type(const char* type, const char* alias_type);
 
-    extern char* umocktypes_stringify(const char* type, const void* value);
-    extern int umocktypes_are_equal(const char* type, const void* left, const void* right);
-    extern int umocktypes_copy(const char* type, void* destination, const void* source);
-    extern void umocktypes_free(const char* type, void* value);
+    char* umocktypes_stringify(const char* type, const void* value);
+    int umocktypes_are_equal(const char* type, const void* left, const void* right);
+    int umocktypes_copy(const char* type, void* destination, const void* source);
+    void umocktypes_free(const char* type, void* value);
 
     /* This is a convenience macro that allows registering a type by simply specifying the name and a function_postfix*/
 #define REGISTER_TYPE(type, function_postfix) \
@@ -36,13 +42,17 @@ extern "C" {
             (UMOCKTYPE_FREE_FUNC)MU_C2(umocktypes_free_,function_postfix))
 
 /* Codes_SRS_UMOCK_C_LIB_01_181: [ If a value that is not part of the enum is used, it shall be treated as an int value. ]*/
-#define IMPLEMENT_UMOCK_C_ENUM_STRINGIFY(type, ...) \
-    UMOCK_STATIC char* MU_C2(umocktypes_stringify_,type)(const type* value) \
+#define IMPLEMENT_UMOCK_C_ENUM_STRINGIFY(enum_name, ...) \
+    UMOCK_STATIC char* MU_C2(umocktypes_stringify_,enum_name)(const enum_name* value) \
     { \
         char* result; \
-        static const char *MU_C2(enum_name,_strings)[]= \
+        static const char *MU_C2(enum_name,_strings)[] = \
         { \
             MU_FOR_EACH_1(MU_DEFINE_ENUMERATION_CONSTANT_AS_STRING, __VA_ARGS__) \
+        }; \
+        static const enum_name MU_C2(enum_name,_values)[] = \
+        { \
+            __VA_ARGS__ \
         }; \
         if (value == NULL) \
         { \
@@ -50,9 +60,17 @@ extern "C" {
         } \
         else \
         { \
-            if ((int)*value < (int)(sizeof(MU_C2(enum_name,_strings)) / sizeof(MU_C2(enum_name,_strings)[0]))) \
+            size_t i; \
+            for (i = 0; i < sizeof(MU_C2(enum_name,_strings)) / sizeof(MU_C2(enum_name,_strings)[0]); i++) \
             { \
-                size_t length = strlen(MU_C2(enum_name_, strings)[*value]); \
+                if (MU_C2(enum_name,_values)[i] == *value) \
+                { \
+                    break; \
+                } \
+            } \
+            if (i < sizeof(MU_C2(enum_name,_strings)) / sizeof(MU_C2(enum_name,_strings)[0])) \
+            { \
+                size_t length = strlen(MU_C2(enum_name, _strings)[i]); \
                 if (length == 0) \
                 { \
                     result = NULL; \
@@ -62,7 +80,7 @@ extern "C" {
                     result = (char*)umockalloc_malloc(length + 1); \
                     if (result != NULL) \
                     { \
-                        (void)memcpy(result, MU_C2(enum_name_, strings)[*value], length + 1); \
+                        (void)memcpy(result, MU_C2(enum_name, _strings)[i], length + 1); \
                     } \
                 } \
             } \
@@ -73,6 +91,27 @@ extern "C" {
                 { \
                     (void)sprintf(result, "%d", (int)*value); \
                 } \
+            } \
+        } \
+        return result; \
+    }
+
+#define IMPLEMENT_UMOCK_C_ENUM_2_STRINGIFY(enum_name, ...) \
+    UMOCK_STATIC char* MU_C2(umocktypes_stringify_,enum_name)(const enum_name* value) \
+    { \
+        char* result; \
+        const char* enum_string = MU_ENUM_TO_STRING_2(enum_name, (*value)); \
+        size_t length = strlen(enum_string); \
+        if (length == 0) \
+        { \
+            result = NULL; \
+        } \
+        else \
+        { \
+            result = (char*)umockalloc_malloc(length + 1); \
+            if (result != NULL) \
+            { \
+                (void)memcpy(result, enum_string, length + 1); \
             } \
         } \
         return result; \
@@ -120,6 +159,12 @@ extern "C" {
 /* Codes_SRS_UMOCK_C_LIB_01_180: [ The variable arguments are a list making up the enum values. ]*/
 #define IMPLEMENT_UMOCK_C_ENUM_TYPE(type, ...) \
     IMPLEMENT_UMOCK_C_ENUM_STRINGIFY(type, __VA_ARGS__) \
+    IMPLEMENT_UMOCK_C_ENUM_ARE_EQUAL(type) \
+    IMPLEMENT_UMOCK_C_ENUM_COPY(type) \
+    IMPLEMENT_UMOCK_C_ENUM_FREE(type)
+
+#define IMPLEMENT_UMOCK_C_ENUM_2_TYPE(type, ...) \
+    IMPLEMENT_UMOCK_C_ENUM_2_STRINGIFY(type, __VA_ARGS__) \
     IMPLEMENT_UMOCK_C_ENUM_ARE_EQUAL(type) \
     IMPLEMENT_UMOCK_C_ENUM_COPY(type) \
     IMPLEMENT_UMOCK_C_ENUM_FREE(type)
