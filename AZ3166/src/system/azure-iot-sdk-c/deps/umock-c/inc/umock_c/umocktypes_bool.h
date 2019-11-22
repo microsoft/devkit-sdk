@@ -4,20 +4,23 @@
 #ifndef UMOCKTYPES_BOOL_H
 #define UMOCKTYPES_BOOL_H
 
-#include "azure_macro_utils/macro_utils.h"
-
 #ifdef __cplusplus
-extern "C" {
 #else
 #include <stdbool.h>
 #endif
 
-    extern int umocktypes_bool_register_types(void);
+#include "azure_macro_utils/macro_utils.h"
 
-    extern char* umocktypes_stringify_bool(const bool* value); \
-    extern int umocktypes_are_equal_bool(const bool* left, const bool* right); \
-    extern int umocktypes_copy_bool(bool* destination, const bool* source); \
-    extern void umocktypes_free_bool(bool* value);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    int umocktypes_bool_register_types(void);
+
+    char* umocktypes_stringify_bool(const bool* value); \
+    int umocktypes_are_equal_bool(const bool* left, const bool* right); \
+    int umocktypes_copy_bool(bool* destination, const bool* source); \
+    void umocktypes_free_bool(bool* value);
 
 #ifdef __cplusplus
 }

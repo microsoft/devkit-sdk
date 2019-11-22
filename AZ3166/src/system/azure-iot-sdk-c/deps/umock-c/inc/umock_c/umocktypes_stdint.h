@@ -4,21 +4,25 @@
 #ifndef UMOCKTYPES_STDINT_H
 #define UMOCKTYPES_STDINT_H
 
-#include "azure_macro_utils/macro_utils.h"
 #ifdef __cplusplus
 #include <cstdint>
-extern "C" {
 #else
 #include <stdint.h>
 #endif
 
-    extern int umocktypes_stdint_register_types(void);
+#include "azure_macro_utils/macro_utils.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    int umocktypes_stdint_register_types(void);
 
 #define UMOCKTYPES_STDINT_HANDLERS(type, function_postfix) \
-    extern char* MU_C2(umocktypes_stringify_,function_postfix)(type* value); \
-    extern int MU_C2(umocktypes_are_equal_, function_postfix)(type* left, type* right); \
-    extern int MU_C2(umocktypes_copy_, function_postfix)(type* destination, type* source); \
-    extern void MU_C2(umocktypes_free_, function_postfix)(type* value);
+    char* MU_C2(umocktypes_stringify_,function_postfix)(type* value); \
+    int MU_C2(umocktypes_are_equal_, function_postfix)(type* left, type* right); \
+    int MU_C2(umocktypes_copy_, function_postfix)(type* destination, type* source); \
+    void MU_C2(umocktypes_free_, function_postfix)(type* value);
 
 UMOCKTYPES_STDINT_HANDLERS(uint8_t, uint8_t)
 UMOCKTYPES_STDINT_HANDLERS(int8_t, int8_t)

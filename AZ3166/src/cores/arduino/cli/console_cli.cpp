@@ -45,18 +45,20 @@ static void wifi_ssid_command(int argc, char **argv);
 static void wifi_pwd_Command(int argc, char **argv);
 static void az_iothub_command(int argc, char **argv);
 static void dps_uds_command(int argc, char **argv);
+static void az_iotdps_command(int argc, char **argv);
 static void enable_secure_command(int argc, char **argv);
 
 static const struct console_command cmds[] = {
-  {"help",          "Help document",                                            false, help_command},
-  {"version",       "System version",                                           false, get_version_command},
-  {"exit",          "Exit and reboot",                                          false, reboot_and_exit_command},
-  {"scan",          "Scan Wi-Fi AP",                                            false, wifi_scan},
-  {"set_wifissid",  "Set Wi-Fi SSID",                                           false, wifi_ssid_command},
-  {"set_wifipwd",   "Set Wi-Fi password",                                       true,  wifi_pwd_Command},
-  {"set_az_iothub", "Set the connection string of Microsoft Azure IoT Hub",     false, az_iothub_command},
-  {"set_dps_uds",   "Set DPS Unique Device Secret (DPS)",                       true,  dps_uds_command},
-  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",     false, enable_secure_command},
+  {"help",          "Help document",                                                                                                                    false, help_command},
+  {"version",       "System version",                                                                                                                   false, get_version_command},
+  {"exit",          "Exit and reboot",                                                                                                                  false, reboot_and_exit_command},
+  {"scan",          "Scan Wi-Fi AP",                                                                                                                    false, wifi_scan},
+  {"set_wifissid",  "Set Wi-Fi SSID",                                                                                                                   false, wifi_ssid_command},
+  {"set_wifipwd",   "Set Wi-Fi password",                                                                                                               true,  wifi_pwd_Command},
+  {"set_az_iothub", "Set IoT Hub device connection string",                                                                                             false, az_iothub_command},
+  {"set_dps_uds",   "Set DPS Unique Device Secret (UDS) for X.509 certificates.",                                                                       true,  dps_uds_command},
+  {"set_az_iotdps", "Set DPS Symmetric Key. Format: \"DPSEndpoint=global.azure-devices-provisioning.net;IdScope=XXX;DeviceId=XXX;SymmetricKey=XXX\"",   false, az_iotdps_command},
+  {"enable_secure", "Enable secure channel between AZ3166 and secure chip",                                                                             false, enable_secure_command},
 };
 
 static const int cmd_count = sizeof(cmds) / sizeof(struct console_command);
@@ -242,6 +244,27 @@ static void dps_uds_command(int argc, char **argv)
     if (result == 0)
     {
         Serial.printf("INFO: Set DPS UDS successfully.\r\n");
+    }
+}
+
+static void az_iotdps_command(int argc, char **argv)
+{
+    if (argc == 1 || argv[1] == NULL) 
+    {
+        Serial.printf("Usage: set_az_iotdps <connection string>. Please provide the connection string of DPS.\r\n");
+        return;
+    }
+    int len = strlen(argv[1]) + 1;
+    if (len == 0 || len > AZ_IOT_HUB_MAX_LEN)
+    {
+        Serial.printf("Invalid DPS connection string.\r\n");
+        return;
+    }
+
+    int result = write_eeprom(argv[1], AZ_IOT_HUB_ZONE_IDX);
+    if (result == 0)
+    {
+        Serial.printf("INFO: Set DPS connection string successfully.\r\n");
     }
 }
 

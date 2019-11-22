@@ -4,6 +4,14 @@
 #ifndef UMOCK_C_INTERNAL_H
 #define UMOCK_C_INTERNAL_H
 
+#ifdef __cplusplus
+#include <cstdlib>
+#include <cstdio>
+#else
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include "azure_macro_utils/macro_utils.h"
 #include "umock_c/umocktypes.h"
 #include "umock_c/umockcall.h"
@@ -15,19 +23,24 @@
 #include "umock_c/umockstring.h"
 #include "umock_c/umockautoignoreargs.h"
 
-#ifdef __cplusplus
-#include <cstdlib>
-extern "C" {
+#ifdef _MSC_VER
+#define UMOCK_C_WEAK
+#elif __GNUC__
+// GCC needs weak for the reals
+#define UMOCK_C_WEAK __attribute__ ((weak))
 #else
-#include <stdlib.h>
+// at the mercy of that compiler
+#define UMOCK_C_WEAK
 #endif
 
-#include <stdio.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern void umock_c_indicate_error(UMOCK_C_ERROR_CODE error_code);
-extern UMOCKCALL_HANDLE umock_c_get_last_expected_call(void);
-extern int umock_c_add_expected_call(UMOCKCALL_HANDLE mock_call);
-extern int umock_c_add_actual_call(UMOCKCALL_HANDLE mock_call, UMOCKCALL_HANDLE* matched_call);
+void umock_c_indicate_error(UMOCK_C_ERROR_CODE error_code);
+UMOCKCALL_HANDLE umock_c_get_last_expected_call(void);
+int umock_c_add_expected_call(UMOCKCALL_HANDLE mock_call);
+int umock_c_add_actual_call(UMOCKCALL_HANDLE mock_call, UMOCKCALL_HANDLE* matched_call);
 
 typedef struct ARG_BUFFER_TAG
 {
@@ -899,7 +912,7 @@ typedef int(*TRACK_DESTROY_FUNC_TYPE)(PAIRED_HANDLES* paired_handles, const void
     typedef struct MU_C2(_mock_call_modifier_, name) (*MU_C2(validate_one_argument_func_type_, name))(void);
 
 #define COPY_RETURN_VALUE(return_type, name) \
-    result = MU_C2(get_mock_call_return_values_, name)()->success_value;
+    result_C8417226_7442_49B4_BBB9_9CA816A21EB7 = MU_C2(get_mock_call_return_values_, name)()->success_value;
 
 typedef struct MOCK_CALL_ARG_METADATA_TAG
 {
@@ -972,6 +985,7 @@ typedef struct MOCK_CALL_METADATA_TAG
 /* Codes_SRS_UMOCK_C_LIB_01_188: [ The create call shall have a non-void return type. ]*/
 #define MOCKABLE_FUNCTION_UMOCK_INTERNAL_WITH_MOCK_NO_CODE(do_returns, return_type, name, ...) \
     typedef return_type (*MU_C2(mock_hook_func_type_, name))(MU_IF(MU_COUNT_ARG(__VA_ARGS__),,void) MU_FOR_EACH_2_COUNTED(ARG_IN_SIGNATURE, __VA_ARGS__)); \
+    return_type MU_C2(real_, name)(MU_IF(MU_COUNT_ARG(__VA_ARGS__),,void) MU_FOR_EACH_2_COUNTED(ARG_IN_SIGNATURE, __VA_ARGS__)) UMOCK_C_WEAK; \
     static MU_C2(mock_hook_func_type_,name) MU_C2(mock_hook_,name) = NULL; \
     static TRACK_CREATE_FUNC_TYPE MU_C2(track_create_destroy_pair_malloc_,name) = NULL; \
     static TRACK_DESTROY_FUNC_TYPE MU_C2(track_create_destroy_pair_free_,name) = NULL; \
@@ -1000,7 +1014,7 @@ typedef struct MOCK_CALL_METADATA_TAG
             } \
         ) \
     ,) \
-typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,name))(return_type return_value); \
+    typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,name))(return_type return_value); \
     typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_fail_return_func_type_,name))(return_type return_value); \
     typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(call_cannot_fail_func_type_,name))(void); \
     typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(capture_return_func_type_,name))(return_type* captured_return_value);,) \
@@ -1251,13 +1265,16 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
         UMOCKCALL_HANDLE mock_call; \
         UMOCKCALL_HANDLE matched_call; \
         MU_IF(IS_NOT_VOID(return_type), \
-        unsigned int result_value_set = 0; \
-        unsigned int fail_result_value_set = 0; \
-        void* captured_return_value = NULL;,) \
-        MU_IF(IS_NOT_VOID(return_type),TRACK_CREATE_FUNC_TYPE track_create_destroy_pair_malloc_local = MU_C2(track_create_destroy_pair_malloc_,name); \
-            PAIRED_HANDLES* used_paired_handles_local = MU_C2(used_paired_handles_,name); \
-            const char* return_type_string =MU_TOSTRING(return_type);,) \
-        MU_IF(IS_NOT_VOID(return_type),return_type result = MU_C2(get_mock_call_return_values_,name)()->success_value;,) \
+        unsigned int result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 0; \
+        unsigned int fail_result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 0; \
+        void* captured_return_value_C8417226_7442_49B4_BBB9_9CA816A21EB7 = NULL;,) \
+        MU_IF(IS_NOT_VOID(return_type),TRACK_CREATE_FUNC_TYPE track_create_destroy_pair_malloc_local_C8417226_7442_49B4_BBB9_9CA816A21EB7 = MU_C2(track_create_destroy_pair_malloc_,name); \
+            PAIRED_HANDLES* used_paired_handles_local_C8417226_7442_49B4_BBB9_9CA816A21EB7 = MU_C2(used_paired_handles_,name); \
+            const char* return_type_string_C8417226_7442_49B4_BBB9_9CA816A21EB7 = MU_TOSTRING(return_type); \
+            (void)return_type_string_C8417226_7442_49B4_BBB9_9CA816A21EB7; \
+            (void)track_create_destroy_pair_malloc_local_C8417226_7442_49B4_BBB9_9CA816A21EB7; \
+            (void)used_paired_handles_local_C8417226_7442_49B4_BBB9_9CA816A21EB7;,) \
+        MU_IF(IS_NOT_VOID(return_type),return_type result_C8417226_7442_49B4_BBB9_9CA816A21EB7 = MU_C2(get_mock_call_return_values_,name)()->success_value;,) \
         MU_C2(mock_call_,name)* matched_call_data; \
         MU_C2(mock_call_,name)* mock_call_data = (MU_C2(mock_call_,name)*)umockalloc_malloc(sizeof(MU_C2(mock_call_,name))); \
         MU_FOR_EACH_2(COPY_ARG_TO_MOCK_STRUCT, __VA_ARGS__) \
@@ -1294,31 +1311,31 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
                 } \
                 MU_IF(IS_NOT_VOID(return_type),if (matched_call_data != NULL) \
                 { \
-                    captured_return_value = (void*)matched_call_data->captured_return_value; \
+                    captured_return_value_C8417226_7442_49B4_BBB9_9CA816A21EB7 = (void*)matched_call_data->captured_return_value; \
                     if (umockcall_get_fail_call(matched_call)) \
                     { \
                         if (matched_call_data->fail_return_value_set == FAIL_RETURN_VALUE_SET) \
                         { \
-                            result = matched_call_data->fail_return_value; \
+                            result_C8417226_7442_49B4_BBB9_9CA816A21EB7 = matched_call_data->fail_return_value; \
                         } \
                         else \
                         { \
-                            result = MU_C2(get_mock_call_return_values_, name)()->failure_value; \
+                            result_C8417226_7442_49B4_BBB9_9CA816A21EB7 = MU_C2(get_mock_call_return_values_, name)()->failure_value; \
                         } \
-                        result_value_set = 1; \
-                        fail_result_value_set = 1; \
+                        result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 1; \
+                        fail_result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 1; \
                     } \
                     else if (matched_call_data->return_value_set == RETURN_VALUE_SET) \
                     { \
-                        result = matched_call_data->return_value; \
-                        result_value_set = 1; \
+                        result_C8417226_7442_49B4_BBB9_9CA816A21EB7 = matched_call_data->return_value; \
+                        result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 1; \
                     } \
                     else \
                     { \
                         if (MU_C2(mock_hook_, name) != NULL) \
                         { \
-                            MU_IF(IS_NOT_VOID(return_type),result =,) MU_C2(mock_hook_, name)(MU_FOR_EACH_2_COUNTED(ARG_NAME_ONLY_IN_CALL, __VA_ARGS__)); \
-                            MU_IF(IS_NOT_VOID(return_type),result_value_set = 1;,) \
+                            MU_IF(IS_NOT_VOID(return_type),result_C8417226_7442_49B4_BBB9_9CA816A21EB7 =,) MU_C2(mock_hook_, name)(MU_FOR_EACH_2_COUNTED(ARG_NAME_ONLY_IN_CALL, __VA_ARGS__)); \
+                            MU_IF(IS_NOT_VOID(return_type),result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 1;,) \
                         } \
                     } \
                 }, \
@@ -1333,8 +1350,8 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
             { \
                 if (MU_C2(mock_hook_, name) != NULL) \
                 { \
-                    MU_IF(IS_NOT_VOID(return_type),result =,) MU_C2(mock_hook_, name)(MU_FOR_EACH_2_COUNTED(ARG_NAME_ONLY_IN_CALL, __VA_ARGS__)); \
-                    MU_IF(IS_NOT_VOID(return_type),result_value_set = 1;,) \
+                    MU_IF(IS_NOT_VOID(return_type),result_C8417226_7442_49B4_BBB9_9CA816A21EB7 =,) MU_C2(mock_hook_, name)(MU_FOR_EACH_2_COUNTED(ARG_NAME_ONLY_IN_CALL, __VA_ARGS__)); \
+                    MU_IF(IS_NOT_VOID(return_type),result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 = 1;,) \
                 } \
             } \
         } \
@@ -1346,7 +1363,7 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
                 umock_c_indicate_error(UMOCK_C_ERROR); \
             } \
         },) \
-        {
+        { \
 
 #define UMOCK_GENERATE_DEFAULT_RETURNS(success_return_value, failure_return_value) \
             = { success_return_value, failure_return_value }; \
@@ -1366,23 +1383,23 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
     MOCKABLE_FUNCTION_UMOCK_INTERNAL_WITH_MOCK_NO_CODE(do_returns, return_type, name, __VA_ARGS__) \
     MOCKABLE_FUNCTION_BODY_WITHOUT_RETURN(modifiers, return_type, name, __VA_ARGS__) \
             MU_IF(IS_NOT_VOID(return_type), \
-            if (result_value_set == 0) \
+            if (result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 == 0) \
             { \
                 COPY_RETURN_VALUE(return_type, name) \
             }; \
-            if (captured_return_value != NULL) \
+            if (captured_return_value_C8417226_7442_49B4_BBB9_9CA816A21EB7 != NULL) \
             { \
-                (void)memcpy(captured_return_value, (void*)&result, sizeof(result)); \
+                (void)memcpy(captured_return_value_C8417226_7442_49B4_BBB9_9CA816A21EB7, (void*)&result_C8417226_7442_49B4_BBB9_9CA816A21EB7, sizeof(result_C8417226_7442_49B4_BBB9_9CA816A21EB7)); \
             } \
-            if ((track_create_destroy_pair_malloc_local != NULL) && (fail_result_value_set == 0)) \
+            if ((track_create_destroy_pair_malloc_local_C8417226_7442_49B4_BBB9_9CA816A21EB7 != NULL) && (fail_result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 == 0)) \
             { \
-                if (track_create_destroy_pair_malloc_local(used_paired_handles_local, (const void*)&result, return_type_string, sizeof(result)) != 0) \
+                if (track_create_destroy_pair_malloc_local_C8417226_7442_49B4_BBB9_9CA816A21EB7(used_paired_handles_local_C8417226_7442_49B4_BBB9_9CA816A21EB7, (const void*)&result_C8417226_7442_49B4_BBB9_9CA816A21EB7, return_type_string_C8417226_7442_49B4_BBB9_9CA816A21EB7, sizeof(result_C8417226_7442_49B4_BBB9_9CA816A21EB7)) != 0) \
                 { \
                     UMOCK_LOG("Could not track the create call for %s.", MU_TOSTRING(name)); \
                     umock_c_indicate_error(UMOCK_C_ERROR); \
                 } \
             } \
-            return result;,) \
+            return result_C8417226_7442_49B4_BBB9_9CA816A21EB7;,) \
         } \
     } \
     MU_IF(IS_NOT_VOID(return_type), \
@@ -1399,30 +1416,40 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
     MOCKABLE_FUNCTION_UMOCK_INTERNAL_WITH_MOCK_NO_CODE(0, return_type, name, __VA_ARGS__) \
     MOCKABLE_FUNCTION_BODY_WITHOUT_RETURN(modifiers, return_type, name, __VA_ARGS__) \
 
+#define MOCKABLE_FUNCTION_INTERNAL_WITH_CODE(modifiers, return_type, name, ...) \
+    MOCKABLE_FUNCTION_UMOCK_INTERNAL_WITH_MOCK_NO_CODE(0, return_type, name, __VA_ARGS__) \
+    MOCKABLE_FUNCTION_BODY_WITHOUT_RETURN(modifiers, return_type, name, __VA_ARGS__) \
+    MU_IF(IS_NOT_VOID(return_type), if (result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 == 0),) \
+    { \
+
 /* Codes_SRS_UMOCK_C_LIB_01_188: [ The create call shall have a non-void return type. ]*/
 /* Codes_SRS_UMOCK_C_LIB_01_191: [ At each create_call a memory block shall be allocated so that it can be reported as a leak by any memory checker. ]*/
 /* Codes_SRS_UMOCK_C_LIB_01_192: [ If any error occurs during the create_call related then umock_c shall raise an error with the code UMOCK_C_ERROR. ]*/
 /* Codes_SRS_UMOCK_C_LIB_01_204: [ Tracking of paired calls shall not be done if the actual call to the create_call is using the SetFailReturn call modifier. ]*/
 #define MOCK_FUNCTION_END(...) \
-            MU_IF(MU_COUNT_ARG(__VA_ARGS__), if (result_value_set == 0) \
+            MU_IF(MU_COUNT_ARG(__VA_ARGS__), if (result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 == 0) \
             { \
-                result = __VA_ARGS__; \
+                result_C8417226_7442_49B4_BBB9_9CA816A21EB7 = __VA_ARGS__; \
             }; \
-            if (captured_return_value != NULL) \
+            if (captured_return_value_C8417226_7442_49B4_BBB9_9CA816A21EB7 != NULL) \
             { \
-                (void)memcpy(captured_return_value, (void*)&result, sizeof(result)); \
+                (void)memcpy(captured_return_value_C8417226_7442_49B4_BBB9_9CA816A21EB7, (void*)&result_C8417226_7442_49B4_BBB9_9CA816A21EB7, sizeof(result_C8417226_7442_49B4_BBB9_9CA816A21EB7)); \
             } \
-            if ((track_create_destroy_pair_malloc_local != NULL) && (fail_result_value_set == 0)) \
+            if ((track_create_destroy_pair_malloc_local_C8417226_7442_49B4_BBB9_9CA816A21EB7 != NULL) && (fail_result_value_set_C8417226_7442_49B4_BBB9_9CA816A21EB7 == 0)) \
             { \
-                if (track_create_destroy_pair_malloc_local(used_paired_handles_local, (const void*)&result, return_type_string, sizeof(result)) != 0) \
+                if (track_create_destroy_pair_malloc_local_C8417226_7442_49B4_BBB9_9CA816A21EB7(used_paired_handles_local_C8417226_7442_49B4_BBB9_9CA816A21EB7, (const void*)&result_C8417226_7442_49B4_BBB9_9CA816A21EB7, return_type_string_C8417226_7442_49B4_BBB9_9CA816A21EB7, sizeof(result_C8417226_7442_49B4_BBB9_9CA816A21EB7)) != 0) \
                 { \
                     UMOCK_LOG("Could not track the create call for %s.", MU_TOSTRING(name)); \
                     umock_c_indicate_error(UMOCK_C_ERROR); \
                 } \
             } \
-            return result;,) \
+            return result_C8417226_7442_49B4_BBB9_9CA816A21EB7;,) \
         } \
     }
+
+#define MOCKABLE_FUNCTION_END(...) \
+            } \
+            MOCK_FUNCTION_END(__VA_ARGS__)
 
 /* Codes_SRS_UMOCK_C_LIB_01_187: [ REGISTER_UMOCKC_PAIRED_CREATE_DESTROY_CALLS shall register with umock two calls that are expected to be paired. ]*/
 /* Codes_SRS_UMOCK_C_LIB_01_190: [ If create_call or destroy_call do not obey these rules, at the time of calling REGISTER_UMOCKC_PAIRED_CREATE_DESTROY_CALLS umock_c shall raise an error with the code UMOCK_C_INVALID_PAIRED_CALLS. ]*/
@@ -1441,6 +1468,14 @@ typedef struct MU_C2(_mock_call_modifier_,name) (*MU_C2(set_return_func_type_,na
         MU_C2(used_paired_handles_, create_call) = &MU_C2(paired_handles_, create_call); \
         MU_C2(used_paired_handles_, destroy_call) = &MU_C2(paired_handles_, create_call); \
     }
+
+/* Codes_SRS_UMOCK_C_LIB_01_219: [ REGISTER_GLOBAL_INTERFACE_HOOKS shall register as mock hooks the real functions for all the functions in a mockable interface. ]*/
+#define REGISTER_GLOBAL_INTERFACE_HOOKS(interface_name) \
+    MU_C2(register_reals_, interface_name)()
+
+/* Codes_SRS_UMOCK_C_LIB_01_220: [ UMOCK_REAL shall produce the name of the real function generated by umock. ]*/
+#define UMOCK_REAL(function_name) \
+    MU_C2(real_, function_name)
 
 #ifdef __cplusplus
     }

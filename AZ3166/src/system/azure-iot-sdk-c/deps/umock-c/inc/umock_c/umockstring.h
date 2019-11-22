@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-extern char* umockstring_clone(const char* source);
+char* umockstring_clone(const char* source);
 
 #ifdef __cplusplus
 }

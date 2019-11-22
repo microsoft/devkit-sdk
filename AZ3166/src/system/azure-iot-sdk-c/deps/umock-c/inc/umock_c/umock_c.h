@@ -4,15 +4,14 @@
 #ifndef UMOCK_C_H
 #define UMOCK_C_H
 
-#include "azure_macro_utils/macro_utils.h"
-#include "umock_c/umockcallrecorder.h"
-
 #ifdef __cplusplus
 #include <cstdlib>
-extern "C" {
 #else
 #include <stdlib.h>
 #endif
+
+#include "azure_macro_utils/macro_utils.h"
+#include "umock_c/umockcallrecorder.h"
 
 /* Define UMOCK_STATIC to static to make mocks private to compilation unit */
 #ifndef UMOCK_STATIC
@@ -92,14 +91,22 @@ typedef void(*ON_UMOCK_C_ERROR)(UMOCK_C_ERROR_CODE error_code);
         (void)value; \
     } \
 
-extern void umock_c_indicate_error(UMOCK_C_ERROR_CODE error_code);
-extern int umock_c_init(ON_UMOCK_C_ERROR on_umock_c_error);
-extern void umock_c_deinit(void);
-extern void umock_c_reset_all_calls(void);
-extern const char* umock_c_get_actual_calls(void);
-extern const char* umock_c_get_expected_calls(void);
-extern UMOCKCALLRECORDER_HANDLE umock_c_get_call_recorder(void);
-extern int umock_c_set_call_recorder(UMOCKCALLRECORDER_HANDLE umockc_call_recorder);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void umock_c_indicate_error(UMOCK_C_ERROR_CODE error_code);
+int umock_c_init(ON_UMOCK_C_ERROR on_umock_c_error);
+void umock_c_deinit(void);
+void umock_c_reset_all_calls(void);
+const char* umock_c_get_actual_calls(void);
+const char* umock_c_get_expected_calls(void);
+UMOCKCALLRECORDER_HANDLE umock_c_get_call_recorder(void);
+int umock_c_set_call_recorder(UMOCKCALLRECORDER_HANDLE umockc_call_recorder);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* Codes_SRS_UMOCK_C_LIB_01_065: [REGISTER_UMOCK_VALUE_TYPE shall register the type identified by value_type to be usable by umock_c for argument and return types and instruct umock_c which functions to use for getting the stringify, are_equal, copy and free.]*/
 /* Codes_SRS_UMOCK_C_LIB_01_197: [ If REGISTER_UMOCK_VALUE_TYPE fails, the on_error callback shall be called with UMOCK_C_REGISTER_TYPE_FAILED. ]*/
@@ -140,9 +147,5 @@ extern int umock_c_set_call_recorder(UMOCKCALLRECORDER_HANDLE umockc_call_record
 
 #include "umock_c/umock_c_internal.h"
 #include "umock_c/umock_c_prod.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* UMOCK_C_H */
