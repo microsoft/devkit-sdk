@@ -5,17 +5,20 @@
 #define UMOCKALLOC_H
 
 #ifdef __cplusplus
-extern "C" {
 #include <cstddef>
 #else
 #include <stddef.h>
 #endif
 
-extern void* umockalloc_malloc(size_t size);
-extern void* umockalloc_realloc(void* ptr, size_t size);
-extern void umockalloc_free(void* ptr);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern char* umockc_stringify_buffer(const void* bytes, size_t length);
+void* umockalloc_malloc(size_t size);
+void* umockalloc_realloc(void* ptr, size_t size);
+void umockalloc_free(void* ptr);
+
+char* umockc_stringify_buffer(const void* bytes, size_t length);
 
 #ifdef __cplusplus
 }

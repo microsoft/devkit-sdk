@@ -1,7 +1,7 @@
 param(
     [string]
     $Environment = "staging",
-    $ArduinoConfigFileName = "package_azureboard_index.json"
+    $ArduinoConfigFileName = "package_pnp_mxchip_board_preview_index.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -10,6 +10,7 @@ $CurrentDir = (Get-Location).Path
 Import-Module "C:\Program Files (x86)\WindowsPowerShell\Modules\AzureRM.Profile\4.6.0\AzureRM.Profile.psd1"
 Import-Module "C:\Program Files (x86)\WindowsPowerShell\Modules\Azure.Storage\4.2.1\Azure.Storage.psd1"
 Import-Module "C:\Program Files (x86)\WindowsPowerShell\Modules\Azure\5.1.2\Azure.psd1"
+
 
 $StorageHashTable = @{"azureboard2" = $env:Azureboard2StorageKey;
 					"azureboard" = $env:AzureboardStorageKey}; 
@@ -32,7 +33,7 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 
 	# Get current package version
 	$CurrentVersion =  Get-Content '.\system_version.txt' | Out-String
-	$CurrentVersion = $CurrentVersion.ToString().Trim()
+	$CurrentVersion = $CurrentVersion.ToString().Trim() + "-preview"
 
 	# Upload Arduino package
 	$ArduinoPackageFilePath = Join-Path -Path (Get-Location).Path -ChildPath "\TestResult\AZ3166-$CurrentVersion.zip"
@@ -44,16 +45,21 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 	$FirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$FirmwareFileName"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $FirmwareFilePath -Blob $FirmwareFileName -Force
 
+	#Upload Getstarted bin file
+	#$GetstartedFileName = "devkit-getstarted-" + $CurrentVersion + "." + $env:BUILD_NUMBER + "bin"
+	#$GetstartedFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$GetstartedFileName"
+	#Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $GetstartedFilePath -Blob $GetstartedFileName -Force
+
+	#Upload iotc bin file iotc-devkit-1.9.10.bin
+	$IoTCFileName = "iotc-devkit-" + $CurrentVersion + "." + $env:BUILD_NUMBER + "bin"
+	$IoTCFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$IoTCFileName"
+	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $IoTCFilePath -Blob $IoTCFileName -Force
+
 	# Upload Firmware bin file for OTA
-	$OTAFirmwareFileName = "devkit-firmware-latest.ota.bin"
+	$OTAFirmwareFileName = "devkit-firmware-latest.ota-preview.bin"
 	$OTAFirmwareFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$OTAFirmwareFileName"
 	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $OTAFirmwareFilePath -Blob $OTAFirmwareFileName -Force
-	
-	#Upload Getstarted bin file
-	$GetstartedFileName = "devkit-getstarted-" + $CurrentVersion + "." + $env:BUILD_NUMBER + "bin"
-	$GetstartedFilePath = Join-Path -Path (Get-Location).Path -ChildPath "TestResult\$GetstartedFileName"
-	Set-AzureStorageBlobContent -Context $StorageContext -Container $Environment -File $GetstartedFilePath -Blob $GetstartedFileName -Force
-	
+
 	################################################################################
 	# Step 2: Calculate package MD5 checksum and Update to  configuration JSON file#
 	################################################################################
@@ -73,6 +79,10 @@ foreach($StorageAccountName in $StorageHashTable.Keys)
 
 	if ($LastPlatform.version -eq $CurrentVersion)
 	{
+		echo LastPlatformversion ----> $LastPlatform.version
+		echo CurrentVersion -----> $CurrentVersion
+		
+		
 		# Update the latest version
 		$LastPlatform.url = "https://azureboard2.azureedge.net/$Environment/$ArduinoPackageContainer/$ArduinoPackageBlobName"
 		$LastPlatform.archiveFileName = $ArduinoPackageBlobName
