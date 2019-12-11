@@ -17,13 +17,25 @@
 */
 
 #include "mbed.h"
+#include "azure_c_shared_utility/tickcounter.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-uint32_t millis(void) {
-    return us_ticker_read() / 1000;
+static TICK_COUNTER_HANDLE tick_counter = NULL;
+
+uint64_t millis(void) {
+
+    uint64_t result;
+
+    if (tick_counter == NULL) {
+      tick_counter = tickcounter_create();
+    }
+
+    tickcounter_get_current_ms(tick_counter, &result);
+
+    return result;
 }
 
 // Interrupt-compatible version of micros
