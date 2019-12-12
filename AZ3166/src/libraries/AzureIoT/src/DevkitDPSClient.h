@@ -27,7 +27,7 @@ void DevkitDPSSetLogTrace(bool ison);
 void DevkitDPSSetAuthType(DPS_AUTH_TYPE auth_type);
 
 bool DevkitDPSClientStart(const char* dps_uri, const char* dps_scope_id, const char* registration_id = NULL,
-    char* udsString = NULL, const char* proxy_address = NULL, int proxy_port = 0);
+    char* udsString = NULL, const char* proxy_address = NULL, int proxy_port = 0, const char* provPayload = NULL);
 
 char* DevkitDPSGetIoTHubURI(void);
 char* DevkitDPSGetDeviceID(void);

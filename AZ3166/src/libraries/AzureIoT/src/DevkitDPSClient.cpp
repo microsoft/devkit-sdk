@@ -197,7 +197,7 @@ char* DiceInit(char* udsString)
 
 bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* global_prov_uri,
     const char* id_scope, const char* registration_id, char* udsString,
-    const char* proxy_address, int proxy_port)
+    const char* proxy_address, int proxy_port, const char* provPayload)
 {
     bool result = true;
     
@@ -251,17 +251,17 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
         LogError("Failed to initialize the platform.");
         result = false;
     }
-    else if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && prov_dev_security_init(SECURE_DEVICE_TYPE_SYMMETRIC_KEY) != 0)
-    {
-        LogError("Failed to initialize the platform.");
-        result = false;
-    }
-    else if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && prov_dev_set_symmetric_key_info(registration_id, udsString) != 0)
-    {
-        LogError("Failed to initialize the platform.");
-        result = false;
-    }
-    else
+	else if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && prov_dev_security_init(SECURE_DEVICE_TYPE_SYMMETRIC_KEY) != 0)
+	{
+		LogError("Failed to initialize the platform.");
+		result = false;
+	}
+	else if (g_auth_type == DPS_AUTH_SYMMETRIC_KEY && prov_dev_set_symmetric_key_info(registration_id, udsString) != 0)
+	{
+		LogError("Failed to initialize the platform.");
+		result = false;
+	}
+	else
     {
         memset(&user_ctx, 0, sizeof(CLIENT_SAMPLE_INFO));
 
@@ -291,12 +291,18 @@ bool __attribute__((section(".riot_fw"))) DevkitDPSClientStart(const char* globa
             }
 
             (void)Prov_Device_LL_SetOption(handle, "logtrace", &g_trace_on);
-            if (Prov_Device_LL_SetOption(handle, "TrustedCerts", certificates) != PROV_DEVICE_RESULT_OK)
+
+			if (provPayload != NULL && Prov_Device_LL_Set_Provisioning_Payload(handle, provPayload) != PROV_DEVICE_RESULT_OK)
+			{
+				LogError("Failed to set option \"Provisioning Payload\"");
+				result = false;
+			}
+            else if (Prov_Device_LL_SetOption(handle, "TrustedCerts", certificates) != PROV_DEVICE_RESULT_OK)
             {
                 LogError("Failed to set option \"TrustedCerts\"");
                 result = false;
             }
-            else if (Prov_Device_LL_Register_Device(handle, register_device_callback, &user_ctx, registation_status_callback, &user_ctx) != PROV_DEVICE_RESULT_OK)
+			else if (Prov_Device_LL_Register_Device(handle, register_device_callback, &user_ctx, registation_status_callback, &user_ctx) != PROV_DEVICE_RESULT_OK)
             {
                 LogError("failed calling Prov_Device_LL_Register_Device");
                 result = false;
