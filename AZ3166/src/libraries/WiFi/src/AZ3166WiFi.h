@@ -47,7 +47,7 @@ public:
      * param passphrase: Passphrase. Valid characters in a passphrase
      *        must be between ASCII 32-126 (decimal).
      */
-    int begin(char* ssid);
+    int begin(const char* ssid);
 
     /* Start Wifi connection with passphrase
      * the most secure supported mode will be automatically selected
@@ -56,7 +56,7 @@ public:
      * param passphrase: Passphrase. Valid characters in a passphrase
      *        must be between ASCII 32-126 (decimal).
      */
-    int begin(char* ssid, const char *passphrase);
+    int begin(const char* ssid, const char *passphrase);
 
 
     /* Start Wifi connection with access point mode
@@ -66,7 +66,7 @@ public:
      * param passphrase: Passphrase. Valid characters in a passphrase
      *        must be between ASCII 32-126 (decimal).
      */
-    int beginAP(char* ssid, const char *passphrase);
+    int beginAP(const char* ssid, const char *passphrase);
 
     /*
      * Disconnect from the network
