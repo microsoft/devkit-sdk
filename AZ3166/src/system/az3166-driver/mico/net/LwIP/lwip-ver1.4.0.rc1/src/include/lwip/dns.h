@@ -36,6 +36,12 @@
 
 #include "lwip/opt.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#else
+#endif
+
 #if LWIP_DNS /* don't build if not configured for use in lwipopts.h */
 
 /** DNS timer period */
@@ -112,5 +118,9 @@ err_t          dns_local_addhost(const char *hostname, const ip_addr_t *addr);
 #endif /* DNS_LOCAL_HOSTLIST && DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
 
 #endif /* LWIP_DNS */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LWIP_DNS_H__ */
