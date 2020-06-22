@@ -12,6 +12,7 @@ extern "C"
 #endif
 
 #define OPTION_MINI_SOLUTION_NAME "MiniSolution"
+#define OPTION_MODEL_ID "model_id"
 
 enum EVENT_TYPE
 {
