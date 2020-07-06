@@ -328,7 +328,9 @@ typedef struct
  * LWIP_DNS==1: Turn on DNS module. UDP must be available for DNS
  * transport.
  */
-#define LWIP_DNS                        (1)
+#define LWIP_DNS                        1
+#define DNS_LOCAL_HOSTLIST              1
+#define DNS_LOCAL_HOSTLIST_IS_DYNAMIC   1
 
 
 #ifdef LWIP_SO_RCVBUF

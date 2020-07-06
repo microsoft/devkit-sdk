@@ -788,7 +788,7 @@
  * transport.
  */
 #ifndef LWIP_DNS
-#define LWIP_DNS                        0
+#define LWIP_DNS                        1
 #endif
 
 /** DNS maximum number of entries to maintain locally. */
@@ -827,13 +827,13 @@
  *  that returns the IP address or INADDR_NONE if not found.
  */
 #ifndef DNS_LOCAL_HOSTLIST
-#define DNS_LOCAL_HOSTLIST              0
+#define DNS_LOCAL_HOSTLIST              1
 #endif /* DNS_LOCAL_HOSTLIST */
 
 /** If this is turned on, the local host-list can be dynamically changed
  *  at runtime. */
 #ifndef DNS_LOCAL_HOSTLIST_IS_DYNAMIC
-#define DNS_LOCAL_HOSTLIST_IS_DYNAMIC   0
+#define DNS_LOCAL_HOSTLIST_IS_DYNAMIC   1
 #endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
 
 /*
