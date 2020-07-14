@@ -463,7 +463,7 @@ void DevKitMQTTClient_Event_AddProp(EVENT_INSTANCE *message, const char *key, co
     Map_AddOrUpdate(propMap, key, value);
 }
 
-bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
+bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn, const char * modelId)
 {
     if (iotHubClientHandle != NULL)
     {
@@ -527,6 +527,16 @@ bool DevKitMQTTClient_Init(bool hasDeviceTwin, bool traceOn)
     int keepalive = MQTT_KEEPALIVE_INTERVAL_S;
     IoTHubClient_LL_SetOption(iotHubClientHandle, "keepalive", &keepalive);
     IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &traceOn);
+
+    // Sets the name of ModelId for PnP device.
+    if (modelId != NULL) {
+        if (IoTHubClient_LL_SetOption(iotHubClientHandle, OPTION_MODEL_ID, modelId) != IOTHUB_CLIENT_OK)
+        {
+            LogError("Failed to set option \"model_id\"");
+            return false;
+        }
+    }
+
     if (IoTHubClient_LL_SetOption(iotHubClientHandle, OPTION_TRUSTED_CERT, trustedCerts) != IOTHUB_CLIENT_OK)
     {
         LogError("Failed to set option \"TrustedCerts\"");
