@@ -50,10 +50,11 @@ void DevKitMQTTClient_Event_AddProp(EVENT_INSTANCE *message, const char * key, c
 *           The connection string is load from the EEPROM.
 * @param    hasDeviceTwin   Enable / disable device twin, default is disable.
 * @param    traceOn         Enable / disable IoT Hub trace, default is disable.
+* @param    modelId         Sets the name of ModelId for PnP device. Null means disable, default is NULL. 
 *
 * @return   Return true if initialize successfully, or false if fails.
 */
-bool DevKitMQTTClient_Init(bool hasDeviceTwin = false, bool traceOn = false);
+bool DevKitMQTTClient_Init(bool hasDeviceTwin = false, bool traceOn = false, const char * modelId = NULL);
 
 /**
 * @brief    This API sets a runtime option identified by parameter @p optionName
