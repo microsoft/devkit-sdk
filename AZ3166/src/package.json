@@ -1,0 +1,6 @@
+{
+    "name": "framework-arduinostm32mxchip",
+    "description": "Arduino Wiring-based Framework (ST STM32 MXChip Core)",
+    "url": "https://microsoft.github.io/azure-iot-developer-kit/",
+    "version":"2.0.0"
+}
