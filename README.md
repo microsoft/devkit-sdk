@@ -6,6 +6,7 @@ Please refer to the following sources for further MXCHIP needs:
 1. [Connect an MXCHIP AZ3166 to Azure IoT
 ](https://github.com/azure-rtos/getting-started/tree/master/MXChip/AZ3166) - A guide to connecting the MXCHIP using Azure RTOS
 1. [Azure SDK for Embedded C for Arduino](https://github.com/Azure/azure-sdk-for-c-arduino) - A purpose build SDK for connecting Arduino devices to IoT Hub
+1. [New CA certificate support](https://github.com/microsoft/devkit-sdk/issues/1083) - Workaround to add missing certificates to existing codebase
 
 ---
 
